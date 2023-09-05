@@ -1,0 +1,24 @@
+{
+	"name": "@ginjou/monorepo",
+	"private": true,
+	"packageManager": "pnpm@8.7.3",
+	"author": "zhong666 <hi@zhong666.me>",
+	"license": "MIT",
+	"scripts": {
+		"build": "turbo run build",
+		"test": "turbo run test",
+		"dev:test": "turbo run dev:test",
+		"lint": "eslint . --cache --cache-location ./node_modules/.cache/eslint"
+	},
+	"devDependencies": {
+		"@aa900031/eslint-config": "^0.2.4",
+		"@commitlint/config-conventional": "^17.7.0",
+		"@types/node": "^18.16.12",
+		"eslint": "^8.47.0",
+		"happy-dom": "^10.11.0",
+		"turbo": "^1.10.12",
+		"typescript": "^5.1.6",
+		"unbuild": "^2.0.0",
+		"vitest": "^0.34.3"
+	}
+}

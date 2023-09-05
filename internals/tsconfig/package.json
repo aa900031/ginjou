@@ -1,0 +1,9 @@
+{
+	"name": "@ginjou/tsconfig",
+	"version": "0.1.0",
+	"private": true,
+	"author": "zhong666 <hi@zhong666.me>",
+	"dependencies": {
+		"@tsconfig/node18": "^18.2.1"
+	}
+}

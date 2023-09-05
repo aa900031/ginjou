@@ -1,0 +1,29 @@
+{
+	"$schema": "https://json.schemastore.org/tsconfig",
+	"compilerOptions": {
+		"composite": true,
+		"lib": [
+			"DOM",
+			"DOM.Iterable",
+			"ESNext"
+		],
+		"target": "ESNext",
+		"module": "ESNext",
+		"moduleResolution": "NodeNext",
+		"resolveJsonModule": true,
+		"strict": true,
+		"noImplicitThis": true,
+		"allowSyntheticDefaultImports": true,
+		"useDefineForClassFields": true,
+		"strictNullChecks": true,
+		"strictFunctionTypes": true,
+		"jsx": "preserve",
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"skipLibCheck": true,
+		"paths": {
+			"@ginjou/query": ["../../packages/query/src/index.ts"],
+			"@ginjou/vue-query": ["../../packages/vue-query/src/index.ts"]
+		}
+	}
+}
