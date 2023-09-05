@@ -1,0 +1,14 @@
+{
+	"extends": "@ginjou/tsconfig/app.json",
+	"include": [
+		"src/**/*.ts",
+		"test/**/*.ts"
+	],
+	"compilerOptions": {
+		"lib": [],
+		"types": [
+			"node",
+			"vitest/globals"
+		]
+	}
+}
