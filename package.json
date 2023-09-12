@@ -1,7 +1,7 @@
 {
 	"name": "@ginjou/monorepo",
 	"private": true,
-	"packageManager": "pnpm@8.7.4",
+	"packageManager": "pnpm@8.7.5",
 	"author": "zhong666 <hi@zhong666.me>",
 	"license": "MIT",
 	"scripts": {
@@ -13,12 +13,12 @@
 	"devDependencies": {
 		"@aa900031/eslint-config": "^0.2.4",
 		"@commitlint/config-conventional": "^17.7.0",
-		"@types/node": "^18.16.12",
-		"eslint": "^8.47.0",
-		"happy-dom": "^11.0.0",
-		"turbo": "^1.10.12",
-		"typescript": "^5.1.6",
+		"@types/node": "^18.17.15",
+		"eslint": "^8.49.0",
+		"happy-dom": "^11.0.3",
+		"turbo": "^1.10.13",
+		"typescript": "^5.2.2",
 		"unbuild": "^2.0.0",
-		"vitest": "^0.34.3"
+		"vitest": "^0.34.4"
 	}
 }
