@@ -3,11 +3,13 @@
 	"extends": [
 		"config:base",
 		"group:allNonMajor",
-		":semanticCommitTypeAll(chore)"
+		":semanticCommitTypeAll(chore)",
+		":disablePeerDependencies"
 	],
 	"meteor": {
 		"enabled": false
 	},
+	"rangeStrategy": "bump",
 	"npm": {
 		"commitMessageTopic": "{{prettyDepType}} {{depName}}"
 	}
