@@ -1,5 +1,5 @@
 {
-	"extends": "@ginjou/tsconfig/app.json",
+	"extends": "@ginjou/tsconfig/base.json",
 	"include": [
 		"src/**/*.ts",
 		"test/**/*.ts"

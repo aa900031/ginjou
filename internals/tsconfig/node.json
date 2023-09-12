@@ -3,8 +3,8 @@
 	"extends": "@tsconfig/node18/tsconfig.json",
 	"compilerOptions": {
 		"composite": true,
-		"module": "ESNext",
-		"moduleResolution": "Node",
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext",
 		"types": [
 			"node"
 		]
