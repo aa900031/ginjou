@@ -19,7 +19,10 @@ export interface UseGetListProps<
 	filters?: MaybeRef<Filters | undefined>
 	meta?: MaybeRef<Meta | undefined>
 	fetcherName?: MaybeRef<string | undefined>
-	queryOptions?: QueryOptions<GetListResult<TData>, TError, GetListResult<TResultData>>
+	queryOptions?: MaybeRef<
+		| QueryOptions<GetListResult<TData>, TError, GetListResult<TResultData>>
+		| undefined
+	>
 }
 
 export interface UseGetListContext {
@@ -56,7 +59,8 @@ export function useGetList<
 		fetcherName: unref(props.fetcherName),
 	}))
 
-	return useQuery<GetListResult<TData>, TError, GetListResult<TResultData>>({
+	return useQuery<GetListResult<TData>, TError, GetListResult<TResultData>>(computed(() => ({
+		...unref(props.queryOptions),
 		queryKey: computed(() => genGetListQueryKey(unref(getListProps))),
 		queryFn: createGetListQueryFn<TData>(
 			() => unref(getListProps),
@@ -64,10 +68,9 @@ export function useGetList<
 			fetchers,
 		),
 		enabled: computed(() => (
-			unref(props.queryOptions?.enabled)
+			unref(unref(props.queryOptions)?.enabled)
 			?? !!unref(getListProps).resource
 		)),
-		...props.queryOptions,
 		queryClient,
-	})
+	})))
 }

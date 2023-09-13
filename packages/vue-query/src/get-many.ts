@@ -17,7 +17,10 @@ export interface UseGetManyProps<
 	meta?: MaybeRef<Meta | undefined>
 	aggregate?: MaybeRef<boolean | undefined>
 	fetcherName?: MaybeRef<string | undefined>
-	queryOptions?: QueryOptions<GetManyResult<TData>, TError, GetManyResult<TResultData>>
+	queryOptions?: MaybeRef<
+		| QueryOptions<GetManyResult<TData>, TError, GetManyResult<TResultData>>
+		| undefined
+	>
 }
 
 export interface UseGetManyContext {
@@ -56,7 +59,8 @@ export function useGetMany<
 
 	const getManyPropsGetter = () => unref(getManyProps)
 
-	return useQuery<GetManyResult<TData>, TError, GetManyResult<TResultData>>({
+	return useQuery<GetManyResult<TData>, TError, GetManyResult<TResultData>>(computed(() => ({
+		...unref(props.queryOptions),
 		queryKey: computed(() => genGetManyQueryKey(unref(getManyProps))),
 		queryFn: createGetManyQueryFn<TData>(
 			getManyPropsGetter,
@@ -68,13 +72,12 @@ export function useGetMany<
 			queryClient,
 		),
 		enabled: computed(() => (
-			unref(props.queryOptions?.enabled)
+			unref(unref(props.queryOptions)?.enabled)
 			?? (
 				!!unref(getManyProps).resource
 				&& unref(getManyProps).ids != null
 			)
 		)),
-		...props.queryOptions,
 		queryClient,
-	})
+	})))
 }

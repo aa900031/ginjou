@@ -20,7 +20,10 @@ export interface UseGetInfiniteListProps<
 	filters?: MaybeRef<Filters | undefined>
 	meta?: MaybeRef<Meta | undefined>
 	fetcherName?: MaybeRef<string | undefined>
-	queryOptions?: QueryOptions<GetInfiniteListResult<TData, TPageParam>, TError, GetInfiniteListResult<TResultData, TPageParam>>
+	queryOptions?: MaybeRef<
+		| QueryOptions<GetInfiniteListResult<TData, TPageParam>, TError, GetInfiniteListResult<TResultData, TPageParam>>
+		| undefined
+	>
 }
 
 export interface UseGetInfiniteListContext {
@@ -59,16 +62,16 @@ export function useGetInfiniteList<
 		fetcherName: unref(props.fetcherName),
 	}))
 
-	return useInfiniteQuery<GetInfiniteListResult<TData, TPageParam>, TError, GetInfiniteListResult<TResultData, TPageParam>, any>({
+	return useInfiniteQuery<GetInfiniteListResult<TData, TPageParam>, TError, GetInfiniteListResult<TResultData, TPageParam>, any>(computed(() => ({
+		getNextPageParam,
+		getPreviousPageParam,
+		...unref(props.queryOptions),
 		queryKey: computed(() => genGetListQueryKey(unref(getListProps))),
 		queryFn: createGetInfiniteListQueryFn<TData, TPageParam>(
 			() => unref(getListProps),
 			queryClient,
 			fetchers,
 		),
-		getNextPageParam,
-		getPreviousPageParam,
-		...props.queryOptions,
 		queryClient,
-	})
+	})))
 }

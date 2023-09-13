@@ -1,3 +1,4 @@
+import { type MaybeRef, computed, unref } from 'vue-demi'
 import type { QueryClient, UseMutationOptions, UseMutationReturnType } from '@tanstack/vue-query'
 import { useMutation } from '@tanstack/vue-query'
 import { createCreateManyMutationFn, createCreateManySuccessHandler } from '@ginjou/query'
@@ -10,9 +11,12 @@ export interface UseCreateManyProps<
 	TError = unknown,
 	TParams extends Record<string, any> = any,
 > {
-	mutationOptions?: Omit<
-		UseMutationOptions<CreateManyResult<TData>, TError, CreateManyMutationProps<TParams>, any>,
-		| 'mutationFn'
+	mutationOptions?: MaybeRef<
+		| Omit<
+				UseMutationOptions<CreateManyResult<TData>, TError, CreateManyMutationProps<TParams>, any>,
+				| 'mutationFn'
+			>
+		| undefined
 	>
 }
 
@@ -40,7 +44,8 @@ export function useCreateMany<
 	const queryClient = useQueryClientContext(context)
 	const fetchers = useFetchersContext({ ...context, strict: true })
 
-	const mutation = useMutation({
+	const mutation = useMutation(computed(() => ({
+		...unref(props.mutationOptions) as any,
 		mutationFn: createCreateManyMutationFn<TData, TParams>(
 			queryClient,
 			fetchers,
@@ -48,9 +53,8 @@ export function useCreateMany<
 		onSuccess: createCreateManySuccessHandler<TData, TParams>(
 			queryClient,
 		),
-		...props.mutationOptions as any,
 		queryClient,
-	})
+	})))
 
 	const fn = mutation.mutateAsync
 	Object.assign(fn, mutation)

@@ -1,3 +1,4 @@
+import { type MaybeRef, computed, unref } from 'vue-demi'
 import type { QueryClient, UseMutationReturnType } from '@tanstack/vue-query'
 import { useMutation } from '@tanstack/vue-query'
 import type { BaseRecord, CreateMutationProps, CreateResult, Fetchers } from '@ginjou/query'
@@ -11,7 +12,10 @@ export interface UseCreateProps<
 	TError = unknown,
 	TParams extends Record<string, any> = any,
 > {
-	mutationOptions?: MutationOptions<CreateResult<TData>, TError, CreateMutationProps<TParams>>
+	mutationOptions?: MaybeRef<
+		| MutationOptions<CreateResult<TData>, TError, CreateMutationProps<TParams>>
+		| undefined
+	>
 }
 
 export interface UseCreateContext {
@@ -38,7 +42,8 @@ export function useCreate<
 	const queryClient = useQueryClientContext(context)
 	const fetchers = useFetchersContext({ ...context, strict: true })
 
-	const mutation = useMutation<CreateResult<TData>, TError, CreateMutationProps<TParams>, any>({
+	const mutation = useMutation<CreateResult<TData>, TError, CreateMutationProps<TParams>, any>(computed(() => ({
+		...unref(props?.mutationOptions as any),
 		mutationFn: createCreateMutationFn<TData, TParams>(
 			queryClient,
 			fetchers,
@@ -46,9 +51,8 @@ export function useCreate<
 		onSuccess: createCreateSuccessHandler<TData, TParams>(
 			queryClient,
 		),
-		...props?.mutationOptions as any,
 		queryClient,
-	})
+	})))
 
 	const fn = mutation.mutateAsync
 	Object.assign(fn, mutation)

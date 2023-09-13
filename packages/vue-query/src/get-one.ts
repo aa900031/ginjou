@@ -17,7 +17,10 @@ export interface UseGetOneProps<
 	resource?: MaybeRef<string | undefined>
 	meta?: MaybeRef<Meta | undefined>
 	fetcherName?: MaybeRef<string | undefined>
-	queryOptions?: QueryOptions<GetOneResult<TData>, TError, GetOneResult<TResultData>>
+	queryOptions?: MaybeRef<
+		| QueryOptions<GetOneResult<TData>, TError, GetOneResult<TResultData>>
+		| undefined
+	>
 }
 
 export interface UseGetOneContext {
@@ -52,7 +55,8 @@ export function useGetOne<
 		fetcherName: unref(props.fetcherName),
 	}))
 
-	return useQuery<GetOneResult<TData>, TError, GetOneResult<TResultData>>({
+	return useQuery<GetOneResult<TData>, TError, GetOneResult<TResultData>>(computed(() => ({
+		...unref(props.queryOptions),
 		queryKey: computed(() => genGetOneQueryKey(unref(getOneProps))),
 		queryFn: createGetOneQueryFn(
 			() => unref(getOneProps),
@@ -60,13 +64,12 @@ export function useGetOne<
 			fetchers,
 		),
 		enabled: computed(() => (
-			unref(props.queryOptions?.enabled)
+			unref(unref(props.queryOptions)?.enabled)
 			?? (
 				!!unref(getOneProps).resource
 				&& unref(getOneProps).id != null
 			)
 		)),
-		...props.queryOptions,
 		queryClient,
-	})
+	})))
 }

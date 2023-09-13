@@ -23,7 +23,10 @@ export interface UseCustomProps<
 	headers?: MaybeRef<CustomProps<TQuery, TPayload>['headers'] | undefined>
 	meta?: MaybeRef<Meta | undefined>
 	fetcherName?: MaybeRef<string | undefined>
-	queryOptions?: QueryOptions<CustomResult<TData>, TError, CustomResult<TResultData>>
+	queryOptions?: MaybeRef<
+		| QueryOptions<CustomResult<TData>, TError, CustomResult<TResultData>>
+		| undefined
+	>
 }
 
 export interface UseCustomContext {
@@ -57,13 +60,13 @@ export function useCustom<
 		queryOptions: unref(props.queryOptions),
 	}))
 
-	return useQuery<CustomResult<TData>, TError, CustomResult<TResultData>>({
+	return useQuery<CustomResult<TData>, TError, CustomResult<TResultData>>(computed(() => ({
+		...unref(props.queryOptions),
 		queryKey: computed(() => genCustomQueryKey(unref(customProps))),
 		queryFn: createCustomQueryFn<TData, TQuery, TPayload>(
 			() => unref(customProps),
 			fetchers,
 		),
-		...props.queryOptions,
 		queryClient,
-	})
+	})))
 }

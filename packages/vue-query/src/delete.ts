@@ -1,6 +1,8 @@
 import { type QueryClient, type UseMutationReturnType, useMutation } from '@tanstack/vue-query'
 import { createDeleteErrorHandler, createDeleteMutateHandler, createDeleteMutationFn, createDeleteSettledHandler, createDeleteSuccessHandler } from '@ginjou/query'
 import type { BaseRecord, DeleteMutationContext, DeleteMutationProps, DeleteOneResult, Fetchers } from '@ginjou/query'
+import type { MaybeRef } from 'vue-demi'
+import { computed, unref } from 'vue-demi'
 import { useQueryClientContext } from './query-client'
 import { useFetchersContext } from './fetchers'
 import type { MutationOptions } from './types'
@@ -10,7 +12,10 @@ export interface UseDeleteProps<
 	TError = unknown,
 	TParams extends Record<string, any> = any,
 > {
-	mutationOptions?: MutationOptions<DeleteOneResult<TData>, TError, DeleteMutationProps<TParams>, DeleteMutationContext<TData>>
+	mutationOptions?: MaybeRef<
+		| MutationOptions<DeleteOneResult<TData>, TError, DeleteMutationProps<TParams>, DeleteMutationContext<TData>>
+		| undefined
+	>
 }
 
 export interface UseDeleteContext {
@@ -37,7 +42,8 @@ export function useDelete<
 	const queryClient = useQueryClientContext(context)
 	const fetchers = useFetchersContext({ ...context, strict: true })
 
-	const mutation = useMutation<DeleteOneResult<TData>, TError, DeleteMutationProps<TParams>, DeleteMutationContext<TData>>({
+	const mutation = useMutation<DeleteOneResult<TData>, TError, DeleteMutationProps<TParams>, DeleteMutationContext<TData>>(computed(() => ({
+		...unref(props?.mutationOptions) as any,
 		mutationFn: createDeleteMutationFn<TData, TParams>(
 			queryClient,
 			fetchers,
@@ -54,9 +60,8 @@ export function useDelete<
 		onSuccess: createDeleteSuccessHandler<TData, TParams>(
 			queryClient,
 		),
-		...props?.mutationOptions as any,
 		queryClient,
-	})
+	})))
 
 	const fn = mutation.mutateAsync
 	Object.assign(fn, mutation)

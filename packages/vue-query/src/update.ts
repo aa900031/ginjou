@@ -1,3 +1,5 @@
+import type { MaybeRef } from 'vue-demi'
+import { computed, unref } from 'vue-demi'
 import { type QueryClient, type UseMutationReturnType, useMutation } from '@tanstack/vue-query'
 import type { BaseRecord, Fetchers, UpdateMutationContext, UpdateMutationProps, UpdateResult } from '@ginjou/query'
 import { createUpdateErrorHandler, createUpdateMutateHandler, createUpdateMutationFn, createUpdateSettledHandler } from '@ginjou/query'
@@ -10,7 +12,10 @@ export interface UseUpdateProps<
 	TError = unknown,
 	TParams extends Record<string, any> = any,
 > {
-	mutationOptions?: MutationOptions<UpdateResult<TData>, TError, UpdateMutationProps<TParams>, UpdateMutationContext<TData>>
+	mutationOptions?: MaybeRef<
+		| MutationOptions<UpdateResult<TData>, TError, UpdateMutationProps<TParams>, UpdateMutationContext<TData>>
+		| undefined
+	>
 }
 
 export interface UseUpdateContext {
@@ -37,7 +42,8 @@ export function useUpdate<
 	const queryClient = useQueryClientContext(context)
 	const fetchers = useFetchersContext({ ...context, strict: true })
 
-	const mutation = useMutation<UpdateResult<TData>, TError, UpdateMutationProps<TParams>, UpdateMutationContext<TData>>({
+	const mutation = useMutation<UpdateResult<TData>, TError, UpdateMutationProps<TParams>, UpdateMutationContext<TData>>(computed(() => ({
+		...unref(props?.mutationOptions) as any,
 		mutationFn: createUpdateMutationFn<TData, TParams>(
 			queryClient,
 			fetchers,
@@ -51,9 +57,8 @@ export function useUpdate<
 		onError: createUpdateErrorHandler<TData, TError, TParams>(
 			queryClient,
 		),
-		...props?.mutationOptions as any,
 		queryClient,
-	})
+	})))
 
 	const fn = mutation.mutateAsync
 	Object.assign(fn, mutation)

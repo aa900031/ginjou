@@ -1,3 +1,4 @@
+import { type MaybeRef, computed, unref } from 'vue-demi'
 import type { QueryClient, UseMutationReturnType } from '@tanstack/vue-query'
 import { useMutation } from '@tanstack/vue-query'
 import type { BaseRecord, CustomMutationProps, CustomResult, Fetchers } from '@ginjou/query'
@@ -12,7 +13,10 @@ export interface UseCustomMutationProps<
 	TQuery = unknown,
 	TPayload = unknown,
 > {
-	mutationOptions?: MutationOptions<CustomResult<TData>, TError, CustomMutationProps<TQuery, TPayload>>
+	mutationOptions?: MaybeRef<
+		| MutationOptions<CustomResult<TData>, TError, CustomMutationProps<TQuery, TPayload>>
+		| undefined
+	>
 }
 
 export interface UseCustomMutationContext {
@@ -41,13 +45,13 @@ export function useCustomMutation<
 	const queryClient = useQueryClientContext(context)
 	const fetchers = useFetchersContext({ ...context, strict: true })
 
-	const mutation = useMutation<CustomResult<TData>, TError, CustomMutationProps<TQuery, TPayload>, any>({
+	const mutation = useMutation<CustomResult<TData>, TError, CustomMutationProps<TQuery, TPayload>, any>(computed(() => ({
+		...unref(props?.mutationOptions) as any,
 		mutationFn: createCustomMutationFn<TData, TQuery, TPayload>(
 			fetchers,
 		),
-		...props?.mutationOptions as any,
 		queryClient,
-	})
+	})))
 
 	const fn = mutation.mutateAsync
 	Object.assign(fn, mutation)
