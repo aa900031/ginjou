@@ -11,12 +11,12 @@
 		"lint": "eslint . --cache --cache-location ./node_modules/.cache/eslint"
 	},
 	"devDependencies": {
-		"@aa900031/eslint-config": "^0.2.5",
+		"@aa900031/eslint-config": "^0.2.6",
 		"@commitlint/config-conventional": "^17.7.0",
-		"@types/node": "^18.17.15",
+		"@types/node": "^18.17.17",
 		"eslint": "^8.49.0",
-		"happy-dom": "^11.0.5",
-		"turbo": "^1.10.13",
+		"happy-dom": "^11.2.0",
+		"turbo": "^1.10.14",
 		"typescript": "^5.2.2",
 		"unbuild": "^2.0.0",
 		"vitest": "^0.34.4"
