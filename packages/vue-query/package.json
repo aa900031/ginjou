@@ -35,7 +35,8 @@
 	"scripts": {
 		"build": "unbuild",
 		"test": "vitest run",
-		"dev:test": "vitest"
+		"dev:test": "vitest",
+		"release": "release-it --ci"
 	},
 	"peerDependencies": {
 		"@tanstack/vue-query": "^4.*",
@@ -55,6 +56,7 @@
 		"vue-demi": "latest"
 	},
 	"devDependencies": {
+		"@ginjou/release-it-config": "workspace:*",
 		"@ginjou/tsconfig": "workspace:*",
 		"@tanstack/vue-query": "^4.35.3",
 		"@testing-library/vue": "^7.0.0",

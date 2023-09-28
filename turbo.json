@@ -13,6 +13,9 @@
 		},
 		"dev:test": {
 			"cache": false
+		},
+		"release": {
+			"cache": false
 		}
 	}
 }

@@ -35,12 +35,14 @@
 	"scripts": {
 		"build": "unbuild",
 		"test": "vitest run",
-		"dev:test": "vitest"
+		"dev:test": "vitest",
+		"release": "release-it --ci"
 	},
 	"peerDependencies": {
 		"@tanstack/query-core": "^4.*.*"
 	},
 	"devDependencies": {
+		"@ginjou/release-it-config": "workspace:*",
 		"@ginjou/tsconfig": "workspace:*",
 		"@tanstack/query-core": "^4.35.3"
 	}
