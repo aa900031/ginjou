@@ -8,11 +8,13 @@
 		"build": "turbo run build",
 		"test": "turbo run test",
 		"dev:test": "turbo run dev:test",
+		"release": "turbo run release",
 		"lint": "eslint . --cache --cache-location ./node_modules/.cache/eslint"
 	},
 	"devDependencies": {
 		"@aa900031/eslint-config": "^0.2.6",
 		"@commitlint/config-conventional": "^17.7.0",
+		"@release-it/conventional-changelog": "^7.0.2",
 		"@types/node": "^18.17.17",
 		"conventional-changelog-unjs": "^0.1.0",
 		"eslint": "^8.49.0",

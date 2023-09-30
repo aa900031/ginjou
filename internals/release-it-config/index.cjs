@@ -19,9 +19,9 @@ module.exports = {
 	},
 	git: {
 		push: false,
-		tagName: `${VERSION_TEMPLATE}@${VERSION_TEMPLATE}`,
+		tagName: `${PKG_NAME}@${VERSION_TEMPLATE}`,
 		commitsPath: CURRENT_PATH,
-		commitMessage: `chore(release): ${PKG_NAME}v${VERSION_TEMPLATE}`,
+		commitMessage: `chore(release): ${PKG_NAME} v${VERSION_TEMPLATE}`,
 	},
 	github: {
 		release: false,
