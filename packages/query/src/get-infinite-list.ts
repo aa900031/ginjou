@@ -2,7 +2,7 @@ import type { QueryClient, QueryFunction, QueryFunctionContext, QueryKey } from 
 import type { GetListQueryProps } from './get-list'
 import { resolvePagination as resolveListPagination } from './get-list'
 import { genGetOneQueryKey } from './get-one'
-import type { BaseRecord, GetInfiniteListResult, Pagination, PaginationPayload } from './fetcher'
+import type { BaseRecord, GetInfiniteListResult, GetOneResult, Pagination, PaginationPayload } from './fetcher'
 import type { Fetchers } from './fetchers'
 import { getFetcher } from './fetchers'
 
@@ -83,9 +83,9 @@ function updateCache<
 	result: GetInfiniteListResult<TData>,
 ): void {
 	for (const record of result.data) {
-		queryClient.setQueryData(
+		queryClient.setQueryData<GetOneResult<TData>>(
 			genGetOneQueryKey({ ...props, id: record.id! }),
-			(old: TData | undefined) => old ?? record,
+			old => old ?? { data: record },
 		)
 	}
 }

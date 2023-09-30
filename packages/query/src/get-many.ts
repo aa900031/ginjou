@@ -3,7 +3,7 @@ import { findGetOneCached, genGetOneQueryKey } from './get-one'
 import { fakeMany } from './helper'
 import { genResourceQueryKey } from './resource'
 import { createAggregrateFn } from './aggregrate'
-import type { BaseRecord, Fetcher, GetManyProps, GetManyResult, Meta } from './fetcher'
+import type { BaseRecord, Fetcher, GetManyProps, GetManyResult, GetOneResult, Meta } from './fetcher'
 import type { Fetchers } from './fetchers'
 import { getFetcher } from './fetchers'
 
@@ -150,9 +150,9 @@ function updateCache<
 		if (record.id == null)
 			continue
 
-		queryClient.setQueryData(
+		queryClient.setQueryData<GetOneResult<TData>>(
 			genGetOneQueryKey({ ...props, id: record.id }),
-			(old: TData | undefined) => old ?? record,
+			old => old ?? { data: record },
 		)
 	}
 }

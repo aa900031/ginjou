@@ -1,7 +1,7 @@
 import type { QueryClient, QueryFunction, QueryKey } from '@tanstack/query-core'
 import { genGetOneQueryKey } from './get-one'
 import { genResourceQueryKey } from './resource'
-import type { BaseRecord, GetListProps, GetListResult, Meta, Pagination, PaginationPayload } from './fetcher'
+import type { BaseRecord, GetListProps, GetListResult, GetOneResult, Meta, Pagination, PaginationPayload } from './fetcher'
 import type { Fetchers } from './fetchers'
 import { getFetcher } from './fetchers'
 
@@ -69,9 +69,9 @@ function updateCache<
 		if (record.id == null)
 			continue
 
-		queryClient.setQueryData(
+		queryClient.setQueryData<GetOneResult<TData>>(
 			genGetOneQueryKey({ ...props, id: record.id }),
-			(old: TData | undefined) => old ?? record,
+			old => old ?? { data: record },
 		)
 	}
 }

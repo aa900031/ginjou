@@ -3,7 +3,7 @@ import { InvalidateTarget, type InvalidateTargetType, triggerInvalidates } from 
 import { fakeMany } from './helper'
 import { genGetOneQueryKey } from './get-one'
 import type { SuccessHandler } from './types'
-import type { BaseRecord, CreateManyProps, CreateManyResult } from './fetcher'
+import type { BaseRecord, CreateManyProps, CreateManyResult, GetOneResult } from './fetcher'
 import type { Fetchers } from './fetchers'
 import { getFetcher } from './fetchers'
 
@@ -69,9 +69,9 @@ function updateCache<
 		if (record.id == null)
 			continue
 
-		queryClient.setQueryData(
+		queryClient.setQueryData<GetOneResult<TData>>(
 			genGetOneQueryKey({ ...props, id: record.id }),
-			(old: TData | undefined) => old ?? record,
+			old => old ?? { data: record },
 		)
 	}
 }
