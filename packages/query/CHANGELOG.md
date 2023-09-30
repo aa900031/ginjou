@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-alpha.3
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/query@0.1.0-alpha.2...@ginjou/query@0.1.0-alpha.3)
+
+### 🩹 Fixes
+
+-  Cache getOne with data ([6288866](https://github.com/aa900031/ginjou/commit/6288866b07e680dacc6e40bcf0755104bc59a0c7))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-alpha.2
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/query@0.1.0-alpha.1...@ginjou/query@0.1.0-alpha.2)
