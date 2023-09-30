@@ -52,7 +52,7 @@
 		}
 	},
 	"dependencies": {
-		"@ginjou/query": "workspace:*",
+		"@ginjou/query": "workspace:^",
 		"vue-demi": "latest"
 	},
 	"devDependencies": {

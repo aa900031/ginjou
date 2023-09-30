@@ -68,7 +68,7 @@ importers:
   packages/vue-query:
     dependencies:
       '@ginjou/query':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../query
       vue-demi:
         specifier: latest
