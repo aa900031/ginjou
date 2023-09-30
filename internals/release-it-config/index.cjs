@@ -1,4 +1,7 @@
+const process = require('node:process')
+
 const CURRENT_PATH = './'
+// eslint-disable-next-line no-template-curly-in-string
 const VERSION_TEMPLATE = '${version}'
 const PKG_NAME = process.env.npm_package_name
 
