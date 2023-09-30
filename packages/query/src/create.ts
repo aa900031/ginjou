@@ -61,8 +61,11 @@ function updateCache<
 	props: CreateMutationProps<TParams>,
 	result: CreateResult<TData>,
 ) {
+	if (result.data.id == null)
+		return
+
 	queryClient.setQueryData(
-		genGetOneQueryKey({ ...props, id: result.data.id! }),
+		genGetOneQueryKey({ ...props, id: result.data.id }),
 		result,
 	)
 }

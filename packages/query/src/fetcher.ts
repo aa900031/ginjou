@@ -3,7 +3,7 @@ export type Meta = Record<string, any>
 export type RecordKey = string | number
 
 export type BaseRecord = {
-	id?: RecordKey
+	id?: RecordKey | null
 } & Partial<Record<string, any>>
 
 export const SortOrder = {

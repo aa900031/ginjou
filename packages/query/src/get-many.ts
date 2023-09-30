@@ -147,8 +147,11 @@ function updateCache<
 	result: GetManyResult<TData>,
 ): void {
 	for (const record of result.data) {
+		if (record.id == null)
+			continue
+
 		queryClient.setQueryData(
-			genGetOneQueryKey({ ...props, id: record.id! }),
+			genGetOneQueryKey({ ...props, id: record.id }),
 			(old: TData | undefined) => old ?? record,
 		)
 	}
