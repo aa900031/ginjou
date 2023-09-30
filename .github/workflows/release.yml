@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     tags:
-      - '\@ginjou/*\@[0-9]+(\.[0-9]+)*([-\.]\S+)?'
+      - '\@ginjou/*\@[0-9]+\.[0-9]+\.[0-9]+*'
 
 permissions:
   contents: write
