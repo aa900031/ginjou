@@ -22,6 +22,8 @@ module.exports = {
 		tagName: `${PKG_NAME}@${VERSION_TEMPLATE}`,
 		commitsPath: CURRENT_PATH,
 		commitMessage: `chore(release): ${PKG_NAME} v${VERSION_TEMPLATE}`,
+		requireCommits: true,
+		requireCommitsFail: false,
 	},
 	github: {
 		release: false,
