@@ -22,9 +22,9 @@ jobs:
       - name: Setup Nodejs
         uses: actions/setup-node@v3
         with:
-          node-version: 18
           cache: pnpm
           registry-url: https://registry.npmjs.org/
+          node-version-file: .tool-versions
 
       - name: Install Dependencies
         run: pnpm i
