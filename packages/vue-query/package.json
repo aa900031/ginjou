@@ -58,8 +58,8 @@
 	"devDependencies": {
 		"@ginjou/release-it-config": "workspace:*",
 		"@ginjou/tsconfig": "workspace:*",
-		"@tanstack/vue-query": "^4.35.6",
+		"@tanstack/vue-query": "^4.37.1",
 		"@testing-library/vue": "^7.0.0",
-		"vue": "^3.3.4"
+		"vue": "^3.3.7"
 	}
 }
