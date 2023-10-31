@@ -18,7 +18,7 @@
 		"@types/node": "^18.18.7",
 		"conventional-changelog-unjs": "^0.1.0",
 		"eslint": "^8.52.0",
-		"happy-dom": "^11.2.0",
+		"happy-dom": "^12.10.3",
 		"release-it": "^16.2.1",
 		"turbo": "^1.10.16",
 		"typescript": "^5.2.2",
