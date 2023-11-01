@@ -1,5 +1,5 @@
 {
-	"extends": "@ginjou/tsconfig/base.json",
+	"extends": "./tsconfig.app.json",
 	"compilerOptions": {
 		"lib": [],
 		"types": [
@@ -10,5 +10,6 @@
 	"include": [
 		"src/**/*.ts",
 		"test/**/*.ts"
-	]
+	],
+	"exclude": []
 }
