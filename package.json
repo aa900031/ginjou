@@ -12,7 +12,7 @@
 		"lint": "eslint . --cache --cache-location ./node_modules/.cache/eslint"
 	},
 	"devDependencies": {
-		"@aa900031/eslint-config": "^0.2.7",
+		"@aa900031/eslint-config": "^1.0.0",
 		"@release-it/conventional-changelog": "^7.0.2",
 		"@types/node": "^18.18.7",
 		"conventional-changelog-unjs": "^0.1.0",
