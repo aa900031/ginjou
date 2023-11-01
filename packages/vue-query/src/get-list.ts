@@ -7,6 +7,7 @@ import { createGetListQueryFn, genGetListQueryKey } from '@ginjou/query'
 import { useFetchersContext } from './fetchers'
 import { useQueryClientContext } from './query-client'
 import type { QueryOptions } from './types'
+import { toEnabledRef } from './utils'
 
 export interface UseGetListProps<
 	TData extends BaseRecord = BaseRecord,
@@ -67,10 +68,7 @@ export function useGetList<
 			queryClient,
 			fetchers,
 		),
-		enabled: computed(() => (
-			unref(unref(props.queryOptions)?.enabled)
-			?? !!unref(getListProps).resource
-		)),
+		enabled: toEnabledRef(() => !!unref(getListProps).resource, props.queryOptions),
 		queryClient,
 	})))
 }

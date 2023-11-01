@@ -6,6 +6,7 @@ import { type MaybeRef, computed, unref } from 'vue-demi'
 import { useQueryClientContext } from './query-client'
 import { useFetchersContext } from './fetchers'
 import type { QueryOptions } from './types'
+import { toEnabledRef } from './utils'
 
 export interface UseGetManyProps<
 	TData extends BaseRecord = BaseRecord,
@@ -71,13 +72,10 @@ export function useGetMany<
 			getManyPropsGetter,
 			queryClient,
 		),
-		enabled: computed(() => (
-			unref(unref(props.queryOptions)?.enabled)
-			?? (
-				!!unref(getManyProps).resource
-				&& unref(getManyProps).ids != null
-			)
-		)),
+		enabled: toEnabledRef(() => (
+			!!unref(getManyProps).resource
+			&& unref(getManyProps).ids != null
+		), props.queryOptions),
 		queryClient,
 	})))
 }

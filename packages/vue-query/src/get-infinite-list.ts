@@ -7,6 +7,7 @@ import { createGetInfiniteListQueryFn, genGetListQueryKey, getNextPageParam, get
 import { useFetchersContext } from './fetchers'
 import { useQueryClientContext } from './query-client'
 import type { QueryOptions } from './types'
+import { toEnabledRef } from './utils'
 
 export interface UseGetInfiniteListProps<
 	TData extends BaseRecord = BaseRecord,
@@ -72,6 +73,7 @@ export function useGetInfiniteList<
 			queryClient,
 			fetchers,
 		),
+		enabled: toEnabledRef(() => !!unref(getListProps).resource, props.queryOptions),
 		queryClient,
 	})))
 }
