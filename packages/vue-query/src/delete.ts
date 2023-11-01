@@ -1,7 +1,7 @@
+import type { MaybeRef } from '@vueuse/shared'
 import { type QueryClient, type UseMutationReturnType, useMutation } from '@tanstack/vue-query'
 import { createDeleteErrorHandler, createDeleteMutateHandler, createDeleteMutationFn, createDeleteSettledHandler, createDeleteSuccessHandler } from '@ginjou/query'
 import type { BaseRecord, DeleteMutationContext, DeleteMutationProps, DeleteOneResult, Fetchers } from '@ginjou/query'
-import type { MaybeRef } from 'vue-demi'
 import { computed, unref } from 'vue-demi'
 import { useQueryClientContext } from './query-client'
 import { useFetchersContext } from './fetchers'

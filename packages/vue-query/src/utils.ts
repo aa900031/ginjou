@@ -1,9 +1,11 @@
 import type { UseQueryOptions } from '@tanstack/vue-query'
-import type { ComputedRef, MaybeRef } from 'vue-demi'
+import type { ComputedRef } from 'vue-demi'
 import { computed, unref } from 'vue-demi'
+import type { MaybeRef, MaybeRefOrGetter } from '@vueuse/shared'
+import { toValue } from '@vueuse/shared'
 
 export function toEnabledRef(
-	defaultValue?: () => boolean,
+	defaultValue?: MaybeRefOrGetter<boolean | undefined>,
 	queryOptions?: MaybeRef<UseQueryOptions<any, any, any> | undefined>,
 ): ComputedRef<boolean | undefined> {
 	return computed(() => {
@@ -14,6 +16,6 @@ export function toEnabledRef(
 		else
 			enabledByQueryOptions = optionsEnabled
 
-		return enabledByQueryOptions ?? defaultValue?.()
+		return enabledByQueryOptions ?? toValue(defaultValue)
 	})
 }

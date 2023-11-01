@@ -1,6 +1,6 @@
 import type { QueryClient, UseQueryReturnType } from '@tanstack/vue-query'
 import { useQuery } from '@tanstack/vue-query'
-import type { MaybeRef } from 'vue-demi'
+import type { MaybeRef } from '@vueuse/shared'
 import { computed, unref } from 'vue-demi'
 import type { BaseRecord, Fetchers, Filters, GetListQueryProps, GetListResult, Meta, Pagination, Sorters } from '@ginjou/query'
 import { createGetListQueryFn, genGetListQueryKey } from '@ginjou/query'

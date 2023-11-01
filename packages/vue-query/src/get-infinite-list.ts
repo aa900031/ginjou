@@ -1,5 +1,5 @@
-import type { MaybeRef } from 'vue-demi'
 import { computed, unref } from 'vue-demi'
+import type { MaybeRef } from '@vueuse/shared'
 import type { QueryClient, UseInfiniteQueryReturnType } from '@tanstack/vue-query'
 import { useInfiniteQuery } from '@tanstack/vue-query'
 import type { BaseRecord, Fetchers, Filters, GetInfiniteListResult, GetListQueryProps, Meta, PaginationPayload, Sorters } from '@ginjou/query'
