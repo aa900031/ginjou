@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest'
 import { waitFor } from '@testing-library/vue'
 import { contexts } from '../test/setup'
 import { mountSetup, mountTestApp } from '../test/mount'

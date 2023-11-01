@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import { beforeEach } from 'vitest'
 import type { Fetchers } from '@ginjou/query'
 import { QueryClient } from '@tanstack/vue-query'
 
