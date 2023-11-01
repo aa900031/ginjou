@@ -1,12 +1,13 @@
 import type { QueryClient, UseQueryReturnType } from '@tanstack/vue-query'
 import { useQuery } from '@tanstack/vue-query'
-import type { MaybeRef } from 'vue-demi'
+import type { MaybeRef } from '@vueuse/shared'
 import { computed, unref } from 'vue-demi'
 import type { BaseRecord, Fetchers, Filters, GetListQueryProps, GetListResult, Meta, Pagination, Sorters } from '@ginjou/query'
 import { createGetListQueryFn, genGetListQueryKey } from '@ginjou/query'
 import { useFetchersContext } from './fetchers'
 import { useQueryClientContext } from './query-client'
 import type { QueryOptions } from './types'
+import { toEnabledRef } from './utils'
 
 export interface UseGetListProps<
 	TData extends BaseRecord = BaseRecord,
@@ -67,10 +68,7 @@ export function useGetList<
 			queryClient,
 			fetchers,
 		),
-		enabled: computed(() => (
-			unref(unref(props.queryOptions)?.enabled)
-			?? !!unref(getListProps).resource
-		)),
+		enabled: toEnabledRef(() => !!unref(getListProps).resource, props.queryOptions),
 		queryClient,
 	})))
 }

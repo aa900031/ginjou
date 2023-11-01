@@ -1,12 +1,13 @@
+import type { MaybeRef } from '@vueuse/shared'
 import type { QueryClient, UseQueryReturnType } from '@tanstack/vue-query'
 import { useQuery } from '@tanstack/vue-query'
 import type { BaseRecord, Fetchers, GetOneQueryProps, GetOneResult, Meta, RecordKey } from '@ginjou/query'
 import { createGetOneQueryFn, genGetOneQueryKey } from '@ginjou/query'
-import type { MaybeRef } from 'vue-demi'
 import { computed, unref } from 'vue-demi'
 import { useFetchersContext } from './fetchers'
 import { useQueryClientContext } from './query-client'
 import type { QueryOptions } from './types'
+import { toEnabledRef } from './utils'
 
 export interface UseGetOneProps<
 	TData extends BaseRecord = BaseRecord,
@@ -63,13 +64,10 @@ export function useGetOne<
 			queryClient,
 			fetchers,
 		),
-		enabled: computed(() => (
-			unref(unref(props.queryOptions)?.enabled)
-			?? (
-				!!unref(getOneProps).resource
-				&& unref(getOneProps).id != null
-			)
-		)),
+		enabled: toEnabledRef(() => (
+			!!unref(getOneProps).resource
+			&& unref(getOneProps).id != null
+		), props.queryOptions),
 		queryClient,
 	})))
 }

@@ -53,6 +53,7 @@
 	},
 	"dependencies": {
 		"@ginjou/query": "workspace:^",
+		"@vueuse/shared": "^10.5.0",
 		"vue-demi": "latest"
 	},
 	"devDependencies": {

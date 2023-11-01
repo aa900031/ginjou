@@ -1,4 +1,4 @@
-import type { MaybeRef } from 'vue-demi'
+import type { MaybeRef } from '@vueuse/shared'
 import { computed, unref } from 'vue-demi'
 import { type QueryClient, type UseMutationReturnType, useMutation } from '@tanstack/vue-query'
 import type { BaseRecord, Fetchers, UpdateMutationContext, UpdateMutationProps, UpdateResult } from '@ginjou/query'

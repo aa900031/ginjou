@@ -3,5 +3,6 @@
 		{ "path": "./tsconfig.node.json" },
 		{ "path": "./tsconfig.test.json" },
 		{ "path": "./tsconfig.app.json" }
-	]
+	],
+	"files": []
 }

@@ -32,7 +32,10 @@ export function genGetListQueryKey(
 		}),
 		'getList',
 		{
-			pagination, sorters, filters, meta,
+			pagination,
+			sorters,
+			filters,
+			meta,
 		},
 	]
 }
