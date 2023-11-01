@@ -54,7 +54,7 @@ export function createGetManyQueryFn<
 		const fetcher = getFetcher(props, fetchers)
 
 		const result = props.aggregate
-			// eslint-disable-next-line @typescript-eslint/no-use-before-define
+			// eslint-disable-next-line ts/no-use-before-define
 			? await aggregExecGetMany(props, fetcher)
 			: await execGetMany(props, fetcher)
 
