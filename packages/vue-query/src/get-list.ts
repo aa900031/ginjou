@@ -16,8 +16,8 @@ export interface UseGetListProps<
 > {
 	resource?: MaybeRef<string | undefined>
 	pagination?: MaybeRef<Pagination | undefined>
-	sorters?: MaybeRef<Sorters | undefined>
-	filters?: MaybeRef<Filters | undefined>
+	sorters?: MaybeRef<Sorters | null | undefined>
+	filters?: MaybeRef<Filters | null | undefined>
 	meta?: MaybeRef<Meta | undefined>
 	fetcherName?: MaybeRef<string | undefined>
 	queryOptions?: MaybeRef<
@@ -54,13 +54,14 @@ export function useGetList<
 	const getListProps = computed<GetListQueryProps>(() => ({
 		resource: unref(props.resource) ?? '',
 		pagination: unref(props.pagination),
-		sorters: unref(props.sorters),
-		filters: unref(props.filters),
+		sorters: unref(props.sorters) ?? undefined,
+		filters: unref(props.filters) ?? undefined,
 		meta: unref(props.meta),
 		fetcherName: unref(props.fetcherName),
 	}))
 
 	return useQuery<GetListResult<TData>, TError, GetListResult<TResultData>>(computed(() => ({
+		queryClient,
 		...unref(props.queryOptions),
 		queryKey: computed(() => genGetListQueryKey(unref(getListProps))),
 		queryFn: createGetListQueryFn<TData>(
@@ -69,6 +70,5 @@ export function useGetList<
 			fetchers,
 		),
 		enabled: toEnabledRef(() => !!unref(getListProps).resource, props.queryOptions),
-		queryClient,
 	})))
 }

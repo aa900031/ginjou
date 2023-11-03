@@ -9,6 +9,7 @@
 		"src/**/*.spec.ts"
 	],
 	"references": [
-		{ "path": "../controller/tsconfig.app.json" }
+		{ "path": "../controller/tsconfig.app.json" },
+		{ "path": "../vue-query/tsconfig.app.json" },
 	]
 }

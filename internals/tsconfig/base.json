@@ -23,7 +23,9 @@
 		"skipLibCheck": true,
 		"paths": {
 			"@ginjou/query": ["../../packages/query/src/index.ts"],
-			"@ginjou/vue-query": ["../../packages/vue-query/src/index.ts"]
+			"@ginjou/vue-query": ["../../packages/vue-query/src/index.ts"],
+			"@ginjou/controller": ["../../packages/controller/src/index.ts"],
+			"@ginjou/vue-controller": ["../../packages/vue-controller/src/index.ts"]
 		}
 	}
 }

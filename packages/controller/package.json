@@ -38,6 +38,11 @@
 		"dev:test": "vitest",
 		"release": "release-it --ci"
 	},
+	"dependencies": {
+		"@ginjou/query": "workspace:^",
+		"mitt": "^3.0.1",
+		"klona": "^2.0.6"
+	},
 	"devDependencies": {
 		"@ginjou/release-it-config": "workspace:*",
 		"@ginjou/tsconfig": "workspace:*"
