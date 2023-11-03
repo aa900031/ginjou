@@ -15,7 +15,7 @@
 	"devDependencies": {
 		"@aa900031/eslint-config": "^1.0.2",
 		"@release-it/conventional-changelog": "^7.0.2",
-		"@types/node": "^18.18.8",
+		"@types/node": "^20.8.10",
 		"conventional-changelog-unjs": "^0.1.0",
 		"eslint": "^8.52.0",
 		"happy-dom": "^11.2.0",
