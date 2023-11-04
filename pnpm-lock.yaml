@@ -95,6 +95,9 @@ importers:
       '@vueuse/shared':
         specifier: ^10.5.0
         version: 10.5.0(vue@3.3.7)
+      filter-obj:
+        specifier: ^5.1.0
+        version: 5.1.0
       type-fest:
         specifier: ^3.13.1
         version: 3.13.1
@@ -3450,6 +3453,11 @@ packages:
     dependencies:
       to-regex-range: 5.0.1
     dev: true
+
+  /filter-obj@5.1.0:
+    resolution: {integrity: sha512-qWeTREPoT7I0bifpPUXtxkZJ1XJzxWtfoWWkdVGqa+eCr3SHW/Ocp89o8vLvbUuQnadybJpjOKu4V+RwO6sGng==}
+    engines: {node: '>=14.16'}
+    dev: false
 
   /find-up@4.1.0:
     resolution: {integrity: sha512-PpOwAdQ/YlXQ2vj8a3h8IipDuYRi3wceVQQGYWxNINccq40Anw7BlsEXCMbt1Zt+OLA6Fq9suIpIWD0OsnISlw==}

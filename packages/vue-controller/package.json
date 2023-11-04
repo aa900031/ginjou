@@ -1,5 +1,6 @@
 {
 	"name": "@ginjou/vue-controller",
+	"type": "module",
 	"version": "0.0.0",
 	"author": "zhong666 <hi@zhong666.me>",
 	"license": "MIT",
@@ -55,6 +56,7 @@
 		"@ginjou/controller": "workspace:*",
 		"@ginjou/vue-query": "workspace:^",
 		"@vueuse/shared": "^10.5.0",
+		"filter-obj": "^5.1.0",
 		"type-fest": "^3.13.1",
 		"vue-demi": "latest"
 	},
