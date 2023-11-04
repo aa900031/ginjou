@@ -18,7 +18,7 @@ export type UseListProps<
 > = Simplify<
 	& UseGetListProps<TData, TError, TResultData>
 	& {
-		resource: MaybeRef<string | undefined>
+		resource: MaybeRef<string>
 	}
 >
 
