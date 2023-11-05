@@ -3,7 +3,7 @@ import { unref } from 'vue-demi'
 import type { Simplify } from 'type-fest'
 import type { MaybeRef } from '@vueuse/shared'
 import type { BaseRecord, CreateMutationProps } from '@ginjou/query'
-import type { UseCreateProps as UseQueryCreateProps } from '@ginjou/vue-query'
+import type { UseCreateContext as UseQueryCreateContext, UseCreateProps as UseQueryCreateProps } from '@ginjou/vue-query'
 import { useCreate as useQueryCreate } from '@ginjou/vue-query'
 import type { SaveCreateFn } from '@ginjou/controller'
 import { createSaveCreateFn } from '@ginjou/controller'
@@ -22,6 +22,9 @@ export type UseCreateProps<
 	}
 >
 
+export type UseCreateContext =
+	& UseQueryCreateContext
+
 export interface UseCreateResult<
 	TData extends BaseRecord = BaseRecord,
 	TError = unknown,
@@ -37,8 +40,9 @@ export function useCreate<
 	TParams extends Record<string, any> = any,
 >(
 	props: UseCreateProps<TData, TError, TParams>,
+	context?: UseCreateContext,
 ) {
-	const create = useQueryCreate<TData, TError, TParams>()
+	const create = useQueryCreate<TData, TError, TParams>(props, context)
 	const save = createSaveCreateFn<TData, TError, TParams>({
 		mutate: create,
 		getProps: values => ({

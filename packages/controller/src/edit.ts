@@ -1,34 +1,33 @@
-import type { BaseRecord, CreateMutationProps, CreateResult } from '@ginjou/query'
-import type { SaveFunction } from './save'
-import { mergeSaveOptions } from './save'
+import type { BaseRecord, UpdateMutationProps, UpdateResult } from '@ginjou/query'
+import { type SaveFunction, mergeSaveOptions } from './save'
 
-export interface CreateSaveCreateFnProps<
+export interface CreateSaveEditFnProps<
 	TParams extends Record<string, any> = any,
 	TOptions extends Record<string, any> = any, // TODO: use correct type
 > {
 	mutate: (
-		props: CreateMutationProps<TParams>,
+		props: UpdateMutationProps<TParams>,
 		options: TOptions,
 	) => Promise<any> // TODO: refactor to Tanstack mutate types
 	getProps: (
 		values: TParams,
-	) => CreateMutationProps<TParams>
+	) => UpdateMutationProps<TParams>
 	getOptions: () => TOptions
 }
 
-export type SaveCreateFn<
+export type SaveEditFn<
 	TData extends BaseRecord = BaseRecord,
 	TError = unknown,
 	TParams extends Record<string, any> = any,
-> = SaveFunction<TParams, CreateResult<TData>, TError, CreateMutationProps<TParams>>
+> = SaveFunction<TParams, UpdateResult<TData>, TError, UpdateMutationProps<TParams>>
 
-export function createSaveCreateFn<
+export function createSaveEditFn<
 	TData extends BaseRecord = BaseRecord,
 	TError = unknown,
 	TParams extends Record<string, any> = any,
 >(
-	props: CreateSaveCreateFnProps<TParams>,
-): SaveCreateFn<TData, TError, TParams> {
+	props: CreateSaveEditFnProps<TParams>,
+): SaveEditFn<TData, TError, TParams> {
 	return async (
 		values,
 		options,
