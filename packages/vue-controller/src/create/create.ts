@@ -1,10 +1,12 @@
+import type { Ref } from 'vue-demi'
 import { unref } from 'vue-demi'
 import type { Simplify } from 'type-fest'
 import type { MaybeRef } from '@vueuse/shared'
 import type { BaseRecord, CreateMutationProps } from '@ginjou/query'
 import type { UseCreateProps as UseQueryCreateProps } from '@ginjou/vue-query'
 import { useCreate as useQueryCreate } from '@ginjou/vue-query'
-import { createCreateSaveFn } from '@ginjou/controller'
+import type { SaveCreateFn } from '@ginjou/controller'
+import { createSaveCreateFn } from '@ginjou/controller'
 import type { RecordMaybeRef } from '../helper/types'
 import { pickUnrefs } from '../helper/pick-unrefs'
 
@@ -20,6 +22,15 @@ export type UseCreateProps<
 	}
 >
 
+export interface UseCreateResult<
+	TData extends BaseRecord = BaseRecord,
+	TError = unknown,
+	TParams extends Record<string, any> = any,
+> {
+	isSaving: Ref<boolean>
+	save: SaveCreateFn<TData, TError, TParams>
+}
+
 export function useCreate<
 	TData extends BaseRecord = BaseRecord,
 	TError = unknown,
@@ -28,7 +39,7 @@ export function useCreate<
 	props: UseCreateProps<TData, TError, TParams>,
 ) {
 	const create = useQueryCreate<TData, TError, TParams>()
-	const save = createCreateSaveFn<TData, TError, TParams>({
+	const save = createSaveCreateFn<TData, TError, TParams>({
 		mutate: create,
 		getProps: values => ({
 			// eslint-disable-next-line ts/no-use-before-define
@@ -39,8 +50,13 @@ export function useCreate<
 		getOptions: () => unref(props.mutationOptions),
 	})
 
+	// TODO: return resoruce
+	// TODO: return redirect
+	// TODO: notify when error
+
 	return {
 		save,
+		isSaving: create.isLoading,
 	}
 }
 

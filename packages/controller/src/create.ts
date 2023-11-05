@@ -2,7 +2,7 @@ import type { BaseRecord, CreateMutationProps, CreateResult } from '@ginjou/quer
 import type { SaveFunction } from './save'
 import { mergeSaveOptions } from './save'
 
-export interface CreateCreateSaveFnProps<
+export interface CreateSaveCreateFnProps<
 	TParams extends Record<string, any> = any,
 	TOptions extends Record<string, any> = any, // TODO: use correct type
 > {
@@ -16,13 +16,19 @@ export interface CreateCreateSaveFnProps<
 	getOptions: () => TOptions
 }
 
-export function createCreateSaveFn<
+export type SaveCreateFn<
+	TData extends BaseRecord = BaseRecord,
+	TError = unknown,
+	TParams extends Record<string, any> = any,
+> = SaveFunction<TParams, CreateResult<TData>, TError, CreateMutationProps<TParams>>
+
+export function createSaveCreateFn<
 	TData extends BaseRecord = BaseRecord,
 	TError = unknown,
 	TParams extends Record<string, any> = any,
 >(
-	props: CreateCreateSaveFnProps<TParams>,
-): SaveFunction<TParams, CreateResult<TData>, TError, CreateMutationProps<TParams>> {
+	props: CreateSaveCreateFnProps<TParams>,
+): SaveCreateFn<TData, TError, TParams> {
 	return async (
 		values,
 		options,
