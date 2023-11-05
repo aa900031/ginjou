@@ -61,6 +61,9 @@ importers:
       mitt:
         specifier: ^3.0.1
         version: 3.0.1
+      type-fest:
+        specifier: ^3.13.1
+        version: 3.13.1
     devDependencies:
       '@ginjou/release-it-config':
         specifier: workspace:*

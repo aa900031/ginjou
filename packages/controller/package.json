@@ -41,8 +41,9 @@
 	},
 	"dependencies": {
 		"@ginjou/query": "workspace:^",
+		"klona": "^2.0.6",
 		"mitt": "^3.0.1",
-		"klona": "^2.0.6"
+		"type-fest": "^3.13.1"
 	},
 	"devDependencies": {
 		"@ginjou/release-it-config": "workspace:*",
