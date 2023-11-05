@@ -2,9 +2,11 @@ import type { Simplify } from 'type-fest'
 import { useGetOne, useUpdate } from '@ginjou/vue-query'
 import type { UseGetOneResult, UseUpdateContext, UseUpdateProps } from '@ginjou/vue-query'
 import type { BaseRecord, UpdateMutationProps } from '@ginjou/query'
-import { type MaybeRef, computed, unref } from 'vue-demi'
+import { computed, unref } from 'vue-demi'
+import type { ComputedRef } from 'vue-demi'
 import { type SaveEditFn, createSaveEditFn } from '@ginjou/controller'
 import { includeKeys } from 'filter-obj'
+import type { MaybeRef } from '@vueuse/shared'
 import type { RecordMaybeRef } from '../helper/types'
 import type { Save } from '../save/save'
 import { pickUnrefs } from '../helper/pick-unrefs'
@@ -28,20 +30,25 @@ export type UseEditResult<
 	TData extends BaseRecord = BaseRecord,
 	TError = unknown,
 	TParams extends Record<string, any> = any,
+	TResultData extends BaseRecord = TData,
 > = Simplify<
 	& Save<SaveEditFn<TData, TError, TParams>>
-	& Pick<UseGetOneResult<TData, TError, TParams>, typeof PICK_ONE_FILEDS[number]>
+	& Pick<UseGetOneResult<TData, TError, TResultData>, typeof PICK_ONE_FILEDS[number]>
+	& {
+		record: ComputedRef<TResultData | undefined>
+	}
 >
 
 export function useEdit<
 	TData extends BaseRecord = BaseRecord,
 	TError = unknown,
 	TParams extends Record<string, any> = any,
+	TResultData extends BaseRecord = TData,
 >(
 	props: UseEditProps<TData, TError, TParams>,
 	context?: UseEditContext,
-): UseEditResult<TData, TError, TParams> {
-	const one = useGetOne<TData, TError, TParams>({
+): UseEditResult<TData, TError, TParams, TResultData> {
+	const one = useGetOne<TData, TError, TResultData>({
 		...props,
 		queryOptions: computed(() => ({
 			refetchOnReconnect: false,
@@ -50,6 +57,7 @@ export function useEdit<
 		})),
 	}, context)
 	const update = useUpdate<TData, TError, TParams>(props, context)
+
 	const save = createSaveEditFn<TData, TError, TParams>({
 		mutate: update,
 		getProps: values => ({
@@ -61,6 +69,8 @@ export function useEdit<
 		getOptions: () => unref(props.mutationOptions),
 	})
 
+	const record = computed(() => unref(one.data)?.data)
+
 	// TODO: return resource
 	// TODO: return redirect
 	// TODO: notify when success or error
@@ -69,6 +79,7 @@ export function useEdit<
 	return {
 		// eslint-disable-next-line ts/no-use-before-define
 		...includeKeys(one, PICK_ONE_FILEDS),
+		record,
 		save,
 		isSaving: update.isLoading,
 	}
