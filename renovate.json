@@ -4,7 +4,8 @@
 		"config:base",
 		"group:allNonMajor",
 		":semanticCommitTypeAll(chore)",
-		":disablePeerDependencies"
+		":disablePeerDependencies",
+		":disableMajorUpdates"
 	],
 	"meteor": {
 		"enabled": false
