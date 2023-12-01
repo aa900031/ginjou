@@ -1,5 +1,5 @@
 import type { ComputedRef, Ref } from 'vue-demi'
-import { computed, unref } from 'vue-demi'
+import { computed, unref, watchSyncEffect } from 'vue-demi'
 import type { Simplify } from 'type-fest'
 import { includeKeys } from 'filter-obj'
 import type { MaybeRef } from '@vueuse/shared'
@@ -7,7 +7,7 @@ import { computedEager } from '@vueuse/shared'
 import type { UseGetListContext, UseGetListProps, UseGetListResult } from '@ginjou/vue-query'
 import { useGetList } from '@ginjou/vue-query'
 import type { BaseRecord } from '@ginjou/query'
-import { createListHasNextPage, createListHasPreviousPage } from '@ginjou/controller'
+import { getListCorrectPage, getListHasNextPage, getListHasPreviousPage } from '@ginjou/controller'
 import type { UseListParamsResult } from './list-params'
 import { useListParams } from './list-params'
 
@@ -57,19 +57,28 @@ export function useList<
 
 	const data = computed(() => unref(query.data)?.data)
 	const total = computedEager(() => unref(query.data)?.total)
-	const hasNextPage = computedEager(() => createListHasNextPage({
+	const hasNextPage = computedEager(() => getListHasNextPage({
 		total: unref(total),
-		page: unref(params.page),
-		perPage: unref(params.perPage),
+		pagination: unref(params.pagination),
 	}))
-	const hasPreviousPage = computedEager(() => createListHasPreviousPage({
+	const hasPreviousPage = computedEager(() => getListHasPreviousPage({
 		total: unref(total),
-		page: unref(params.page),
+		pagination: unref(params.pagination),
 	}))
 
 	// TODO: feature: resource
 	// TODO: feature: notify msg when error
 	// TODO: feature: sync to route
+
+	watchSyncEffect(() => {
+		params.page.value
+			= getListCorrectPage({
+				isFetching: unref(query.isFetching),
+				pagination: unref(params.pagination),
+				data: unref(data),
+				total: unref(total),
+			}) ?? params.page.value
+	})
 
 	return {
 		...params,
