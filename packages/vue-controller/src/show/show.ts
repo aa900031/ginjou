@@ -1,11 +1,12 @@
 import type { Simplify } from 'type-fest'
 import type { ComputedRef } from 'vue-demi'
-import { computed, unref } from 'vue-demi'
+import { computed, unref, watch } from 'vue-demi'
 import { includeKeys } from 'filter-obj'
 import { useGetOne } from '@ginjou/vue-query'
 import type { UseGetOneContext, UseGetOneProps, UseGetOneResult } from '@ginjou/vue-query'
 import type { BaseRecord } from '@ginjou/query'
 import type { MaybeRef } from '@vueuse/shared'
+import { getShowRecord, handleShowError } from '@ginjou/controller'
 
 export type UseShowProps<
 	TData extends BaseRecord = BaseRecord,
@@ -50,7 +51,13 @@ export function useShow<
 		queryOptions,
 	}, context)
 
-	const record = computed(() => unref(one.data)?.data)
+	const record = computed(() => getShowRecord({
+		result: unref(one.data),
+	}))
+
+	watch(one.error, error => handleShowError({
+		error,
+	}))
 
 	// TODO: feature: resource
 	// TODO: feature: notify msg when error

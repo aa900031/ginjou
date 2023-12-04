@@ -2,14 +2,18 @@ import type { Simplify } from 'type-fest'
 import { useGetOne, useUpdate } from '@ginjou/vue-query'
 import type { UseGetOneResult, UseUpdateContext, UseUpdateProps } from '@ginjou/vue-query'
 import type { BaseRecord, UpdateMutationProps } from '@ginjou/query'
-import { computed, unref } from 'vue-demi'
+import { computed, unref, watch } from 'vue-demi'
 import type { ComputedRef } from 'vue-demi'
-import { type SaveEditFn, createSaveEditFn } from '@ginjou/controller'
+import { type SaveEditFn, createSaveEditFn, getEditRecord, handleEditGetOneError } from '@ginjou/controller'
 import { includeKeys } from 'filter-obj'
 import type { MaybeRef } from '@vueuse/shared'
 import type { RecordMaybeRef } from '../helper/types'
 import type { Save } from '../save/save'
 import { pickUnrefs } from '../helper/pick-unrefs'
+import type { UseNotifyContext } from '../notification/notify'
+import { useNotify } from '../notification/notify'
+import type { UseGoContext } from '../router/go'
+import { useGo } from '../router/go'
 
 export type UseEditProps<
 	TData extends BaseRecord = BaseRecord,
@@ -25,6 +29,8 @@ export type UseEditProps<
 
 export type UseEditContext =
 	& UseUpdateContext
+	& UseNotifyContext
+	& UseGoContext
 
 export type UseEditResult<
 	TData extends BaseRecord = BaseRecord,
@@ -48,6 +54,9 @@ export function useEdit<
 	props: UseEditProps<TData, TError, TParams>,
 	context?: UseEditContext,
 ): UseEditResult<TData, TError, TParams, TResultData> {
+	const go = useGo(context)
+	const notify = useNotify(context)
+
 	const one = useGetOne<TData, TError, TResultData>({
 		...props,
 		queryOptions: computed(() => ({
@@ -59,6 +68,8 @@ export function useEdit<
 	const update = useUpdate<TData, TError, TParams>(props, context)
 
 	const save = createSaveEditFn<TData, TError, TParams>({
+		notify,
+		go,
 		mutate: update,
 		getProps: values => ({
 			// eslint-disable-next-line ts/no-use-before-define
@@ -69,11 +80,18 @@ export function useEdit<
 		getOptions: () => unref(props.mutationOptions),
 	})
 
-	const record = computed(() => unref(one.data)?.data)
+	const record = computed(() => getEditRecord({
+		result: unref(one.data),
+	}))
+
+	watch(one.error, error => handleEditGetOneError({
+		error,
+		notify,
+		go,
+	}))
 
 	// TODO: return resource
 	// TODO: return redirect
-	// TODO: notify when success or error
 	// TODO: defer, mutationMode
 
 	return {
