@@ -1,4 +1,4 @@
-import type { MutationFunction, QueryClient } from '@tanstack/query-core'
+import type { MutateFunction, MutationFunction, QueryClient } from '@tanstack/query-core'
 import { type DeferFn, deferWith } from './defer'
 import { genGetListQueryKey } from './get-list'
 import { genGetManyQueryKey } from './get-many'
@@ -32,6 +32,17 @@ export interface UpdateMutationContext<
 > {
 	previousQueries: QueryPair<TData>[]
 }
+
+export type UpdateMutateFn<
+	TData extends BaseRecord = BaseRecord,
+	TError = unknown,
+	TParams = Record<string, any>,
+> = MutateFunction<
+	UpdateResult<TData>,
+	TError,
+	UpdateMutationProps<TParams>,
+	UpdateMutationContext<TData>
+>
 
 export function createUpdateMutationFn<
 	TData extends BaseRecord = BaseRecord,

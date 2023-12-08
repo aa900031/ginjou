@@ -2,7 +2,7 @@ import type { MaybeRef } from '@vueuse/shared'
 import { computed, unref } from 'vue-demi'
 import { type QueryClient, type UseMutationReturnType, useMutation } from '@tanstack/vue-query'
 import { createUpdateManyErrorHandler, createUpdateManyMutateHandler, createUpdateManyMutationFn, createUpdateManySettledHandler } from '@ginjou/query'
-import type { BaseRecord, Fetchers, UpdateManyMutationProps, UpdateManyResult, UpdateMutationContext } from '@ginjou/query'
+import type { BaseRecord, Fetchers, UpdateManyMutateFn, UpdateManyMutationProps, UpdateManyResult, UpdateMutationContext } from '@ginjou/query'
 import { useQueryClientContext } from './query-client'
 import { useFetchersContext } from './fetchers'
 import type { MutationOptions } from './types'
@@ -28,7 +28,7 @@ export type UseUpdateManyResult<
 	TError = unknown,
 	TParams extends Record<string, any> = any,
 > =
-	& UseMutationReturnType<UpdateManyResult<TData>, TError, UpdateManyMutationProps<TParams>, UpdateMutationContext<TData>>['mutateAsync']
+	& UpdateManyMutateFn<TData, TError, TParams>
 	& UseMutationReturnType<UpdateManyResult<TData>, TError, UpdateManyMutationProps<TParams>, UpdateMutationContext<TData>>
 
 export function useUpdateMany<

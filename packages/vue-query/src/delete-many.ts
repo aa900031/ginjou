@@ -2,7 +2,7 @@ import type { MaybeRef } from '@vueuse/shared'
 import { computed, unref } from 'vue-demi'
 import { type QueryClient, type UseMutationReturnType, useMutation } from '@tanstack/vue-query'
 import { createDeleteManyErrorHandler, createDeleteManyMutateHandler, createDeleteManyMutationFn, createDeleteManySettledHandler, createDeleteManySuccessHandler } from '@ginjou/query'
-import type { BaseRecord, DeleteManyMutationProps, DeleteManyResult, DeleteMutationContext, Fetchers } from '@ginjou/query'
+import type { BaseRecord, DeleteManyMutateFn, DeleteManyMutationProps, DeleteManyResult, DeleteMutationContext, Fetchers } from '@ginjou/query'
 import { useQueryClientContext } from './query-client'
 import { useFetchersContext } from './fetchers'
 import type { MutationOptions } from './types'
@@ -28,7 +28,7 @@ export type UseDeleteManyResult<
 	TError = unknown,
 	TParams extends Record<string, any> = any,
 > =
-	& UseMutationReturnType<DeleteManyResult<TData>, TError, DeleteManyMutationProps<TParams>, DeleteMutationContext<TData>>['mutateAsync']
+	& DeleteManyMutateFn<TData, TError, TParams>
 	& UseMutationReturnType<DeleteManyResult<TData>, TError, DeleteManyMutationProps<TParams>, DeleteMutationContext<TData>>
 
 export function useDeleteMany<

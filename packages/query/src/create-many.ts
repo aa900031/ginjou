@@ -1,4 +1,4 @@
-import type { MutationFunction, QueryClient } from '@tanstack/query-core'
+import type { MutateFunction, MutationFunction, QueryClient } from '@tanstack/query-core'
 import { InvalidateTarget, type InvalidateTargetType, triggerInvalidates } from './invalidate'
 import { fakeMany } from './helper'
 import { genGetOneQueryKey } from './get-one'
@@ -20,6 +20,16 @@ export type CreateManyMutationProps<
 		fetcherName?: string
 		invalidates?: InvalidateTargetType[]
 	}
+
+export type CreateManyMutateFn<
+	TData extends BaseRecord = BaseRecord,
+	TError = unknown,
+	TParams = Record<string, any>,
+> = MutateFunction<
+	CreateManyResult<TData>,
+	TError,
+	CreateManyMutationProps<TParams>
+>
 
 export function createCreateManyMutationFn<
 	TData extends BaseRecord = BaseRecord,

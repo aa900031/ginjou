@@ -1,7 +1,7 @@
 import type { MaybeRef } from '@vueuse/shared'
 import { computed, unref } from 'vue-demi'
 import { type QueryClient, type UseMutationReturnType, useMutation } from '@tanstack/vue-query'
-import type { BaseRecord, Fetchers, UpdateMutationContext, UpdateMutationProps, UpdateResult } from '@ginjou/query'
+import type { BaseRecord, Fetchers, UpdateMutateFn, UpdateMutationContext, UpdateMutationProps, UpdateResult } from '@ginjou/query'
 import { createUpdateErrorHandler, createUpdateMutateHandler, createUpdateMutationFn, createUpdateSettledHandler } from '@ginjou/query'
 import { useFetchersContext } from './fetchers'
 import { useQueryClientContext } from './query-client'
@@ -28,7 +28,7 @@ export type UseUpdateResult<
 	TError = unknown,
 	TParams extends Record<string, any> = any,
 > =
-	& UseMutationReturnType<UpdateResult<TData>, TError, UpdateMutationProps<TParams>, UpdateMutationContext<TData>>['mutateAsync']
+	& UpdateMutateFn<TData, TError, TParams>
 	& UseMutationReturnType<UpdateResult<TData>, TError, UpdateMutationProps<TParams>, UpdateMutationContext<TData>>
 
 export function useUpdate<

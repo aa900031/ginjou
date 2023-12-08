@@ -1,7 +1,7 @@
 import type { MaybeRef } from '@vueuse/shared'
 import { type QueryClient, type UseMutationReturnType, useMutation } from '@tanstack/vue-query'
 import { createDeleteErrorHandler, createDeleteMutateHandler, createDeleteMutationFn, createDeleteSettledHandler, createDeleteSuccessHandler } from '@ginjou/query'
-import type { BaseRecord, DeleteMutationContext, DeleteMutationProps, DeleteOneResult, Fetchers } from '@ginjou/query'
+import type { BaseRecord, DeleteMutateFn, DeleteMutationContext, DeleteMutationProps, DeleteOneResult, Fetchers } from '@ginjou/query'
 import { computed, unref } from 'vue-demi'
 import { useQueryClientContext } from './query-client'
 import { useFetchersContext } from './fetchers'
@@ -28,7 +28,7 @@ export type UseDeleteResult<
 	TError = unknown,
 	TParams extends Record<string, any> = any,
 > =
-	& UseMutationReturnType<DeleteOneResult<TData>, TError, DeleteMutationProps<TParams>, DeleteMutationContext<TData>>['mutateAsync']
+	& DeleteMutateFn<TData, TError, TParams>
 	& UseMutationReturnType<DeleteOneResult<TData>, TError, DeleteMutationProps<TParams>, DeleteMutationContext<TData>>
 
 export function useDelete<

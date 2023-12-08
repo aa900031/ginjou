@@ -1,4 +1,4 @@
-import type { MutationFunction, QueryClient } from '@tanstack/query-core'
+import type { MutateFunction, MutationFunction, QueryClient } from '@tanstack/query-core'
 import { type DeferFn, deferWith } from './defer'
 import { InvalidateTarget, type InvalidateTargetType, triggerInvalidates } from './invalidate'
 import { fakeMany } from './helper'
@@ -27,6 +27,17 @@ export type UpdateManyMutationProps<
 		defer?: DeferFn
 		invalidates?: InvalidateTargetType[]
 	}
+
+export type UpdateManyMutateFn<
+	TData extends BaseRecord = BaseRecord,
+	TError = unknown,
+	TParams = Record<string, any>,
+> = MutateFunction<
+	UpdateManyResult<TData>,
+	TError,
+	UpdateManyMutationProps<TParams>,
+	UpdateMutationContext<TData>
+>
 
 export function createUpdateManyMutationFn<
 	TData extends BaseRecord = BaseRecord,

@@ -1,4 +1,4 @@
-import type { MutationFunction, QueryClient } from '@tanstack/query-core'
+import type { MutateFunction, MutationFunction, QueryClient } from '@tanstack/query-core'
 import { type DeferFn, deferWith } from './defer'
 import { InvalidateTarget, type InvalidateTargetType, triggerInvalidates } from './invalidate'
 import type { ErrorHandler, MutateHandler, QueryPair, SettledHandler, SuccessHandler } from './types'
@@ -30,6 +30,17 @@ export interface DeleteMutationContext<
 > {
 	previousQueries: QueryPair<TData>[]
 }
+
+export type DeleteMutateFn<
+	TData extends BaseRecord = BaseRecord,
+	TError = unknown,
+	TParams = Record<string, any>,
+> = MutateFunction<
+	DeleteOneResult<TData>,
+	TError,
+	DeleteMutationProps<TParams>,
+	DeleteMutationContext<TData>
+>
 
 export function createDeleteMutationFn<
 	TData extends BaseRecord = BaseRecord,

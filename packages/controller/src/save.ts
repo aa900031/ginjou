@@ -51,7 +51,7 @@ export function mergeSaveOptions<
 	TProps = unknown,
 	TContext = undefined,
 >(
-	...args: (SaveOptions<TResult, TError, TProps, TContext> | undefined)[]
+	...args: (Partial<SaveOptions<TResult, TError, TProps, TContext>> | undefined)[]
 ): SaveOptions<TResult, TError, TProps, TContext> {
 	const onSuccesses: SaveSuccessCallback<TResult, TProps, TContext>[]
 		= args.map(arg => arg?.onSuccess).filter(Boolean) as any

@@ -3,7 +3,7 @@ import { computed, unref } from 'vue-demi'
 import type { QueryClient, UseMutationOptions, UseMutationReturnType } from '@tanstack/vue-query'
 import { useMutation } from '@tanstack/vue-query'
 import { createCreateManyMutationFn, createCreateManySuccessHandler } from '@ginjou/query'
-import type { BaseRecord, CreateManyMutationProps, CreateManyResult, Fetchers } from '@ginjou/query'
+import type { BaseRecord, CreateManyMutateFn, CreateManyMutationProps, CreateManyResult, Fetchers } from '@ginjou/query'
 import { useFetchersContext } from './fetchers'
 import { useQueryClientContext } from './query-client'
 
@@ -31,7 +31,7 @@ export type UseCreateManyResult<
 	TError = unknown,
 	TParams extends Record<string, any> = any,
 > =
-	& UseMutationReturnType<CreateManyResult<TData>, TError, CreateManyMutationProps<TParams>, any>['mutateAsync']
+	& CreateManyMutateFn<TData, TError, TParams>
 	& UseMutationReturnType<CreateManyResult<TData>, TError, CreateManyMutationProps<TParams>, any>
 
 export function useCreateMany<

@@ -1,4 +1,4 @@
-import type { MutationOptions, QueryKey } from '@tanstack/query-core'
+import type { MutateFunction, MutationOptions, QueryKey } from '@tanstack/query-core'
 
 export type QueryPair<TData> = [QueryKey, TData | undefined]
 

@@ -1,4 +1,4 @@
-import type { BaseRecord, GetOneResult, UpdateMutationProps, UpdateResult } from '@ginjou/query'
+import type { BaseRecord, GetOneResult, UpdateMutateFn, UpdateMutationProps, UpdateResult } from '@ginjou/query'
 import { type SaveFunction, mergeSaveOptions } from './save'
 import { type Notification, NotificationType } from './notification'
 import { RouterGoType } from './router'
@@ -6,19 +6,16 @@ import type { Router, RouterGoParams } from './router'
 import { getErrorMessage } from './error'
 
 export interface CreateSaveEditFnProps<
+	TData extends BaseRecord = BaseRecord,
+	TError = unknown,
 	TParams extends Record<string, any> = any,
-	TOptions extends Record<string, any> = any, // TODO: use correct type
+	TMutateFn extends UpdateMutateFn<TData, TError, TParams> = UpdateMutateFn<TData, TError, TParams>,
 > {
-	mutate: (
-		props: UpdateMutationProps<TParams>,
-		options: TOptions,
-	) => Promise<any> // TODO: refactor to Tanstack mutate types
+	mutate: TMutateFn
 	notify: Notification['open']
 	go: Router['go']
-	getProps: (
-		values: TParams,
-	) => UpdateMutationProps<TParams>
-	getOptions: () => TOptions
+	getProps: (values: TParams) => Parameters<TMutateFn>[0]
+	getOptions: () => Parameters<TMutateFn>[1]
 	getRedirectTo?: () => RouterGoParams | undefined
 }
 
@@ -33,17 +30,16 @@ export function createSaveEditFn<
 	TError = unknown,
 	TParams extends Record<string, any> = any,
 >(
-	props: CreateSaveEditFnProps<TParams>,
+	props: CreateSaveEditFnProps<TData, TError, TParams>,
 ): SaveEditFn<TData, TError, TParams> {
 	return async (
 		values,
 		options,
 	) => {
 		try {
-			const optionsFromProp = props.getOptions()
 			const result = await props.mutate(
 				props.getProps(values),
-				mergeSaveOptions(options, optionsFromProp),
+				props.getOptions(),
 			)
 
 			props.notify({

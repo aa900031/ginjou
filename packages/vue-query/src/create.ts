@@ -2,7 +2,7 @@ import type { MaybeRef } from '@vueuse/shared'
 import { computed, unref } from 'vue-demi'
 import type { QueryClient, UseMutationReturnType } from '@tanstack/vue-query'
 import { useMutation } from '@tanstack/vue-query'
-import type { BaseRecord, CreateMutationProps, CreateResult, Fetchers } from '@ginjou/query'
+import type { BaseRecord, CreateMutateFn, CreateMutationProps, CreateResult, Fetchers } from '@ginjou/query'
 import { createCreateMutationFn, createCreateSuccessHandler } from '@ginjou/query'
 import { useFetchersContext } from './fetchers'
 import { useQueryClientContext } from './query-client'
@@ -29,7 +29,7 @@ export type UseCreateResult<
 	TError = unknown,
 	TParams extends Record<string, any> = any,
 > =
-	& UseMutationReturnType<CreateResult<TData>, TError, CreateMutationProps<TParams>, any>['mutateAsync']
+	& CreateMutateFn<TData, TError, TParams>
 	& UseMutationReturnType<CreateResult<TData>, TError, CreateMutationProps<TParams>, any>
 
 export function useCreate<
