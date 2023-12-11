@@ -60,7 +60,7 @@ export function createCreateManySuccessHandler<
 		_data,
 		props,
 	) {
-		triggerInvalidates({
+		await triggerInvalidates({
 			...props,
 			invalidates: props.invalidates ?? DEFAULT_CREATE_MANY_INVALIDATES,
 		}, queryClient)

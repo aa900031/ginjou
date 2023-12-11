@@ -1,4 +1,5 @@
-import type { QueryClient } from '@tanstack/query-core'
+import type { Simplify } from 'type-fest'
+import type { InvalidateOptions, InvalidateQueryFilters, QueryClient } from '@tanstack/query-core'
 import type { RecordKey } from './fetcher'
 import { genGetListQueryKey } from './get-list'
 import { genGetManyQueryKey } from './get-many'
@@ -15,13 +16,14 @@ export const InvalidateTarget = {
 
 export type InvalidateTargetType = typeof InvalidateTarget[keyof typeof InvalidateTarget]
 
-export type TriggerInvalidatesProps =
+export type TriggerInvalidatesProps = Simplify<
 	& TriggerInvalidateProps
 	& {
 		invalidates: InvalidateTargetType[] | false
 	}
+>
 
-export function triggerInvalidates(
+export async function triggerInvalidates(
 	props: TriggerInvalidatesProps,
 	queryClient: QueryClient,
 ) {
@@ -30,45 +32,74 @@ export function triggerInvalidates(
 	if (invalidates === false || !invalidates.length)
 		return
 
-	for (const invalidate of invalidates) {
-		triggerInvalidate(
-			props as any,
-			invalidate as any,
-			queryClient,
-		)
-	}
+	await Promise.all(invalidates.map(invalidate => triggerInvalidate(
+		props as any,
+		invalidate as any,
+		queryClient,
+	)))
 }
 
-export interface TriggerInvalidateAllProps {
-	fetcherName?: string
+const DEFAULT_INVALIDATE_FILTERS: InvalidateQueryFilters = {
+	type: 'all',
+	refetchType: 'active',
 }
 
-export interface TriggerInvalidateResourceProps {
-	resource?: string
-	fetcherName?: string
+const DEFAULT_INVALIDATE_OPTIONS: InvalidateOptions = {
+	cancelRefetch: false,
 }
 
-export interface TriggerInvalidateListProps {
-	resource: string
-	fetcherName?: string
+export interface TriggerInvalidateBaseProps {
+	invalidateFilters?: InvalidateQueryFilters
+	invalidateOptions?: InvalidateOptions
 }
 
-export interface TriggerInvalidateManyProps {
-	resource: string
-	fetcherName?: string
-}
-
-export type TriggerInvalidateOneProps =
-	| {
-		resource: string
-		id: RecordKey
+export type TriggerInvalidateAllProps = Simplify<
+	& TriggerInvalidateBaseProps
+	& {
 		fetcherName?: string
 	}
-	| {
+>
+
+export type TriggerInvalidateResourceProps = Simplify<
+	& TriggerInvalidateBaseProps
+	& {
+		resource?: string
+		fetcherName?: string
+	}
+>
+
+export type TriggerInvalidateListProps = Simplify<
+	& TriggerInvalidateBaseProps
+	& {
+		resource: string
+		fetcherName?: string
+	}
+>
+
+export type TriggerInvalidateManyProps = Simplify<
+	& TriggerInvalidateBaseProps
+	& {
 		resource: string
 		ids: RecordKey[]
 		fetcherName?: string
 	}
+>
+
+export type TriggerInvalidateOneProps = Simplify<
+	& TriggerInvalidateBaseProps
+	& (
+		| {
+			resource: string
+			id: RecordKey
+			fetcherName?: string
+		}
+		| {
+			resource: string
+			ids: RecordKey[]
+			fetcherName?: string
+		}
+	)
+>
 
 export type TriggerInvalidateProps =
 	| TriggerInvalidateAllProps
@@ -77,57 +108,73 @@ export type TriggerInvalidateProps =
 	| TriggerInvalidateManyProps
 	| TriggerInvalidateOneProps
 
-export function triggerInvalidate(
+export async function triggerInvalidate(
 	props: TriggerInvalidateAllProps,
 	target: typeof InvalidateTarget.All,
 	queryClient: QueryClient,
-): void
+): Promise<void>
 
-export function triggerInvalidate(
+export async function triggerInvalidate(
 	props: TriggerInvalidateResourceProps,
 	target: typeof InvalidateTarget.Resource,
 	queryClient: QueryClient,
-): void
+): Promise<void>
 
-export function triggerInvalidate(
+export async function triggerInvalidate(
 	props: TriggerInvalidateListProps,
 	target: typeof InvalidateTarget.List,
 	queryClient: QueryClient,
-): void
+): Promise<void>
 
-export function triggerInvalidate(
+export async function triggerInvalidate(
 	props: TriggerInvalidateManyProps,
 	target: typeof InvalidateTarget.Many,
 	queryClient: QueryClient,
-): void
+): Promise<void>
 
-export function triggerInvalidate(
+export async function triggerInvalidate(
 	props: TriggerInvalidateOneProps,
 	target: typeof InvalidateTarget.One,
 	queryClient: QueryClient,
-): void
+): Promise<void>
 
-export function triggerInvalidate(
+export async function triggerInvalidate(
 	props: any,
 	target: InvalidateTargetType,
 	queryClient: QueryClient,
-): void {
+): Promise<void> {
+	const invalidateFilters = props.invalidateFilters ?? DEFAULT_INVALIDATE_FILTERS
+	const invalidateOptions = props.invalidateOptions ?? DEFAULT_INVALIDATE_OPTIONS
+
 	switch (target) {
 		case InvalidateTarget.All:
-			queryClient.invalidateQueries([props.fetcherName ?? 'default'])
+			await queryClient.invalidateQueries(
+				[props.fetcherName ?? 'default'],
+				invalidateFilters,
+				invalidateOptions,
+			)
 			break
 		case InvalidateTarget.List:
-			queryClient.invalidateQueries(genGetListQueryKey(props))
+			await queryClient.invalidateQueries(
+				genGetListQueryKey(props),
+				invalidateFilters,
+				invalidateOptions,
+			)
 			break
 		case InvalidateTarget.Many: {
-			const { resource } = props
+			const { resource, ids } = props
 			if (resource == null)
 				throw new Error('`resource` is required')
 
-			queryClient.invalidateQueries(genGetManyQueryKey({
-				...props,
-				resource,
-			}))
+			await queryClient.invalidateQueries(
+				genGetManyQueryKey({
+					...props,
+					resource,
+					ids,
+				}),
+				invalidateFilters,
+				invalidateOptions,
+			)
 			break
 		}
 		case InvalidateTarget.Resource: {
@@ -135,10 +182,14 @@ export function triggerInvalidate(
 			if (resource == null)
 				throw new Error('`resource` is required')
 
-			queryClient.invalidateQueries(genResourceQueryKey({
-				...props,
-				resource,
-			}))
+			await queryClient.invalidateQueries(
+				genResourceQueryKey({
+					...props,
+					resource,
+				}),
+				invalidateFilters,
+				invalidateOptions,
+			)
 			break
 		}
 		case InvalidateTarget.One: {
@@ -147,31 +198,35 @@ export function triggerInvalidate(
 				throw new Error('`resource` is required')
 
 			if (id) {
-				queryClient.invalidateQueries(
+				await queryClient.invalidateQueries(
 					genGetOneQueryKey({
 						...props,
 						resource,
 						id,
 					}),
+					invalidateFilters,
+					invalidateOptions,
 				)
 			}
 			else if (ids) {
-				for (const id of ids) {
-					queryClient.invalidateQueries(
-						genGetOneQueryKey({
-							...props,
-							resource,
-							id,
-						}),
-					)
-				}
+				await Promise.all(ids.map((id: any) => queryClient.invalidateQueries(
+					genGetOneQueryKey({
+						...props,
+						resource,
+						id,
+					}),
+					invalidateFilters,
+					invalidateOptions,
+				)))
 			}
 			else {
-				queryClient.invalidateQueries(
+				await queryClient.invalidateQueries(
 					genGetOneQueryKey({
 						...props,
 						resource,
 					}),
+					invalidateFilters,
+					invalidateOptions,
 				)
 			}
 

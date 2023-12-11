@@ -102,12 +102,12 @@ export function createUpdateSettledHandler<
 >(
 	queryClient: QueryClient,
 ): SettledHandler<TData, TError, UpdateMutationProps<TParams>, UpdateMutationContext<TData>> {
-	return function updateSettledHandler(
+	return async function updateSettledHandler(
 		_data,
 		_error,
 		props,
 	) {
-		triggerInvalidates({
+		await triggerInvalidates({
 			...props,
 			invalidates: props.invalidates ?? DEFAULT_UPDATE_INVALIDATES,
 		}, queryClient)

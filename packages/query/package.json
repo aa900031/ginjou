@@ -38,6 +38,9 @@
 		"dev:test": "vitest",
 		"release": "release-it --ci"
 	},
+	"dependencies": {
+		"type-fest": "^3.13.1"
+	},
 	"peerDependencies": {
 		"@tanstack/query-core": "^4.*.*"
 	},

@@ -73,6 +73,10 @@ importers:
         version: link:../../internals/tsconfig
 
   packages/query:
+    dependencies:
+      type-fest:
+        specifier: ^3.13.1
+        version: 3.13.1
     devDependencies:
       '@ginjou/release-it-config':
         specifier: workspace:*

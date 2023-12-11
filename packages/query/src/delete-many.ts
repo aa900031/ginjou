@@ -99,12 +99,12 @@ export function createDeleteManySettledHandler<
 >(
 	queryClient: QueryClient,
 ): SettledHandler<TData, TError, DeleteManyMutationProps<TParams>, DeleteMutationContext<TData>> {
-	return function updateSettledHandler(
+	return async function updateSettledHandler(
 		_data,
 		_error,
 		props,
 	) {
-		triggerInvalidates({
+		await triggerInvalidates({
 			...props,
 			invalidates: props.invalidates ?? DEFAULT_DELETE_MANY_INVALIDATES,
 		}, queryClient)
