@@ -39,47 +39,24 @@ export type SaveFunction<
 	TResult = unknown,
 	TError = unknown,
 	TProps = unknown,
-	TContext = undefined,
+	TContext = unknown,
 > = (
 	values: TValues,
 	options?: SaveOptions<TResult, TError, TProps, TContext>,
 ) => SaveNormalResult | SaveErroResult
 
-export function mergeSaveOptions<
+export function toMutateOptions<
+	T extends { onSuccess?: any; onError?: any; [key: string]: any },
 	TResult = unknown,
 	TError = unknown,
 	TProps = unknown,
-	TContext = undefined,
+	TContext = unknown,
 >(
-	...args: (Partial<SaveOptions<TResult, TError, TProps, TContext>> | undefined)[]
-): SaveOptions<TResult, TError, TProps, TContext> {
-	const onSuccesses: SaveSuccessCallback<TResult, TProps, TContext>[]
-		= args.map(arg => arg?.onSuccess).filter(Boolean) as any
-	const onErrores: SaveErrorCallback<TError, TProps, TContext>[]
-		= args.map(arg => arg?.onError).filter(Boolean) as any
-
-	return Object.assign(
-		{},
-		...args,
-		onSuccesses.length ? { onSuccess: mergeCallback(...onSuccesses) } : undefined,
-		onErrores.length ? { onError: mergeCallback(...onErrores) } : undefined,
-	)
-}
-
-function mergeCallback<
-	T extends (...args: any[]) => Promisable<true | any>,
->(
-	...callbacks: (T | undefined)[]
-): (...args: Parameters<T>) => Promise<void> {
-	return async (...args) => {
-		for (const cb of callbacks) {
-			if (typeof cb !== 'function')
-				continue
-
-			if (await cb(...args))
-				continue
-			else
-				break
-		}
-	}
+	target: T | undefined,
+	options?: SaveOptions<TResult, TError, TProps, TContext>,
+): T {
+	return Object.assign(target ?? {}, {
+		onSuccess: options?.onSuccess ?? target?.onSuccess,
+		onError: options?.onError ?? target?.onError,
+	}) as T
 }

@@ -1,19 +1,22 @@
-import type { BaseRecord, CreateMutationProps, CreateResult } from '@ginjou/query'
-import type { SaveFunction } from './save'
-import { mergeSaveOptions } from './save'
+import type { BaseRecord, CreateMutateFn, CreateMutationProps, CreateResult } from '@ginjou/query'
+import { type Notification, NotificationType } from './notification'
+import { type SaveFunction, toMutateOptions } from './save'
+import type { Router, RouterGoParams } from './router'
+import { RouterGoType } from './router'
+import { getErrorMessage } from './error'
 
 export interface CreateSaveCreateFnProps<
-	TParams extends Record<string, any> = any,
-	TOptions extends Record<string, any> = any, // TODO: use correct type
+	TData extends BaseRecord = BaseRecord,
+	TError = unknown,
+	TParams = Record<string, any>,
+	TMutateFn extends CreateMutateFn<TData, TError, TParams> = CreateMutateFn<TData, TError, TParams>,
 > {
-	mutate: (
-		props: CreateMutationProps<TParams>,
-		options: TOptions,
-	) => Promise<any> // TODO: refactor to Tanstack mutate types
-	getProps: (
-		values: TParams,
-	) => CreateMutationProps<TParams>
-	getOptions: () => TOptions
+	mutate: TMutateFn
+	notify: Notification['open']
+	go: Router['go']
+	getProps: (values: TParams) => Parameters<TMutateFn>[0]
+	getOptions: () => Parameters<TMutateFn>[1]
+	getRedirectTo?: () => RouterGoParams | undefined
 }
 
 export type SaveCreateFn<
@@ -27,21 +30,32 @@ export function createSaveCreateFn<
 	TError = unknown,
 	TParams extends Record<string, any> = any,
 >(
-	props: CreateSaveCreateFnProps<TParams>,
+	props: CreateSaveCreateFnProps<TData, TError, TParams>,
 ): SaveCreateFn<TData, TError, TParams> {
 	return async (
 		values,
 		options,
 	) => {
 		try {
-			const optionsFromProp = props.getOptions()
 			await props.mutate(
 				props.getProps(values),
-				mergeSaveOptions(options, optionsFromProp),
+				toMutateOptions(props.getOptions(), options),
 			)
+
+			props.notify({
+				message: 'ra.notification.updated', // TODO: translate
+				type: NotificationType.Success,
+			})
+
+			const redirectTo = props.getRedirectTo?.()
+			if (redirectTo)
+				props.go(redirectTo)
 		}
 		catch (error) {
-			// TODO: process errors, then return
+			props.notify({
+				message: getErrorMessage(error) ?? 'ra.notification.http_error', // TODO: translate
+				type: NotificationType.Error,
+			})
 		}
 	}
 }

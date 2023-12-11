@@ -1,5 +1,5 @@
 import type { BaseRecord, GetOneResult, UpdateMutateFn, UpdateMutationProps, UpdateResult } from '@ginjou/query'
-import { type SaveFunction, mergeSaveOptions } from './save'
+import { type SaveFunction, toMutateOptions } from './save'
 import { type Notification, NotificationType } from './notification'
 import { RouterGoType } from './router'
 import type { Router, RouterGoParams } from './router'
@@ -37,9 +37,9 @@ export function createSaveEditFn<
 		options,
 	) => {
 		try {
-			const result = await props.mutate(
+			await props.mutate(
 				props.getProps(values),
-				props.getOptions(),
+				toMutateOptions(props.getOptions(), options),
 			)
 
 			props.notify({
