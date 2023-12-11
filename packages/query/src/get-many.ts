@@ -1,4 +1,5 @@
 import type { PlaceholderDataFunction, QueryClient, QueryFunction, QueryKey } from '@tanstack/query-core'
+import type { Simplify } from 'type-fest'
 import { findGetOneCached, genGetOneQueryKey } from './get-one'
 import { fakeMany } from './helper'
 import { genResourceQueryKey } from './resource'
@@ -7,12 +8,13 @@ import type { BaseRecord, Fetcher, GetManyProps, GetManyResult, GetOneResult, Me
 import type { Fetchers } from './fetchers'
 import { getFetcher } from './fetchers'
 
-export type GetManyQueryProps =
+export type GetManyQueryProps = Simplify<
 	& GetManyProps
 	& {
 		fetcherName?: string
 		aggregate?: boolean
 	}
+>
 
 export function genGetManyQueryKey(
 	props: GetManyQueryProps | {

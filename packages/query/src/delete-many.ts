@@ -1,4 +1,5 @@
 import type { MutateFunction, MutationFunction, QueryClient } from '@tanstack/query-core'
+import type { Simplify } from 'type-fest'
 import { type DeferFn, deferWith } from './defer'
 import { InvalidateTarget, type InvalidateTargetType, triggerInvalidates } from './invalidate'
 import { fakeMany } from './helper'
@@ -19,13 +20,14 @@ const DEFAULT_DELETE_MANY_INVALIDATES: InvalidateTargetType[] = [
 
 export type DeleteManyMutationProps<
 	TParams = Record<string, any>,
-> =
+> = Simplify<
 	& DeleteManyProps<TParams>
 	& {
 		fetcherName?: string
 		defer?: DeferFn
 		invalidates?: InvalidateTargetType[]
 	}
+>
 
 export type DeleteManyMutateFn<
 	TData extends BaseRecord = BaseRecord,

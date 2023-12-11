@@ -1,4 +1,5 @@
 import type { MutationFunction } from '@tanstack/query-core'
+import type { Simplify } from 'type-fest'
 import type { InvalidateTargetType } from './invalidate'
 import type { BaseRecord, CustomProps, CustomResult } from './fetcher'
 import type { Fetchers } from './fetchers'
@@ -7,12 +8,13 @@ import { getFetcher } from './fetchers'
 export type CustomMutationProps<
 	TQuery = unknown,
 	TPayload = unknown,
-> =
+> = Simplify<
 	& CustomProps<TQuery, TPayload>
 	& {
 		fetcherName?: string
 		invalidates?: InvalidateTargetType[]
 	}
+>
 
 export function createCustomMutationFn<
 	TData extends BaseRecord = BaseRecord,

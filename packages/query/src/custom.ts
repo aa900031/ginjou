@@ -1,4 +1,5 @@
 import type { QueryFunction, QueryKey } from '@tanstack/query-core'
+import type { Simplify } from 'type-fest'
 import type { BaseRecord, CustomProps, CustomResult } from './fetcher'
 import type { Fetchers } from './fetchers'
 import { getFetcher } from './fetchers'
@@ -6,11 +7,12 @@ import { getFetcher } from './fetchers'
 export type CustomQueryProps<
 	TQuery = unknown,
 	TPayload = unknown,
-> =
+> = Simplify<
 	& CustomProps<TQuery, TPayload>
 	& {
 		fetcherName?: string
 	}
+>
 
 export function genCustomQueryKey(
 	props: CustomQueryProps,

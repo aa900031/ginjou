@@ -1,4 +1,5 @@
 import type { MutateFunction, MutationFunction, QueryClient } from '@tanstack/query-core'
+import type { Simplify } from 'type-fest'
 import { genGetOneQueryKey } from './get-one'
 import { InvalidateTarget, type InvalidateTargetType, triggerInvalidates } from './invalidate'
 import type { SuccessHandler } from './types'
@@ -13,12 +14,13 @@ const DEFAULT_CREATE_INVALIDATES: InvalidateTargetType[] = [
 
 export type CreateMutationProps<
 	TParams = Record<string, any>,
-> =
+> = Simplify<
 	& CreateProps<TParams>
 	& {
 		fetcherName?: string
 		invalidates?: InvalidateTargetType[]
 	}
+>
 
 export type CreateMutateFn<
 	TData extends BaseRecord = BaseRecord,

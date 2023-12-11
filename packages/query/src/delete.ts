@@ -1,4 +1,5 @@
 import type { MutateFunction, MutationFunction, QueryClient } from '@tanstack/query-core'
+import type { Simplify } from 'type-fest'
 import { type DeferFn, deferWith } from './defer'
 import { InvalidateTarget, type InvalidateTargetType, triggerInvalidates } from './invalidate'
 import type { ErrorHandler, MutateHandler, QueryPair, SettledHandler, SuccessHandler } from './types'
@@ -17,13 +18,14 @@ const DEFAULT_UPDATE_INVALIDATES: InvalidateTargetType[] = [
 
 export type DeleteMutationProps<
 	TParams = Record<string, any>,
-> =
+> = Simplify<
 	& DeleteOneProps<TParams>
 	& {
 		fetcherName?: string
 		defer?: DeferFn
 		invalidates?: InvalidateTargetType[]
 	}
+>
 
 export interface DeleteMutationContext<
 	TData extends BaseRecord = BaseRecord,

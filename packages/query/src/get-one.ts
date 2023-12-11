@@ -1,14 +1,16 @@
 import { type QueryClient, type QueryFunction, type QueryKey, hashQueryKey } from '@tanstack/query-core'
+import type { Simplify } from 'type-fest'
 import { genResourceQueryKey } from './resource'
 import type { BaseRecord, GetOneProps, GetOneResult } from './fetcher'
 import type { Fetchers } from './fetchers'
 import { getFetcher } from './fetchers'
 
-export type GetOneQueryProps =
+export type GetOneQueryProps = Simplify<
 	& GetOneProps
 	& {
 		fetcherName?: string
 	}
+>
 
 export function genGetOneQueryKey(
 	props: GetOneQueryProps,

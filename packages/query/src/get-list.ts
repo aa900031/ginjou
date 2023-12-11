@@ -1,4 +1,5 @@
 import type { QueryClient, QueryFunction, QueryKey } from '@tanstack/query-core'
+import type { Simplify } from 'type-fest'
 import { genGetOneQueryKey } from './get-one'
 import { genResourceQueryKey } from './resource'
 import type { BaseRecord, GetListProps, GetListResult, GetOneResult, Meta, Pagination, PaginationPayload } from './fetcher'
@@ -7,12 +8,13 @@ import { getFetcher } from './fetchers'
 
 export type GetListQueryProps<
 	TPageParam = number,
-> =
+> = Simplify<
 	& Omit<GetListProps, 'pagination'>
 	& {
 		pagination?: PaginationPayload<TPageParam>
 		fetcherName?: string
 	}
+>
 
 export function genGetListQueryKey(
 	props:
