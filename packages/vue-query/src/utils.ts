@@ -9,13 +9,7 @@ export function toEnabledRef(
 	queryOptions?: MaybeRef<UseQueryOptions<any, any, any> | undefined>,
 ): ComputedRef<boolean | undefined> {
 	return computed(() => {
-		let enabledByQueryOptions: boolean | undefined
 		const optionsEnabled = unref(unref(queryOptions)?.enabled)
-		if (typeof optionsEnabled === 'function')
-			enabledByQueryOptions = optionsEnabled()
-		else
-			enabledByQueryOptions = optionsEnabled
-
-		return enabledByQueryOptions ?? toValue(defaultValue)
+		return toValue(optionsEnabled) ?? toValue(defaultValue)
 	})
 }

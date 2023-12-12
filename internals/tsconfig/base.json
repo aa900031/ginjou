@@ -24,8 +24,12 @@
 		"paths": {
 			"@ginjou/query": ["../../packages/query/src/index.ts"],
 			"@ginjou/vue-query": ["../../packages/vue-query/src/index.ts"],
+			"@ginjou/auth": ["../../packages/auth/src/index.ts"],
+			"@ginjou/vue-auth": ["../../packages/vue-auth/src/index.ts"],
 			"@ginjou/controller": ["../../packages/controller/src/index.ts"],
-			"@ginjou/vue-controller": ["../../packages/vue-controller/src/index.ts"]
+			"@ginjou/vue-controller": ["../../packages/vue-controller/src/index.ts"],
+			"@ginjou/router": ["../../packages/router/src/index.ts"],
+			"@ginjou/vue-router": ["../../packages/vue-router/src/index.ts"],
 		}
 	}
 }

@@ -5,6 +5,4 @@ export * from './show'
 export * from './edit'
 export * from './save'
 
-export * from './auth'
 export * from './notification'
-export * from './router'

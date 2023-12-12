@@ -50,6 +50,22 @@ importers:
         specifier: ^18.2.2
         version: 18.2.2
 
+  packages/auth:
+    dependencies:
+      type-fest:
+        specifier: ^3.13.1
+        version: 3.13.1
+    devDependencies:
+      '@ginjou/release-it-config':
+        specifier: workspace:*
+        version: link:../../internals/release-it-config
+      '@ginjou/tsconfig':
+        specifier: workspace:*
+        version: link:../../internals/tsconfig
+      '@tanstack/query-core':
+        specifier: ^4.36.1
+        version: 4.36.1
+
   packages/controller:
     dependencies:
       '@ginjou/query':
@@ -87,6 +103,50 @@ importers:
       '@tanstack/query-core':
         specifier: ^4.36.1
         version: 4.36.1
+
+  packages/router:
+    dependencies:
+      type-fest:
+        specifier: ^3.13.1
+        version: 3.13.1
+    devDependencies:
+      '@ginjou/release-it-config':
+        specifier: workspace:*
+        version: link:../../internals/release-it-config
+      '@ginjou/tsconfig':
+        specifier: workspace:*
+        version: link:../../internals/tsconfig
+
+  packages/vue-auth:
+    dependencies:
+      '@ginjou/auth':
+        specifier: workspace:^
+        version: link:../auth
+      '@vueuse/shared':
+        specifier: ^10.5.0
+        version: 10.5.0(vue@3.3.7)
+      type-fest:
+        specifier: ^3.13.1
+        version: 3.13.1
+      vue-demi:
+        specifier: latest
+        version: 0.14.6(vue@3.3.7)
+    devDependencies:
+      '@ginjou/release-it-config':
+        specifier: workspace:*
+        version: link:../../internals/release-it-config
+      '@ginjou/tsconfig':
+        specifier: workspace:*
+        version: link:../../internals/tsconfig
+      '@tanstack/vue-query':
+        specifier: ^4.37.1
+        version: 4.37.1(vue@3.3.7)
+      '@testing-library/vue':
+        specifier: ^7.0.0
+        version: 7.0.0(vue@3.3.7)
+      vue:
+        specifier: ^3.3.7
+        version: 3.3.7(typescript@5.2.2)
 
   packages/vue-controller:
     dependencies:
@@ -152,6 +212,37 @@ importers:
       vue:
         specifier: ^3.3.7
         version: 3.3.7(typescript@5.2.2)
+
+  packages/vue-router:
+    dependencies:
+      '@ginjou/router':
+        specifier: workspace:^
+        version: link:../router
+      '@vueuse/shared':
+        specifier: ^10.5.0
+        version: 10.5.0(vue@3.3.7)
+      type-fest:
+        specifier: ^3.13.1
+        version: 3.13.1
+      vue-demi:
+        specifier: latest
+        version: 0.14.6(vue@3.3.7)
+    devDependencies:
+      '@ginjou/release-it-config':
+        specifier: workspace:*
+        version: link:../../internals/release-it-config
+      '@ginjou/tsconfig':
+        specifier: workspace:*
+        version: link:../../internals/tsconfig
+      '@testing-library/vue':
+        specifier: ^7.0.0
+        version: 7.0.0(vue@3.3.7)
+      vue:
+        specifier: ^3.3.7
+        version: 3.3.7(typescript@5.2.2)
+      vue-router:
+        specifier: ^4.2.5
+        version: 4.2.5(vue@3.3.7)
 
 packages:
 
@@ -6563,6 +6654,15 @@ packages:
       semver: 7.5.4
     transitivePeerDependencies:
       - supports-color
+    dev: true
+
+  /vue-router@4.2.5(vue@3.3.7):
+    resolution: {integrity: sha512-DIUpKcyg4+PTQKfFPX88UWhlagBEBEfJ5A8XDXRJLUnZOvcpMF8o/dnL90vpVkGaPbjvXazV/rC1qBKrZlFugw==}
+    peerDependencies:
+      vue: ^3.2.0
+    dependencies:
+      '@vue/devtools-api': 6.5.0
+      vue: 3.3.7(typescript@5.2.2)
     dev: true
 
   /vue@3.3.7(typescript@5.2.2):
