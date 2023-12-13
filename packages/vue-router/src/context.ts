@@ -1,6 +1,6 @@
-import type { Router } from '@ginjou/router'
 import type { Simplify } from 'type-fest'
 import { inject, provide } from 'vue-demi'
+import type { Router } from '@ginjou/router'
 
 const KEY = Symbol('@ginjou/vue-router')
 

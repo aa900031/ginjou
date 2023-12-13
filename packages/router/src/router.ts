@@ -40,6 +40,10 @@ export interface RouterParsedValue<
 	meta?: TMeta
 }
 
+export type RouterOnCurrentChangeFn<
+	TMeta = unknown,
+> = (handler: (value: RouterParsedValue<TMeta>) => void) => () => void
+
 export interface Router<
 	TGoMeta = unknown,
 	TParsedMeta = unknown,
@@ -47,4 +51,5 @@ export interface Router<
 	go: RouterGoFn<TGoMeta>
 	back: RouterBackFn
 	getCurrent: RouterGetCurrentFn<TParsedMeta>
+	onCurrentChange: RouterOnCurrentChangeFn<TParsedMeta>
 }

@@ -1,7 +1,8 @@
 import type { SetRequired, Simplify } from 'type-fest'
+import { watch } from 'vue'
 import type { LocationAsRelativeRaw, RouteLocationNormalizedLoaded, RouteLocationOptions, RouteLocationRaw } from 'vue-router'
 import { useRouter } from 'vue-router'
-import type { Router, RouterGoParams } from '@ginjou/router'
+import type { Router, RouterGoParams, RouterParsedValue } from '@ginjou/router'
 
 export type RouteGoMeta = Simplify<
 	| RouteLocationOptions
@@ -32,17 +33,12 @@ export function defineRouterBinding(): Router<
 			router.back()
 		},
 		getCurrent: () => {
-			const current = router.currentRoute.value
-
-			return {
-				path: current.path,
-				params: current.params,
-				query: current.query,
-				hash: current.hash,
-				meta: {
-					location: current,
-				},
-			}
+			return toParsedValue(router.currentRoute.value)
+		},
+		onCurrentChange: (handler) => {
+			return watch(router.currentRoute, (val) => {
+				handler(toParsedValue(val))
+			})
 		},
 	}
 }
@@ -92,5 +88,19 @@ function toRouteLocation(
 		replace: !!(meta.replace ?? type === 'replace'),
 		query: nextQuery,
 		hash: nextHash,
+	}
+}
+
+function toParsedValue(
+	current: RouteLocationNormalizedLoaded,
+): RouterParsedValue<RouteParsedMeta> {
+	return {
+		path: current.path,
+		params: current.params,
+		query: current.query,
+		hash: current.hash,
+		meta: {
+			location: current,
+		},
 	}
 }

@@ -218,9 +218,6 @@ importers:
       '@ginjou/router':
         specifier: workspace:^
         version: link:../router
-      '@vueuse/shared':
-        specifier: ^10.5.0
-        version: 10.5.0(vue@3.3.7)
       type-fest:
         specifier: ^3.13.1
         version: 3.13.1
@@ -237,6 +234,22 @@ importers:
       '@testing-library/vue':
         specifier: ^7.0.0
         version: 7.0.0(vue@3.3.7)
+      vue:
+        specifier: ^3.3.7
+        version: 3.3.7(typescript@5.2.2)
+
+  packages/with-vue-router:
+    dependencies:
+      '@ginjou/vue-router':
+        specifier: workspace:^
+        version: link:../vue-router
+    devDependencies:
+      '@ginjou/release-it-config':
+        specifier: workspace:*
+        version: link:../../internals/release-it-config
+      '@ginjou/tsconfig':
+        specifier: workspace:*
+        version: link:../../internals/tsconfig
       vue:
         specifier: ^3.3.7
         version: 3.3.7(typescript@5.2.2)

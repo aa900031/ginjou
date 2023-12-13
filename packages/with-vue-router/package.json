@@ -1,5 +1,5 @@
 {
-	"name": "@ginjou/vue-router",
+	"name": "@ginjou/with-vue-router",
 	"version": "0.0.0",
 	"type": "module",
 	"author": "zhong666 <hi@zhong666.me>",
@@ -41,6 +41,7 @@
 	},
 	"peerDependencies": {
 		"@vue/composition-api": "^1.1.0",
+		"vue-router": "^4.*.*",
 		"vue": "^2.6.12 || ^3.2.0"
 	},
 	"peerDependenciesMeta": {
@@ -52,14 +53,12 @@
 		}
 	},
 	"dependencies": {
-		"@ginjou/router": "workspace:^",
-		"type-fest": "^3.13.1",
-		"vue-demi": "latest"
+		"@ginjou/vue-router": "workspace:^"
 	},
 	"devDependencies": {
 		"@ginjou/release-it-config": "workspace:*",
 		"@ginjou/tsconfig": "workspace:*",
-		"@testing-library/vue": "^7.0.0",
+		"vue-router": "^4.2.5",
 		"vue": "^3.3.7"
 	}
 }
