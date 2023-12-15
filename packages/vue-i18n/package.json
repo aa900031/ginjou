@@ -1,5 +1,5 @@
 {
-	"name": "@ginjou/vue-router",
+	"name": "@ginjou/vue-i18n",
 	"version": "0.0.0",
 	"type": "module",
 	"author": "zhong666 <hi@zhong666.me>",
@@ -53,7 +53,7 @@
 	},
 	"dependencies": {
 		"@bouzu/vue-helper": "0.0.1",
-		"@ginjou/router": "workspace:^",
+		"@ginjou/i18n": "workspace:^",
 		"type-fest": "^3.13.1",
 		"vue-demi": "latest"
 	},

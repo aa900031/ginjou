@@ -26,11 +26,11 @@ export type RouterGoFn<
 
 export type RouterBackFn = () => void
 
-export type RouterGetCurrentFn<
+export type RouterGetLocationFn<
 	TMeta = unknown,
-> = () => RouterParsedValue<TMeta>
+> = () => RouterLocation<TMeta>
 
-export interface RouterParsedValue<
+export interface RouterLocation<
 	TMeta = unknown,
 > {
 	path: string
@@ -40,9 +40,9 @@ export interface RouterParsedValue<
 	meta?: TMeta
 }
 
-export type RouterOnCurrentChangeFn<
+export type RouterOnChangeLocationFn<
 	TMeta = unknown,
-> = (handler: (value: RouterParsedValue<TMeta>) => void) => () => void
+> = (handler: (value: RouterLocation<TMeta>) => void) => () => void
 
 export interface Router<
 	TGoMeta = unknown,
@@ -50,6 +50,6 @@ export interface Router<
 > {
 	go: RouterGoFn<TGoMeta>
 	back: RouterBackFn
-	getCurrent: RouterGetCurrentFn<TParsedMeta>
-	onCurrentChange: RouterOnCurrentChangeFn<TParsedMeta>
+	getLocation: RouterGetLocationFn<TParsedMeta>
+	onChangeLocation: RouterOnChangeLocationFn<TParsedMeta>
 }

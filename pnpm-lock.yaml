@@ -88,6 +88,19 @@ importers:
         specifier: workspace:*
         version: link:../../internals/tsconfig
 
+  packages/i18n:
+    dependencies:
+      type-fest:
+        specifier: ^3.13.1
+        version: 3.13.1
+    devDependencies:
+      '@ginjou/release-it-config':
+        specifier: workspace:*
+        version: link:../../internals/release-it-config
+      '@ginjou/tsconfig':
+        specifier: workspace:*
+        version: link:../../internals/tsconfig
+
   packages/query:
     dependencies:
       type-fest:
@@ -156,15 +169,49 @@ importers:
       '@ginjou/controller':
         specifier: workspace:*
         version: link:../controller
+      '@ginjou/vue-auth':
+        specifier: workspace:^
+        version: link:../vue-auth
       '@ginjou/vue-query':
         specifier: workspace:^
         version: link:../vue-query
+      '@ginjou/vue-router':
+        specifier: workspace:^
+        version: link:../vue-router
       '@vueuse/shared':
         specifier: ^10.5.0
         version: 10.5.0(vue@3.3.7)
       filter-obj:
         specifier: ^5.1.0
         version: 5.1.0
+      type-fest:
+        specifier: ^3.13.1
+        version: 3.13.1
+      vue-demi:
+        specifier: latest
+        version: 0.14.6(vue@3.3.7)
+    devDependencies:
+      '@ginjou/release-it-config':
+        specifier: workspace:*
+        version: link:../../internals/release-it-config
+      '@ginjou/tsconfig':
+        specifier: workspace:*
+        version: link:../../internals/tsconfig
+      '@testing-library/vue':
+        specifier: ^7.0.0
+        version: 7.0.0(vue@3.3.7)
+      vue:
+        specifier: ^3.3.7
+        version: 3.3.7(typescript@5.2.2)
+
+  packages/vue-i18n:
+    dependencies:
+      '@bouzu/vue-helper':
+        specifier: 0.0.1
+        version: 0.0.1(vue-demi@0.14.6)
+      '@ginjou/i18n':
+        specifier: workspace:^
+        version: link:../i18n
       type-fest:
         specifier: ^3.13.1
         version: 3.13.1
@@ -215,6 +262,9 @@ importers:
 
   packages/vue-router:
     dependencies:
+      '@bouzu/vue-helper':
+        specifier: 0.0.1
+        version: 0.0.1(vue-demi@0.14.6)
       '@ginjou/router':
         specifier: workspace:^
         version: link:../router
@@ -238,11 +288,36 @@ importers:
         specifier: ^3.3.7
         version: 3.3.7(typescript@5.2.2)
 
+  packages/with-vue-i18n:
+    dependencies:
+      '@ginjou/vue-i18n':
+        specifier: workspace:^
+        version: link:../vue-i18n
+      vue-demi:
+        specifier: latest
+        version: 0.14.6(vue@3.3.7)
+    devDependencies:
+      '@ginjou/release-it-config':
+        specifier: workspace:*
+        version: link:../../internals/release-it-config
+      '@ginjou/tsconfig':
+        specifier: workspace:*
+        version: link:../../internals/tsconfig
+      vue:
+        specifier: ^3.3.7
+        version: 3.3.7(typescript@5.2.2)
+      vue-i18n:
+        specifier: ^9.8.0
+        version: 9.8.0(vue@3.3.7)
+
   packages/with-vue-router:
     dependencies:
       '@ginjou/vue-router':
         specifier: workspace:^
         version: link:../vue-router
+      vue-demi:
+        specifier: latest
+        version: 0.14.6(vue@3.3.7)
     devDependencies:
       '@ginjou/release-it-config':
         specifier: workspace:*
@@ -1015,6 +1090,27 @@ packages:
 
   /@iarna/toml@2.2.5:
     resolution: {integrity: sha512-trnsAYxU3xnS1gPHPyU961coFyLkh4gAD/0zQ5mymY4yOZ+CYvsPqUbOFSw0aDM4y0tV7tiFxL/1XfXPNC6IPg==}
+    dev: true
+
+  /@intlify/core-base@9.8.0:
+    resolution: {integrity: sha512-UxaSZVZ1DwqC/CltUZrWZNaWNhfmKtfyV4BJSt/Zt4Or/fZs1iFj0B+OekYk1+MRHfIOe3+x00uXGQI4PbO/9g==}
+    engines: {node: '>= 16'}
+    dependencies:
+      '@intlify/message-compiler': 9.8.0
+      '@intlify/shared': 9.8.0
+    dev: true
+
+  /@intlify/message-compiler@9.8.0:
+    resolution: {integrity: sha512-McnYWhcoYmDJvssVu6QGR0shqlkJuL1HHdi5lK7fNqvQqRYaQ4lSLjYmZxwc8tRNMdIe9/KUKfyPxU9M6yCtNQ==}
+    engines: {node: '>= 16'}
+    dependencies:
+      '@intlify/shared': 9.8.0
+      source-map-js: 1.0.2
+    dev: true
+
+  /@intlify/shared@9.8.0:
+    resolution: {integrity: sha512-TmgR0RCLjzrSo+W3wT0ALf9851iFMlVI9EYNGeWvZFUQTAJx0bvfsMlPdgVtV1tDNRiAfhkFsMKu6jtUY1ZLKQ==}
+    engines: {node: '>= 16'}
     dev: true
 
   /@jest/schemas@29.6.3:
@@ -6667,6 +6763,18 @@ packages:
       semver: 7.5.4
     transitivePeerDependencies:
       - supports-color
+    dev: true
+
+  /vue-i18n@9.8.0(vue@3.3.7):
+    resolution: {integrity: sha512-Izho+6PYjejsTq2mzjcRdBZ5VLRQoSuuexvR8029h5CpN03FYqiqBrShMyf2I1DKkN6kw/xmujcbvC+4QybpsQ==}
+    engines: {node: '>= 16'}
+    peerDependencies:
+      vue: ^3.0.0
+    dependencies:
+      '@intlify/core-base': 9.8.0
+      '@intlify/shared': 9.8.0
+      '@vue/devtools-api': 6.5.0
+      vue: 3.3.7(typescript@5.2.2)
     dev: true
 
   /vue-router@4.2.5(vue@3.3.7):

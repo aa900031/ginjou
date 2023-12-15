@@ -53,7 +53,8 @@
 		}
 	},
 	"dependencies": {
-		"@ginjou/vue-router": "workspace:^"
+		"@ginjou/vue-router": "workspace:^",
+		"vue-demi": "latest"
 	},
 	"devDependencies": {
 		"@ginjou/release-it-config": "workspace:*",

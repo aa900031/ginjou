@@ -1,4 +1,3 @@
 export * from './context'
-export * from './back'
-export * from './go'
+export * from './translate'
 export * from './locale'
