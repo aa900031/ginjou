@@ -9,7 +9,7 @@
 		"src/**/*.spec.ts"
 	],
 	"references": [
-		{ "path": "../router/tsconfig.app.json" },
-		{ "path": "../vue-router/tsconfig.app.json" }
+		{ "path": "../core/tsconfig.app.json" },
+		{ "path": "../vue/tsconfig.app.json" }
 	]
 }

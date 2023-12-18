@@ -1,7 +1,7 @@
 import { unref, watch } from 'vue-demi'
 import type { Composer, UseI18nOptions } from 'vue-i18n'
 import { useI18n } from 'vue-i18n'
-import type { I18n } from '@ginjou/i18n'
+import type { I18n } from '@ginjou/core'
 
 export function defineI18nBinding<
 	TUseI18nOptions extends UseI18nOptions = UseI18nOptions,

@@ -24,5 +24,12 @@
 		"typescript": "^5.2.2",
 		"unbuild": "^2.0.0",
 		"vitest": "^0.34.6"
+	},
+	"pnpm": {
+		"overrides": {
+			"@tanstack/vue-query>vue-demi": "latest",
+			"mkdist>esbuild": "0.19.2",
+			"vite>esbuild": "0.19.2"
+		}
 	}
 }

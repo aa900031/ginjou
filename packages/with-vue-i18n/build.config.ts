@@ -17,4 +17,7 @@ export default defineBuildConfig({
 			tsconfig: './tsconfig.app.json',
 		},
 	},
+	externals: [
+		'@ginjou/core',
+	],
 })

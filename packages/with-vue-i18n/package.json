@@ -1,5 +1,5 @@
 {
-	"name": "@ginjou/with-vue-router",
+	"name": "@ginjou/with-vue-i18n",
 	"version": "0.0.0",
 	"type": "module",
 	"author": "zhong666 <hi@zhong666.me>",
@@ -35,8 +35,6 @@
 	},
 	"scripts": {
 		"build": "unbuild",
-		"test": "vitest run",
-		"dev:test": "vitest",
 		"release": "release-it --ci"
 	},
 	"peerDependencies": {
@@ -53,7 +51,7 @@
 		}
 	},
 	"dependencies": {
-		"@ginjou/vue-i18n": "workspace:^",
+		"@ginjou/vue": "workspace:^",
 		"vue-demi": "latest"
 	},
 	"devDependencies": {

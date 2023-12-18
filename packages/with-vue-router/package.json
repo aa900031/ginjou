@@ -35,8 +35,6 @@
 	},
 	"scripts": {
 		"build": "unbuild",
-		"test": "vitest run",
-		"dev:test": "vitest",
 		"release": "release-it --ci"
 	},
 	"peerDependencies": {
@@ -53,8 +51,9 @@
 		}
 	},
 	"dependencies": {
-		"@ginjou/vue-router": "workspace:^",
-		"vue-demi": "latest"
+		"@ginjou/vue": "workspace:^",
+		"vue-demi": "latest",
+		"type-fest": "^3.13.1"
 	},
 	"devDependencies": {
 		"@ginjou/release-it-config": "workspace:*",

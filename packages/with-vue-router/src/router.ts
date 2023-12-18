@@ -2,7 +2,7 @@ import type { SetRequired, Simplify } from 'type-fest'
 import { watch } from 'vue-demi'
 import type { LocationAsRelativeRaw, RouteLocationNormalizedLoaded, RouteLocationOptions, RouteLocationRaw } from 'vue-router'
 import { useRouter } from 'vue-router'
-import type { Router, RouterGoParams, RouterLocation } from '@ginjou/router'
+import type { Router, RouterGoParams, RouterLocation } from '@ginjou/core'
 
 export type RouteGoMeta = Simplify<
 	| RouteLocationOptions
