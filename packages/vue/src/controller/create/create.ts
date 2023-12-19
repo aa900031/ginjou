@@ -8,6 +8,10 @@ import type { UseCreateContext as UseQueryCreateContext, UseCreateProps as UseQu
 import { useCreate as useQueryCreate } from '../../query'
 import type { RecordMaybeRef } from '../helper/types'
 import { pickUnrefs } from '../helper/pick-unrefs'
+import type { UseNotifyContext } from '../../notification'
+import { useNotify } from '../../notification'
+import type { UseGoContext } from '../../router'
+import { useGo } from '../../router'
 
 export type UseCreateProps<
 	TData extends BaseRecord = BaseRecord,
@@ -21,8 +25,11 @@ export type UseCreateProps<
 	}
 >
 
-export type UseCreateContext =
+export type UseCreateContext = Simplify<
 	& UseQueryCreateContext
+	& UseNotifyContext
+	& UseGoContext
+>
 
 export interface UseCreateResult<
 	TData extends BaseRecord = BaseRecord,
@@ -41,9 +48,14 @@ export function useCreate<
 	props: UseCreateProps<TData, TError, TParams>,
 	context?: UseCreateContext,
 ) {
+	const go = useGo(context)
+	const notify = useNotify(context)
+
 	const create = useQueryCreate<TData, TError, TParams>(props, context)
 	const save = createSaveCreateFn<TData, TError, TParams>({
 		mutate: create,
+		notify,
+		go,
 		getProps: values => ({
 			// eslint-disable-next-line ts/no-use-before-define
 			...pickUnrefs(props, PICK_PROPS_FIELDS),

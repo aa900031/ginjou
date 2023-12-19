@@ -10,10 +10,10 @@ import { useGetOne, useUpdate } from '../../query'
 import type { RecordMaybeRef } from '../helper/types'
 import type { Save } from '../save/save'
 import { pickUnrefs } from '../helper/pick-unrefs'
-import type { UseNotifyContext } from '../notification/notify'
-import { useNotify } from '../notification/notify'
-import type { UseGoContext } from '../router/go'
-import { useGo } from '../router/go'
+import type { UseNotifyContext } from '../../notification'
+import { useNotify } from '../../notification'
+import type { UseGoContext } from '../../router'
+import { useGo } from '../../router'
 
 export type UseEditProps<
 	TData extends BaseRecord = BaseRecord,

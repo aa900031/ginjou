@@ -1,8 +1,8 @@
 import type { Router, RouterGoParams } from '../router'
 import { RouterGoType } from '../router'
 import type { BaseRecord, GetOneResult, UpdateMutateFn, UpdateMutationProps, UpdateResult } from '../query'
+import { type NotificationOpenFn, NotificationType } from '../notification'
 import { type SaveFunction, toMutateOptions } from './save'
-import { type Notification, NotificationType } from './notification'
 import { getErrorMessage } from './error'
 
 export interface CreateSaveEditFnProps<
@@ -12,7 +12,7 @@ export interface CreateSaveEditFnProps<
 	TMutateFn extends UpdateMutateFn<TData, TError, TParams> = UpdateMutateFn<TData, TError, TParams>,
 > {
 	mutate: TMutateFn
-	notify: Notification['open']
+	notify: NotificationOpenFn
 	go: Router['go']
 	getProps: (values: TParams) => Parameters<TMutateFn>[0]
 	getOptions: () => Parameters<TMutateFn>[1]
@@ -78,7 +78,7 @@ export interface HandleEditGetOneErrorProps<
 	TError = unknown,
 > {
 	error: TError
-	notify: Notification['open']
+	notify: NotificationOpenFn
 	go: Router['go']
 }
 

@@ -17,11 +17,11 @@ export interface OpenNotificationParams {
 	undoableTimeout?: number
 }
 
-export interface Notification {
-	open: (params: OpenNotificationParams) => void
-	close: (key: string) => void
-}
+export type NotificationOpenFn = (params: OpenNotificationParams) => void
 
-export function defaultNotificationOpen(_params: OpenNotificationParams) {
-	// TODO: Show warning at Dev mode
+export type NotificationCloseFn = (key: string) => void
+
+export interface Notification {
+	open: NotificationOpenFn
+	close: NotificationCloseFn
 }

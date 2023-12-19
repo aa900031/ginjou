@@ -1,6 +1,6 @@
 import type { Router, RouterGoParams } from '../router'
 import type { BaseRecord, CreateMutateFn, CreateMutationProps, CreateResult } from '../query'
-import { type Notification, NotificationType } from './notification'
+import { type NotificationOpenFn, NotificationType } from '../notification'
 import { type SaveFunction, toMutateOptions } from './save'
 import { getErrorMessage } from './error'
 
@@ -11,7 +11,7 @@ export interface CreateSaveCreateFnProps<
 	TMutateFn extends CreateMutateFn<TData, TError, TParams> = CreateMutateFn<TData, TError, TParams>,
 > {
 	mutate: TMutateFn
-	notify: Notification['open']
+	notify: NotificationOpenFn
 	go: Router['go']
 	getProps: (values: TParams) => Parameters<TMutateFn>[0]
 	getOptions: () => Parameters<TMutateFn>[1]
