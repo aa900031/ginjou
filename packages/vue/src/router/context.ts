@@ -22,13 +22,19 @@ export type UseRouterContextProps = Simplify<
 	}
 >
 
-export function useRouterContext(
+export function useRouterContext<
+	TGoMeta = unknown,
+	TLocationMeta = unknown,
+>(
 	props: UseRouterContextProps & { strict: true },
-): Router
+): Router<TGoMeta, TLocationMeta>
 
-export function useRouterContext(
+export function useRouterContext<
+	TGoMeta = unknown,
+	TLocationMeta = unknown,
+>(
 	props?: UseRouterContextProps,
-): Router | undefined
+): Router<TGoMeta, TLocationMeta> | undefined
 
 export function useRouterContext(
 	props?: UseRouterContextProps,

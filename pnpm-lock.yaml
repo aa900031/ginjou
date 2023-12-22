@@ -63,6 +63,9 @@ importers:
       mitt:
         specifier: ^3.0.1
         version: 3.0.1
+      regexparam:
+        specifier: ^3.0.0
+        version: 3.0.0
       type-fest:
         specifier: ^3.13.1
         version: 3.13.1
@@ -116,9 +119,6 @@ importers:
 
   packages/with-vue-i18n:
     dependencies:
-      '@ginjou/vue':
-        specifier: workspace:^
-        version: link:../vue
       vue-demi:
         specifier: latest
         version: 0.14.6(vue@3.3.7)
@@ -129,6 +129,9 @@ importers:
       '@ginjou/tsconfig':
         specifier: workspace:*
         version: link:../../internals/tsconfig
+      '@ginjou/vue':
+        specifier: workspace:^
+        version: link:../vue
       vue:
         specifier: ^3.3.7
         version: 3.3.7(typescript@5.2.2)
@@ -138,9 +141,6 @@ importers:
 
   packages/with-vue-router:
     dependencies:
-      '@ginjou/vue':
-        specifier: workspace:^
-        version: link:../vue
       type-fest:
         specifier: ^3.13.1
         version: 3.13.1
@@ -154,6 +154,9 @@ importers:
       '@ginjou/tsconfig':
         specifier: workspace:*
         version: link:../../internals/tsconfig
+      '@ginjou/vue':
+        specifier: workspace:^
+        version: link:../vue
       vue:
         specifier: ^3.3.7
         version: 3.3.7(typescript@5.2.2)
@@ -5281,6 +5284,11 @@ packages:
       define-properties: 1.2.0
       set-function-name: 2.0.1
     dev: true
+
+  /regexparam@3.0.0:
+    resolution: {integrity: sha512-RSYAtP31mvYLkAHrOlh25pCNQ5hWnT106VukGaaFfuJrZFkGRX5GhUAdPqpSDXxOhA2c4akmRuplv1mRqnBn6Q==}
+    engines: {node: '>=8'}
+    dev: false
 
   /registry-auth-token@5.0.2:
     resolution: {integrity: sha512-o/3ikDxtXaA59BmZuZrJZDJv8NMDGSj+6j6XaeBmHw8eY1i1qd9+6H+LjVvQXx3HN6aRCGa1cUdJ9RaJZUugnQ==}

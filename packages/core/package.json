@@ -49,6 +49,7 @@
 	"dependencies": {
 		"klona": "^2.0.6",
 		"mitt": "^3.0.1",
+		"regexparam": "^3.0.0",
 		"type-fest": "^3.13.1"
 	},
 	"devDependencies": {

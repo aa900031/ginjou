@@ -1,7 +1,6 @@
 import type { Simplify } from 'type-fest'
 import { computed, unref } from 'vue-demi'
 import type { MaybeRef } from '@vueuse/shared'
-import { getResourceFetcherName } from '@ginjou/core'
 import type { UseResourceContext } from './resource'
 import { useResource } from './resource'
 
@@ -18,5 +17,5 @@ export function useResourceFetcherName(
 	context?: UseResourceFetcherNameContext,
 ) {
 	const resource = useResource(props, context)
-	return computed(() => getResourceFetcherName(unref(resource)))
+	return computed(() => unref(resource)?.resource.meta?.fetcherName)
 }

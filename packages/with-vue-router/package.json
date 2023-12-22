@@ -38,6 +38,7 @@
 		"release": "release-it --ci"
 	},
 	"peerDependencies": {
+		"@ginjou/vue": "workspace:^",
 		"@vue/composition-api": "^1.1.0",
 		"vue-router": "^4.*.*",
 		"vue": "^2.6.12 || ^3.2.0"
@@ -51,11 +52,11 @@
 		}
 	},
 	"dependencies": {
-		"@ginjou/vue": "workspace:^",
 		"vue-demi": "latest",
 		"type-fest": "^3.13.1"
 	},
 	"devDependencies": {
+		"@ginjou/vue": "workspace:^",
 		"@ginjou/release-it-config": "workspace:*",
 		"@ginjou/tsconfig": "workspace:*",
 		"vue-router": "^4.2.5",

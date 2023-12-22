@@ -8,10 +8,10 @@ export type UseGoContext = Simplify<
 >
 
 export function useGo<
-	TRouteGoMeta = unknown,
+	TMeta = unknown,
 >(
 	context?: UseGoContext,
-): RouterGoFn<TRouteGoMeta> {
+): RouterGoFn<TMeta> {
 	const router = useRouterContext(context)
 
 	return params => router?.go(params)
