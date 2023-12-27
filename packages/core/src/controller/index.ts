@@ -4,5 +4,4 @@ export * from './create'
 export * from './show'
 export * from './edit'
 export * from './save'
-
-export * from './notification'
+export * from './update'

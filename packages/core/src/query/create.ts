@@ -1,8 +1,7 @@
-import type { MutateFunction, MutationFunction, QueryClient } from '@tanstack/query-core'
+import type { MutateFunction, MutationOptions, QueryClient } from '@tanstack/query-core'
 import type { Simplify } from 'type-fest'
 import { genGetOneQueryKey } from './get-one'
 import { InvalidateTarget, type InvalidateTargetType, triggerInvalidates } from './invalidate'
-import type { SuccessHandler } from './types'
 import type { BaseRecord, CreateProps, CreateResult } from './fetcher'
 import type { Fetchers } from './fetchers'
 import { getFetcher } from './fetchers'
@@ -32,13 +31,23 @@ export type CreateMutateFn<
 	CreateMutationProps<TParams>
 >
 
+export type CreateMutationOptions<
+	TData extends BaseRecord,
+	TError,
+	TParams,
+> = MutationOptions<
+	CreateResult<TData>,
+	TError,
+	CreateMutationProps<TParams>
+>
+
 export function createCreateMutationFn<
 	TData extends BaseRecord = BaseRecord,
 	TParams = Record<string, any>,
 >(
 	queryClient: QueryClient,
 	fetchers: Fetchers,
-): MutationFunction<CreateResult<TData>, CreateMutationProps<TParams>> {
+): NonNullable<CreateMutationOptions<TData, unknown, TParams>['mutationFn']> {
 	return async function createMutationFn(props) {
 		const fetcher = getFetcher(props, fetchers)
 		const result = await fetcher.create<TData, TParams>(props)
@@ -53,11 +62,11 @@ export function createCreateSuccessHandler<
 	TParams = Record<string, any>,
 >(
 	queryClient: QueryClient,
-): SuccessHandler<CreateResult<TData>, CreateMutationProps<TParams>> {
-	return async function createSuccessHandler(
-		_data,
-		props,
-	) {
+	onSuccess?: CreateMutationOptions<TData, unknown, TParams>['onSuccess'],
+): NonNullable<CreateMutationOptions<TData, unknown, TParams>['onSuccess']> {
+	return async function handleCreateSuccess(data, props, context) {
+		await onSuccess?.(data, props, context)
+
 		await triggerInvalidates({
 			...props,
 			invalidates: props.invalidates ?? DEFAULT_CREATE_INVALIDATES,

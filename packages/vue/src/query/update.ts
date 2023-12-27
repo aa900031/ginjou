@@ -1,11 +1,10 @@
 import type { MaybeRef } from '@vueuse/shared'
 import { computed, unref } from 'vue-demi'
 import { type QueryClient, type UseMutationReturnType, useMutation } from '@tanstack/vue-query'
-import type { BaseRecord, Fetchers, UpdateMutateFn, UpdateMutationContext, UpdateMutationProps, UpdateResult } from '@ginjou/core'
+import type { BaseRecord, Fetchers, UpdateMutateFn, UpdateMutationContext, UpdateMutationOptions, UpdateMutationProps, UpdateResult } from '@ginjou/core'
 import { createUpdateErrorHandler, createUpdateMutateHandler, createUpdateMutationFn, createUpdateSettledHandler } from '@ginjou/core'
 import { useFetchersContext } from './fetchers'
 import { useQueryClientContext } from './query-client'
-import type { MutationOptions } from './types'
 
 export interface UseUpdateProps<
 	TData extends BaseRecord = BaseRecord,
@@ -13,7 +12,7 @@ export interface UseUpdateProps<
 	TParams extends Record<string, any> = any,
 > {
 	mutationOptions?: MaybeRef<
-		| MutationOptions<UpdateResult<TData>, TError, UpdateMutationProps<TParams>, UpdateMutationContext<TData>>
+		| UpdateMutationOptions<TData, TError, TParams>
 		| undefined
 	>
 }
@@ -50,12 +49,15 @@ export function useUpdate<
 		),
 		onMutate: createUpdateMutateHandler<TData, TParams>(
 			queryClient,
+			unref(props?.mutationOptions)?.onMutate,
 		),
 		onSettled: createUpdateSettledHandler<TData, TError, TParams>(
 			queryClient,
+			unref(props?.mutationOptions)?.onSettled,
 		),
 		onError: createUpdateErrorHandler<TData, TError, TParams>(
 			queryClient,
+			unref(props?.mutationOptions)?.onError,
 		),
 		queryClient,
 	})))

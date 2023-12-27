@@ -32,6 +32,11 @@ export function defineRouterBinding(): Router<
 		back: () => {
 			router.back()
 		},
+		resolve: (params) => {
+			const current = router.currentRoute.value
+			const resolved = router.resolve(toRouteLocation(params, current))
+			return resolved.href
+		},
 		getLocation: () => {
 			return toLocation(router.currentRoute.value)
 		},

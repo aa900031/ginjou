@@ -1,4 +1,5 @@
-import { type QueryClient, type QueryFunction, type QueryKey, hashQueryKey } from '@tanstack/query-core'
+import { hashQueryKey } from '@tanstack/query-core'
+import type { QueryClient, QueryKey, QueryOptions } from '@tanstack/query-core'
 import type { Simplify } from 'type-fest'
 import { genResourceQueryKey } from './resource'
 import type { BaseRecord, GetOneProps, GetOneResult } from './fetcher'
@@ -10,6 +11,16 @@ export type GetOneQueryProps = Simplify<
 	& {
 		fetcherName?: string
 	}
+>
+
+export type GetOneQueryOptions<
+	TData extends BaseRecord,
+	TError,
+	TResultData extends BaseRecord,
+> = QueryOptions<
+	GetOneResult<TData>,
+	TError,
+	GetOneResult<TResultData>
 >
 
 export function genGetOneQueryKey(
@@ -29,12 +40,13 @@ export function genGetOneQueryKey(
 }
 
 export function createGetOneQueryFn<
-	TData extends BaseRecord = BaseRecord,
+	TData extends BaseRecord,
+	TResultData extends BaseRecord,
 >(
 	getProps: () => GetOneQueryProps,
 	queryClient: QueryClient,
 	fetchers: Fetchers,
-): QueryFunction<GetOneResult<TData>> {
+): NonNullable<GetOneQueryOptions<TData, unknown, TResultData>['queryFn']> {
 	return async function getOneQueryFn() {
 		const props = getProps()
 		const fetcher = getFetcher(props, fetchers)

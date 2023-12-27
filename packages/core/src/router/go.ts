@@ -3,7 +3,6 @@ import type { ValueOf } from 'type-fest'
 export const RouterGoType = {
 	Push: 'push',
 	Replace: 'replace',
-	// Path: 'path',
 } as const
 
 export type RouterGoTypeValues = ValueOf<typeof RouterGoType>
@@ -22,6 +21,6 @@ export interface RouterGoParams<
 
 export type RouterGoFn<
 	TMeta = unknown,
-> = (params: RouterGoParams<TMeta>) => void | string
+> = (params: RouterGoParams<TMeta>) => void
 
 export type RouterBackFn = () => void

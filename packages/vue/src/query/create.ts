@@ -51,6 +51,7 @@ export function useCreate<
 		),
 		onSuccess: createCreateSuccessHandler<TData, TParams>(
 			queryClient,
+			unref(props?.mutationOptions)?.onSuccess,
 		),
 		queryClient,
 	})))

@@ -1,58 +1,64 @@
-import type { Router, RouterGoParams } from '../router'
-import type { BaseRecord, CreateMutateFn, CreateMutationProps, CreateResult } from '../query'
-import { type NotificationOpenFn, NotificationType } from '../notification'
-import { type SaveFunction, toMutateOptions } from './save'
-import { getErrorMessage } from './error'
+import { NotificationType } from '../notification'
+import type { Notification } from '../notification'
+import type { BaseRecord, CreateMutationOptions } from '../query'
+import type { CheckErrorMutationFn } from '../auth'
+import type { I18n } from '../i18n'
 
-export interface CreateSaveCreateFnProps<
+export interface CreateCreateControllerSuccessHandlerProps {
+	notification?: Notification
+	i18n?: I18n
+}
+
+export function createCreateControllerSuccessHandler<
 	TData extends BaseRecord = BaseRecord,
 	TError = unknown,
 	TParams = Record<string, any>,
-	TMutateFn extends CreateMutateFn<TData, TError, TParams> = CreateMutateFn<TData, TError, TParams>,
-> {
-	mutate: TMutateFn
-	notify: NotificationOpenFn
-	go: Router['go']
-	getProps: (values: TParams) => Parameters<TMutateFn>[0]
-	getOptions: () => Parameters<TMutateFn>[1]
-	getRedirectTo?: () => RouterGoParams | undefined
-}
-
-export type SaveCreateFn<
-	TData extends BaseRecord = BaseRecord,
-	TError = unknown,
-	TParams extends Record<string, any> = any,
-> = SaveFunction<TParams, CreateResult<TData>, TError, CreateMutationProps<TParams>>
-
-export function createSaveCreateFn<
-	TData extends BaseRecord = BaseRecord,
-	TError = unknown,
-	TParams extends Record<string, any> = any,
 >(
-	props: CreateSaveCreateFnProps<TData, TError, TParams>,
-): SaveCreateFn<TData, TError, TParams> {
-	return async (
-		values,
-		options,
-	) => {
-		try {
-			await props.mutate(
-				props.getProps(values),
-				toMutateOptions(props.getOptions(), options),
-			)
-
-			props.notify({
-				message: 'ra.notification.updated', // TODO: translate
+	{
+		notification,
+		i18n,
+	}: CreateCreateControllerSuccessHandlerProps,
+): NonNullable<CreateMutationOptions<TData, TError, TParams>['onSuccess']> {
+	return async function handleSuccess(_data, { resource }) {
+		if (i18n?.translate && notification?.open) {
+			notification.open({
+				key: `create-${resource}-notification`,
+				message: i18n.translate('notifications.createSuccess'),
+				description: i18n.translate('notifications.success'),
 				type: NotificationType.Success,
 			})
-
-			const redirectTo = props.getRedirectTo?.()
-			if (redirectTo)
-				props.go(redirectTo)
 		}
-		catch (error) {
-			props.notify({
-				message: getErrorMessage(error) ?? 'ra.notification.http_error', // TODO: translate
+		// TODO: publish
+		// TODO: audit log
+		// TODO: redirect?
+	}
+}
+
+export interface CreateCreateControllerErrorHandlerProps {
+	notification?: Notification
+	i18n?: I18n
+	checkError?: CheckErrorMutationFn<unknown>
+}
+
+export function createCreateControllerErrorHandler<
+	TData extends BaseRecord = BaseRecord,
+	TError = unknown,
+	TParams = Record<string, any>,
+>(
+	{
+		i18n,
+		notification,
+		checkError,
+	}: CreateCreateControllerErrorHandlerProps,
+): NonNullable<CreateMutationOptions<TData, TError, TParams>['onError']> {
+	return async function handleError(err, { resource }) {
+		await checkError?.(err)
+
+		if (i18n?.translate && notification?.open) {
+			notification.open({
+				key: `create-${resource}-notification`,
+				message: i18n.translate('notifications.createError'),
+				description: (err as Error | undefined)?.message,
 				type: NotificationType.Error,
 			})
 		}

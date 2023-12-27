@@ -13,11 +13,18 @@ export interface CreateCheckErrorMutatoinFnProps {
 	auth: Auth
 }
 
+export type CheckErrorMutationFn<
+	TParams,
+> = MutationFunction<
+	AuthCheckErrorResult,
+	TParams
+>
+
 export function createCheckErrorMutatoinFn<
 	TParams = unknown,
 >(
 	props: CreateCheckErrorMutatoinFnProps,
-): MutationFunction<AuthCheckErrorResult, TParams> {
+): CheckErrorMutationFn<TParams> {
 	return async function checkErrorMutationFn(params) {
 		const { checkError } = props.auth
 

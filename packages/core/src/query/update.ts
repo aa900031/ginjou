@@ -1,10 +1,10 @@
-import type { MutateFunction, MutationFunction, QueryClient } from '@tanstack/query-core'
+import type { MutateFunction, MutationOptions, QueryClient } from '@tanstack/query-core'
 import type { Simplify } from 'type-fest'
 import { type DeferFn, deferWith } from './defer'
 import { genGetListQueryKey } from './get-list'
 import { genGetManyQueryKey } from './get-many'
 import { genGetOneQueryKey } from './get-one'
-import type { ErrorHandler, MutateHandler, QueryPair, SettledHandler } from './types'
+import type { QueryPair } from './types'
 import { genResourceQueryKey } from './resource'
 import type { InvalidateTargetType } from './invalidate'
 import { InvalidateTarget, triggerInvalidates } from './invalidate'
@@ -35,6 +35,17 @@ export interface UpdateMutationContext<
 	previousQueries: QueryPair<TData>[]
 }
 
+export type UpdateMutationOptions<
+	TData extends BaseRecord,
+	TError,
+	TParams,
+> = MutationOptions<
+	UpdateResult<TData>,
+	TError,
+	UpdateMutationProps<TParams>,
+	UpdateMutationContext<TData>
+>
+
 export type UpdateMutateFn<
 	TData extends BaseRecord = BaseRecord,
 	TError = unknown,
@@ -52,7 +63,7 @@ export function createUpdateMutationFn<
 >(
 	queryClient: QueryClient,
 	fetchers: Fetchers,
-): MutationFunction<UpdateResult<TData>, UpdateMutationProps<TParams>> {
+): NonNullable<UpdateMutationOptions<TData, unknown, TParams>['mutationFn']> {
 	return async function updateMutationFn(props) {
 		const fetcher = getFetcher(props, fetchers)
 
@@ -78,8 +89,11 @@ export function createUpdateMutateHandler<
 	TParams = Record<string, any>,
 >(
 	queryClient: QueryClient,
-): MutateHandler<UpdateMutationProps<TParams>, UpdateMutationContext<TData>> {
+	onMutate?: UpdateMutationOptions<TData, unknown, TParams>['onMutate'],
+): NonNullable<UpdateMutationOptions<TData, unknown, TParams>['onMutate']> {
 	return async function updateMutateHandler(props) {
+		const mutateResult = await onMutate?.(props)
+
 		const resourceQueryKey = genResourceQueryKey(props)
 		const previousQueries: QueryPair<TData>[] = queryClient.getQueriesData<TData>(resourceQueryKey)
 
@@ -92,6 +106,7 @@ export function createUpdateMutateHandler<
 		)
 
 		return {
+			...mutateResult,
 			previousQueries,
 		}
 	}
@@ -103,12 +118,16 @@ export function createUpdateSettledHandler<
 	TParams extends Record<string, any> = any,
 >(
 	queryClient: QueryClient,
-): SettledHandler<TData, TError, UpdateMutationProps<TParams>, UpdateMutationContext<TData>> {
+	onSettled?: UpdateMutationOptions<TData, TError, TParams>['onSettled'],
+): NonNullable<UpdateMutationOptions<TData, TError, TParams>['onSettled']> {
 	return async function updateSettledHandler(
-		_data,
-		_error,
+		data,
+		error,
 		props,
+		context,
 	) {
+		await onSettled?.(data, error, props, context)
+
 		await triggerInvalidates({
 			...props,
 			invalidates: props.invalidates ?? DEFAULT_UPDATE_INVALIDATES,
@@ -122,16 +141,19 @@ export function createUpdateErrorHandler<
 	TParams extends Record<string, any> = any,
 >(
 	queryClient: QueryClient,
-): ErrorHandler<TError, UpdateMutationProps<TParams>, UpdateMutationContext<TData>> {
-	return function updateErrorHandler(
-		_error,
-		_variables,
+	onError?: UpdateMutationOptions<TData, TError, TParams>['onError'],
+): NonNullable<UpdateMutationOptions<TData, TError, TParams>['onError']> {
+	return async function updateErrorHandler(
+		error,
+		variables,
 		context,
 	) {
 		if (context) {
 			for (const query of context.previousQueries)
 				queryClient.setQueryData(query[0], query[1])
 		}
+
+		await onError?.(error, variables, context)
 	}
 }
 

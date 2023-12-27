@@ -31,7 +31,7 @@ export function useResourcePath(
 		return createResourcePath({
 			action: unref(props.action),
 			resource: _resource.resource,
-			...unref(props.params),
+			params: unref(props.params),
 		})
 	})
 }
