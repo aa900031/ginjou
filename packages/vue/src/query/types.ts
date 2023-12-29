@@ -12,9 +12,6 @@ export type MutationOptions<
 		| 'queryClient'
 	>
 
-/**
- * @deprecated
- */
 export type QueryOptions<
 	TQueryFnData,
 	TError,

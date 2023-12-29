@@ -25,6 +25,14 @@ export type UseUpdateControllerContext = Simplify<
 	& UseUpdateContext
 >
 
+export type UseUpdateControllerResult<
+	TData extends BaseRecord,
+	TError,
+	TParams extends Record<string, any>,
+> = Simplify<
+	& UseUpdateResult<TData, TError, TParams>
+>
+
 export function useUpdateController<
 	TData extends BaseRecord = BaseRecord,
 	TError = unknown,
@@ -32,7 +40,7 @@ export function useUpdateController<
 >(
 	props?: UseUpdateControllerProps<TData, TError, TParams>,
 	context?: UseUpdateControllerContext,
-): UseUpdateResult<TData, TError, TParams> {
+): UseUpdateControllerResult<TData, TError, TParams> {
 	const i18n = useI18nContext(context)
 	const notification = useNotificationContext(context)
 	const { mutateAsync: checkError } = useCheckError(context)
@@ -47,11 +55,18 @@ export function useUpdateController<
 		checkError,
 	})
 
-	return useUpdate<TData, TError, TParams>({
+	const update = useUpdate<TData, TError, TParams>({
 		mutationOptions: computed(() => ({
 			onSuccess: handleSuccess,
 			onError: handleError,
 			...unref(props?.mutationOptions),
 		})),
 	}, context)
+
+	// TODO: realtime
+	// TODO: undoable
+
+	return {
+		...update,
+	}
 }

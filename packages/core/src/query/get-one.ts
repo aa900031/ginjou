@@ -1,5 +1,5 @@
 import { hashQueryKey } from '@tanstack/query-core'
-import type { QueryClient, QueryKey, QueryOptions } from '@tanstack/query-core'
+import type { QueryClient, QueryKey, QueryObserverOptions } from '@tanstack/query-core'
 import type { Simplify } from 'type-fest'
 import { genResourceQueryKey } from './resource'
 import type { BaseRecord, GetOneProps, GetOneResult } from './fetcher'
@@ -17,7 +17,7 @@ export type GetOneQueryOptions<
 	TData extends BaseRecord,
 	TError,
 	TResultData extends BaseRecord,
-> = QueryOptions<
+> = QueryObserverOptions<
 	GetOneResult<TData>,
 	TError,
 	GetOneResult<TResultData>

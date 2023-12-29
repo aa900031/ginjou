@@ -48,17 +48,21 @@ export function useDelete<
 			queryClient,
 			fetchers,
 		),
-		onMutate: createDeleteMutateHandler<TData, TParams>(
+		onMutate: createDeleteMutateHandler<TData, TError, TParams>(
 			queryClient,
+			unref(props?.mutationOptions)?.onMutate,
 		),
-		onSettled: createDeleteSettledHandler<TData, TParams>(
+		onSettled: createDeleteSettledHandler<TData, TError, TParams>(
 			queryClient,
+			unref(props?.mutationOptions)?.onSettled,
 		),
 		onError: createDeleteErrorHandler<TData, TError, TParams>(
 			queryClient,
+			unref(props?.mutationOptions)?.onError,
 		),
-		onSuccess: createDeleteSuccessHandler<TData, TParams>(
+		onSuccess: createDeleteSuccessHandler<TData, TError, TParams>(
 			queryClient,
+			unref(props?.mutationOptions)?.onSuccess,
 		),
 		queryClient,
 	})))

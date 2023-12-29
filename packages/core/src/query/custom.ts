@@ -1,4 +1,4 @@
-import type { QueryFunction, QueryKey } from '@tanstack/query-core'
+import type { QueryFunction, QueryKey, QueryObserverOptions, QueryOptions } from '@tanstack/query-core'
 import type { Simplify } from 'type-fest'
 import type { BaseRecord, CustomProps, CustomResult } from './fetcher'
 import type { Fetchers } from './fetchers'
@@ -12,6 +12,16 @@ export type CustomQueryProps<
 	& {
 		fetcherName?: string
 	}
+>
+
+export type CustomQueryOptions<
+	TData extends BaseRecord,
+	TError,
+	TResultData extends BaseRecord,
+> = QueryObserverOptions<
+	CustomResult<TData>,
+	TError,
+	CustomResult<TResultData>
 >
 
 export function genCustomQueryKey(

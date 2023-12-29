@@ -26,6 +26,14 @@ export type UseCreateControllerContext = Simplify<
 	& UseCreateContext
 >
 
+export type UseCreateControllerResult<
+	TData extends BaseRecord,
+	TError,
+	TParams extends Record<string, any>,
+> = Simplify<
+	& UseCreateResult<TData, TError, TParams>
+>
+
 export function useCreateController<
 	TData extends BaseRecord = BaseRecord,
 	TError = unknown,
@@ -33,7 +41,7 @@ export function useCreateController<
 >(
 	props?: UseCreateControllerProps<TData, TError, TParams>,
 	context?: UseCreateControllerContext,
-): UseCreateResult<TData, TError, TParams> {
+): UseCreateControllerResult<TData, TError, TParams> {
 	const i18n = useI18nContext(context)
 	const notification = useNotificationContext(context)
 	const { mutateAsync: checkError } = useCheckError(context)
@@ -48,7 +56,7 @@ export function useCreateController<
 		checkError,
 	})
 
-	return useCreate<TData, TError, TParams>(
+	const create = useCreate<TData, TError, TParams>(
 		{
 			mutationOptions: computed(() => ({
 				onSuccess: handleSuccess,
@@ -58,4 +66,10 @@ export function useCreateController<
 		},
 		context,
 	)
+
+	// TODO: realtime
+
+	return {
+		...create,
+	}
 }

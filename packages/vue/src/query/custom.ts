@@ -1,5 +1,5 @@
 import type { MaybeRef } from '@vueuse/shared'
-import type { QueryClient } from '@tanstack/vue-query'
+import type { QueryClient, UseQueryReturnType } from '@tanstack/vue-query'
 import { useQuery } from '@tanstack/vue-query'
 import type { BaseRecord, CustomProps, CustomQueryProps, CustomResult, Fetchers, Meta } from '@ginjou/core'
 import { createCustomQueryFn, genCustomQueryKey } from '@ginjou/core'
@@ -35,6 +35,15 @@ export interface UseCustomContext {
 	fetchers?: Fetchers
 }
 
+export type UseCustomResult<
+	TData extends BaseRecord,
+	TError,
+	TResultData extends BaseRecord = TData,
+> = UseQueryReturnType<
+	CustomResult<TResultData>,
+	TError
+>
+
 export function useCustom<
 	TData extends BaseRecord = BaseRecord,
 	TError = unknown,
@@ -44,7 +53,7 @@ export function useCustom<
 >(
 	props: UseCustomProps<TData, TError, TQuery, TPayload, TResultData>,
 	context?: UseCustomContext,
-) {
+): UseCustomResult<TData, TError, TResultData> {
 	const queryClient = useQueryClientContext(context)
 	const fetchers = useFetchersContext({ ...context, strict: true })
 

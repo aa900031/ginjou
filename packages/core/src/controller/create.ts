@@ -24,7 +24,7 @@ export function createCreateControllerSuccessHandler<
 			notification.open({
 				key: `create-${resource}-notification`,
 				message: i18n.translate('notifications.createSuccess'),
-				description: i18n.translate('notifications.success'),
+				description: i18n.translate('notifications.createSuccessDescription'),
 				type: NotificationType.Success,
 			})
 		}

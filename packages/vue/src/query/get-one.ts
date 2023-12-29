@@ -1,14 +1,13 @@
+import { computed, unref } from 'vue-demi'
 import type { MaybeRef } from '@vueuse/shared'
 import type { QueryClient, QueryKey, UseQueryReturnType } from '@tanstack/vue-query'
 import { useQuery } from '@tanstack/vue-query'
 import type { BaseRecord, Fetchers, GetOneQueryProps, GetOneResult, Meta, RecordKey } from '@ginjou/core'
 import { createGetOneQueryFn, genGetOneQueryKey } from '@ginjou/core'
-import { computed, unref } from 'vue-demi'
 import { useFetchersContext } from './fetchers'
 import { useQueryClientContext } from './query-client'
 import { toEnabledRef } from './utils'
-import type { QueryOptionsWithHandlers } from './query-handlers'
-import { processQueryOptions } from './query-handlers'
+import type { QueryOptions } from './types'
 
 export interface UseGetOneProps<
 	TData extends BaseRecord = BaseRecord,
@@ -20,7 +19,7 @@ export interface UseGetOneProps<
 	meta?: MaybeRef<Meta | undefined>
 	fetcherName?: MaybeRef<string | undefined>
 	queryOptions?: MaybeRef<
-		| QueryOptionsWithHandlers<GetOneResult<TData>, TError, GetOneResult<TResultData>>
+		| QueryOptions<GetOneResult<TData>, TError, GetOneResult<TResultData>>
 		| undefined
 	>
 }
@@ -56,7 +55,6 @@ export function useGetOne<
 		fetcherName: unref(props.fetcherName),
 	}))
 	const queryKey = computed<QueryKey>(() => genGetOneQueryKey(unref(getOneProps)))
-	const queryOptions = processQueryOptions(props.queryOptions, queryKey, queryClient)
 
 	const queryFn = createGetOneQueryFn<TData, TResultData>(
 		() => unref(getOneProps),
@@ -70,7 +68,7 @@ export function useGetOne<
 	), props.queryOptions)
 
 	return useQuery<GetOneResult<TData>, TError, GetOneResult<TResultData>>(computed(() => ({
-		...unref(queryOptions),
+		...unref(props.queryOptions),
 		queryKey,
 		queryFn,
 		enabled: isEnabled,
