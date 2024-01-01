@@ -6,7 +6,7 @@ export interface TranslateFn<
 	(
 		key: string,
 		params?: TParams
-	): string | undefined
+	): string
 	(
 		key: string,
 		params: TParams | undefined,
@@ -18,14 +18,6 @@ export interface CreateTranslateFnProps {
 	i18n?: I18n
 }
 
-function DEFAULT_safeTranslateFn(
-	key: string,
-	params?: any,
-	defaultValue?: string,
-) {
-	return defaultValue ?? key
-}
-
 export function createTranslateFn<
 	TParams = unknown,
 >(
@@ -34,13 +26,21 @@ export function createTranslateFn<
 	}: CreateTranslateFnProps,
 ): TranslateFn<TParams> {
 	if (!i18n)
-		return DEFAULT_safeTranslateFn
+		return safeTranslateFn
 
 	return function translateFn(
 		key: string,
 		params?: TParams | undefined,
 		defaultValue?: string | undefined,
 	): string {
-		return i18n.translate(key, params) ?? defaultValue as string
+		return i18n.translate(key, params) ?? safeTranslateFn(key, params, defaultValue)
 	}
+}
+
+function safeTranslateFn(
+	key: string,
+	params?: any,
+	defaultValue?: string,
+) {
+	return defaultValue ?? key
 }
