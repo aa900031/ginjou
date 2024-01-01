@@ -1,4 +1,4 @@
-import type { MutationFunction } from '@tanstack/query-core'
+import type { MutationOptions } from '@tanstack/query-core'
 import type { Simplify } from 'type-fest'
 import type { InvalidateTargetType } from './invalidate'
 import type { BaseRecord, CustomProps, CustomResult } from './fetcher'
@@ -16,13 +16,25 @@ export type CustomMutationProps<
 	}
 >
 
+export type CustomMutationOptions<
+	TData extends BaseRecord,
+	TQuery,
+	TPayload,
+	TError,
+> = MutationOptions<
+	CustomResult<TData>,
+	TError,
+	CustomMutationProps<TQuery, TPayload>
+>
+
 export function createCustomMutationFn<
 	TData extends BaseRecord = BaseRecord,
 	TQuery = unknown,
 	TPayload = unknown,
+	TError = unknown,
 >(
 	fetchers: Fetchers,
-): MutationFunction<CustomResult<TData>, CustomMutationProps<TQuery, TPayload>> {
+): NonNullable<CustomMutationOptions<TData, TQuery, TPayload, TError>['mutationFn']> {
 	return async function customMutationFn(props) {
 		const fetcher = getFetcher(props, fetchers)
 		if (typeof fetcher.custom !== 'function')

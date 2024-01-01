@@ -1,5 +1,5 @@
 import type { Simplify } from 'type-fest'
-import type { I18nTranslateFn } from '@ginjou/core'
+import { type TranslateFn, createTranslateFn } from '@ginjou/core'
 import { type UseI18nContextFromProps, useI18nContext } from './context'
 
 export type UseTranslateContext = Simplify<
@@ -10,8 +10,10 @@ export function useTranslate<
 	TParams = unknown,
 >(
 	context?: UseTranslateContext,
-): I18nTranslateFn<TParams> {
+): TranslateFn<TParams> {
 	const i18n = useI18nContext(context)
 
-	return (...args) => i18n!.translate(...args)
+	return createTranslateFn({
+		i18n,
+	})
 }

@@ -3,8 +3,7 @@ export type I18nTranslateFn<
 > = (
 	key: string,
 	params?: TParams,
-	defaultValue?: string
-) => string
+) => string | undefined
 
 export type I18nGetLocaleFn = () => string
 

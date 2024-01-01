@@ -7,3 +7,4 @@ export * from './list-params'
 export * from './list-page'
 
 export * from './custom'
+export * from './custom-mutation'

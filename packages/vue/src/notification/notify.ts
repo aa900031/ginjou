@@ -1,5 +1,5 @@
 import type { Simplify } from 'type-fest'
-import type { NotificationOpenFn } from '@ginjou/core'
+import { type NotifyFn, createNotifyFn } from '@ginjou/core'
 import type { UseNotificationContextFromProps } from './context'
 import { useNotificationContext } from './context'
 
@@ -9,8 +9,10 @@ export type UseNotifyContext = Simplify<
 
 export function useNotify(
 	context?: UseNotifyContext,
-): NotificationOpenFn {
+): NotifyFn {
 	const notification = useNotificationContext(context)
 
-	return params => notification?.open(params)
+	return createNotifyFn({
+		notification,
+	})
 }
