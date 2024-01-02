@@ -95,6 +95,7 @@ export function useGetMany<
 		getProps: () => unref(queryProps),
 		notify,
 		getSuccessNotify: () => unref(props.successNotify),
+		emitParent: (...args) => unref(props.queryOptions)?.onSuccess?.(...args),
 	})
 	const handleError = GetMany.createErrorHandler<TError>({
 		notify,
@@ -102,6 +103,7 @@ export function useGetMany<
 		checkError,
 		getProps: () => unref(queryProps),
 		getErrorNotify: () => unref(props.errorNotify),
+		emitParent: (...args) => unref(props.queryOptions)?.onError?.(...args),
 	})
 
 	const query = useQuery<GetManyResult<TData>, TError, GetManyResult<TResultData>>(computed(() => ({

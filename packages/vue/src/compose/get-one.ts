@@ -93,6 +93,7 @@ export function useGetOne<
 		notify,
 		getProps: () => unref(queryProps),
 		getSuccessNotify: () => unref(props.successNotify),
+		emitParent: (...args) => unref(props.queryOptions)?.onSuccess?.(...args),
 	})
 	const handleError = GetOne.createErrorHandler<TError>({
 		notify,
@@ -100,6 +101,7 @@ export function useGetOne<
 		checkError,
 		getProps: () => unref(queryProps),
 		getErrorNotify: () => unref(props.errorNotify),
+		emitParent: (...args) => unref(props.queryOptions)?.onError?.(...args),
 	})
 
 	const query = useQuery<GetOneResult<TData>, TError, GetOneResult<TResultData>>(computed(() => ({

@@ -2,7 +2,7 @@ import type { Simplify } from 'type-fest'
 import type { MaybeRef } from 'vue-demi'
 import { computed, unref } from 'vue-demi'
 import { toValue } from '@vueuse/shared'
-import type { QueryObserverOptions, UseInfiniteQueryReturnType } from '@tanstack/vue-query'
+import type { InfiniteQueryObserverOptions, QueryObserverOptions, UseInfiniteQueryReturnType } from '@tanstack/vue-query'
 import { useInfiniteQuery } from '@tanstack/vue-query'
 import type { BaseRecord, GetInfiniteListResult } from '@ginjou/core'
 import { GetInfiniteList, GetList } from '@ginjou/core'
@@ -27,7 +27,7 @@ export type UseGetInfiniteListProps<
 	& ToMaybeRefs<GetList.QueryProps<TPageParam>>
 	& {
 		queryOptions?: MaybeRef<
-			| QueryObserverOptions<GetInfiniteListResult<TData>, TError, GetInfiniteListResult<TResultData>>
+			| InfiniteQueryObserverOptions<GetInfiniteListResult<TData, TPageParam>, TError, GetInfiniteListResult<TResultData, TPageParam>>
 			| undefined
 		>
 		successNotify?: MaybeRef<
@@ -93,6 +93,7 @@ export function useGetInfiniteList<
 		notify,
 		getProps: () => unref(queryProps),
 		getSuccessNotify: () => unref(props.successNotify),
+		emitParent: (...args) => unref(props.queryOptions)?.onSuccess?.(...args),
 	})
 	const handleError = GetInfiniteList.createErrorHandler<TError, TPageParam>({
 		notify,
@@ -100,6 +101,7 @@ export function useGetInfiniteList<
 		checkError,
 		getProps: () => unref(queryProps),
 		getErrorNotify: () => unref(props.errorNotify),
+		emitParent: (...args) => unref(props.queryOptions)?.onError?.(...args),
 	})
 
 	const query = useInfiniteQuery<GetInfiniteListResult<TData, TPageParam>, TError, GetInfiniteListResult<TResultData, TPageParam>, any>(computed(() => ({

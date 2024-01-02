@@ -101,6 +101,7 @@ export interface CreateSuccessHandlerProps<
 	notify: NotifyFn
 	getProps: () => ResolvedQueryProps<TPageParam>
 	getSuccessNotify: () => NotifyProps<InfiniteData<GetInfiniteListResult<TResultData, TPageParam>>, ResolvedQueryProps<TPageParam>, unknown>['successNotify']
+	emitParent: NonNullable<QueryOptions<any, unknown, TResultData, TPageParam>['onSuccess']>
 }
 
 export function createSuccessHandler<
@@ -112,9 +113,12 @@ export function createSuccessHandler<
 		notify,
 		getProps,
 		getSuccessNotify,
+		emitParent,
 	}: CreateSuccessHandlerProps<TResultData, TPageParam>,
 ): NonNullable<QueryOptions<TData, unknown, TResultData, TPageParam>['onSuccess']> {
 	return function onSuccess(data) {
+		emitParent(data)
+
 		const _props = getProps()
 		const successNotify = getSuccessNotify()
 
@@ -133,6 +137,7 @@ export interface CreateErrorHandlerProps<
 	getProps: () => ResolvedQueryProps<TPageParam>
 	getErrorNotify: () => NotifyProps<any, ResolvedQueryProps<TPageParam>, TError>['errorNotify']
 	checkError: CheckErrorMutationFn<unknown>
+	emitParent: NonNullable<QueryOptions<any, TError, any, TPageParam>['onError']>
 }
 
 export function createErrorHandler<
@@ -145,10 +150,13 @@ export function createErrorHandler<
 		notify,
 		translate,
 		checkError,
+		emitParent,
 	}: CreateErrorHandlerProps<TError, TPageParam>,
 ): NonNullable<QueryOptions<any, TError, any, TPageParam>['onError']> {
 	return function onError(error) {
 		checkError(error)
+
+		emitParent(error)
 
 		const _props = getProps()
 		const errorNotify = getErrorNotify()

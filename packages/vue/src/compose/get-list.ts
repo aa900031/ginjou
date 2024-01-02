@@ -96,6 +96,7 @@ export function useGetList<
 		notify,
 		getProps: () => unref(queryProps),
 		getSuccessNotify: () => unref(props.successNotify),
+		emitParent: (...args) => unref(props.queryOptions)?.onSuccess?.(...args),
 	})
 	const handleError = GetList.createErrorHandler<TError, TPageParam>({
 		notify,
@@ -103,6 +104,7 @@ export function useGetList<
 		checkError,
 		getProps: () => unref(queryProps),
 		getErrorNotify: () => unref(props.errorNotify),
+		emitParent: (...args) => unref(props.queryOptions)?.onError?.(...args),
 	})
 
 	const query = useQuery<GetListResult<TData, TPageParam>, TError, GetListResult<TResultData, TPageParam>>(computed(() => ({

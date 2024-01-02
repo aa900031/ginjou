@@ -159,6 +159,7 @@ export interface CreateSuccessHandlerProps<
 	notify: NotifyFn
 	getProps: () => ResolvedQueryProps
 	getSuccessNotify: () => NotifyProps<GetManyResult<TResultData>, ResolvedQueryProps, unknown>['successNotify']
+	emitParent: NonNullable<QueryOptions<any, unknown, TResultData>['onSuccess']>
 }
 
 export function createSuccessHandler<
@@ -169,9 +170,12 @@ export function createSuccessHandler<
 		notify,
 		getProps,
 		getSuccessNotify,
+		emitParent,
 	}: CreateSuccessHandlerProps<TResultData>,
 ): NonNullable<QueryOptions<TData, unknown, TResultData>['onSuccess']> {
 	return function onSuccess(data) {
+		emitParent(data)
+
 		const _props = getProps()
 		const successNotify = getSuccessNotify()
 
@@ -189,6 +193,7 @@ export interface CreateErrorHandlerProps<
 	getProps: () => ResolvedQueryProps
 	getErrorNotify: () => NotifyProps<GetManyResult<any>, ResolvedQueryProps, TError>['errorNotify']
 	checkError: CheckErrorMutationFn<unknown>
+	emitParent: NonNullable<QueryOptions<any, TError, any>['onError']>
 }
 
 export function createErrorHandler<
@@ -200,10 +205,13 @@ export function createErrorHandler<
 		notify,
 		translate,
 		checkError,
+		emitParent,
 	}: CreateErrorHandlerProps<TError>,
 ): NonNullable<QueryOptions<any, TError, any>['onError']> {
 	return function onError(error) {
 		checkError(error)
+
+		emitParent(error)
 
 		const _props = getProps()
 		const errorNotify = getErrorNotify()
