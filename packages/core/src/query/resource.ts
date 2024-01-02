@@ -1,5 +1,8 @@
 import type { QueryKey } from '@tanstack/query-core'
 
+/**
+ * @deprecated
+ */
 export function genResourceQueryKey(
 	props: {
 		resource: string

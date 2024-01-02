@@ -9,6 +9,7 @@ export function getFetcher(
 	if (!fetchers)
 		throw new Error('Data Provider not exists!')
 
+	// TODO: remove default values
 	const name = props.fetcherName ?? 'default'
 	const target = fetchers[name]
 	if (!target)

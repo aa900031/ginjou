@@ -1,3 +1,4 @@
+import type { Simplify } from 'type-fest'
 import type { Fetchers } from '@ginjou/core'
 import { type InjectionKey, inject, provide } from 'vue-demi'
 
@@ -12,10 +13,16 @@ export function defineFetchers<
 	return value
 }
 
-export interface UseFetchersContextProps {
+export interface UseFetcherContextFromProps {
 	fetchers?: Fetchers
-	strict?: boolean
 }
+
+export type UseFetchersContextProps = Simplify<
+	& UseFetcherContextFromProps
+	& {
+		strict?: boolean
+	}
+>
 
 export function useFetchersContext(
 	props: UseFetchersContextProps & { strict: true },

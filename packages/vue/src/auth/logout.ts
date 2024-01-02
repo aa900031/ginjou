@@ -1,16 +1,14 @@
 import type { Simplify } from 'type-fest'
-import type { QueryClient } from '@tanstack/vue-query'
-import { useMutation, useQueryClient } from '@tanstack/vue-query'
+import { useMutation } from '@tanstack/vue-query'
 import type { AuthLogoutResult } from '@ginjou/core'
 import { createLogoutMutationFn, createLogoutSuccessHandler, genLogoutMutationKey } from '@ginjou/core'
+import { type UseQueryClientContextProps, useQueryClientContext } from '../query/query-client'
 import type { UseAuthContextFromProps } from './auth'
 import { useAuthContext } from './auth'
 
 export type UseLogoutContext = Simplify<
 	& UseAuthContextFromProps
-	& {
-		queryClient?: QueryClient
-	}
+	& UseQueryClientContextProps
 >
 
 export function useLogout<
@@ -20,7 +18,7 @@ export function useLogout<
 	context?: UseLogoutContext,
 ) {
 	const auth = useAuthContext({ ...context, strict: true })
-	const queryClient = context?.queryClient ?? useQueryClient()
+	const queryClient = useQueryClientContext(context)
 
 	// TODO: success: redirect
 	// TODO: success: notify

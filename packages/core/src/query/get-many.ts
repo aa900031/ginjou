@@ -27,7 +27,7 @@ export function genGetManyQueryKey(
 	const { fetcherName, resource, ids, meta } = props
 
 	return [
-		genResourceQueryKey({
+		...genResourceQueryKey({
 			fetcherName,
 			resource,
 		}),
