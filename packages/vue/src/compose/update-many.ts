@@ -1,17 +1,16 @@
 import type { Simplify } from 'type-fest'
 import { computed, unref } from 'vue-demi'
 import type { MaybeRef } from '@vueuse/shared'
-import type { MutationObserverOptions, UseMutationReturnType } from '@tanstack/vue-query'
-import { useMutation } from '@tanstack/vue-query'
-import type { BaseRecord, CreateResult } from '@ginjou/core'
-import { Create } from '@ginjou/core'
+import { type MutationObserverOptions, type UseMutationReturnType, useMutation } from '@tanstack/vue-query'
+import { UpdateMany } from '@ginjou/core'
+import type { BaseRecord, UpdateManyResult } from '@ginjou/core'
 import { type UseFetcherContextFromProps, useFetchersContext } from '../query/fetchers'
 import { type UseQueryClientContextProps, useQueryClientContext } from '../query/query-client'
 import { type UseNotifyContext, useNotify } from '../notification'
 import { type UseTranslateContext, useTranslate } from '../i18n'
 import { type UseCheckErrorContext, useCheckError } from '../auth'
 
-export interface UseCreateProps<
+export interface UseUpdateManyProps<
 	TData extends BaseRecord,
 	TError,
 	TParams,
@@ -19,10 +18,10 @@ export interface UseCreateProps<
 	mutationOptions?: MaybeRef<
 		| Omit<
 				MutationObserverOptions<
-					CreateResult<TData>,
+					UpdateManyResult<TData>,
 					TError,
-					Create.MutationProps<TData, TError, TParams>,
-					any
+					UpdateMany.MutationProps<TData, TError, TParams>,
+					UpdateMany.MutationContext<TData>
 				>,
 				| 'mutationFn'
 			>
@@ -30,7 +29,7 @@ export interface UseCreateProps<
 	>
 }
 
-export type UseCreateContext = Simplify<
+export type UseUpdateManyContext = Simplify<
 	& UseFetcherContextFromProps
 	& UseQueryClientContextProps
 	& UseNotifyContext
@@ -38,42 +37,48 @@ export type UseCreateContext = Simplify<
 	& UseCheckErrorContext
 >
 
-export type UseCreateResult<
+export type UseUpdateManyResult<
 	TData extends BaseRecord,
 	TError,
 	TParams,
 > = UseMutationReturnType<
-	CreateResult<TData>,
+	UpdateManyResult<TData>,
 	TError,
-	Create.MutationProps<TData, TError, TParams>,
-	any
+	UpdateMany.MutationProps<TData, TError, TParams>,
+	UpdateMany.MutationContext<TData>
 >
 
-export function useCreate<
+export function useUpdate<
 	TData extends BaseRecord,
 	TError,
 	TParams,
 >(
-	props?: UseCreateProps<TData, TError, TParams>,
-	context?: UseCreateContext,
-): UseCreateResult<TData, TError, TParams> {
+	props?: UseUpdateManyProps<TData, TError, TParams>,
+	context?: UseUpdateManyContext,
+): UseUpdateManyResult<TData, TError, TParams> {
 	const queryClient = useQueryClientContext(context)
 	const fetchers = useFetchersContext({ ...context, strict: true })
 	const notify = useNotify(context)
 	const translate = useTranslate(context)
 	const { mutateAsync: checkError } = useCheckError(context)
 
-	const mutation = useMutation<CreateResult<TData>, TError, Create.MutationProps<TData, TError, TParams>, any>(computed(() => ({
+	const mutation = useMutation<UpdateManyResult<TData>, TError, UpdateMany.MutationProps<TData, TError, TParams>, UpdateMany.MutationContext<TData>>(computed(() => ({
 		...unref(props?.mutationOptions) as any, // TODO:
-		mutationFn: Create.createMutationFn<TData, TParams>({
+		mutationFn: UpdateMany.createMutationFn<TData, TParams>({
 			fetchers,
 		}),
-		onSuccess: Create.createSuccessHandler<TData, TParams>({
-			notify,
-			translate,
+		onMutate: UpdateMany.createMutateHandler<TData, TParams>({
 			queryClient,
 		}),
-		onError: Create.createErrorHandler<TError>({
+		onSettled: UpdateMany.createSettledHandler<TData, TError, TParams>({
+			queryClient,
+		}),
+		onSuccess: UpdateMany.createSuccessHandler<TData, TParams>({
+			notify,
+			translate,
+		}),
+		onError: UpdateMany.createErrorHandler<TError>({
+			queryClient,
 			notify,
 			translate,
 			checkError,

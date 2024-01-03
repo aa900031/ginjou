@@ -17,7 +17,12 @@ export interface UseCreateManyProps<
 > {
 	mutationOptions?: MaybeRef<
 		| Omit<
-				MutationObserverOptions<CreateManyResult<TData>, TError, CreateMany.MutationProps<TData, TError, TParams>, any>,
+				MutationObserverOptions<
+					CreateManyResult<TData>,
+					TError,
+					CreateMany.MutationProps<TData, TError, TParams>,
+					any
+				>,
 				| 'mutationFn'
 			>
 		| undefined

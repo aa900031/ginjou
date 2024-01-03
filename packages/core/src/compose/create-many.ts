@@ -3,7 +3,7 @@ import type { MutationObserverOptions, QueryClient } from '@tanstack/query-core'
 import type { BaseRecord, CreateManyProps, CreateManyResult } from '../query/fetcher'
 import { InvalidateTarget, triggerInvalidates } from '../query/invalidate'
 import type { InvalidateTargetType, InvalidatesProps } from '../query/invalidate'
-import type { Fetchers } from '../../query'
+import type { Fetchers } from '../query/fetchers'
 import { getFetcher } from '../query/fetchers'
 import { fakeMany } from '../query/helper'
 import type { NotifyFn } from '../notification'
@@ -81,7 +81,7 @@ export function createSuccessHandler<
 		notify(
 			resolveSuccessNotifyParams(successNotify, data, variables),
 			{
-				key: `create-many-${resource}-notification`,
+				key: `create-${resource}-notification`,
 				message: translate('notifications.createSuccess'),
 				description: translate('notifications.success'),
 				type: NotificationType.Success,
@@ -126,7 +126,7 @@ export function createErrorHandler<
 		notify(
 			resolveErrorNotifyParams(errorNotify, error, variables),
 			{
-				key: `create-many-${resource}-notification`,
+				key: `create-${resource}-notification`,
 				message: translate('notifications.createError'),
 				description: getErrorMessage(error),
 				type: NotificationType.Error,

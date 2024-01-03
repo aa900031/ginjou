@@ -1,11 +1,13 @@
 import type { Simplify } from 'type-fest'
 import type { MutationObserverOptions, QueryClient, QueryKey } from '@tanstack/query-core'
-import type { InvalidateTargetType, InvalidatesProps } from '../query/invalidate'
+import type { BaseRecord, UpdateManyProps, UpdateManyResult } from '../query/fetcher'
 import { InvalidateTarget, triggerInvalidates } from '../query/invalidate'
-import type { BaseRecord, UpdateProps, UpdateResult } from '../query/fetcher'
-import { type Fetchers, getFetcher } from '../query/fetchers'
+import type { InvalidateTargetType, InvalidatesProps } from '../query/invalidate'
 import type { QueryPair } from '../query/types'
-import { NotificationType, type NotifyFn } from '../notification'
+import { type Fetchers, getFetcher } from '../query/fetchers'
+import { fakeMany } from '../query/helper'
+import type { NotifyFn } from '../notification'
+import { NotificationType } from '../notification'
 import type { TranslateFn } from '../i18n'
 import type { CheckErrorMutationFn } from '../auth'
 import { getErrorMessage } from '../controller/error'
@@ -17,10 +19,10 @@ export type MutationProps<
 	TError,
 	TParams,
 > = Simplify<
-	& UpdateProps<TParams>
+	& UpdateManyProps<TParams>
 	& FetcherProps
 	& InvalidatesProps
-	& NotifyProps<UpdateResult<TData>, UpdateProps<TParams>, TError>
+	& NotifyProps<UpdateManyResult<TData>, UpdateManyProps<TParams>, TError>
 >
 
 export interface MutationContext<
@@ -34,7 +36,7 @@ export type MutationOptions<
 	TError,
 	TParams,
 > = MutationObserverOptions<
-	UpdateResult<TData>,
+	UpdateManyResult<TData>,
 	TError,
 	MutationProps<TData, TError, TParams>,
 	MutationContext<TData>
@@ -57,7 +59,10 @@ export function createMutationFn<
 		// TODO: mutation mode
 
 		const fetcher = getFetcher(props, fetchers)
-		const result = await fetcher.update<TData, TParams>(props)
+		const result = typeof fetcher.updateMany === 'function'
+			? await fetcher.updateMany<TData, TParams>(props)
+			: await fakeMany(props.ids.map(id => fetcher.update<TData, TParams>({ ...props, id })))
+
 		return result
 	}
 }
@@ -119,7 +124,7 @@ export function createSettledHandler<
 		await triggerInvalidates({
 			...props,
 			// eslint-disable-next-line ts/no-use-before-define
-			invalidates: props.invalidates ?? DEFAULT_UPDATE_INVALIDATES,
+			invalidates: props.invalidates ?? DEFAULT_UPDATE_MANY_INVALIDATES,
 		}, queryClient)
 	}
 }
@@ -201,33 +206,44 @@ export function createErrorHandler<
 	}
 }
 
-const DEFAULT_UPDATE_INVALIDATES: InvalidateTargetType[] = [
+const DEFAULT_UPDATE_MANY_INVALIDATES: InvalidateTargetType[] = [
 	InvalidateTarget.List,
 	InvalidateTarget.Many,
 	InvalidateTarget.One,
 ]
 
 // function updateCache<
-// 	TData extends BaseRecord,
-// 	TParams,
+// 	TData extends BaseRecord = BaseRecord,
+// 	TParams = Record<string, any>,
 // >(
 // 	queryClient: QueryClient,
 // 	props: MutationProps<TData, unknown, TParams>,
+// 	result: UpdateManyResult<TData>,
 // ): void {
+// 	const dataMap = result.data.reduce((obj, item) => {
+// 		if (item.id != null)
+// 			obj[item.id] = item
+// 		return obj
+// 	}, {} as Record<string, TData>)
+
 // 	queryClient.setQueriesData<GetListResult<TData>>(
-// 		genGetListQueryKey<number>({ props }),
+// 		genGetListQueryKey({
+// 			resource: props.resource,
+// 			fetcherName: props.fetcherName,
+// 			meta: props.meta,
+// 		}),
 // 		(previous) => {
 // 			if (!previous)
 // 				return
 
 // 			const data = previous.data.map((record: TData) => {
-// 				if (record.id?.toString() === props.id?.toString()) {
+// 				if (record.id != null && record.id in dataMap) {
 // 					return {
-// 						id: props.id,
 // 						...record,
-// 						...props.params,
-// 					} as unknown as TData
+// 						...dataMap[record.id],
+// 					}
 // 				}
+
 // 				return record
 // 			})
 
@@ -239,21 +255,26 @@ const DEFAULT_UPDATE_INVALIDATES: InvalidateTargetType[] = [
 // 	)
 
 // 	queryClient.setQueriesData<GetManyResult<TData>>(
-// 		genGetManyQueryKey({ props }),
+// 		genGetManyQueryKey({
+// 			resource: props.resource,
+// 			fetcherName: props.fetcherName,
+// 			meta: props.meta,
+// 		}),
 // 		(previous) => {
 // 			if (!previous)
 // 				return
 
 // 			const data = previous.data.map((record: TData) => {
-// 				if (record.id?.toString() === props.id?.toString()) {
-// 					record = {
-// 						id: props.id,
+// 				if (record.id != null && record.id in dataMap) {
+// 					return {
 // 						...record,
-// 						...props.params,
-// 					} as unknown as TData
+// 						...dataMap[record.id],
+// 					}
 // 				}
+
 // 				return record
 // 			})
+
 // 			return {
 // 				...previous,
 // 				data,
@@ -261,19 +282,28 @@ const DEFAULT_UPDATE_INVALIDATES: InvalidateTargetType[] = [
 // 		},
 // 	)
 
-// 	queryClient.setQueriesData<GetOneResult<TData>>(
-// 		genGetOneQueryKey({ props }),
-// 		(previous) => {
-// 			if (!previous)
-// 				return
+// 	for (const id of props.ids) {
+// 		if (!(id in dataMap))
+// 			continue
 
-// 			return {
-// 				...previous,
-// 				data: {
-// 					...previous.data,
-// 					...props.params,
-// 				},
-// 			}
-// 		},
-// 	)
+// 		queryClient.setQueriesData<GetOneResult<TData>>(
+// 			genGetOneQueryKey({
+// 				id,
+// 				resource: props.resource,
+// 				meta: props.meta,
+// 			}),
+// 			(previous) => {
+// 				if (!previous)
+// 					return
+
+// 				return {
+// 					...previous,
+// 					data: {
+// 						...previous.data,
+// 						...dataMap[id],
+// 					},
+// 				}
+// 			},
+// 		)
+// 	}
 // }

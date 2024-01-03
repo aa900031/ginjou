@@ -7,3 +7,4 @@ export * as Create from './create'
 export * as CreateMany from './create-many'
 
 export * as Update from './update'
+export * as UpdateMany from './update-many'

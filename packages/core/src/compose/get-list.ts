@@ -73,7 +73,7 @@ export function resolveQueryProps<
 export interface CreateQueryKeyProps<
 	TPageParam,
 > {
-	props: QueryProps<TPageParam>
+	props: ResolvedQueryProps<TPageParam>
 }
 
 export function createQueryKey<

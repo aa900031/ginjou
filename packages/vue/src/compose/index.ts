@@ -5,3 +5,6 @@ export * from './get-infinite-list'
 
 export * from './create'
 export * from './create-many'
+
+export * from './update'
+export * from './update-many'
