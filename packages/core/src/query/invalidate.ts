@@ -1,10 +1,13 @@
 import type { Simplify } from 'type-fest'
 import type { InvalidateOptions, InvalidateQueryFilters, QueryClient } from '@tanstack/query-core'
+import { createQueryKey as genGetListQueryKey } from '../compose/get-list'
+import { createQueryKey as genGetManyQueryKey } from '../compose/get-many'
+import { createQueryKey as genGetOneQueryKey } from '../compose/get-one'
 import type { RecordKey } from './fetcher'
-import { genGetListQueryKey } from './get-list'
-import { genGetManyQueryKey } from './get-many'
-import { genResourceQueryKey } from './resource'
-import { genGetOneQueryKey } from './get-one'
+
+export interface InvalidatesProps {
+	invalidates?: InvalidateTargetType[]
+}
 
 export const InvalidateTarget = {
 	All: 'all',
@@ -149,7 +152,7 @@ export async function triggerInvalidate(
 	switch (target) {
 		case InvalidateTarget.All:
 			await queryClient.invalidateQueries(
-				[props.fetcherName ?? 'default'],
+				[props.fetcherName ?? 'default'], // TODO:
 				invalidateFilters,
 				invalidateOptions,
 			)
@@ -178,15 +181,15 @@ export async function triggerInvalidate(
 			break
 		}
 		case InvalidateTarget.Resource: {
-			const { resource } = props
+			const { resource, fetcherName } = props
 			if (resource == null)
 				throw new Error('`resource` is required')
 
 			await queryClient.invalidateQueries(
-				genResourceQueryKey({
-					...props,
+				[
+					fetcherName ?? 'default', // TODO:
 					resource,
-				}),
+				],
 				invalidateFilters,
 				invalidateOptions,
 			)

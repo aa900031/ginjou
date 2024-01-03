@@ -1,6 +1,6 @@
 import type { Simplify } from 'type-fest'
-import type { MaybeRef } from 'vue-demi'
 import { computed, unref } from 'vue-demi'
+import type { MaybeRef } from '@vueuse/shared'
 import { computedEager, toValue } from '@vueuse/shared'
 import type { UseQueryOptions, UseQueryReturnType } from '@tanstack/vue-query'
 import { useQuery } from '@tanstack/vue-query'
