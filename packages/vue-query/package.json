@@ -53,7 +53,7 @@
 	},
 	"dependencies": {
 		"@ginjou/query": "workspace:^",
-		"@vueuse/shared": "^10.5.0",
+		"@vueuse/shared": "^10.7.1",
 		"vue-demi": "latest"
 	},
 	"devDependencies": {
@@ -61,6 +61,6 @@
 		"@ginjou/tsconfig": "workspace:*",
 		"@tanstack/vue-query": "^4.37.1",
 		"@testing-library/vue": "^7.0.0",
-		"vue": "^3.3.7"
+		"vue": "^3.4.7"
 	}
 }
