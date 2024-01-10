@@ -8,3 +8,6 @@ export * from './create-many'
 
 export * from './update'
 export * from './update-many'
+
+export * from './custom'
+export * from './custom-mutation'

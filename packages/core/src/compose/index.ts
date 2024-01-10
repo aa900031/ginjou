@@ -8,3 +8,6 @@ export * as CreateMany from './create-many'
 
 export * as Update from './update'
 export * as UpdateMany from './update-many'
+
+export * as Custom from './custom'
+export * as CustomMutation from './custom-mutation'
