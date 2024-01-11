@@ -2,7 +2,7 @@ import type { Simplify } from 'type-fest'
 import type { MutationObserverOptions, QueryClient, QueryKey } from '@tanstack/query-core'
 import type { InvalidateTargetType, InvalidatesProps, ResolvedInvalidatesProps } from '../query/invalidate'
 import { InvalidateTarget, resolveInvalidateProps, triggerInvalidates } from '../query/invalidate'
-import type { BaseRecord, UpdateProps, UpdateResult } from '../query/fetcher'
+import type { BaseRecord, DeleteOneProps, DeleteOneResult } from '../query/fetcher'
 import { type Fetchers, getFetcher } from '../query/fetchers'
 import type { QueryPair } from '../query/types'
 import { NotificationType, type NotifyFn } from '../notification'
@@ -12,16 +12,17 @@ import { getErrorMessage } from '../controller/error'
 import type { FetcherProps, ResolvedFetcherProps } from './fetchers'
 import { resolveFetcherProps } from './fetchers'
 import { type NotifyProps, resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
+import { createQueryKey as genGetOneQueryKey } from './get-one'
 
 export type MutationProps<
 	TData extends BaseRecord,
 	TError,
 	TParams,
 > = Simplify<
-	& UpdateProps<TParams>
+	& DeleteOneProps<TParams>
 	& FetcherProps
 	& InvalidatesProps
-	& NotifyProps<UpdateResult<TData>, UpdateProps<TParams>, TError>
+	& NotifyProps<DeleteOneResult<TData>, DeleteOneProps<TParams>, TError>
 >
 
 export type ResolvedMutationProps<
@@ -45,7 +46,7 @@ export type MutationOptions<
 	TError,
 	TParams,
 > = MutationObserverOptions<
-	UpdateResult<TData>,
+	DeleteOneResult<TData>,
 	TError,
 	MutationProps<TData, TError, TParams>,
 	MutationContext<TData>
@@ -70,7 +71,7 @@ export function createMutationFn<
 		const resolvedProps = resolveMutationProps(props)
 
 		const fetcher = getFetcher(resolvedProps, fetchers)
-		const result = await fetcher.update<TData, TParams>(resolvedProps)
+		const result = await fetcher.deleteOne<TData, TParams>(resolvedProps)
 
 		return result
 	}
@@ -144,6 +145,7 @@ export function createSettledHandler<
 export interface CreateSuccessHandlerProps {
 	notify: NotifyFn
 	translate: TranslateFn<unknown>
+	queryClient: QueryClient
 }
 
 export function createSuccessHandler<
@@ -153,16 +155,23 @@ export function createSuccessHandler<
 	{
 		notify,
 		translate,
+		queryClient,
 	}: CreateSuccessHandlerProps,
 ): NonNullable<MutationOptions<TData, unknown, TParams>['onSuccess']> {
 	return async function onSuccess(data, props) {
 		const resolvedProps = resolveMutationProps(props)
 
+		queryClient.removeQueries(
+			genGetOneQueryKey({
+				props: resolvedProps,
+			}),
+		)
+
 		notify(
 			resolveSuccessNotifyParams(resolvedProps.successNotify, data, resolvedProps),
 			{
-				key: `update-${resolvedProps.resource}-notification`,
-				message: translate('notifications.updateSuccess'),
+				key: `${resolvedProps.resource}-${resolvedProps.id}-notification`,
+				message: translate('notifications.deleteSuccess'),
 				description: translate('notifications.success'),
 				type: NotificationType.Success,
 			},
@@ -203,8 +212,8 @@ export function createErrorHandler<
 		notify(
 			resolveErrorNotifyParams(resolvedProps.errorNotify, error, resolvedProps),
 			{
-				key: `update-${resolvedProps.resource}-notification`,
-				message: translate('notifications.updateError'),
+				key: `${resolvedProps.resource}-${resolvedProps.id}-notification`,
+				message: translate('notifications.deleteError'),
 				description: getErrorMessage(error),
 				type: NotificationType.Error,
 			},
@@ -215,7 +224,6 @@ export function createErrorHandler<
 const DEFAULT_INVALIDATES: InvalidateTargetType[] = [
 	InvalidateTarget.List,
 	InvalidateTarget.Many,
-	InvalidateTarget.One,
 ]
 
 const cacheResolvedProps = new WeakMap<MutationProps<any, any, any>, ResolvedMutationProps<any, any, any>>()
@@ -236,6 +244,7 @@ function resolveMutationProps(
 
 	return result
 }
+
 // function updateCache<
 // 	TData extends BaseRecord,
 // 	TParams,

@@ -98,15 +98,18 @@ export function createQueryFn<
 	TQuery,
 	TPayload,
 >(
-	props: CreateQueryFnProps<TQuery, TPayload>,
+	{
+		getProps,
+		fetchers,
+	}: CreateQueryFnProps<TQuery, TPayload>,
 ): NonNullable<QueryOptions<TData, TError, TResultData>['queryFn']> {
 	return async function queryFn() {
-		const _props = props.getProps()
-		const _fetcher = getFetcher(_props, props.fetchers)
+		const props = getProps()
+		const _fetcher = getFetcher(props, fetchers)
 		if (typeof _fetcher.custom !== 'function')
 			throw new Error('Not implemented custom on data provider')
 
-		const result = await _fetcher.custom<TData, TQuery, TPayload>(_props)
+		const result = await _fetcher.custom<TData, TQuery, TPayload>(props)
 
 		return result
 	}
@@ -139,11 +142,11 @@ export function createSuccessHandler<
 	return function onSuccess(data) {
 		emitParent(data)
 
-		const _props = getProps()
+		const props = getProps()
 		const successNotify = getSuccessNotify()
 
 		notify(
-			resolveSuccessNotifyParams(successNotify, data, _props),
+			resolveSuccessNotifyParams(successNotify, data, props),
 		)
 	}
 }
@@ -180,13 +183,13 @@ export function createErrorHandler<
 
 		emitParent(error)
 
-		const _props = getProps()
+		const props = getProps()
 		const errorNotify = getErrorNotify()
 
 		notify(
-			resolveErrorNotifyParams(errorNotify, error, _props),
+			resolveErrorNotifyParams(errorNotify, error, props),
 			{
-				key: `${_props.method}-notification`,
+				key: `${props.method}-notification`,
 				message: translate('notifications.error'),
 				description: getErrorMessage(error),
 				type: NotificationType.Error,

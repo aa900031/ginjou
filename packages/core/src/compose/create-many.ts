@@ -92,7 +92,7 @@ export function createSuccessHandler<
 			...variables,
 
 			// eslint-disable-next-line ts/no-use-before-define
-			invalidates: variables.invalidates ?? DEFAULT_CREATE_MANY_INVALIDATES,
+			invalidates: variables.invalidates ?? DEFAULT_INVALIDATES,
 		}, queryClient)
 
 		// TODO: publish
@@ -135,7 +135,7 @@ export function createErrorHandler<
 	}
 }
 
-const DEFAULT_CREATE_MANY_INVALIDATES: InvalidateTargetType[] = [
+const DEFAULT_INVALIDATES: InvalidateTargetType[] = [
 	InvalidateTarget.List,
 	InvalidateTarget.Many,
 ]

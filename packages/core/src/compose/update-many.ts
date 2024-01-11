@@ -124,7 +124,7 @@ export function createSettledHandler<
 		await triggerInvalidates({
 			...props,
 			// eslint-disable-next-line ts/no-use-before-define
-			invalidates: props.invalidates ?? DEFAULT_UPDATE_MANY_INVALIDATES,
+			invalidates: props.invalidates ?? DEFAULT_INVALIDATES,
 		}, queryClient)
 	}
 }
@@ -143,7 +143,7 @@ export function createSuccessHandler<
 		translate,
 	}: CreateSuccessHandlerProps,
 ): NonNullable<MutationOptions<TData, unknown, TParams>['onSuccess']> {
-	return async function onSucces(data, props) {
+	return async function onSuccess(data, props) {
 		const {
 			resource,
 			successNotify,
@@ -206,7 +206,7 @@ export function createErrorHandler<
 	}
 }
 
-const DEFAULT_UPDATE_MANY_INVALIDATES: InvalidateTargetType[] = [
+const DEFAULT_INVALIDATES: InvalidateTargetType[] = [
 	InvalidateTarget.List,
 	InvalidateTarget.Many,
 	InvalidateTarget.One,

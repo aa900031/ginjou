@@ -1,4 +1,4 @@
-import type { SetOptional, SetRequired, Simplify } from 'type-fest'
+import type { SetOptional, Simplify } from 'type-fest'
 import type { QueryClient, QueryKey, QueryObserverOptions } from '@tanstack/query-core'
 import { hashQueryKey } from '@tanstack/query-core'
 import type { BaseRecord, Fetcher, GetManyProps, GetManyResult, GetOneResult } from '../query/fetcher'
@@ -12,7 +12,7 @@ import type { CheckErrorMutationFn } from '../auth'
 import { getErrorMessage } from '../controller/error'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
 import type { NotifyProps } from './notify'
-import type { FetcherProps } from './fetchers'
+import { type FetcherProps, type ResolvedFetcherProps, resolveFetcherProps } from './fetchers'
 import type { ResolvedQueryProps as GetOneResolvedQueryProps } from './get-one'
 import { createQueryKey as createGetOneQueryKey } from './get-one'
 
@@ -40,10 +40,7 @@ export type QueryProps = Simplify<
 
 export type ResolvedQueryProps = Simplify<
 	& GetManyProps
-	& SetRequired<
-			FetcherProps,
-			| 'fetcherName'
-		>
+	& ResolvedFetcherProps
 	& {
 		aggregate: boolean
 	}
@@ -53,11 +50,11 @@ export function resolveQueryProps(
 	props: QueryProps,
 ): ResolvedQueryProps {
 	return {
+		...resolveFetcherProps(props),
 		ids: props.ids ?? [],
 		resource: props.resource ?? '',
 		meta: props.meta,
 		aggregate: props.aggregate ?? true,
-		fetcherName: props.fetcherName ?? 'default',
 	}
 }
 
@@ -104,17 +101,17 @@ export function createQueryFn<
 	}: CreateQueryFnProps,
 ): NonNullable<QueryOptions<TData, TError, TResultData>['queryFn']> {
 	return async function queryFn() {
-		const _props = getProps()
-		if (!_props.ids || !_props.ids.length)
+		const props = getProps()
+		if (!props.ids || !props.ids.length)
 			return EMPTY_RESULT
 
-		const _fetcher = getFetcher(_props, fetchers)
-		const result = _props.aggregate
+		const _fetcher = getFetcher(props, fetchers)
+		const result = props.aggregate
 			// eslint-disable-next-line ts/no-use-before-define
-			? await aggregExecGetMany(_props, _fetcher)
-			: await execGetMany(_props, _fetcher)
+			? await aggregExecGetMany(props, _fetcher)
+			: await execGetMany(props, _fetcher)
 
-		updateCache(queryClient, _props, result)
+		updateCache(queryClient, props, result)
 
 		return result
 	}
@@ -176,11 +173,11 @@ export function createSuccessHandler<
 	return function onSuccess(data) {
 		emitParent(data)
 
-		const _props = getProps()
+		const props = getProps()
 		const successNotify = getSuccessNotify()
 
 		notify(
-			resolveSuccessNotifyParams(successNotify, data, _props),
+			resolveSuccessNotifyParams(successNotify, data, props),
 		)
 	}
 }
@@ -213,13 +210,13 @@ export function createErrorHandler<
 
 		emitParent(error)
 
-		const _props = getProps()
+		const props = getProps()
 		const errorNotify = getErrorNotify()
 
 		notify(
-			resolveErrorNotifyParams(errorNotify, error, _props),
+			resolveErrorNotifyParams(errorNotify, error, props),
 			{
-				key: `${_props.resource}-get-many-${_props.ids[0]}-notification`,
+				key: `${props.resource}-get-many-${props.ids}-notification`,
 				message: translate('notifications.getManyErrors'),
 				description: getErrorMessage(error),
 				type: NotificationType.Error,

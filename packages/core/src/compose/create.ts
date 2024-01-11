@@ -86,7 +86,7 @@ export function createSuccessHandler<
 		await triggerInvalidates({
 			...variables,
 			// eslint-disable-next-line ts/no-use-before-define
-			invalidates: variables.invalidates ?? DEFAULT_CREATE_INVALIDATES,
+			invalidates: variables.invalidates ?? DEFAULT_INVALIDATES,
 		}, queryClient)
 
 		// TODO: publish
@@ -129,7 +129,7 @@ export function createErrorHandler<
 	}
 }
 
-const DEFAULT_CREATE_INVALIDATES: InvalidateTargetType[] = [
+const DEFAULT_INVALIDATES: InvalidateTargetType[] = [
 	InvalidateTarget.List,
 	InvalidateTarget.Many,
 ]

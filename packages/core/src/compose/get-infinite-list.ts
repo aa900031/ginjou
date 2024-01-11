@@ -119,11 +119,11 @@ export function createSuccessHandler<
 	return function onSuccess(data) {
 		emitParent(data)
 
-		const _props = getProps()
+		const props = getProps()
 		const successNotify = getSuccessNotify()
 
 		notify(
-			resolveSuccessNotifyParams(successNotify, data, _props),
+			resolveSuccessNotifyParams(successNotify, data, props),
 		)
 	}
 }
@@ -158,13 +158,13 @@ export function createErrorHandler<
 
 		emitParent(error)
 
-		const _props = getProps()
+		const props = getProps()
 		const errorNotify = getErrorNotify()
 
 		notify(
-			resolveErrorNotifyParams(errorNotify, error, _props),
+			resolveErrorNotifyParams(errorNotify, error, props),
 			{
-				key: `${_props.resource}-get-list-notification`,
+				key: `${props.resource}-get-list-notification`,
 				message: translate('notifications.getListErrors'),
 				description: getErrorMessage(error),
 				type: NotificationType.Error,

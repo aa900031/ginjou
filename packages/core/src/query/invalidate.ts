@@ -1,4 +1,4 @@
-import type { Simplify } from 'type-fest'
+import type { SetRequired, Simplify } from 'type-fest'
 import type { InvalidateOptions, InvalidateQueryFilters, QueryClient } from '@tanstack/query-core'
 import { createQueryKey as genGetListQueryKey } from '../compose/get-list'
 import { createQueryKey as genGetManyQueryKey } from '../compose/get-many'
@@ -7,6 +7,20 @@ import type { RecordKey } from './fetcher'
 
 export interface InvalidatesProps {
 	invalidates?: InvalidateTargetType[]
+}
+
+export type ResolvedInvalidatesProps = SetRequired<
+	InvalidatesProps,
+	| 'invalidates'
+>
+
+export function resolveInvalidateProps(
+	props: InvalidatesProps,
+	defaultValue: InvalidateTargetType[],
+): ResolvedInvalidatesProps {
+	return {
+		invalidates: props.invalidates ?? defaultValue,
+	}
 }
 
 export const InvalidateTarget = {

@@ -9,7 +9,7 @@ import { getErrorMessage } from '../controller/error'
 import type { TranslateFn } from '../i18n'
 import type { CheckErrorMutationFn } from '../auth'
 import { createQueryKey as createGetOneQueryKey } from './get-one'
-import type { FetcherProps } from './fetchers'
+import { type FetcherProps, type ResolvedFetcherProps, resolveFetcherProps } from './fetchers'
 import type { NotifyProps } from './notify'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
 
@@ -41,10 +41,7 @@ export type ResolvedQueryProps<
 	TPageParam,
 > = Simplify<
 	& GetListProps<TPageParam>
-	& SetRequired<
-			FetcherProps,
-			| 'fetcherName'
-		>
+	& ResolvedFetcherProps
 >
 
 const DEFAULT_PAGINATION: Pagination<number> = {
@@ -58,6 +55,7 @@ export function resolveQueryProps<
 	props: QueryProps<TPageParam>,
 ): ResolvedQueryProps<TPageParam> {
 	return {
+		...resolveFetcherProps(props),
 		resource: props.resource ?? '',
 		pagination: {
 			current: props.pagination?.current ?? DEFAULT_PAGINATION.current,
@@ -66,7 +64,6 @@ export function resolveQueryProps<
 		sorters: props.sorters ?? undefined,
 		filters: props.filters ?? undefined,
 		meta: props.meta,
-		fetcherName: props.fetcherName ?? 'default',
 	}
 }
 
@@ -124,10 +121,10 @@ export function createQueryFn<
 	}: CreateQueryFnProps<TPageParam>,
 ): NonNullable<QueryOptions<TData, TError, TResultData, TPageParam>['queryFn']> {
 	return async function queryFn() {
-		const _props = getProps()
-		const _fetcher = getFetcher(_props, fetchers)
-		const result = await _fetcher.getList<TData, TPageParam>(_props)
-		updateCache(queryClient, _props, result)
+		const props = getProps()
+		const _fetcher = getFetcher(props, fetchers)
+		const result = await _fetcher.getList<TData, TPageParam>(props)
+		updateCache(queryClient, props, result)
 
 		return result
 	}
@@ -158,11 +155,11 @@ export function createSuccessHandler<
 	return function onSuccess(data) {
 		emitParent(data)
 
-		const _props = getProps()
+		const props = getProps()
 		const successNotify = getSuccessNotify()
 
 		notify(
-			resolveSuccessNotifyParams(successNotify, data, _props),
+			resolveSuccessNotifyParams(successNotify, data, props),
 		)
 	}
 }
@@ -197,13 +194,13 @@ export function createErrorHandler<
 
 		emitParent(error)
 
-		const _props = getProps()
+		const props = getProps()
 		const errorNotify = getErrorNotify()
 
 		notify(
-			resolveErrorNotifyParams(errorNotify, error, _props),
+			resolveErrorNotifyParams(errorNotify, error, props),
 			{
-				key: `${_props.resource}-get-list-notification`,
+				key: `${props.resource}-get-list-notification`,
 				message: translate('notifications.getListErrors'),
 				description: getErrorMessage(error),
 				type: NotificationType.Error,

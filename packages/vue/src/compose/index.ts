@@ -11,3 +11,6 @@ export * from './update-many'
 
 export * from './custom'
 export * from './custom-mutation'
+
+export * from './delete'
+export * from './delete-many'
