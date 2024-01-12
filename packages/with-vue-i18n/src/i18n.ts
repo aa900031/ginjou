@@ -13,10 +13,9 @@ export function defineI18nBinding<
 	const i18n = useI18n<TUseI18nOptions>(options)
 
 	return {
-		translate: (key, params, defaultValue) => i18n.t(
+		translate: (key, params) => i18n.t(
 			key,
 			params ?? ({} as any),
-			defaultValue ?? key,
 		),
 
 		getLocale: () => {

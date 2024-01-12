@@ -1,70 +1,96 @@
-import type { MaybeRef } from '@vueuse/shared'
+import type { Simplify } from 'type-fest'
 import { computed, unref } from 'vue-demi'
-import { type QueryClient, type UseMutationReturnType, useMutation } from '@tanstack/vue-query'
-import { createDeleteManyErrorHandler, createDeleteManyMutateHandler, createDeleteManyMutationFn, createDeleteManySettledHandler, createDeleteManySuccessHandler } from '@ginjou/core'
-import type { BaseRecord, DeleteManyMutateFn, DeleteManyMutationProps, DeleteManyResult, DeleteMutationContext, Fetchers } from '@ginjou/core'
-import { useQueryClientContext } from './query-client'
-import { useFetchersContext } from './fetchers'
-import type { MutationOptions } from './types'
+import type { MaybeRef } from '@vueuse/shared'
+import { type MutationObserverOptions, type UseMutationReturnType, useMutation } from '@tanstack/vue-query'
+import { DeleteMany } from '@ginjou/core'
+import type { BaseRecord, DeleteManyResult } from '@ginjou/core'
+import { type UseNotifyContext, useNotify } from '../notification'
+import { type UseTranslateContext, useTranslate } from '../i18n'
+import { type UseCheckErrorContext, useCheckError } from '../auth'
+import { type UseQueryClientContextProps, useQueryClientContext } from './query-client'
+import { type UseFetcherContextFromProps, useFetchersContext } from './fetchers'
 
 export interface UseDeleteManyProps<
-	TData extends BaseRecord = BaseRecord,
-	TError = unknown,
-	TParams extends Record<string, any> = any,
+	TData extends BaseRecord,
+	TError,
+	TParams,
 > {
 	mutationOptions?: MaybeRef<
-		| MutationOptions<DeleteManyResult<TData>, TError, DeleteManyMutationProps<TParams>, DeleteMutationContext<TData>>
+		| Omit<
+				MutationObserverOptions<
+					DeleteManyResult<TData>,
+					TError,
+					DeleteMany.MutationProps<TData, TError, TParams>,
+					DeleteMany.MutationContext<TData>
+				>,
+				| 'mutationFn'
+				| 'onMutate'
+				| 'onSettled'
+				| 'onSuccess'
+				| 'onError'
+				| 'queryClient'
+			>
 		| undefined
 	>
 }
 
-export interface UseDeleteManyContext {
-	queryClient?: QueryClient
-	fetchers?: Fetchers
-}
+export type UseDeleteManyContext = Simplify<
+	& UseFetcherContextFromProps
+	& UseQueryClientContextProps
+	& UseNotifyContext
+	& UseTranslateContext
+	& UseCheckErrorContext
+>
 
 export type UseDeleteManyResult<
-	TData extends BaseRecord = BaseRecord,
-	TError = unknown,
-	TParams extends Record<string, any> = any,
-> =
-	& DeleteManyMutateFn<TData, TError, TParams>
-	& UseMutationReturnType<DeleteManyResult<TData>, TError, DeleteManyMutationProps<TParams>, DeleteMutationContext<TData>>
+	TData extends BaseRecord,
+	TError,
+	TParams,
+> = UseMutationReturnType<
+	DeleteManyResult<TData>,
+	TError,
+	DeleteMany.MutationProps<TData, TError, TParams>,
+	DeleteMany.MutationContext<TData>
+>
 
 export function useDeleteMany<
-	TData extends BaseRecord = BaseRecord,
-	TError = unknown,
-	TParams extends Record<string, any> = any,
+	TData extends BaseRecord,
+	TError,
+	TParams,
 >(
-	props: UseDeleteManyProps<TData, TError, TParams>,
+	props?: UseDeleteManyProps<TData, TError, TParams>,
 	context?: UseDeleteManyContext,
 ): UseDeleteManyResult<TData, TError, TParams> {
 	const queryClient = useQueryClientContext(context)
 	const fetchers = useFetchersContext({ ...context, strict: true })
+	const notify = useNotify(context)
+	const translate = useTranslate(context)
+	const { mutateAsync: checkError } = useCheckError(context)
 
-	const mutation = useMutation<DeleteManyResult<TData>, TError, DeleteManyMutationProps<TParams>, DeleteMutationContext<TData>>(computed(() => ({
-		...unref(props.mutationOptions) as any,
-		mutationFn: createDeleteManyMutationFn<TData, TParams>(
-			queryClient,
+	const mutation = useMutation<DeleteManyResult<TData>, TError, DeleteMany.MutationProps<TData, TError, TParams>, DeleteMany.MutationContext<TData>>(computed(() => ({
+		...unref(props?.mutationOptions) as any, // TODO:
+		mutationFn: DeleteMany.createMutationFn<TData, TParams>({
 			fetchers,
-		),
-		onMutate: createDeleteManyMutateHandler<TData, TParams>(
+		}),
+		onMutate: DeleteMany.createMutateHandler<TData, TParams>({
 			queryClient,
-		),
-		onSettled: createDeleteManySettledHandler<TData, TParams>(
+		}),
+		onSettled: DeleteMany.createSettledHandler<TData, TError, TParams>({
 			queryClient,
-		),
-		onError: createDeleteManyErrorHandler<TData, TParams>(
+		}),
+		onSuccess: DeleteMany.createSuccessHandler<TData, TParams>({
 			queryClient,
-		),
-		onSuccess: createDeleteManySuccessHandler<TData, TParams>(
+			notify,
+			translate,
+		}),
+		onError: DeleteMany.createErrorHandler<TError>({
 			queryClient,
-		),
+			notify,
+			translate,
+			checkError,
+		}),
 		queryClient,
 	})))
 
-	const fn = mutation.mutateAsync
-	Object.assign(fn, mutation)
-
-	return fn as unknown as UseDeleteManyResult<TData, TError, TParams>
+	return mutation
 }

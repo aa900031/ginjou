@@ -1,16 +1,16 @@
 import type { QueryClient } from '@tanstack/query-core'
-import { genCheckQueryKey } from './check'
-import { genGetIdentityQueryKey } from './identity'
-import { genPermissionsQueryKey } from './permissions'
+import { createQueryKey as createCheckQueryKey } from './check'
+import { createQueryKey as createIdentityQueryKey } from './identity'
+import { createQueryKey as createPermissionsQueryKey } from './permissions'
 
 export async function triggerInvalidateAll(
 	queryClient: QueryClient,
 ) {
 	await Promise.all(
 		[
-			genCheckQueryKey(),
-			genGetIdentityQueryKey(),
-			genPermissionsQueryKey(),
+			createCheckQueryKey(),
+			createIdentityQueryKey(),
+			createPermissionsQueryKey(),
 		].map(key => queryClient.invalidateQueries(key)),
 	)
 }

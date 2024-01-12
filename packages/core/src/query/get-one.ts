@@ -1,19 +1,16 @@
-import { hashQueryKey } from '@tanstack/query-core'
-import type { QueryClient, QueryKey, QueryObserverOptions } from '@tanstack/query-core'
-import type { Simplify } from 'type-fest'
-import { genResourceQueryKey } from './resource'
+import type { SetOptional, Simplify } from 'type-fest'
+import type { QueryKey, QueryObserverOptions } from '@tanstack/query-core'
+import { NotificationType, type NotifyFn } from '../notification'
+import type { TranslateFn } from '../i18n'
+import type { CheckError } from '../auth'
+import { getErrorMessage } from '../controller/error'
+import { getFetcher, resolveFetcherProps } from './fetchers'
+import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { BaseRecord, GetOneProps, GetOneResult } from './fetcher'
-import type { Fetchers } from './fetchers'
-import { getFetcher } from './fetchers'
+import type { NotifyProps } from './notify'
+import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
 
-export type GetOneQueryProps = Simplify<
-	& GetOneProps
-	& {
-		fetcherName?: string
-	}
->
-
-export type GetOneQueryOptions<
+export type QueryOptions<
 	TData extends BaseRecord,
 	TError,
 	TResultData extends BaseRecord,
@@ -23,46 +20,160 @@ export type GetOneQueryOptions<
 	GetOneResult<TResultData>
 >
 
-export function genGetOneQueryKey(
-	props: GetOneQueryProps,
+export type QueryProps = Simplify<
+	& SetOptional<
+			GetOneProps,
+			| 'id'
+			| 'resource'
+		>
+	& FetcherProps
+>
+
+export type ResolvedQueryProps = Simplify<
+	& GetOneProps
+	& ResolvedFetcherProps
+>
+
+export function resolveQueryProps(
+	props: QueryProps,
+): ResolvedQueryProps {
+	return {
+		...resolveFetcherProps(props),
+		id: props.id ?? '',
+		resource: props.resource ?? '',
+		meta: props.meta,
+	}
+}
+
+export interface CreateQueryKeyProps {
+	props: ResolvedQueryProps
+}
+
+export function createQueryKey(
+	props: CreateQueryKeyProps,
 ): QueryKey {
-	const { fetcherName, resource, id, meta } = props
+	const { fetcherName, resource, id, meta } = props.props
 
 	return [
-		...genResourceQueryKey({
-			resource,
-			fetcherName,
-		}),
+		fetcherName,
+		resource,
 		'getOne',
 		id,
 		{ meta },
 	]
 }
 
-export function createGetOneQueryFn<
+export interface CreateQueryFnProps {
+	fetchers: Fetchers
+	getProps: () => ResolvedQueryProps
+}
+
+export function createQueryFn<
 	TData extends BaseRecord,
 	TResultData extends BaseRecord,
+	TError,
 >(
-	getProps: () => GetOneQueryProps,
-	queryClient: QueryClient,
-	fetchers: Fetchers,
-): NonNullable<GetOneQueryOptions<TData, unknown, TResultData>['queryFn']> {
-	return async function getOneQueryFn() {
+	{
+		fetchers,
+		getProps,
+	}: CreateQueryFnProps,
+): NonNullable<QueryOptions<TData, TError, TResultData>['queryFn']> {
+	return async function queryFn() {
 		const props = getProps()
-		const fetcher = getFetcher(props, fetchers)
-		const result = await fetcher.getOne<TData>(props)
+		const _fetcher = getFetcher(props, fetchers)
+		const result = await _fetcher.getOne<TData>(props)
 
 		return result
 	}
 }
 
-export function findGetOneCached<
-	TData extends BaseRecord = BaseRecord,
+export interface CreateSuccessHandlerProps<
+	TResultData extends BaseRecord,
+> {
+	notify: NotifyFn
+	getProps: () => ResolvedQueryProps
+	getSuccessNotify: () => NotifyProps<GetOneResult<TResultData>, ResolvedQueryProps, unknown>['successNotify']
+	emitParent: NonNullable<QueryOptions<any, unknown, TResultData>['onSuccess']>
+}
+
+export function createSuccessHandler<
+	TData extends BaseRecord,
+	TResultData extends BaseRecord,
 >(
-	props: GetOneQueryProps,
-	queryClient: QueryClient,
-): GetOneResult<TData> | undefined {
-	const queryCache = queryClient.getQueryCache()
-	const queryHash = hashQueryKey(genGetOneQueryKey(props))
-	return queryCache.get<GetOneResult<TData>>(queryHash)?.state.data
+	{
+		notify,
+		getProps,
+		getSuccessNotify,
+		emitParent,
+	}: CreateSuccessHandlerProps<TResultData>,
+): NonNullable<QueryOptions<TData, unknown, TResultData>['onSuccess']> {
+	return function onSuccess(data) {
+		emitParent(data)
+
+		const props = getProps()
+		const successNotify = getSuccessNotify()
+
+		notify(
+			resolveSuccessNotifyParams(successNotify, data, props),
+		)
+	}
+}
+
+export interface CreateErrorHandlerProps<
+	TError,
+> {
+	notify: NotifyFn
+	translate: TranslateFn<unknown>
+	getProps: () => ResolvedQueryProps
+	getErrorNotify: () => NotifyProps<GetOneResult<any>, ResolvedQueryProps, TError>['errorNotify']
+	checkError: CheckError.MutationFn<unknown>
+	emitParent: NonNullable<QueryOptions<any, TError, any>['onError']>
+}
+
+export function createErrorHandler<
+	TError,
+>(
+	{
+		getProps,
+		getErrorNotify,
+		notify,
+		translate,
+		checkError,
+		emitParent,
+	}: CreateErrorHandlerProps<TError>,
+): NonNullable<QueryOptions<any, TError, any>['onError']> {
+	return function onError(error) {
+		checkError(error)
+
+		emitParent(error)
+
+		const props = getProps()
+		const errorNotify = getErrorNotify()
+
+		notify(
+			resolveErrorNotifyParams(errorNotify, error, props),
+			{
+				key: `${props.resource}-get-one-${props.id}-notification`,
+				message: translate('notifications.getOneError'),
+				description: getErrorMessage(error),
+				type: NotificationType.Error,
+			},
+		)
+	}
+}
+
+export interface GetQueryEnabledProps {
+	props: ResolvedQueryProps
+	enabled?: boolean
+}
+
+export function getQueryEnabled(
+	{
+		enabled,
+		props,
+	}: GetQueryEnabledProps,
+): boolean {
+	return enabled != null
+		? enabled
+		: props.id != null && props.id !== ''
 }

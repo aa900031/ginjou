@@ -1,8 +1,8 @@
 import type { QueryFunction, QueryKey } from '@tanstack/query-core'
 import type { Auth, AuthCheckResult } from './auth'
 
-export function genCheckQueryKey<
-	TParams = unknown,
+export function createQueryKey<
+	TParams,
 >(
 	params?: TParams,
 ): QueryKey {
@@ -13,21 +13,24 @@ export function genCheckQueryKey<
 	].filter(Boolean)
 }
 
-export interface CreateCheckQueryFnProps<
-	TParams = unknown,
+export interface CreateQueryFnProps<
+	TParams,
 > {
 	auth: Auth
-	getParams: () => TParams
+	getParams: () => TParams | undefined
 }
 
-export function createCheckQueryFn<
-	TParams = unknown,
+export function createQueryFn<
+	TParams,
 >(
-	props: CreateCheckQueryFnProps<TParams>,
+	{
+		auth,
+		getParams,
+	}: CreateQueryFnProps<TParams>,
 ): QueryFunction<AuthCheckResult> {
 	return async function checkQueryFn() {
-		const { check } = props.auth
-		const params = props.getParams()
+		const { check } = auth
+		const params = getParams()
 		const result = await check(params)
 
 		return result

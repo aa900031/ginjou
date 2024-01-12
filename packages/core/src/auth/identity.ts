@@ -1,8 +1,8 @@
 import type { QueryFunction, QueryKey } from '@tanstack/query-core'
 import type { Auth } from './auth'
 
-export function genGetIdentityQueryKey<
-	TParams = unknown,
+export function createQueryKey<
+	TParams,
 >(
 	params?: TParams,
 ): QueryKey {
@@ -13,36 +13,45 @@ export function genGetIdentityQueryKey<
 	].filter(Boolean)
 }
 
-export interface CreateGetIdentityQueryFnProps<
-	TParams = unknown,
+export interface CreateQueryFnProps<
+	TParams,
 > {
 	auth: Auth
 	getParams: () => TParams | undefined
 }
 
-export function createGetIdentityQueryFn<
-	TData = unknown,
-	TParams = unknown,
+export function createQueryFn<
+	TData,
+	TParams,
 >(
-	props: CreateGetIdentityQueryFnProps<TParams>,
+	{
+		auth,
+		getParams,
+	}: CreateQueryFnProps<TParams>,
 ): QueryFunction<TData> {
 	return async function getIdentityQueryFn() {
-		const { getIdentity } = props.auth
+		const { getIdentity } = auth
 		if (!getIdentity)
 			throw new Error('No')
 
-		const params = props.getParams()
+		const params = getParams()
 		const result = await getIdentity(params)
 		return result as TData
 	}
 }
 
-export interface CheckGetIdentityQueryEnabledProps {
+export interface GetQueryEnabledProps {
 	auth: Auth
+	enabled?: boolean
 }
 
-export function checkGetIdentityQueryEnabled(
-	props: CheckGetIdentityQueryEnabledProps,
+export function getQueryEnabled(
+	{
+		auth,
+		enabled,
+	}: GetQueryEnabledProps,
 ) {
-	return typeof props.auth.getIdentity === 'function'
+	return enabled != null
+		? enabled
+		: typeof auth.getIdentity === 'function'
 }

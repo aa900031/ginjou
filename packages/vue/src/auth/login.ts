@@ -1,16 +1,35 @@
 import type { Simplify } from 'type-fest'
-import type { QueryClient } from '@tanstack/vue-query'
-import { useMutation, useQueryClient } from '@tanstack/vue-query'
+import type { UseMutationReturnType } from '@tanstack/vue-query'
+import { useMutation } from '@tanstack/vue-query'
 import type { AuthLoginResult } from '@ginjou/core'
-import { createLoginMutationFn, createLoginSuccessHandler, genLoginMutationKey } from '@ginjou/core'
+import { Login } from '@ginjou/core'
+import type { UseNotifyContext } from '../notification'
+import { useNotify } from '../notification'
+import type { UseTranslateContext } from '../i18n'
+import { useTranslate } from '../i18n'
+import type { UseGoContext } from '../router'
+import { useGo } from '../router'
+import { useQueryClientContext } from '../query/query-client'
+import type { UseQueryClientContextProps } from '../query/query-client'
 import type { UseAuthContextFromProps } from './auth'
 import { useAuthContext } from './auth'
 
 export type UseLoginContext = Simplify<
 	& UseAuthContextFromProps
-	& {
-		queryClient?: QueryClient
-	}
+	& UseQueryClientContextProps
+	& UseGoContext
+	& UseNotifyContext
+	& UseTranslateContext
+>
+
+export type UseLoginResult<
+	TParams,
+	TError,
+> = UseMutationReturnType<
+	AuthLoginResult,
+	TError,
+	TParams,
+	unknown
 >
 
 export function useLogin<
@@ -18,20 +37,25 @@ export function useLogin<
 	TError = unknown,
 >(
 	context?: UseLoginContext,
-) {
+): UseLoginResult<TParams, TError> {
 	const auth = useAuthContext({ ...context, strict: true })
-	const queryClient = context?.queryClient ?? useQueryClient()
-
-	// TODO: success: redirect
-	// TODO: success: notify
+	const queryClient = useQueryClientContext(context)
+	const go = useGo(context)
+	const notify = useNotify(context)
+	const translate = useTranslate(context)
 
 	return useMutation<AuthLoginResult, TError, TParams>({
-		mutationKey: genLoginMutationKey(),
-		mutationFn: createLoginMutationFn<TParams>({
+		mutationKey: Login.createMutationKey(),
+		mutationFn: Login.createMutationFn<TParams>({
 			auth,
 		}),
-		onSuccess: createLoginSuccessHandler<TParams>({
+		onSuccess: Login.createSuccessHandler<TParams>({
 			queryClient,
+			go,
+		}),
+		onError: Login.createErrorHandler<TParams, TError>({
+			notify,
+			translate,
 		}),
 	})
 }

@@ -1,8 +1,8 @@
 import type { SetRequired, Simplify } from 'type-fest'
 import type { InvalidateOptions, InvalidateQueryFilters, QueryClient } from '@tanstack/query-core'
-import { createQueryKey as genGetListQueryKey } from '../compose/get-list'
-import { createQueryKey as genGetManyQueryKey } from '../compose/get-many'
-import { createQueryKey as genGetOneQueryKey } from '../compose/get-one'
+import { createQueryKey as genGetListQueryKey } from './get-list'
+import { createQueryKey as genGetManyQueryKey } from './get-many'
+import { createQueryKey as genGetOneQueryKey } from './get-one'
 import type { RecordKey } from './fetcher'
 
 export interface InvalidatesProps {

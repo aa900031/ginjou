@@ -1,50 +1,97 @@
 import type { MutateFunction, MutationFunction, MutationKey, MutationOptions, QueryClient } from '@tanstack/query-core'
+import { NotificationType, type NotifyFn } from '../notification'
+import { getErrorMessage } from '../controller/error'
+import type { TranslateFn } from '../i18n'
+import type { RouterGoFn } from '../router'
+import { RouterGoType } from '../router'
 import type { Auth, AuthLoginResult } from './auth'
 import { triggerInvalidateAll } from './invalidate'
 
 export type LoginMutateFn<
-	TParams = unknown,
-	TError = unknown,
+	TParams,
+	TError,
 > = MutateFunction<
 	AuthLoginResult,
 	TError,
 	TParams
 >
 
-export function genLoginMutationKey(): MutationKey {
+export function createMutationKey(): MutationKey {
 	return [
 		'auth',
 		'login',
 	]
 }
 
-export interface CreateLoginMutationFnProps {
+export interface CreateMutationFnProps {
 	auth: Auth
 }
-export function createLoginMutationFn<
-	TParams = unknown,
+
+export function createMutationFn<
+	TParams,
 >(
-	props: CreateLoginMutationFnProps,
+	{
+		auth,
+	}: CreateMutationFnProps,
 ): MutationFunction<AuthLoginResult, TParams> {
-	return async function loginMutationFn(params) {
-		const { login } = props.auth
+	return async function mutationFn(params) {
+		const { login } = auth
 
 		const result = await login(params)
 		return result
 	}
 }
 
-export interface CreateLoginSuccessHandlerProps {
+export interface CreateSuccessHandlerProps {
 	queryClient: QueryClient
+	go: RouterGoFn
 }
 
-export function createLoginSuccessHandler<
-	TParams = unknown,
+export function createSuccessHandler<
+	TParams,
 >(
-	props: CreateLoginSuccessHandlerProps,
+	{
+		go,
+		queryClient,
+	}: CreateSuccessHandlerProps,
 ): NonNullable<MutationOptions<AuthLoginResult, unknown, TParams>['onSuccess']> {
-	return async function handleLoginSuccess() {
-		const { queryClient } = props
+	return async function onSuccess(data) {
+		const redirectTo
+			= typeof data === 'string'
+				? data
+				: typeof data === 'boolean' && data === false
+					? false
+					: '/'
+
 		await triggerInvalidateAll(queryClient)
+
+		if (redirectTo !== false)
+			go({ to: redirectTo, type: RouterGoType.Replace })
+	}
+}
+
+export interface CreateErrorHandlerProps {
+	notify: NotifyFn
+	translate: TranslateFn<unknown>
+}
+
+export function createErrorHandler<
+	TParams,
+	TError,
+>(
+	{
+		notify,
+		translate,
+	}: CreateErrorHandlerProps,
+): NonNullable<MutationOptions<AuthLoginResult, TError, TParams>['onError']> {
+	return function onError(
+		error,
+	) {
+		notify({
+			key: 'login-error',
+			message: translate('auth.login-error'),
+			description: getErrorMessage(error),
+			type: NotificationType.Error,
+		})
 	}
 }

@@ -1,64 +1,114 @@
-import type { PlaceholderDataFunction, QueryClient, QueryFunction, QueryKey } from '@tanstack/query-core'
-import type { Simplify } from 'type-fest'
-import { findGetOneCached, genGetOneQueryKey } from './get-one'
+import type { SetOptional, Simplify } from 'type-fest'
+import type { QueryClient, QueryKey, QueryObserverOptions } from '@tanstack/query-core'
+import { hashQueryKey } from '@tanstack/query-core'
+import { NotificationType, type NotifyFn } from '../notification'
+import type { TranslateFn } from '../i18n'
+import type { CheckError } from '../auth'
+import { getErrorMessage } from '../controller/error'
 import { fakeMany } from './helper'
-import { genResourceQueryKey } from './resource'
+import { getFetcher, resolveFetcherProps } from './fetchers'
+import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
+import type { BaseRecord, Fetcher, GetManyProps, GetManyResult, GetOneResult } from './fetcher'
 import { createAggregrateFn } from './aggregrate'
-import type { BaseRecord, Fetcher, GetManyProps, GetManyResult, GetOneResult, Meta } from './fetcher'
-import type { Fetchers } from './fetchers'
-import { getFetcher } from './fetchers'
+import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
+import type { NotifyProps } from './notify'
+import type { ResolvedQueryProps as GetOneResolvedQueryProps } from './get-one'
+import { createQueryKey as createGetOneQueryKey } from './get-one'
 
-export type GetManyQueryProps = Simplify<
-	& GetManyProps
+export type QueryOptions<
+	TData extends BaseRecord,
+	TError,
+	TResultData extends BaseRecord,
+> = QueryObserverOptions<
+	GetManyResult<TData>,
+	TError,
+	GetManyResult<TResultData>
+>
+
+export type QueryProps = Simplify<
+	& SetOptional<
+			GetManyProps,
+			| 'ids'
+			| 'resource'
+		>
+	& FetcherProps
 	& {
-		fetcherName?: string
 		aggregate?: boolean
 	}
 >
 
-export function genGetManyQueryKey(
-	props: GetManyQueryProps | {
-		resource: string
-		fetcherName?: string
-		meta?: Meta
-		ids?: undefined
-	},
-): QueryKey {
-	const { fetcherName, resource, ids, meta } = props
+export type ResolvedQueryProps = Simplify<
+	& GetManyProps
+	& ResolvedFetcherProps
+	& {
+		aggregate: boolean
+	}
+>
 
-	return [
-		...genResourceQueryKey({
+export function resolveQueryProps(
+	props: QueryProps,
+): ResolvedQueryProps {
+	return {
+		...resolveFetcherProps(props),
+		ids: props.ids ?? [],
+		resource: props.resource ?? '',
+		meta: props.meta,
+		aggregate: props.aggregate ?? true,
+	}
+}
+
+export interface CreateQueryKeyProps {
+	props: ResolvedQueryProps
+}
+
+export function createQueryKey(
+	{
+		props: {
 			fetcherName,
 			resource,
-		}),
-		'getMany',
-		ids && ids.map(String),
-		{
+			ids,
 			meta,
 		},
+	}: CreateQueryKeyProps,
+): QueryKey {
+	return [
+		fetcherName,
+		resource,
+		'getMany',
+		ids && ids.map(String),
+		{ meta },
 	]
+}
+
+export interface CreateQueryFnProps {
+	fetchers: Fetchers
+	queryClient: QueryClient
+	getProps: () => ResolvedQueryProps
 }
 
 const EMPTY_RESULT: GetManyResult<any> = { data: [] }
 
-export function createGetManyQueryFn<
-	TData extends BaseRecord = BaseRecord,
+export function createQueryFn<
+	TData extends BaseRecord,
+	TResultData extends BaseRecord,
+	TError,
 >(
-	getProps: () => GetManyQueryProps,
-	queryClient: QueryClient,
-	fetchers: Fetchers,
-): QueryFunction<GetManyResult<TData>> {
-	return async function getManyQueryFn() {
+	{
+		fetchers,
+		queryClient,
+		getProps,
+	}: CreateQueryFnProps,
+): NonNullable<QueryOptions<TData, TError, TResultData>['queryFn']> {
+	return async function queryFn() {
 		const props = getProps()
 		if (!props.ids || !props.ids.length)
 			return EMPTY_RESULT
 
-		const fetcher = getFetcher(props, fetchers)
-
+		const _fetcher = getFetcher(props, fetchers)
 		const result = props.aggregate
 			// eslint-disable-next-line ts/no-use-before-define
-			? await aggregExecGetMany(props, fetcher)
-			: await execGetMany(props, fetcher)
+			? await aggregExecGetMany(props, _fetcher)
+			: await execGetMany(props, _fetcher)
 
 		updateCache(queryClient, props, result)
 
@@ -66,17 +116,29 @@ export function createGetManyQueryFn<
 	}
 }
 
-export function createGetManyPlacholerDataFn<
-	TData extends BaseRecord = BaseRecord,
+export interface CreatePlacholerDataFnProps {
+	getProps: () => ResolvedQueryProps
+	queryClient: QueryClient
+}
+
+export function createPlacholerDataFn<
+	TData extends BaseRecord,
+	TResultData extends BaseRecord,
+	TError,
 >(
-	getProps: () => GetManyQueryProps,
-	queryClient: QueryClient,
-): PlaceholderDataFunction<GetManyResult<TData>> {
-	return function getManyPlaceholderDataFn() {
+	{
+		getProps,
+		queryClient,
+	}: CreatePlacholerDataFnProps,
+): NonNullable<QueryOptions<TData, TError, TResultData>['placeholderData']> {
+	return function placeholderDataFn() {
 		const { ids, ...rest } = getProps()
 		const records = (!ids || ids.length === 0)
 			? []
-			: ids.map(id => findGetOneCached<TData>({ ...rest, id }, queryClient))
+			: ids.map(id => findGetOneCached<TData, TError, TResultData>(
+				{ ...rest, id },
+				queryClient,
+			))
 
 		if (records.includes(undefined))
 			return undefined
@@ -87,10 +149,102 @@ export function createGetManyPlacholerDataFn<
 	}
 }
 
+export interface CreateSuccessHandlerProps<
+	TResultData extends BaseRecord,
+> {
+	notify: NotifyFn
+	getProps: () => ResolvedQueryProps
+	getSuccessNotify: () => NotifyProps<GetManyResult<TResultData>, ResolvedQueryProps, unknown>['successNotify']
+	emitParent: NonNullable<QueryOptions<any, unknown, TResultData>['onSuccess']>
+}
+
+export function createSuccessHandler<
+	TData extends BaseRecord,
+	TResultData extends BaseRecord,
+>(
+	{
+		notify,
+		getProps,
+		getSuccessNotify,
+		emitParent,
+	}: CreateSuccessHandlerProps<TResultData>,
+): NonNullable<QueryOptions<TData, unknown, TResultData>['onSuccess']> {
+	return function onSuccess(data) {
+		emitParent(data)
+
+		const props = getProps()
+		const successNotify = getSuccessNotify()
+
+		notify(
+			resolveSuccessNotifyParams(successNotify, data, props),
+		)
+	}
+}
+
+export interface CreateErrorHandlerProps<
+	TError,
+> {
+	notify: NotifyFn
+	translate: TranslateFn<unknown>
+	getProps: () => ResolvedQueryProps
+	getErrorNotify: () => NotifyProps<GetManyResult<any>, ResolvedQueryProps, TError>['errorNotify']
+	checkError: CheckError.MutationFn<unknown>
+	emitParent: NonNullable<QueryOptions<any, TError, any>['onError']>
+}
+
+export function createErrorHandler<
+	TError,
+>(
+	{
+		getProps,
+		getErrorNotify,
+		notify,
+		translate,
+		checkError,
+		emitParent,
+	}: CreateErrorHandlerProps<TError>,
+): NonNullable<QueryOptions<any, TError, any>['onError']> {
+	return function onError(error) {
+		checkError(error)
+
+		emitParent(error)
+
+		const props = getProps()
+		const errorNotify = getErrorNotify()
+
+		notify(
+			resolveErrorNotifyParams(errorNotify, error, props),
+			{
+				key: `${props.resource}-get-many-${props.ids}-notification`,
+				message: translate('notifications.getManyErrors'),
+				description: getErrorMessage(error),
+				type: NotificationType.Error,
+			},
+		)
+	}
+}
+
+export interface GetQueryEnabledProps {
+	props: ResolvedQueryProps
+	enabled?: boolean
+}
+
+export function getQueryEnabled(
+	{
+		enabled,
+		props,
+	}: GetQueryEnabledProps,
+): boolean {
+	return enabled != null
+		? enabled
+		: props.resource != null && props.resource !== ''
+			&& props.ids.length > 0
+}
+
 function execGetMany<
 	TData extends BaseRecord,
 >(
-	props: GetManyQueryProps,
+	props: ResolvedQueryProps,
 	fetcher: Fetcher,
 ) {
 	return typeof fetcher.getMany === 'function'
@@ -142,10 +296,10 @@ const aggregExecGetMany = createAggregrateFn(
 )
 
 function updateCache<
-	TData extends BaseRecord = BaseRecord,
+	TData extends BaseRecord,
 >(
 	queryClient: QueryClient,
-	props: GetManyQueryProps,
+	props: ResolvedQueryProps,
 	result: GetManyResult<TData>,
 ): void {
 	for (const record of result.data) {
@@ -153,8 +307,23 @@ function updateCache<
 			continue
 
 		queryClient.setQueryData<GetOneResult<TData>>(
-			genGetOneQueryKey({ ...props, id: record.id }),
+			createGetOneQueryKey({
+				props: { ...props, id: record.id },
+			}),
 			old => old ?? { data: record },
 		)
 	}
+}
+
+function findGetOneCached<
+	TData extends BaseRecord,
+	TError,
+	TResultData extends BaseRecord,
+>(
+	props: GetOneResolvedQueryProps,
+	queryClient: QueryClient,
+): GetOneResult<TResultData> | undefined {
+	const queryCache = queryClient.getQueryCache()
+	const queryHash = hashQueryKey(createGetOneQueryKey({ props }))
+	return queryCache.get<GetOneResult<TData>, TError, GetOneResult<TResultData>>(queryHash)?.state.data
 }

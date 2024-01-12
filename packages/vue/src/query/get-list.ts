@@ -1,74 +1,130 @@
-import type { QueryClient, UseQueryReturnType } from '@tanstack/vue-query'
-import { useQuery } from '@tanstack/vue-query'
-import type { MaybeRef } from '@vueuse/shared'
+import type { Simplify } from 'type-fest'
+import type { Ref } from 'vue-demi'
 import { computed, unref } from 'vue-demi'
-import type { BaseRecord, Fetchers, Filters, GetListQueryProps, GetListResult, Meta, Pagination, Sorters } from '@ginjou/core'
-import { createGetListQueryFn, genGetListQueryKey } from '@ginjou/core'
-import { useFetchersContext } from './fetchers'
+import type { MaybeRef } from '@vueuse/shared'
+import { toValue } from '@vueuse/shared'
+import type { QueryObserverOptions, UseQueryReturnType } from '@tanstack/vue-query'
+import { useQuery } from '@tanstack/vue-query'
+import type { BaseRecord, GetListResult } from '@ginjou/core'
+import { GetList } from '@ginjou/core'
+import type { UseNotifyContext } from '../notification'
+import { useNotify } from '../notification'
+import type { UseTranslateContext } from '../i18n'
+import { useTranslate } from '../i18n'
+import type { UseCheckErrorContext } from '../auth'
+import { useCheckError } from '../auth'
+import type { ToMaybeRefs } from '../utils/refs'
 import { useQueryClientContext } from './query-client'
-import type { QueryOptions } from './types'
-import { toEnabledRef } from './utils'
+import type { UseQueryClientContextProps } from './query-client'
+import { useFetchersContext } from './fetchers'
+import type { UseFetcherContextFromProps } from './fetchers'
 
-export interface UseGetListProps<
-	TData extends BaseRecord = BaseRecord,
-	TError = unknown,
-	TResultData extends BaseRecord = TData,
-> {
-	resource?: MaybeRef<string | undefined>
-	pagination?: MaybeRef<Pagination | undefined>
-	sorters?: MaybeRef<Sorters | null | undefined>
-	filters?: MaybeRef<Filters | null | undefined>
-	meta?: MaybeRef<Meta | undefined>
-	fetcherName?: MaybeRef<string | undefined>
-	queryOptions?: MaybeRef<
-		| QueryOptions<GetListResult<TData>, TError, GetListResult<TResultData>>
-		| undefined
-	>
-}
+export type UseGetListProps<
+	TData extends BaseRecord,
+	TError,
+	TResultData extends BaseRecord,
+	TPageParam,
+> = Simplify<
+	& ToMaybeRefs<GetList.QueryProps<TPageParam>>
+	& {
+		queryOptions?: MaybeRef<
+			| Omit<
+					QueryObserverOptions<GetListResult<TData>, TError, GetListResult<TResultData>>,
+					| 'queryFn'
+					| 'queryKey'
+					| 'queryClient'
+				>
+			| undefined
+		>
+		successNotify?: MaybeRef<
+			ReturnType<GetList.CreateSuccessHandlerProps<TResultData, TPageParam>['getSuccessNotify']>
+		>
+		errorNotify?: MaybeRef<
+			ReturnType<GetList.CreateErrorHandlerProps<TError, TPageParam>['getErrorNotify']>
+		>
+	}
+>
 
-export interface UseGetListContext {
-	queryClient?: QueryClient
-	fetchers?: Fetchers
-}
+export type UseGetListContext = Simplify<
+	& UseFetcherContextFromProps
+	& UseQueryClientContextProps
+	& UseNotifyContext
+	& UseTranslateContext
+	& UseCheckErrorContext
+>
 
 export type UseGetListResult<
-	TData extends BaseRecord = BaseRecord,
-	TError = unknown,
-	TResultData extends BaseRecord = TData,
-> = UseQueryReturnType<
-	GetListResult<TResultData>,
-	TError
+	TError,
+	TResultData extends BaseRecord,
+	TPageParam,
+> = Simplify<
+	& UseQueryReturnType<GetListResult<TResultData, TPageParam>, TError>
+	& {
+		records: Ref<TResultData[] | undefined>
+	}
 >
 
 export function useGetList<
 	TData extends BaseRecord = BaseRecord,
 	TError = unknown,
 	TResultData extends BaseRecord = TData,
+	TPageParam = number,
 >(
-	props: UseGetListProps<TData, TError, TResultData>,
+	props: UseGetListProps<TData, TError, TResultData, TPageParam>,
 	context?: UseGetListContext,
-): UseGetListResult<TData, TError, TResultData> {
+): UseGetListResult<TError, TResultData, TPageParam> {
 	const queryClient = useQueryClientContext(context)
 	const fetchers = useFetchersContext({ ...context, strict: true })
+	const notify = useNotify(context)
+	const translate = useTranslate(context)
+	const { mutateAsync: checkError } = useCheckError(context)
 
-	const getListProps = computed<GetListQueryProps>(() => ({
-		resource: unref(props.resource) ?? '',
+	const queryProps = computed(() => GetList.resolveQueryProps<TPageParam>({
+		resource: unref(props.resource),
 		pagination: unref(props.pagination),
-		sorters: unref(props.sorters) ?? undefined,
-		filters: unref(props.filters) ?? undefined,
+		sorters: unref(props.sorters),
+		filters: unref(props.filters),
 		meta: unref(props.meta),
-		fetcherName: unref(props.fetcherName),
 	}))
-
-	return useQuery<GetListResult<TData>, TError, GetListResult<TResultData>>(computed(() => ({
+	const queryKey = computed(() => GetList.createQueryKey<TPageParam>({
+		props: unref(queryProps),
+	}))
+	const isEnabled = computed(() => GetList.getQueryEnabled({
+		enabled: toValue(unref(props.queryOptions)?.enabled),
+		props: unref(queryProps),
+	}))
+	const queryFn = GetList.createQueryFn<TData, TResultData, TError, TPageParam>({
+		getProps: () => unref(queryProps),
 		queryClient,
+		fetchers,
+	})
+	const handleSuccess = GetList.createSuccessHandler<TData, TResultData, TPageParam>({
+		notify,
+		getProps: () => unref(queryProps),
+		getSuccessNotify: () => unref(props.successNotify),
+		emitParent: (...args) => unref(props.queryOptions)?.onSuccess?.(...args),
+	})
+	const handleError = GetList.createErrorHandler<TError, TPageParam>({
+		notify,
+		translate,
+		checkError,
+		getProps: () => unref(queryProps),
+		getErrorNotify: () => unref(props.errorNotify),
+		emitParent: (...args) => unref(props.queryOptions)?.onError?.(...args),
+	})
+
+	const query = useQuery<GetListResult<TData, TPageParam>, TError, GetListResult<TResultData, TPageParam>>(computed(() => ({
 		...unref(props.queryOptions),
-		queryKey: computed(() => genGetListQueryKey(unref(getListProps))),
-		queryFn: createGetListQueryFn<TData>(
-			() => unref(getListProps),
-			queryClient,
-			fetchers,
-		),
-		enabled: toEnabledRef(() => !!unref(getListProps).resource, props.queryOptions),
+		queryKey,
+		queryFn,
+		enabled: isEnabled,
+		onSuccess: handleSuccess,
+		onError: handleError,
+		queryClient,
 	})))
+
+	return {
+		...query,
+		records: computed(() => query.data.value?.data),
+	}
 }

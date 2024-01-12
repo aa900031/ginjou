@@ -1,52 +1,79 @@
-import type { MutationFunction, MutationKey, MutationOptions } from '@tanstack/query-core'
+import type { MutationFunction, MutationKey, MutationObserverOptions } from '@tanstack/query-core'
+import { type RouterGoFn, RouterGoType } from '../router'
 import type { Auth, AuthCheckErrorResult } from './auth'
 import type { LogoutMutateFn } from './logout'
 
-export function genCheckErrorMutationKey(): MutationKey {
+export type MutationOptions<
+	TParams,
+	TError,
+> = MutationObserverOptions<
+	AuthCheckErrorResult,
+	TError,
+	TParams
+>
+
+export function createMutationKey(): MutationKey {
 	return [
 		'auth',
 		'checkError',
 	]
 }
 
-export interface CreateCheckErrorMutatoinFnProps {
+export interface CreateMutationFnProps {
 	auth: Auth
 }
 
-export type CheckErrorMutationFn<
+export type MutationFn<
 	TParams,
 > = MutationFunction<
 	AuthCheckErrorResult,
 	TParams
 >
 
-export function createCheckErrorMutatoinFn<
-	TParams = unknown,
+export function createMutationFn<
+	TParams,
+	TError,
 >(
-	props: CreateCheckErrorMutatoinFnProps,
-): CheckErrorMutationFn<TParams> {
-	return async function checkErrorMutationFn(params) {
-		const { checkError } = props.auth
+	{
+		auth,
+	}: CreateMutationFnProps,
+): NonNullable<MutationOptions<TParams, TError>['mutationFn']> {
+	return async function mutationFn(params) {
+		const { checkError } = auth
+		if (typeof checkError !== 'function')
+			throw new Error('no')
 
 		const result = await checkError(params)
 		return result
 	}
 }
 
-export interface CreateCheckErrorSuccessHandlerProps {
-	logout: LogoutMutateFn
+export interface CreateSuccessHandlerProps {
+	logout: LogoutMutateFn<unknown, unknown>
+	go: RouterGoFn
 }
 
-export function createCheckErrorSuccessHandler<
-	TParams = unknown,
+export function createSuccessHandler<
+	TParams,
+	TError,
 >(
-	props: CreateCheckErrorSuccessHandlerProps,
-): MutationOptions<AuthCheckErrorResult, unknown, TParams>['onSuccess'] {
-	return async function handleCheckErrorSuccess(data) {
+	{
+		logout,
+		go,
+	}: CreateSuccessHandlerProps,
+): NonNullable<MutationOptions<TParams, TError>['onSuccess']> {
+	return async function onSuccess(data) {
 		const { logout: shouldLogout, ...rest } = data
-		if (shouldLogout)
-			await props.logout(rest)
+		if (shouldLogout) {
+			await logout(rest)
+			return
+		}
 
-		// TODO: rest.redirectTo
+		if (rest.redirectTo) {
+			go({
+				to: rest.redirectTo,
+				type: RouterGoType.Replace,
+			})
+		}
 	}
 }

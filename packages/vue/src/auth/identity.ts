@@ -2,20 +2,24 @@ import type { Simplify } from 'type-fest'
 import { computed, unref } from 'vue-demi'
 import type { MaybeRef } from '@vueuse/shared'
 import { computedEager, toValue } from '@vueuse/shared'
-import type { UseQueryOptions, UseQueryReturnType } from '@tanstack/vue-query'
+import type { QueryObserverOptions, UseQueryOptions, UseQueryReturnType } from '@tanstack/vue-query'
 import { useQuery } from '@tanstack/vue-query'
-import { checkGetIdentityQueryEnabled, createGetIdentityQueryFn, genGetIdentityQueryKey } from '@ginjou/core'
+import { Identity } from '@ginjou/core'
 import type { UseAuthContextFromProps } from './auth'
 import { useAuthContext } from './auth'
 
 export interface UseGetIdentityProps<
-	TData = unknown,
-	TParams = unknown,
-	TError = unknown,
+	TData,
+	TParams,
+	TError,
 > {
 	params?: MaybeRef<TParams | undefined>
 	queryOptions?: MaybeRef<
-		| UseQueryOptions<TData, TError>
+		| Omit<
+				QueryObserverOptions<TData, TError>,
+				| 'queryFn'
+				| 'queryKey'
+			>
 		| undefined
 	>
 }
@@ -25,8 +29,8 @@ export type UseGetIdentityContext = Simplify<
 >
 
 export type UseGetIdentityResult<
-	TData = unknown,
-	TError = unknown,
+	TData,
+	TError,
 > = UseQueryReturnType<
 	TData,
 	TError
@@ -37,25 +41,25 @@ export function useGetIdentity<
 	TParams = unknown,
 	TError = unknown,
 >(
-	props: UseGetIdentityProps<TData, TParams, TError>,
+	props?: UseGetIdentityProps<TData, TParams, TError>,
 	context?: UseGetIdentityContext,
 ): UseGetIdentityResult<TData, TError> {
 	const auth = useAuthContext({ ...context, strict: true })
-	function getParams() {
-		return unref(props.params)
+
+	function getParams(): TParams | undefined {
+		return unref(props?.params)
 	}
 
-	return useQuery<TData, TError>({
-		queryKey: computed(() => genGetIdentityQueryKey(getParams())),
-		queryFn: createGetIdentityQueryFn<TData, TParams>({
+	return useQuery<TData, TError>(computed(() => ({
+		...unref(props?.queryOptions),
+		queryKey: computed(() => Identity.createQueryKey<TParams>(getParams())),
+		queryFn: Identity.createQueryFn<TData, TParams>({
 			auth,
 			getParams,
 		}),
-		enabled: computedEager(() =>
-			toValue(unref(unref(props.queryOptions)?.enabled))
-			?? checkGetIdentityQueryEnabled({
-				auth,
-			}),
-		),
-	})
+		enabled: computedEager(() => Identity.getQueryEnabled({
+			enabled: toValue(unref(unref(props?.queryOptions)?.enabled)),
+			auth,
+		})),
+	})))
 }

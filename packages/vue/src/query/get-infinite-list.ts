@@ -1,79 +1,125 @@
+import type { Simplify } from 'type-fest'
 import { computed, unref } from 'vue-demi'
 import type { MaybeRef } from '@vueuse/shared'
-import type { QueryClient, UseInfiniteQueryReturnType } from '@tanstack/vue-query'
+import { toValue } from '@vueuse/shared'
+import type { InfiniteQueryObserverOptions, UseInfiniteQueryReturnType } from '@tanstack/vue-query'
 import { useInfiniteQuery } from '@tanstack/vue-query'
-import type { BaseRecord, Fetchers, Filters, GetInfiniteListResult, GetListQueryProps, Meta, PaginationPayload, Sorters } from '@ginjou/core'
-import { createGetInfiniteListQueryFn, genGetListQueryKey, getNextPageParam, getPreviousPageParam } from '@ginjou/core'
-import { useFetchersContext } from './fetchers'
+import type { BaseRecord, GetInfiniteListResult } from '@ginjou/core'
+import { GetInfiniteList, GetList } from '@ginjou/core'
+import type { UseNotifyContext } from '../notification'
+import { useNotify } from '../notification'
+import type { UseTranslateContext } from '../i18n'
+import { useTranslate } from '../i18n'
+import type { UseCheckErrorContext } from '../auth'
+import { useCheckError } from '../auth'
+import type { ToMaybeRefs } from '../utils/refs'
 import { useQueryClientContext } from './query-client'
-import type { QueryOptions } from './types'
-import { toEnabledRef } from './utils'
+import type { UseQueryClientContextProps } from './query-client'
+import { useFetchersContext } from './fetchers'
+import type { UseFetcherContextFromProps } from './fetchers'
 
-export interface UseGetInfiniteListProps<
-	TData extends BaseRecord = BaseRecord,
-	TPageParam = number,
-	TError = unknown,
-	TResultData extends BaseRecord = TData,
-> {
-	resource?: MaybeRef<string | undefined>
-	pagination?: MaybeRef<PaginationPayload<TPageParam> | undefined>
-	sorters?: MaybeRef<Sorters | undefined>
-	filters?: MaybeRef<Filters | undefined>
-	meta?: MaybeRef<Meta | undefined>
-	fetcherName?: MaybeRef<string | undefined>
-	queryOptions?: MaybeRef<
-		| QueryOptions<GetInfiniteListResult<TData, TPageParam>, TError, GetInfiniteListResult<TResultData, TPageParam>>
-		| undefined
-	>
-}
+export type UseGetInfiniteListProps<
+	TData extends BaseRecord,
+	TError,
+	TResultData extends BaseRecord,
+	TPageParam,
+> = Simplify<
+	& ToMaybeRefs<GetList.QueryProps<TPageParam>>
+	& {
+		queryOptions?: MaybeRef<
+			| Omit<
+					InfiniteQueryObserverOptions<GetInfiniteListResult<TData, TPageParam>, TError, GetInfiniteListResult<TResultData, TPageParam>>,
+					| 'queryFn'
+					| 'queryKey'
+					| 'queryClient'
+				>
+			| undefined
+		>
+		successNotify?: MaybeRef<
+			ReturnType<GetInfiniteList.CreateSuccessHandlerProps<TResultData, TPageParam>['getSuccessNotify']>
+		>
+		errorNotify?: MaybeRef<
+			ReturnType<GetInfiniteList.CreateErrorHandlerProps<TError, TPageParam>['getErrorNotify']>
+		>
+	}
+>
 
-export interface UseGetInfiniteListContext {
-	queryClient?: QueryClient
-	fetchers?: Fetchers
-}
+export type UseGetInfiniteListContext = Simplify<
+	& UseFetcherContextFromProps
+	& UseQueryClientContextProps
+	& UseNotifyContext
+	& UseTranslateContext
+	& UseCheckErrorContext
+>
 
 export type UseGetInfiniteListResult<
-	TData extends BaseRecord = BaseRecord,
-	TPageParam = number,
-	TError = unknown,
-	TResultData extends BaseRecord = TData,
-> = UseInfiniteQueryReturnType<
-	GetInfiniteListResult<TResultData, TPageParam>,
-	TError
+	TError,
+	TResultData extends BaseRecord,
+	TPageParam,
+> = Simplify<
+	& UseInfiniteQueryReturnType<GetInfiniteListResult<TResultData, TPageParam>, TError>
 >
 
 export function useGetInfiniteList<
 	TData extends BaseRecord = BaseRecord,
-	TPageParam = number,
 	TError = unknown,
 	TResultData extends BaseRecord = TData,
+	TPageParam = number,
 >(
-	props: UseGetInfiniteListProps<TData, TPageParam, TError, TResultData>,
+	props: UseGetInfiniteListProps<TData, TError, TResultData, TPageParam>,
 	context?: UseGetInfiniteListContext,
-): UseGetInfiniteListResult<TData, TPageParam, TError, TResultData> {
+): UseGetInfiniteListResult<TError, TResultData, TPageParam> {
 	const queryClient = useQueryClientContext(context)
 	const fetchers = useFetchersContext({ ...context, strict: true })
+	const notify = useNotify(context)
+	const translate = useTranslate(context)
+	const { mutateAsync: checkError } = useCheckError(context)
 
-	const getListProps = computed<GetListQueryProps<TPageParam>>(() => ({
-		resource: unref(props.resource) ?? '',
+	const queryProps = computed(() => GetList.resolveQueryProps<TPageParam>({
+		resource: unref(props.resource),
 		pagination: unref(props.pagination),
 		sorters: unref(props.sorters),
 		filters: unref(props.filters),
 		meta: unref(props.meta),
-		fetcherName: unref(props.fetcherName),
 	}))
+	const queryKey = computed(() => GetList.createQueryKey<TPageParam>({
+		props: unref(queryProps),
+	}))
+	const isEnabled = computed(() => GetList.getQueryEnabled({
+		enabled: toValue(unref(props.queryOptions)?.enabled),
+		props: unref(queryProps),
+	}))
+	const queryFn = GetInfiniteList.createQueryFn<TData, TError, TResultData, TPageParam>({
+		getProps: () => unref(queryProps),
+		queryClient,
+		fetchers,
+	})
+	const handleSuccess = GetInfiniteList.createSuccessHandler<TData, TResultData, TPageParam>({
+		notify,
+		getProps: () => unref(queryProps),
+		getSuccessNotify: () => unref(props.successNotify),
+		emitParent: (...args) => unref(props.queryOptions)?.onSuccess?.(...args),
+	})
+	const handleError = GetInfiniteList.createErrorHandler<TError, TPageParam>({
+		notify,
+		translate,
+		checkError,
+		getProps: () => unref(queryProps),
+		getErrorNotify: () => unref(props.errorNotify),
+		emitParent: (...args) => unref(props.queryOptions)?.onError?.(...args),
+	})
 
-	return useInfiniteQuery<GetInfiniteListResult<TData, TPageParam>, TError, GetInfiniteListResult<TResultData, TPageParam>, any>(computed(() => ({
-		getNextPageParam,
-		getPreviousPageParam,
+	const query = useInfiniteQuery<GetInfiniteListResult<TData, TPageParam>, TError, GetInfiniteListResult<TResultData, TPageParam>, any>(computed(() => ({
+		getNextPageParam: GetInfiniteList.getNextPageParam,
+		getPreviousPageParam: GetInfiniteList.getPreviousPageParam,
 		...unref(props.queryOptions),
-		queryKey: computed(() => genGetListQueryKey(unref(getListProps))),
-		queryFn: createGetInfiniteListQueryFn<TData, TPageParam>(
-			() => unref(getListProps),
-			queryClient,
-			fetchers,
-		),
-		enabled: toEnabledRef(() => !!unref(getListProps).resource, props.queryOptions),
+		queryKey,
+		queryFn,
+		enabled: isEnabled,
+		onSuccess: handleSuccess,
+		onError: handleError,
 		queryClient,
 	})))
+
+	return query
 }

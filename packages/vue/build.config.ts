@@ -3,7 +3,6 @@ import { defineBuildConfig } from 'unbuild'
 export default defineBuildConfig({
 	entries: [
 		'src/index',
-		'src/query',
 	],
 	clean: true,
 	declaration: true,

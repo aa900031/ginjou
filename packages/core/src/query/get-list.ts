@@ -1,37 +1,94 @@
-import type { QueryClient, QueryFunction, QueryKey } from '@tanstack/query-core'
-import type { Simplify } from 'type-fest'
-import { genGetOneQueryKey } from './get-one'
-import { genResourceQueryKey } from './resource'
-import type { BaseRecord, GetListProps, GetListResult, GetOneResult, Meta, Pagination, PaginationPayload } from './fetcher'
-import type { Fetchers } from './fetchers'
-import { getFetcher } from './fetchers'
+import type { SetOptional, Simplify } from 'type-fest'
+import type { QueryClient, QueryKey, QueryObserverOptions } from '@tanstack/query-core'
+import type { NotifyFn } from '../notification'
+import { NotificationType } from '../notification'
+import { getErrorMessage } from '../controller/error'
+import type { TranslateFn } from '../i18n'
+import type { CheckError } from '../auth'
+import { getFetcher, resolveFetcherProps } from './fetchers'
+import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
+import type { BaseRecord, GetListProps, GetListResult, GetOneResult, Pagination, PaginationPayload } from './fetcher'
+import { createQueryKey as createGetOneQueryKey } from './get-one'
+import type { NotifyProps } from './notify'
+import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
 
-export type GetListQueryProps<
-	TPageParam = number,
+export type QueryOptions<
+	TData extends BaseRecord,
+	TError,
+	TResultData extends BaseRecord,
+	TPageParam,
+> = QueryObserverOptions<
+	GetListResult<TData, TPageParam>,
+	TError,
+	GetListResult<TResultData, TPageParam>
+>
+
+export type QueryProps<
+	TPageParam,
 > = Simplify<
-	& Omit<GetListProps, 'pagination'>
+	& Omit<
+			SetOptional<GetListProps<TPageParam>, 'resource'>,
+			| 'pagination'
+		>
+	& FetcherProps
 	& {
 		pagination?: PaginationPayload<TPageParam>
-		fetcherName?: string
 	}
 >
 
-export function genGetListQueryKey(
-	props:
-	| GetListQueryProps
-	| {
-		fetcherName?: string
-		resource?: string
-		meta?: Meta
-	},
-): QueryKey {
-	const { fetcherName, resource, pagination, sorters, filters, meta } = props as GetListQueryProps
+export type ResolvedQueryProps<
+	TPageParam,
+> = Simplify<
+	& GetListProps<TPageParam>
+	& ResolvedFetcherProps
+>
 
-	return [
-		...genResourceQueryKey({
+const DEFAULT_PAGINATION: Pagination<number> = {
+	current: 1,
+	perPage: 10,
+}
+
+export function resolveQueryProps<
+	TPageParam,
+>(
+	props: QueryProps<TPageParam>,
+): ResolvedQueryProps<TPageParam> {
+	return {
+		...resolveFetcherProps(props),
+		resource: props.resource ?? '',
+		pagination: {
+			current: props.pagination?.current ?? DEFAULT_PAGINATION.current,
+			perPage: props.pagination?.perPage ?? DEFAULT_PAGINATION.perPage,
+		} as Pagination<TPageParam>,
+		sorters: props.sorters ?? undefined,
+		filters: props.filters ?? undefined,
+		meta: props.meta,
+	}
+}
+
+export interface CreateQueryKeyProps<
+	TPageParam,
+> {
+	props: ResolvedQueryProps<TPageParam>
+}
+
+export function createQueryKey<
+	TPageParam,
+>(
+	{
+		props: {
 			fetcherName,
-			resource: resource ?? '',
-		}),
+			resource,
+			pagination,
+			sorters,
+			filters,
+			meta,
+		},
+	}: CreateQueryKeyProps<TPageParam>,
+): QueryKey {
+	return [
+		fetcherName,
+		resource,
 		'getList',
 		{
 			pagination,
@@ -42,57 +99,148 @@ export function genGetListQueryKey(
 	]
 }
 
-export function createGetListQueryFn<
-	TData extends BaseRecord = BaseRecord,
+export interface CreateQueryFnProps<
+	TPageParam,
+> {
+	fetchers: Fetchers
+	queryClient: QueryClient
+	getProps: () => ResolvedQueryProps<TPageParam>
+}
+
+export function createQueryFn<
+	TData extends BaseRecord,
+	TResultData extends BaseRecord,
+	TError,
+	TPageParam,
 >(
-	getProps: () => GetListQueryProps,
-	queryClient: QueryClient,
-	fetchers: Fetchers,
-): QueryFunction<GetListResult<TData>> {
-	return async function getListQueryFn() {
+	{
+		fetchers,
+		queryClient,
+		getProps,
+	}: CreateQueryFnProps<TPageParam>,
+): NonNullable<QueryOptions<TData, TError, TResultData, TPageParam>['queryFn']> {
+	return async function queryFn() {
 		const props = getProps()
-		const resolvedProps = {
-			...props,
-			pagination: resolvePagination(props.pagination),
-		}
-		const fetcher = getFetcher(resolvedProps, fetchers)
-		const result = await fetcher.getList<TData>(resolvedProps)
+		const _fetcher = getFetcher(props, fetchers)
+		const result = await _fetcher.getList<TData, TPageParam>(props)
 		updateCache(queryClient, props, result)
 
 		return result
 	}
 }
 
+export interface CreateSuccessHandlerProps<
+	TResultData extends BaseRecord,
+	TPageParam,
+> {
+	notify: NotifyFn
+	getProps: () => ResolvedQueryProps<TPageParam>
+	getSuccessNotify: () => NotifyProps<GetListResult<TResultData>, ResolvedQueryProps<TPageParam>, unknown>['successNotify']
+	emitParent: NonNullable<QueryOptions<any, unknown, TResultData, TPageParam>['onSuccess']>
+}
+
+export function createSuccessHandler<
+	TData extends BaseRecord,
+	TResultData extends BaseRecord,
+	TPageParam,
+>(
+	{
+		notify,
+		getProps,
+		getSuccessNotify,
+		emitParent,
+	}: CreateSuccessHandlerProps<TResultData, TPageParam>,
+): NonNullable<QueryOptions<TData, unknown, TResultData, TPageParam>['onSuccess']> {
+	return function onSuccess(data) {
+		emitParent(data)
+
+		const props = getProps()
+		const successNotify = getSuccessNotify()
+
+		notify(
+			resolveSuccessNotifyParams(successNotify, data, props),
+		)
+	}
+}
+
+export interface CreateErrorHandlerProps<
+	TError,
+	TPageParam,
+> {
+	notify: NotifyFn
+	translate: TranslateFn<unknown>
+	getProps: () => ResolvedQueryProps<TPageParam>
+	getErrorNotify: () => NotifyProps<GetListResult<any>, ResolvedQueryProps<TPageParam>, TError>['errorNotify']
+	checkError: CheckError.MutationFn<unknown>
+	emitParent: NonNullable<QueryOptions<any, TError, any, TPageParam>['onError']>
+}
+
+export function createErrorHandler<
+	TError,
+	TPageParam,
+>(
+	{
+		getProps,
+		getErrorNotify,
+		notify,
+		translate,
+		checkError,
+		emitParent,
+	}: CreateErrorHandlerProps<TError, TPageParam>,
+): NonNullable<QueryOptions<any, TError, any, TPageParam>['onError']> {
+	return function onError(error) {
+		checkError(error)
+
+		emitParent(error)
+
+		const props = getProps()
+		const errorNotify = getErrorNotify()
+
+		notify(
+			resolveErrorNotifyParams(errorNotify, error, props),
+			{
+				key: `${props.resource}-get-list-notification`,
+				message: translate('notifications.getListErrors'),
+				description: getErrorMessage(error),
+				type: NotificationType.Error,
+			},
+		)
+	}
+}
+
+export interface GetQueryEnabledProps {
+	props: ResolvedQueryProps<any>
+	enabled?: boolean
+}
+
+export function getQueryEnabled(
+	{
+		enabled,
+		props,
+	}: GetQueryEnabledProps,
+): boolean {
+	return enabled != null
+		? enabled
+		: !!props.resource != null && props.resource !== ''
+}
+
 function updateCache<
-	TData extends BaseRecord = BaseRecord,
+	TData extends BaseRecord,
+	TPageParam,
 >(
 	queryClient: QueryClient,
-	props: GetListQueryProps,
-	result: GetListResult<TData>,
+	props: ResolvedQueryProps<TPageParam>,
+	result: GetListResult<TData, TPageParam>,
 ): void {
 	for (const record of result.data) {
 		if (record.id == null)
 			continue
 
 		queryClient.setQueryData<GetOneResult<TData>>(
-			genGetOneQueryKey({ ...props, id: record.id }),
+			createGetOneQueryKey({
+				props: { ...props, id: record.id },
+			}),
 			old => old ?? { data: record },
 		)
 	}
-}
-
-const DEFAULT_PAGINATION: Pagination<number> = {
-	current: 1,
-	perPage: 10,
-}
-
-export function resolvePagination<
-	TPageParam = number,
->(
-	payload?: PaginationPayload<TPageParam>,
-): Pagination<TPageParam> {
-	return {
-		current: payload?.current ?? DEFAULT_PAGINATION.current,
-		perPage: payload?.perPage ?? DEFAULT_PAGINATION.perPage,
-	} as Pagination<TPageParam>
 }

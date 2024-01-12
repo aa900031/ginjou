@@ -1,61 +1,89 @@
-import type { MaybeRef } from '@vueuse/shared'
+import type { Simplify } from 'type-fest'
 import { computed, unref } from 'vue-demi'
-import type { QueryClient, UseMutationReturnType } from '@tanstack/vue-query'
+import type { MaybeRef } from '@vueuse/shared'
+import type { MutationObserverOptions, UseMutationReturnType } from '@tanstack/vue-query'
 import { useMutation } from '@tanstack/vue-query'
-import type { BaseRecord, CustomMutationProps, CustomResult, Fetchers } from '@ginjou/core'
-import { createCustomMutationFn } from '@ginjou/core'
-import { useFetchersContext } from './fetchers'
-import { useQueryClientContext } from './query-client'
-import type { MutationOptions } from './types'
+import type { BaseRecord, CustomResult } from '@ginjou/core'
+import { CustomMutation } from '@ginjou/core'
+import { type UseNotifyContext, useNotify } from '../notification'
+import { type UseTranslateContext, useTranslate } from '../i18n'
+import { type UseCheckErrorContext, useCheckError } from '../auth'
+import { type UseQueryClientContextProps, useQueryClientContext } from './query-client'
+import { type UseFetcherContextFromProps, useFetchersContext } from './fetchers'
 
 export interface UseCustomMutationProps<
-	TData extends BaseRecord = BaseRecord,
-	TError = unknown,
-	TQuery = unknown,
-	TPayload = unknown,
+	TData extends BaseRecord,
+	TError,
+	TQuery,
+	TPayload,
 > {
 	mutationOptions?: MaybeRef<
-		| MutationOptions<CustomResult<TData>, TError, CustomMutationProps<TQuery, TPayload>>
+		| Omit<
+				MutationObserverOptions<
+					CustomResult<TData>,
+					TError,
+					CustomMutation.MutationProps<TData, TError, TQuery, TPayload>,
+					any
+				>,
+				| 'mutationFn'
+				| 'onSuccess'
+				| 'onError'
+				| 'queryClient'
+			>
 		| undefined
 	>
 }
 
-export interface UseCustomMutationContext {
-	queryClient?: QueryClient
-	fetchers?: Fetchers
-}
+export type UseCustomMutationContext = Simplify<
+	& UseFetcherContextFromProps
+	& UseQueryClientContextProps
+	& UseNotifyContext
+	& UseTranslateContext
+	& UseCheckErrorContext
+>
 
 export type UseCustomMutationResult<
-	TData extends BaseRecord = BaseRecord,
-	TError = unknown,
-	TQuery = unknown,
-	TPayload = unknown,
-> =
-	& UseMutationReturnType<CustomResult<TData>, TError, CustomMutationProps<TQuery, TPayload>, any>['mutateAsync']
-	& UseMutationReturnType<CustomResult<TData>, TError, CustomMutationProps<TQuery, TPayload>, any>
+	TData extends BaseRecord,
+	TError,
+	TQuery,
+	TPayload,
+> = UseMutationReturnType<
+	CustomResult<TData>,
+	TError,
+	CustomMutation.MutationProps<TData, TError, TQuery, TPayload>,
+	any
+>
 
 export function useCustomMutation<
-	TData extends BaseRecord = BaseRecord,
-	TError = unknown,
-	TQuery = unknown,
-	TPayload = unknown,
+	TData extends BaseRecord,
+	TError,
+	TQuery,
+	TPayload,
 >(
 	props?: UseCustomMutationProps<TData, TError, TQuery, TPayload>,
 	context?: UseCustomMutationContext,
 ): UseCustomMutationResult<TData, TError, TQuery, TPayload> {
 	const queryClient = useQueryClientContext(context)
 	const fetchers = useFetchersContext({ ...context, strict: true })
+	const notify = useNotify(context)
+	const translate = useTranslate(context)
+	const { mutateAsync: checkError } = useCheckError(context)
 
-	const mutation = useMutation<CustomResult<TData>, TError, CustomMutationProps<TQuery, TPayload>, any>(computed(() => ({
-		...unref(props?.mutationOptions) as any,
-		mutationFn: createCustomMutationFn<TData, TQuery, TPayload>(
+	const mutation = useMutation<CustomResult<TData>, TError, CustomMutation.MutationProps<TData, TError, TQuery, TPayload>, any>(computed(() => ({
+		...unref(props?.mutationOptions) as any, // TODO:
+		mutationFn: CustomMutation.createMutationFn<TData, TQuery, TPayload>({
 			fetchers,
-		),
+		}),
+		onSuccess: CustomMutation.createSuccessHandler<TData, TQuery, TPayload>({
+			notify,
+		}),
+		onError: CustomMutation.createErrorHandler<TError, TQuery, TPayload>({
+			notify,
+			translate,
+			checkError,
+		}),
 		queryClient,
 	})))
 
-	const fn = mutation.mutateAsync
-	Object.assign(fn, mutation)
-
-	return fn as unknown as UseCustomMutationResult<TData, TError, TQuery, TPayload>
+	return mutation
 }

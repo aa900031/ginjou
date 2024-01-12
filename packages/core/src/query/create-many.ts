@@ -1,87 +1,160 @@
-import type { MutateFunction, MutationFunction, QueryClient } from '@tanstack/query-core'
-import { InvalidateTarget, type InvalidateTargetType, triggerInvalidates } from './invalidate'
+import type { Simplify } from 'type-fest'
+import type { MutationObserverOptions, QueryClient } from '@tanstack/query-core'
+import type { NotifyFn } from '../notification'
+import { NotificationType } from '../notification'
+import type { TranslateFn } from '../i18n'
+import type { CheckError } from '../auth'
+import { getErrorMessage } from '../controller/error'
+import type { InvalidateTargetType, InvalidatesProps, ResolvedInvalidatesProps } from './invalidate'
+import { InvalidateTarget, resolveInvalidateProps, triggerInvalidates } from './invalidate'
 import { fakeMany } from './helper'
-import { genGetOneQueryKey } from './get-one'
-import type { SuccessHandler } from './types'
-import type { BaseRecord, CreateManyProps, CreateManyResult, GetOneResult } from './fetcher'
-import type { Fetchers } from './fetchers'
-import { getFetcher } from './fetchers'
+import { getFetcher, resolveFetcherProps } from './fetchers'
+import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
+import type { BaseRecord, CreateManyProps, CreateManyResult } from './fetcher'
+import type { NotifyProps } from './notify'
+import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
 
-const DEFAULT_CREATE_MANY_INVALIDATES: InvalidateTargetType[] = [
-	InvalidateTarget.List,
-	InvalidateTarget.Many,
-]
-
-export type CreateManyMutationProps<
-	TParams = Record<string, any>,
-> =
-	& CreateManyProps<TParams>
-	& {
-		fetcherName?: string
-		invalidates?: InvalidateTargetType[]
-	}
-
-export type CreateManyMutateFn<
-	TData extends BaseRecord = BaseRecord,
-	TError = unknown,
-	TParams = Record<string, any>,
-> = MutateFunction<
-	CreateManyResult<TData>,
+export type MutationProps<
+	TData extends BaseRecord,
 	TError,
-	CreateManyMutationProps<TParams>
+	TParams,
+> = Simplify<
+	& CreateManyProps<TParams>
+	& FetcherProps
+	& InvalidatesProps
+	& NotifyProps<CreateManyResult<TData>, CreateManyProps<TParams>, TError>
 >
 
-export function createCreateManyMutationFn<
-	TData extends BaseRecord = BaseRecord,
-	TParams = Record<string, any>,
->(
-	queryClient: QueryClient,
-	fetchers: Fetchers,
-): MutationFunction<CreateManyResult<TData>, CreateManyMutationProps<TParams>> {
-	return async function createMutationFn(props) {
-		const fetcher = getFetcher(props, fetchers)
-		const result = typeof fetcher.createMany === 'function'
-			? await fetcher.createMany<TData, TParams>(props)
-			: await fakeMany(props.params.map(val => fetcher.create<TData, TParams>({ ...props, params: val })))
+export type ResolvedMutationProps<
+	TData extends BaseRecord,
+	TError,
+	TParams,
+> = Simplify<
+	& MutationProps<TData, TError, TParams>
+	& ResolvedFetcherProps
+	& ResolvedInvalidatesProps
+>
 
-		updateCache<TData, TParams>(queryClient, props, result)
+export type MutationOptions<
+	TData extends BaseRecord,
+	TError,
+	TParams,
+> = MutationObserverOptions<
+	CreateManyResult<TData>,
+	TError,
+	MutationProps<TData, TError, TParams>
+>
+
+export interface CreateMutationFnProps {
+	fetchers: Fetchers
+}
+
+export function createMutationFn<
+	TData extends BaseRecord,
+	TParams,
+>(
+	{
+		fetchers,
+	}: CreateMutationFnProps,
+): NonNullable<MutationOptions<TData, unknown, TParams>['mutationFn']> {
+	return async function mutationFn(props) {
+		const resolveProps = resolveMutationProps(props)
+		const fetcher = getFetcher(resolveProps, fetchers)
+		const result = typeof fetcher.createMany === 'function'
+			? await fetcher.createMany<TData, TParams>(resolveProps)
+			: await fakeMany(resolveProps.params.map(val => fetcher.create<TData, TParams>({ ...resolveProps, params: val })))
 
 		return result
 	}
 }
+export interface CreateSuccessHandlerProps {
+	notify: NotifyFn
+	translate: TranslateFn<unknown>
+	queryClient: QueryClient
+}
 
-export function createCreateManySuccessHandler<
-	TData extends BaseRecord = BaseRecord,
-	TParams = Record<string, any>,
+export function createSuccessHandler<
+	TData extends BaseRecord,
+	TParams,
 >(
-	queryClient: QueryClient,
-): SuccessHandler<CreateManyResult<TData>, CreateManyMutationProps<TParams>> {
-	return async function createSuccessHandler(
-		_data,
-		props,
-	) {
-		await triggerInvalidates({
-			...props,
-			invalidates: props.invalidates ?? DEFAULT_CREATE_MANY_INVALIDATES,
-		}, queryClient)
+	{
+		notify,
+		translate,
+		queryClient,
+	}: CreateSuccessHandlerProps,
+): NonNullable<MutationOptions<TData, unknown, TParams>['onSuccess']> {
+	return async function onSuccess(data, props) {
+		const resolvedProps = resolveMutationProps(props)
+
+		notify(
+			resolveSuccessNotifyParams(resolvedProps.successNotify, data, resolvedProps),
+			{
+				key: `create-${resolvedProps.resource}-notification`,
+				message: translate('notifications.createSuccess'),
+				description: translate('notifications.success'),
+				type: NotificationType.Success,
+			},
+		)
+
+		await triggerInvalidates(resolvedProps, queryClient)
+
+		// TODO: publish
+		// TODO: logs
 	}
 }
 
-function updateCache<
-	TData extends BaseRecord = BaseRecord,
-	TParams = Record<string, any>,
->(
-	queryClient: QueryClient,
-	props: CreateManyMutationProps<TParams>,
-	result: CreateManyResult<TData>,
-): void {
-	for (const record of result.data) {
-		if (record.id == null)
-			continue
+export interface CreateErrorHandlerProps {
+	notify: NotifyFn
+	translate: TranslateFn<unknown>
+	checkError: CheckError.MutationFn<unknown>
+}
 
-		queryClient.setQueryData<GetOneResult<TData>>(
-			genGetOneQueryKey({ ...props, id: record.id }),
-			old => old ?? { data: record },
+export function createErrorHandler<
+	TError,
+>(
+	{
+		notify,
+		translate,
+		checkError,
+	}: CreateErrorHandlerProps,
+): NonNullable<MutationOptions<any, TError, any>['onError']> {
+	return async function onError(error, props) {
+		await checkError(error)
+
+		const resolvedProps = resolveMutationProps(props)
+
+		notify(
+			resolveErrorNotifyParams(resolvedProps.errorNotify, error, resolvedProps),
+			{
+				key: `create-${resolvedProps.resource}-notification`,
+				message: translate('notifications.createError'),
+				description: getErrorMessage(error),
+				type: NotificationType.Error,
+			},
 		)
 	}
+}
+
+const DEFAULT_INVALIDATES: InvalidateTargetType[] = [
+	InvalidateTarget.List,
+	InvalidateTarget.Many,
+]
+
+const cacheResolvedProps = new WeakMap<MutationProps<any, any, any>, ResolvedMutationProps<any, any, any>>()
+
+function resolveMutationProps(
+	props: MutationProps<any, any, any>,
+): ResolvedMutationProps<any, any, any> {
+	const cached = cacheResolvedProps.get(props)
+	if (cached)
+		return cached
+
+	const result: ResolvedMutationProps<any, any, any> = {
+		...props,
+		...resolveFetcherProps(props),
+		...resolveInvalidateProps(props, DEFAULT_INVALIDATES),
+	}
+	cacheResolvedProps.set(props, result)
+
+	return result
 }

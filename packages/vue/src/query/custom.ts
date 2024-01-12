@@ -1,63 +1,81 @@
-import type { MaybeRef } from '@vueuse/shared'
-import type { QueryClient, UseQueryReturnType } from '@tanstack/vue-query'
-import { useQuery } from '@tanstack/vue-query'
-import type { BaseRecord, CustomProps, CustomQueryProps, CustomResult, Fetchers, Meta } from '@ginjou/core'
-import { createCustomQueryFn, genCustomQueryKey } from '@ginjou/core'
+import type { Simplify } from 'type-fest'
+import type { Ref } from 'vue-demi'
 import { computed, unref } from 'vue-demi'
-import { useFetchersContext } from './fetchers'
+import type { MaybeRef } from '@vueuse/shared'
+import type { QueryObserverOptions, UseQueryReturnType } from '@tanstack/vue-query'
+import { useQuery } from '@tanstack/vue-query'
+import type { BaseRecord, CustomResult } from '@ginjou/core'
+import { Custom } from '@ginjou/core'
+import type { UseNotifyContext } from '../notification'
+import { useNotify } from '../notification'
+import type { UseTranslateContext } from '../i18n'
+import { useTranslate } from '../i18n'
+import type { UseCheckErrorContext } from '../auth'
+import { useCheckError } from '../auth'
+import type { ToMaybeRefs } from '../utils/refs'
 import { useQueryClientContext } from './query-client'
-import type { QueryOptions } from './types'
+import type { UseQueryClientContextProps } from './query-client'
+import { useFetchersContext } from './fetchers'
+import type { UseFetcherContextFromProps } from './fetchers'
 
-export interface UseCustomProps<
-	TData extends BaseRecord = BaseRecord,
-	TError = unknown,
-	TQuery = unknown,
-	TPayload = unknown,
-	TResultData extends BaseRecord = TData,
-> {
-	url: MaybeRef<CustomProps<TQuery, TPayload>['url']>
-	method: MaybeRef<CustomProps<TQuery, TPayload>['method']>
-	sorters?: MaybeRef<CustomProps<TQuery, TPayload>['sorters'] | undefined>
-	filters?: MaybeRef<CustomProps<TQuery, TPayload>['filters'] | undefined>
-	payload?: MaybeRef<CustomProps<TQuery, TPayload>['payload'] | undefined>
-	query?: MaybeRef<CustomProps<TQuery, TPayload>['query'] | undefined>
-	headers?: MaybeRef<CustomProps<TQuery, TPayload>['headers'] | undefined>
-	meta?: MaybeRef<Meta | undefined>
-	fetcherName?: MaybeRef<string | undefined>
-	queryOptions?: MaybeRef<
-		| QueryOptions<CustomResult<TData>, TError, CustomResult<TResultData>>
-		| undefined
-	>
-}
-
-export interface UseCustomContext {
-	queryClient?: QueryClient
-	fetchers?: Fetchers
-}
-
-export type UseCustomResult<
+export type UseCustomProps<
 	TData extends BaseRecord,
 	TError,
+	TResultData extends BaseRecord,
+	TQuery,
+	TPayload,
+> = Simplify<
+	& ToMaybeRefs<Custom.QueryProps<TQuery, TPayload>>
+	& {
+		queryOptions?: MaybeRef<
+			| QueryObserverOptions<CustomResult<TData>, TError, CustomResult<TResultData>>
+			| undefined
+		>
+		successNotify?: MaybeRef<
+			ReturnType<Custom.CreateSuccessHandlerProps<TResultData, TQuery, TPayload>['getSuccessNotify']>
+		>
+		errorNotify?: MaybeRef<
+			ReturnType<Custom.CreateErrorHandlerProps<TError, TQuery, TPayload>['getErrorNotify']>
+		>
+	}
+>
+
+export type UseCustomContext = Simplify<
+	& UseFetcherContextFromProps
+	& UseQueryClientContextProps
+	& UseNotifyContext
+	& UseTranslateContext
+	& UseCheckErrorContext
+>
+
+export type UseCustomResult<
+	TData extends BaseRecord = BaseRecord,
+	TError = unknown,
 	TResultData extends BaseRecord = TData,
-> = UseQueryReturnType<
-	CustomResult<TResultData>,
-	TError
+> = Simplify<
+	& UseQueryReturnType<CustomResult<TResultData>, TError>
+	& {
+		record: Ref<TResultData | undefined>
+	}
 >
 
 export function useCustom<
 	TData extends BaseRecord = BaseRecord,
 	TError = unknown,
+	TResultData extends BaseRecord = TData,
 	TQuery = unknown,
 	TPayload = unknown,
-	TResultData extends BaseRecord = TData,
 >(
-	props: UseCustomProps<TData, TError, TQuery, TPayload, TResultData>,
+	props: UseCustomProps<TData, TError, TResultData, TQuery, TPayload>,
 	context?: UseCustomContext,
 ): UseCustomResult<TData, TError, TResultData> {
 	const queryClient = useQueryClientContext(context)
 	const fetchers = useFetchersContext({ ...context, strict: true })
+	const notify = useNotify(context)
+	const translate = useTranslate(context)
+	const { mutateAsync: checkError } = useCheckError(context)
 
-	const customProps = computed<CustomQueryProps<TQuery, TPayload>>(() => ({
+	const queryProps = computed(() => Custom.resolveQueryProps<TQuery, TPayload>({
 		url: unref(props.url),
 		method: unref(props.method),
 		sorters: unref(props.sorters),
@@ -67,16 +85,40 @@ export function useCustom<
 		headers: unref(props.headers),
 		meta: unref(props.meta),
 		fetcherName: unref(props.fetcherName),
-		queryOptions: unref(props.queryOptions),
 	}))
+	const queryKey = computed(() => Custom.createQueryKey({
+		props: unref(queryProps),
+	}))
+	const queryFn = Custom.createQueryFn<TData, TResultData, TError, TQuery, TPayload>({
+		fetchers,
+		getProps: () => unref(queryProps),
+	})
+	const handleSuccess = Custom.createSuccessHandler<TData, TResultData, TQuery, TPayload>({
+		notify,
+		getProps: () => unref(queryProps),
+		getSuccessNotify: () => unref(props.successNotify),
+		emitParent: (...args) => unref(props.queryOptions)?.onSuccess?.(...args),
+	})
+	const handleError = Custom.createErrorHandler<TError, TQuery, TPayload>({
+		notify,
+		translate,
+		checkError,
+		getProps: () => unref(queryProps),
+		getErrorNotify: () => unref(props.errorNotify),
+		emitParent: (...args) => unref(props.queryOptions)?.onError?.(...args),
+	})
 
-	return useQuery<CustomResult<TData>, TError, CustomResult<TResultData>>(computed(() => ({
+	const query = useQuery<CustomResult<TData>, TError, CustomResult<TResultData>>(computed(() => ({
+		queryKey,
+		queryFn,
 		...unref(props.queryOptions),
-		queryKey: computed(() => genCustomQueryKey(unref(customProps))),
-		queryFn: createCustomQueryFn<TData, TQuery, TPayload>(
-			() => unref(customProps),
-			fetchers,
-		),
+		onSuccess: handleSuccess,
+		onError: handleError,
 		queryClient,
 	})))
+
+	return {
+		...query,
+		record: computed(() => query.data.value?.data),
+	}
 }

@@ -1,8 +1,8 @@
 import type { QueryFunction, QueryKey } from '@tanstack/query-core'
 import type { Auth } from './auth'
 
-export function genPermissionsQueryKey<
-	TParams = unknown,
+export function createQueryKey<
+	TParams,
 >(
 	params?: TParams,
 ): QueryKey {
@@ -13,37 +13,46 @@ export function genPermissionsQueryKey<
 	].filter(Boolean)
 }
 
-export interface CreatePermissionsQueryFnProps<
-	TParams = unknown,
+export interface CreateQueryFnProps<
+	TParams,
 > {
 	auth: Auth
 	getParams: () => TParams | undefined
 }
 
-export function createPermissionsQueryFn<
-	TData = unknown,
-	TParams = unknown,
+export function createQueryFn<
+	TData,
+	TParams,
 >(
-	props: CreatePermissionsQueryFnProps<TParams>,
+	{
+		auth,
+		getParams,
+	}: CreateQueryFnProps<TParams>,
 ): QueryFunction<TData> {
-	return async function permissionsQueryFn() {
-		const { getPermissions } = props.auth
+	return async function queryFn() {
+		const { getPermissions } = auth
 		if (!getPermissions)
 			throw new Error('No')
 
-		const params = props.getParams()
+		const params = getParams()
 		const result = await getPermissions(params)
 
 		return result as TData
 	}
 }
 
-export interface CheckPermissionsEnabledProps {
+export interface GetQueryEnabledProps {
 	auth: Auth
+	enabled?: boolean
 }
 
-export function checkPermissionsEnabled(
-	props: CheckPermissionsEnabledProps,
+export function getQueryEnabled(
+	{
+		auth,
+		enabled,
+	}: GetQueryEnabledProps,
 ) {
-	return typeof props.auth.getPermissions === 'function'
+	return enabled != null
+		? enabled
+		: typeof auth.getPermissions === 'function'
 }

@@ -1,5 +1,5 @@
-import type { BaseRecord } from '../query'
 import type { OpenNotificationParams } from '../notification'
+import type { BaseRecord } from './fetcher'
 
 export interface NotifyProps<
 	TData extends BaseRecord,
