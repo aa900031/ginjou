@@ -1,9 +1,9 @@
 import type { MutateFunction, MutationFunction, MutationKey, MutationOptions, QueryClient } from '@tanstack/query-core'
 import { NotificationType, type NotifyFn } from '../notification'
-import { getErrorMessage } from '../controller/error'
 import type { TranslateFn } from '../i18n'
 import type { RouterGoFn } from '../router'
 import { RouterGoType } from '../router'
+import { getErrorMessage } from '../utils/error'
 import type { Auth, AuthLoginResult } from './auth'
 import { triggerInvalidateAll } from './invalidate'
 

@@ -3,7 +3,7 @@ import type { MutationObserverOptions, QueryClient, QueryKey } from '@tanstack/q
 import { NotificationType, type NotifyFn } from '../notification'
 import type { TranslateFn } from '../i18n'
 import type { CheckError } from '../auth'
-import { getErrorMessage } from '../controller/error'
+import { getErrorMessage } from '../utils/error'
 import type { QueryPair } from './types'
 import { InvalidateTarget, resolveInvalidateProps, triggerInvalidates } from './invalidate'
 import type { InvalidateTargetType, InvalidatesProps, ResolvedInvalidatesProps } from './invalidate'

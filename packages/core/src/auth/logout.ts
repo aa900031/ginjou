@@ -3,7 +3,7 @@ import { type RouterGoFn, RouterGoType } from '../router'
 import type { NotifyFn } from '../notification'
 import { NotificationType } from '../notification'
 import type { TranslateFn } from '../i18n'
-import { getErrorMessage } from '../controller/error'
+import { getErrorMessage } from '../utils/error'
 import { triggerInvalidateAll } from './invalidate'
 import type { Auth, AuthLogoutResult } from './auth'
 
@@ -30,10 +30,12 @@ export interface CreateMutationFnProps {
 export function createMutationFn<
 	TParams,
 >(
-	props: CreateMutationFnProps,
+	{
+		auth,
+	}: CreateMutationFnProps,
 ): MutationFunction<AuthLogoutResult, TParams> {
 	return async function mutationFn(params) {
-		const { logout } = props.auth
+		const { logout } = auth
 		const result = await logout(params)
 		return result
 	}

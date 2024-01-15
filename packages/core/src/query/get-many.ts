@@ -1,10 +1,10 @@
 import type { SetOptional, Simplify } from 'type-fest'
-import type { QueryClient, QueryKey, QueryObserverOptions } from '@tanstack/query-core'
+import type { PlaceholderDataFunction, QueryClient, QueryKey, QueryObserverOptions } from '@tanstack/query-core'
 import { hashQueryKey } from '@tanstack/query-core'
 import { NotificationType, type NotifyFn } from '../notification'
 import type { TranslateFn } from '../i18n'
 import type { CheckError } from '../auth'
-import { getErrorMessage } from '../controller/error'
+import { getErrorMessage } from '../utils/error'
 import { fakeMany } from './helper'
 import { getFetcher, resolveFetcherProps } from './fetchers'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
@@ -130,7 +130,7 @@ export function createPlacholerDataFn<
 		getProps,
 		queryClient,
 	}: CreatePlacholerDataFnProps,
-): NonNullable<QueryOptions<TData, TError, TResultData>['placeholderData']> {
+): PlaceholderDataFunction<GetManyResult<TData>> {
 	return function placeholderDataFn() {
 		const { ids, ...rest } = getProps()
 		const records = (!ids || ids.length === 0)

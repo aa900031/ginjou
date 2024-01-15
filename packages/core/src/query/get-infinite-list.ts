@@ -2,7 +2,7 @@ import type { InfiniteData, InfiniteQueryObserverOptions, QueryClient, QueryFunc
 import { NotificationType, type NotifyFn } from '../notification'
 import type { TranslateFn } from '../i18n'
 import type { CheckError } from '../auth'
-import { getErrorMessage } from '../controller/error'
+import { getErrorMessage } from '../utils/error'
 import { getFetcher } from './fetchers'
 import type { Fetchers } from './fetchers'
 import type { BaseRecord, GetInfiniteListResult, GetOneResult, Pagination } from './fetcher'
