@@ -25,9 +25,12 @@ export function resolveResource<
 	TResourceMeta extends Record<string, any> = Record<string, any>,
 	TLocationMeta = unknown,
 >(
-	binding: Resource<TResourceMeta>,
+	binding: Resource<TResourceMeta> | undefined,
 	params: ResolveResourceParams<TLocationMeta>,
 ): ResolvedResource<TResourceMeta> | undefined {
+	if (!binding)
+		return
+
 	if (params.name) {
 		const definition = getResourceDefinition<TResourceMeta>(binding, params.name)
 		if (definition) {

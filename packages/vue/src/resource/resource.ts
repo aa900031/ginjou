@@ -22,13 +22,11 @@ export function useResource(
 	const resource = useResourceContext(context)
 	const location = useLocation(context)
 
-	return computed(() => {
-		if (!resource)
-			return
-
-		return resolveResource(resource, {
+	return computed(() => resolveResource(
+		resource,
+		{
 			name: unref(props?.name),
 			location: unref(location),
-		})
-	})
+		},
+	))
 }

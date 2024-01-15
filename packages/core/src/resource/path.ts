@@ -1,22 +1,30 @@
 import { inject as injectRegexparam } from 'regexparam'
 import type { ResourceActionTypeValues } from './action'
-import type { ResourceDefinition } from './definition'
+import type { ResolvedResource } from './resolve'
 
 export interface CreateResourcePathProps {
-	resource: ResourceDefinition
 	action: ResourceActionTypeValues
+	resolved: ResolvedResource | undefined
 	params?: Record<string, any>
 }
 
 export function createResourcePath(
-	props: CreateResourcePathProps,
+	{
+		action,
+		resolved,
+		params,
+	}: CreateResourcePathProps,
 ): string | undefined {
-	const { resource, action, params } = props
-	const target = resource[action]
+	const target = resolved?.resource[action]
 	if (!target)
 		return
 
 	const pattern = typeof target === 'string' ? target : target.pattern
-	const result = injectRegexparam(pattern, params ?? {})
+	const result = injectRegexparam(pattern, {
+		...{ id: 'id' in resolved ? resolved.id : undefined },
+		...{ action: resolved.action },
+		...resolved.params,
+		...params,
+	})
 	return result
 }
