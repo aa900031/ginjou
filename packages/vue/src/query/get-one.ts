@@ -27,12 +27,7 @@ export type UseGetOneProps<
 	& ToMaybeRefs<GetOne.QueryProps>
 	& {
 		queryOptions?: MaybeRef<
-			| Omit<
-					QueryObserverOptions<GetOneResult<TData>, TError, GetOneResult<TResultData>>,
-					| 'queryFn'
-					| 'queryKey'
-					| 'queryClient'
-				>
+			| GetOne.QueryOptionsFromProps<TData, TError, TResultData>
 			| undefined
 		>
 		successNotify?: MaybeRef<

@@ -1,7 +1,7 @@
 import type { Simplify } from 'type-fest'
 import { computed, unref } from 'vue-demi'
 import type { MaybeRef } from '@vueuse/shared'
-import { type MutationObserverOptions, type UseMutationReturnType, useMutation } from '@tanstack/vue-query'
+import { type UseMutationReturnType, useMutation } from '@tanstack/vue-query'
 import { Update } from '@ginjou/core'
 import type { BaseRecord, UpdateResult } from '@ginjou/core'
 import { type UseNotifyContext, useNotify } from '../notification'
@@ -16,20 +16,7 @@ export interface UseUpdateProps<
 	TParams,
 > {
 	mutationOptions?: MaybeRef<
-		| Omit<
-				MutationObserverOptions<
-					UpdateResult<TData>,
-					TError,
-					Update.MutationProps<TData, TError, TParams>,
-					Update.MutationContext<TData>
-				>,
-				| 'mutationFn'
-				| 'onMutate'
-				| 'onSettled'
-				| 'onSuccess'
-				| 'onError'
-				| 'queryClient'
-			>
+		| Update.MutationOptionsFromProps<TData, TError, TParams>
 		| undefined
 	>
 }

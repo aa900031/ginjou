@@ -8,3 +8,5 @@ export const ResourceActionType = {
 } as const
 
 export type ResourceActionTypeValues = ValueOf<typeof ResourceActionType>
+
+export type ResourceActionForForm = Extract<ResourceActionTypeValues, 'create' | 'edit' | 'clone'>

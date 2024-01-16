@@ -1,5 +1,5 @@
 import type { Simplify } from 'type-fest'
-import type { MutationObserverOptions, QueryClient, QueryKey } from '@tanstack/query-core'
+import type { MutateFunction, MutationObserverOptions, QueryClient, QueryKey } from '@tanstack/query-core'
 import { NotificationType, type NotifyFn } from '../notification'
 import type { TranslateFn } from '../i18n'
 import type { CheckError } from '../auth'
@@ -45,6 +45,31 @@ export type MutationOptions<
 	TError,
 	TParams,
 > = MutationObserverOptions<
+	UpdateResult<TData>,
+	TError,
+	MutationProps<TData, TError, TParams>,
+	MutationContext<TData>
+>
+
+export type MutationOptionsFromProps<
+	TData extends BaseRecord,
+	TError,
+	TParams,
+> = Omit<
+	MutationOptions<TData, TError, TParams>,
+	| 'mutationFn'
+	| 'onMutate'
+	| 'onSettled'
+	| 'onSuccess'
+	| 'onError'
+	| 'queryClient'
+>
+
+export type MutateFn<
+	TData extends BaseRecord,
+	TError,
+	TParams,
+> = MutateFunction<
 	UpdateResult<TData>,
 	TError,
 	MutationProps<TData, TError, TParams>,

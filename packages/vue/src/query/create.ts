@@ -1,7 +1,7 @@
 import type { Simplify } from 'type-fest'
 import { computed, unref } from 'vue-demi'
 import type { MaybeRef } from '@vueuse/shared'
-import type { MutationObserverOptions, UseMutationReturnType } from '@tanstack/vue-query'
+import type { UseMutationReturnType } from '@tanstack/vue-query'
 import { useMutation } from '@tanstack/vue-query'
 import type { BaseRecord, CreateResult } from '@ginjou/core'
 import { Create } from '@ginjou/core'
@@ -17,18 +17,7 @@ export interface UseCreateProps<
 	TParams,
 > {
 	mutationOptions?: MaybeRef<
-		| Omit<
-				MutationObserverOptions<
-					CreateResult<TData>,
-					TError,
-					Create.MutationProps<TData, TError, TParams>,
-					any
-				>,
-				| 'mutationFn'
-				| 'onSuccess'
-				| 'onError'
-				| 'queryClient'
-			>
+		| Create.MutationOptionsFromProps<TData, TError, TParams>
 		| undefined
 	>
 }

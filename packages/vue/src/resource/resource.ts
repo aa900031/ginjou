@@ -1,6 +1,8 @@
 import type { Simplify } from 'type-fest'
+import type { Ref } from 'vue-demi'
 import { computed, unref } from 'vue-demi'
 import type { MaybeRef } from '@vueuse/shared'
+import type { ResolvedResource } from '@ginjou/core'
 import { resolveResource } from '@ginjou/core'
 import type { UseLocationContext } from '../router'
 import { useLocation } from '../router'
@@ -15,10 +17,15 @@ export type UseResourceContext = Simplify<
 	& UseLocationContext
 >
 
+export type UseResourceResult = Ref<
+	| ResolvedResource
+	| undefined
+>
+
 export function useResource(
 	props?: UseResourceProps,
 	context?: UseResourceContext,
-) {
+): UseResourceResult {
 	const resource = useResourceContext(context)
 	const location = useLocation(context)
 

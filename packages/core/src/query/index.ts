@@ -1,5 +1,13 @@
 export * from './fetcher'
 export * from './fetchers'
+export {
+	InvalidateTarget,
+	InvalidateTargetType,
+	InvalidatesProps,
+} from './invalidate'
+export {
+	NotifyProps,
+} from './notify'
 
 export * as GetOne from './get-one'
 export * as GetMany from './get-many'

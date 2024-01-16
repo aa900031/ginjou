@@ -219,9 +219,11 @@ export function getQueryEnabled(
 		props,
 	}: GetQueryEnabledProps,
 ): boolean {
-	return enabled != null
-		? enabled
-		: !!props.resource != null && props.resource !== ''
+	return (
+		enabled != null ? enabled : true
+	) && (
+		!!props.resource != null && props.resource !== ''
+	)
 }
 
 function updateCache<

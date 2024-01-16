@@ -20,6 +20,17 @@ export type QueryOptions<
 	GetOneResult<TResultData>
 >
 
+export type QueryOptionsFromProps<
+	TData extends BaseRecord,
+	TError,
+	TResultData extends BaseRecord,
+> = Omit<
+	QueryOptions<TData, TError, TResultData>,
+	| 'queryFn'
+	| 'queryKey'
+	| 'queryClient'
+>
+
 export type QueryProps = Simplify<
 	& SetOptional<
 			GetOneProps,
@@ -173,7 +184,9 @@ export function getQueryEnabled(
 		props,
 	}: GetQueryEnabledProps,
 ): boolean {
-	return enabled != null
-		? enabled
-		: props.id != null && props.id !== ''
+	return (
+		enabled != null ? enabled : true
+	) && (
+		props.id != null && props.id !== ''
+	)
 }

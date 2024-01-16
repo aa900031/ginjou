@@ -51,7 +51,9 @@ export function getQueryEnabled(
 		enabled,
 	}: GetQueryEnabledProps,
 ) {
-	return enabled != null
-		? enabled
-		: typeof auth.getIdentity === 'function'
+	return (
+		enabled != null ? enabled : true
+	) && (
+		typeof auth.getIdentity === 'function'
+	)
 }
