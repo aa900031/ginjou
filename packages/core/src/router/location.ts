@@ -2,6 +2,9 @@ export interface RouterLocation<
 	TMeta = unknown,
 > {
 	path: string
+	/**
+	 * Object of decoded params extracted from the `path`.
+	 */
 	params?: Record<string, string | string[]>
 	query?: Record<string, string | null | ((string | null)[])>
 	hash?: string

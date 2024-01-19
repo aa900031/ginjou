@@ -10,7 +10,7 @@ export type RouterGoTypeValues = ValueOf<typeof RouterGoType>
 export interface RouterGoParams<
 	TMeta = unknown,
 > {
-	to: string
+	to?: string
 	type?: RouterGoTypeValues
 	query?: Record<string, string | number | null | undefined>
 	hash?: string

@@ -18,7 +18,7 @@ export interface Sort {
 	order: SortOrderType
 }
 
-export type Sorters = Sort | Sort[]
+export type Sorters = Sort[]
 
 export interface Pagination<
 	TPageParam = number,

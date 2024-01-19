@@ -1,4 +1,4 @@
-import type { SetOptional, SetRequired, Simplify } from 'type-fest'
+import type { SetOptional, SetRequired } from 'type-fest'
 import type { BaseRecord, CreateResult, Meta, UpdateResult } from '../query'
 import type { MutateFn as CreateMutateFn, MutationOptionsFromProps as CreateMutationOptionsFromProps, MutationProps as CreateMutationProps } from '../query/create'
 import type { MutateFn as UpdateMutateFn, MutationOptionsFromProps as UpdateMutationOptionsFromProps, MutationProps as UpdateMutationProps } from '../query/update'
@@ -226,12 +226,15 @@ export function createSaveFn<
 
 		switch (action) {
 			case 'create':
+				// TODO: redirect
 				return mutateFnForCreate({
 					...rest as ResolvedCreateProps<TMutationParams, TMutationData, TMutationError>,
 					params,
 					meta: rest.mutationMeta,
 				})
 			case 'edit':
+				// TODO: mutationMode
+				// TODO: redirect
 				return mutateFnForUpdate({
 					...rest as ResolvedUpdateProps<TQueryData, TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError>,
 					params,

@@ -24,9 +24,9 @@ export function useForm<
 	TMutationData extends BaseRecord = TQueryResultData,
 	TMutationError = unknown,
 >(
-	props: UseFormProps<TQueryData, TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError>,
+	props?: UseFormProps<TQueryData, TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError>,
 ) {
-	const resource = useResource({ name: props.resource })
+	const resource = useResource({ name: props?.resource })
 	const resolvedProps = computed(() => Form.resolveProps<TQueryData, TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError>({
 		// eslint-disable-next-line ts/ban-ts-comment
 		// @ts-expect-error
@@ -53,7 +53,7 @@ export function useForm<
 				...opts,
 			}
 		}),
-		fetcherName: props.fetcherName,
+		fetcherName: props?.fetcherName,
 		meta: computed(() => {
 			const _props = unref(resolvedProps)
 			if ('queryMeta' in _props)
@@ -86,6 +86,7 @@ export function useForm<
 		mutateFnForUpdate: mutationUpdateResult.mutateAsync,
 	})
 
+	// TODO: return record
 	return {
 		isLoading,
 		save,

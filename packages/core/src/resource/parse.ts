@@ -119,7 +119,7 @@ function parseFromRegExp(
 	if (!matched)
 		return
 
-	const params = location.params
+	const params = parseParams(location)
 
 	switch (action) {
 		case ResourceActionType.List:
@@ -137,6 +137,26 @@ function parseFromRegExp(
 			}
 		default:
 			throw new Error('Nooo')
+	}
+}
+
+function parseParams(
+	location: RouterLocation,
+): ResourceParseParams {
+	const { params, query } = location
+	const { current, perPage, filters, sorters } = query ?? {}
+	const parsedCurrent = typeof current === 'string' ? Number.isNaN(+current) ? current : +current : undefined
+	const parsedPerPage = typeof perPage === 'string' && !Number.isNaN(+perPage) ? +perPage : undefined
+	const parsedFilters = typeof filters === 'string' ? JSON.parse(filters) : undefined
+	const parsedSorters = typeof sorters === 'string' ? JSON.parse(sorters) : undefined
+
+	return {
+		...params,
+		pagination: parsedCurrent != null || parsedPerPage != null
+			? { current: parsedCurrent as any, perPage: parsedPerPage }
+			: undefined,
+		filters: parsedFilters,
+		sorters: parsedSorters,
 	}
 }
 
