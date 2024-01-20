@@ -1,3 +1,5 @@
+import type { ValueOf } from 'type-fest'
+
 export type Meta = Record<string, any>
 
 export type RecordKey = string | number
@@ -11,7 +13,7 @@ export const SortOrder = {
 	Desc: 'desc',
 } as const
 
-export type SortOrderType = typeof SortOrder[keyof typeof SortOrder]
+export type SortOrderType = ValueOf<typeof SortOrder>
 
 export interface Sort {
 	field: string
@@ -31,9 +33,52 @@ export type PaginationPayload<
 	TPageParam = number,
 > = Partial<Pagination<TPageParam>>
 
-export type ObjectFilter = Record<string, any>
+export const FilterOperator = {
+	eq: 'eq',
+	ne: 'ne',
+	lt: 'lt',
+	gt: 'gt',
+	lte: 'lte',
+	gte: 'gte',
+	in: 'in',
+	nin: 'nin',
+	contains: 'contains',
+	ncontains: 'ncontains',
+	containss: 'containss',
+	ncontainss: 'ncontainss',
+	between: 'between',
+	nbetween: 'nbetween',
+	null: 'null',
+	nnull: 'nnull',
+	startswith: 'startswith',
+	nstartswith: 'nstartswith',
+	startswiths: 'startswiths',
+	nstartswiths: 'nstartswiths',
+	endswith: 'endswith',
+	nendswith: 'nendswith',
+	endswiths: 'endswiths',
+	nendswiths: 'nendswiths',
+	or: 'or',
+	and: 'and',
+} as const
 
-export type Filters = ObjectFilter
+export type FilterOperatorType = ValueOf<typeof FilterOperator>
+
+export interface LogicalFilter {
+	field: string
+	operator: Exclude<FilterOperatorType, 'or' | 'and'>
+	value: any
+}
+
+export interface ConditionalFilter {
+	key?: string
+	operator: Extract<FilterOperatorType, 'or' | 'and'>
+	value: (LogicalFilter | ConditionalFilter)[]
+}
+
+export type Filter = (LogicalFilter | ConditionalFilter)
+
+export type Filters = Filter[]
 
 export interface CursorOnlyNext<
 	TPageParam = number,
