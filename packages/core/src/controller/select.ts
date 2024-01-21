@@ -1,6 +1,7 @@
 import type { Get } from 'type-fest'
 import { get, unionBy } from 'lodash-unified'
-import { type BaseRecord, FilterOperator, type Filters, type GetListResult, type GetManyResult } from '../query'
+import type { BaseRecord, Filters, GetListResult, GetManyResult } from '../query'
+import { FilterOperator } from '../query'
 import { resolveFilters } from './list'
 
 export interface GetOptionsProps<

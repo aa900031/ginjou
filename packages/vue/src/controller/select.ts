@@ -1,9 +1,13 @@
 import type { Simplify } from 'type-fest'
-import { type BaseRecord, type Filters, Select } from '@ginjou/core'
-import { type Ref, computed, ref, unref } from 'vue-demi'
+import type { Ref } from 'vue-demi'
+import { computed, ref, unref } from 'vue-demi'
 import type { MaybeRef } from '@vueuse/shared'
-import { type UseGetListContext, type UseGetListProps, type UseGetListResult, type UseGetManyContext, type UseGetManyProps, useGetList, useGetMany } from '../query'
-import { type UseResourceContext, useResource } from '../resource'
+import type { BaseRecord, Filters } from '@ginjou/core'
+import { Select } from '@ginjou/core'
+import type { UseGetListContext, UseGetListProps, UseGetListResult, UseGetManyContext, UseGetManyProps } from '../query'
+import { useGetList, useGetMany } from '../query'
+import type { UseResourceContext } from '../resource'
+import { useResource } from '../resource'
 
 export type UseSelectProps<
 	TData extends BaseRecord,
@@ -87,7 +91,7 @@ export function useSelect<
 	}))
 
 	const setSearch = Select.createSetSearchFn<string>({
-		getLabelKey: () => unref(props?.labelKey),
+		getLabelKey: () => unref(props?.labelKey) ?? 'title',
 		searchToFilters: props?.searchToFilters,
 		update: value => searchFilters.value = value,
 	})
