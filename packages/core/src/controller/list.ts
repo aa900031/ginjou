@@ -348,15 +348,15 @@ function filterSort(
 	return sort.order != null
 }
 
-function resolveSorters(
+export function resolveSorters(
 	permanent: Sorters | undefined,
 	value: Sorters,
 ): Sorters
-function resolveSorters(
+export function resolveSorters(
 	permanent: Sorters | undefined,
 	value: Sorters | undefined,
 ): Sorters | undefined
-function resolveSorters(
+export function resolveSorters(
 	permanent: Sorters | undefined,
 	value: Sorters | undefined,
 ): Sorters | undefined {
@@ -403,17 +403,17 @@ function filterFilter(
 				&& filter.value.length !== 0))
 }
 
-function resolveFilters(
+export function resolveFilters(
 	permanent: Filters | undefined,
 	value: Filters,
 	prev?: Filters
 ): Filters
-function resolveFilters(
+export function resolveFilters(
 	permanent: Filters | undefined,
 	value: Filters | undefined,
 	prev?: Filters
 ): Filters | undefined
-function resolveFilters(
+export function resolveFilters(
 	permanent: Filters | undefined,
 	value: Filters | undefined,
 	prev?: Filters,

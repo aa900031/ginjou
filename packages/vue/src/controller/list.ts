@@ -63,6 +63,7 @@ export function useList<
 ): UseListResult<TError, TResultData, TPageParam> {
 	const go = useGo(context)
 	const resource = useResource({ name: props?.resource }, context)
+
 	const resourceName = computed(() => List.getResourceName({
 		resource: unref(resource),
 		resourceFromProps: unref(props?.resource),
@@ -75,7 +76,6 @@ export function useList<
 			paginationFromProp: unref(props?.pagination),
 		}),
 	) as Ref<TPageParam>
-
 	const perPage = ref(
 		List.getInitialPerPage<TPageParam>({
 			resource: unref(resource),
