@@ -57,6 +57,23 @@ export function resolveQueryProps(
 	}
 }
 
+export type Props<
+	TData extends BaseRecord,
+	TError,
+	TResultData extends BaseRecord,
+> = Simplify<
+	& QueryProps
+	& NotifyProps<GetManyResult<TResultData>, ResolvedQueryProps, TError>
+	& {
+		queryOptions?: Omit<
+			QueryOptions<TData, TError, TResultData>,
+			| 'queryFn'
+			| 'queryKey'
+			| 'queryClient'
+		>
+	}
+>
+
 export interface CreateQueryKeyProps {
 	props: ResolvedQueryProps
 }

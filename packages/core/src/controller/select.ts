@@ -1,38 +1,50 @@
-import type { Get } from 'type-fest'
 import { get, unionBy } from 'lodash-unified'
-import type { BaseRecord, Filters, GetListResult, GetManyResult } from '../query'
+import type { Simplify } from 'type-fest'
+import type { BaseRecord, Filters, GetList, GetListResult, GetMany, GetManyResult } from '../query'
 import { FilterOperator } from '../query'
 import { resolveFilters } from './list'
 
+export type Props<
+	TData extends BaseRecord,
+	TError,
+	TResultData extends BaseRecord,
+	TPageParam,
+> = Simplify<
+	& Omit<
+			GetList.Props<TData, TError, TResultData, TPageParam>,
+			| 'queryOptions'
+		>
+	& {
+		labelKey?: string
+		valueKey?: string
+		value: any | any[] // TODO: generice
+		searchToFilters?: SearchToFiltersFn<any> // TODO: generic
+		queryOptionsForOptions?: NonNullable<GetList.Props<TData, TError, TResultData, TPageParam>['queryOptions']>
+		queryOptionsForValue?: NonNullable<GetMany.Props<TData, TError, TResultData>['queryOptions']>
+	}
+>
+
 export interface GetOptionsProps<
 	TResultData extends BaseRecord,
-	TLabelKey extends string,
-	TValueKey extends string,
 > {
 	listData: GetListResult<TResultData> | undefined
 	manyData: GetManyResult<TResultData> | undefined
-	labelKey: TLabelKey
-	valueKey: TValueKey
+	labelKey: string | undefined
+	valueKey: string | undefined
 }
 
-export interface OptionItem<
-	TResultData extends BaseRecord,
-	TLabelKey extends string,
-	TValueKey extends string,
-> {
-	label: Get<TResultData, TLabelKey>
-	value: Get<TResultData, TValueKey>
+export interface OptionItem {
+	label: any
+	value: any
 }
 
 function toOptionItem<
-	TResultData extends BaseRecord,
-	TLabelKey extends string,
-	TValueKey extends string,
+	TResultData,
 >(
 	data: TResultData,
-	labelKey: TLabelKey,
-	valueKey: TValueKey,
-): OptionItem<TResultData, TLabelKey, TValueKey> {
+	labelKey: string,
+	valueKey: string,
+): OptionItem {
 	return {
 		label: get(data, labelKey),
 		value: get(data, valueKey),
@@ -41,18 +53,16 @@ function toOptionItem<
 
 export function getOptions<
 	TResultData extends BaseRecord,
-	TLabelKey extends string,
-	TValueKey extends string,
 >(
 	{
 		listData,
 		manyData,
 		labelKey,
 		valueKey,
-	}: GetOptionsProps<TResultData, TLabelKey, TValueKey>,
-): OptionItem<TResultData, TLabelKey, TValueKey>[] {
-	const listOptions = listData?.data.map(item => toOptionItem(item, labelKey, valueKey))
-	const valueOptions = manyData?.data.map(item => toOptionItem(item, labelKey, valueKey))
+	}: GetOptionsProps<TResultData>,
+): OptionItem[] {
+	const listOptions = listData?.data.map(item => toOptionItem(item, labelKey ?? 'title', valueKey ?? 'id'))
+	const valueOptions = manyData?.data.map(item => toOptionItem(item, labelKey ?? 'title', valueKey ?? 'id'))
 
 	return unionBy(listOptions, valueOptions, 'value')
 }
@@ -73,7 +83,7 @@ export interface CreateSetSearchFnProps<
 	TSearchValue,
 > {
 	getLabelKey: () => string | undefined
-	searchToFilters: SearchToFiltersFn<TSearchValue> | undefined
+	getSearchToFilters: () => SearchToFiltersFn<TSearchValue> | undefined
 	update: (value: Filters | undefined) => void
 }
 
@@ -82,11 +92,12 @@ export function createSetSearchFn<
 >(
 	{
 		getLabelKey,
-		searchToFilters,
+		getSearchToFilters,
 		update,
 	}: CreateSetSearchFnProps<TSearchValue>,
 ): SetSearchFn<TSearchValue> {
 	return function setSearch(value) {
+		const searchToFilters = getSearchToFilters()
 		const nextValue = typeof searchToFilters === 'function'
 			? searchToFilters(value)
 			: value != null

@@ -66,6 +66,24 @@ export function resolveQueryProps<
 	}
 }
 
+export type Props<
+	TData extends BaseRecord,
+	TError,
+	TResultData extends BaseRecord,
+	TPageParam,
+> = Simplify<
+	& QueryProps<TPageParam>
+	& NotifyProps<GetListResult<TResultData>, ResolvedQueryProps<TPageParam>, TError>
+	& {
+		queryOptions?: Omit<
+			QueryOptions<TData, TError, TResultData, TPageParam>,
+			| 'queryFn'
+			| 'queryKey'
+			| 'queryClient'
+		>
+	}
+>
+
 export interface CreateQueryKeyProps<
 	TPageParam,
 > {

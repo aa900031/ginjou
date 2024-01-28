@@ -1,9 +1,8 @@
 import type { Simplify } from 'type-fest'
 import type { Ref } from 'vue-demi'
 import { computed, unref } from 'vue-demi'
-import type { MaybeRef } from '@vueuse/shared'
 import { toValue } from '@vueuse/shared'
-import type { QueryObserverOptions, UseQueryReturnType } from '@tanstack/vue-query'
+import type { UseQueryReturnType } from '@tanstack/vue-query'
 import { useQuery } from '@tanstack/vue-query'
 import type { BaseRecord, GetListResult } from '@ginjou/core'
 import { GetList } from '@ginjou/core'
@@ -24,25 +23,8 @@ export type UseGetListProps<
 	TError,
 	TResultData extends BaseRecord,
 	TPageParam,
-> = Simplify<
-	& ToMaybeRefs<GetList.QueryProps<TPageParam>>
-	& {
-		queryOptions?: MaybeRef<
-			| Omit<
-					QueryObserverOptions<GetListResult<TData>, TError, GetListResult<TResultData>>,
-					| 'queryFn'
-					| 'queryKey'
-					| 'queryClient'
-				>
-			| undefined
-		>
-		successNotify?: MaybeRef<
-			ReturnType<GetList.CreateSuccessHandlerProps<TResultData, TPageParam>['getSuccessNotify']>
-		>
-		errorNotify?: MaybeRef<
-			ReturnType<GetList.CreateErrorHandlerProps<TError, TPageParam>['getErrorNotify']>
-		>
-	}
+> = ToMaybeRefs<
+	GetList.Props<TData, TError, TResultData, TPageParam>
 >
 
 export type UseGetListContext = Simplify<

@@ -1,32 +1,21 @@
 import type { Simplify } from 'type-fest'
 import type { Ref } from 'vue-demi'
 import { computed, ref, unref } from 'vue-demi'
-import type { MaybeRef } from '@vueuse/shared'
 import type { BaseRecord, Filters } from '@ginjou/core'
 import { Select } from '@ginjou/core'
-import type { UseGetListContext, UseGetListProps, UseGetListResult, UseGetManyContext, UseGetManyProps } from '../query'
+import type { UseGetListContext, UseGetListResult, UseGetManyContext } from '../query'
 import { useGetList, useGetMany } from '../query'
 import type { UseResourceContext } from '../resource'
 import { useResource } from '../resource'
+import type { ToMaybeRefs } from '../utils/refs'
 
 export type UseSelectProps<
 	TData extends BaseRecord,
 	TError,
 	TResultData extends BaseRecord,
 	TPageParam,
-> = Simplify<
-	& Omit<
-			UseGetListProps<TData, TError, TResultData, TPageParam>,
-			| 'queryOptions'
-		>
-	& {
-		labelKey?: MaybeRef<string>
-		valueKey?: MaybeRef<string>
-		value?: MaybeRef<any | any[]>
-		searchToFilters?: Select.SearchToFiltersFn<string> // TODO: TSearchValue from generic
-		queryOptionsForOptions?: UseGetListProps<TData, TError, TResultData, TPageParam>['queryOptions']
-		queryOptionsForValue?: UseGetManyProps<TData, TError, TResultData>['queryOptions']
-	}
+> = ToMaybeRefs<
+	Select.Props<TData, TError, TResultData, TPageParam>
 >
 
 export type UseSelectContext = Simplify<
@@ -42,7 +31,7 @@ export type UseSelectResult<
 > = Simplify<
 	& UseGetListResult<TError, TResultData, TPageParam> // TODO: merge GetManyResult
 	& {
-		options: Ref<Select.OptionItem<TResultData, string, string>[] | undefined>
+		options: Ref<Select.OptionItem[] | undefined>
 		setSearch: Select.SetSearchFn<string> // TODO: TSearchValue from generic
 	}
 >
@@ -86,13 +75,13 @@ export function useSelect<
 	const options = computed(() => Select.getOptions({
 		listData: unref(listResult.data),
 		manyData: unref(manyResult.data),
-		labelKey: unref(props?.labelKey) ?? 'title',
-		valueKey: unref(props?.valueKey) ?? 'id',
+		labelKey: unref(props?.labelKey),
+		valueKey: unref(props?.valueKey),
 	}))
 
 	const setSearch = Select.createSetSearchFn<string>({
-		getLabelKey: () => unref(props?.labelKey) ?? 'title',
-		searchToFilters: props?.searchToFilters,
+		getLabelKey: () => unref(props?.labelKey),
+		getSearchToFilters: () => unref(props?.searchToFilters),
 		update: value => searchFilters.value = value,
 	})
 

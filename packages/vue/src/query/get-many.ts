@@ -1,9 +1,8 @@
 import type { Simplify } from 'type-fest'
 import type { Ref } from 'vue-demi'
 import { computed, unref } from 'vue-demi'
-import type { MaybeRef } from '@vueuse/shared'
 import { toValue } from '@vueuse/shared'
-import type { QueryObserverOptions, UseQueryReturnType } from '@tanstack/vue-query'
+import type { UseQueryReturnType } from '@tanstack/vue-query'
 import { useQuery } from '@tanstack/vue-query'
 import type { BaseRecord, GetManyResult } from '@ginjou/core'
 import { GetMany } from '@ginjou/core'
@@ -23,25 +22,8 @@ export type UseGetManyProps<
 	TData extends BaseRecord = BaseRecord,
 	TError = unknown,
 	TResultData extends BaseRecord = TData,
-> = Simplify<
-	& ToMaybeRefs<GetMany.QueryProps>
-	& {
-		queryOptions?: MaybeRef<
-			| Omit<
-					QueryObserverOptions<GetManyResult<TData>, TError, GetManyResult<TResultData>>,
-					| 'queryFn'
-					| 'queryKey'
-					| 'queryClient'
-				>
-			| undefined
-		>
-		successNotify?: MaybeRef<
-			ReturnType<GetMany.CreateSuccessHandlerProps<TResultData>['getSuccessNotify']>
-		>
-		errorNotify?: MaybeRef<
-			ReturnType<GetMany.CreateErrorHandlerProps<TError>['getErrorNotify']>
-		>
-	}
+> = ToMaybeRefs<
+	GetMany.Props<TData, TError, TResultData>
 >
 
 export type UseGetManyContext = Simplify<

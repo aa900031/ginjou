@@ -56,8 +56,8 @@
 		"@ginjou/core": "workspace:^",
 		"@vueuse/shared": "^10.5.0",
 		"filter-obj": "^5.1.0",
-		"vue-demi": "latest",
-		"type-fest": "^3.13.1"
+		"type-fest": "^4.9.0",
+		"vue-demi": "latest"
 	},
 	"devDependencies": {
 		"@ginjou/release-it-config": "workspace:*",
