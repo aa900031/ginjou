@@ -1,3 +1,4 @@
+import type { Simplify } from 'type-fest'
 import type { QueryKey, QueryObserverOptions } from '@tanstack/query-core'
 import type { Access, AccessCanParams, AccessCanResult } from './access'
 
@@ -6,6 +7,20 @@ export type QueryOptions<
 > = QueryObserverOptions<
 	AccessCanResult,
 	TError
+>
+
+export type Props<
+	TError,
+> = Simplify<
+	& AccessCanParams
+	& {
+		queryOptions?: Omit<
+			QueryOptions<TError>,
+			| 'queryFn'
+			| 'queryKey'
+			| 'retry'
+		>
+	}
 >
 
 export interface CreateQueryKeyProps {

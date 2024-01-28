@@ -1,8 +1,7 @@
 import type { Simplify } from 'type-fest'
 import { computed, unref } from 'vue-demi'
-import type { MaybeRef } from '@vueuse/shared'
 import { toValue } from '@vueuse/shared'
-import type { InfiniteQueryObserverOptions, UseInfiniteQueryReturnType } from '@tanstack/vue-query'
+import type { UseInfiniteQueryReturnType } from '@tanstack/vue-query'
 import { useInfiniteQuery } from '@tanstack/vue-query'
 import type { BaseRecord, GetInfiniteListResult } from '@ginjou/core'
 import { GetInfiniteList, GetList } from '@ginjou/core'
@@ -23,25 +22,8 @@ export type UseGetInfiniteListProps<
 	TError,
 	TResultData extends BaseRecord,
 	TPageParam,
-> = Simplify<
-	& ToMaybeRefs<GetList.QueryProps<TPageParam>>
-	& {
-		queryOptions?: MaybeRef<
-			| Omit<
-					InfiniteQueryObserverOptions<GetInfiniteListResult<TData, TPageParam>, TError, GetInfiniteListResult<TResultData, TPageParam>>,
-					| 'queryFn'
-					| 'queryKey'
-					| 'queryClient'
-				>
-			| undefined
-		>
-		successNotify?: MaybeRef<
-			ReturnType<GetInfiniteList.CreateSuccessHandlerProps<TResultData, TPageParam>['getSuccessNotify']>
-		>
-		errorNotify?: MaybeRef<
-			ReturnType<GetInfiniteList.CreateErrorHandlerProps<TError, TPageParam>['getErrorNotify']>
-		>
-	}
+> = ToMaybeRefs<
+	GetInfiniteList.Props<TData, TError, TResultData, TPageParam>
 >
 
 export type UseGetInfiniteListContext = Simplify<

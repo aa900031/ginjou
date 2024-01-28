@@ -1,28 +1,19 @@
 import type { Simplify } from 'type-fest'
 import { computed, unref } from 'vue-demi'
-import type { MaybeRef } from '@vueuse/shared'
-import type { QueryObserverOptions, UseQueryReturnType } from '@tanstack/vue-query'
+import type { UseQueryReturnType } from '@tanstack/vue-query'
 import { useQuery } from '@tanstack/vue-query'
 import type { AuthCheckResult } from '@ginjou/core'
 import { CheckAuth } from '@ginjou/core'
+import type { ToMaybeRefs } from '../utils/refs'
 import type { UseAuthContextFromProps } from './auth'
 import { useAuthContext } from './auth'
 
-export interface UseAuthenticatedProps<
+export type UseAuthenticatedProps<
 	TParams,
 	TError,
-> {
-	params?: MaybeRef<TParams | undefined>
-	queryOptions?: MaybeRef<
-			| Omit<
-					QueryObserverOptions<AuthCheckResult, TError>,
-					| 'queryFn'
-					| 'queryKey'
-					| 'retry'
-				>
-			| undefined
-		>
-}
+> = ToMaybeRefs<
+	CheckAuth.Props<TParams, TError>
+>
 
 export type UseAuthenticatedContext = Simplify<
 	& UseAuthContextFromProps
@@ -47,13 +38,16 @@ export function useAuthenticated<
 		return unref(props?.params)
 	}
 
+	const queryKey = computed(() => CheckAuth.createQueryKey<TParams>(getParams()))
+	const queryFn = CheckAuth.createQueryFn<TParams>({
+		auth,
+		getParams,
+	})
+
 	return useQuery<AuthCheckResult, TError>(computed(() => ({
 		...unref(props?.queryOptions),
-		queryKey: computed(() => CheckAuth.createQueryKey<TParams>(getParams())),
-		queryFn: CheckAuth.createQueryFn<TParams>({
-			auth,
-			getParams,
-		}),
+		queryKey,
+		queryFn,
 		retry: false,
 	})))
 }

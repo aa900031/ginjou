@@ -1,9 +1,8 @@
 import type { Simplify } from 'type-fest'
 import type { Ref } from 'vue-demi'
 import { computed, unref } from 'vue-demi'
-import type { MaybeRef } from '@vueuse/shared'
 import { toValue } from '@vueuse/shared'
-import type { QueryObserverOptions, UseQueryReturnType } from '@tanstack/vue-query'
+import type { UseQueryReturnType } from '@tanstack/vue-query'
 import { useQuery } from '@tanstack/vue-query'
 import type { BaseRecord, GetOneResult } from '@ginjou/core'
 import { GetOne } from '@ginjou/core'
@@ -23,20 +22,8 @@ export type UseGetOneProps<
 	TData extends BaseRecord,
 	TError,
 	TResultData extends BaseRecord,
-> = Simplify<
-	& ToMaybeRefs<GetOne.QueryProps>
-	& {
-		queryOptions?: MaybeRef<
-			| GetOne.QueryOptionsFromProps<TData, TError, TResultData>
-			| undefined
-		>
-		successNotify?: MaybeRef<
-			ReturnType<GetOne.CreateSuccessHandlerProps<TResultData>['getSuccessNotify']>
-		>
-		errorNotify?: MaybeRef<
-			ReturnType<GetOne.CreateErrorHandlerProps<TError>['getErrorNotify']>
-		>
-	}
+> = ToMaybeRefs<
+	GetOne.Props<TData, TError, TResultData>
 >
 
 export type UseGetOneContext = Simplify<

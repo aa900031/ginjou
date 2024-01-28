@@ -1,5 +1,18 @@
-import type { QueryFunction, QueryKey } from '@tanstack/query-core'
+import type { QueryFunction, QueryKey, QueryObserverOptions } from '@tanstack/query-core'
 import type { Auth, AuthCheckResult } from './auth'
+
+export interface Props<
+	TParams,
+	TError,
+> {
+	params?: TParams
+	queryOptions?: Omit<
+		QueryObserverOptions<AuthCheckResult, TError>,
+		| 'queryFn'
+		| 'queryKey'
+		| 'retry'
+	>
+}
 
 export function createQueryKey<
 	TParams,

@@ -1,28 +1,20 @@
 import type { Simplify } from 'type-fest'
 import { computed, unref } from 'vue-demi'
-import type { MaybeRef } from '@vueuse/shared'
 import { computedEager, toValue } from '@vueuse/shared'
-import type { QueryObserverOptions, UseQueryOptions, UseQueryReturnType } from '@tanstack/vue-query'
+import type { UseQueryReturnType } from '@tanstack/vue-query'
 import { useQuery } from '@tanstack/vue-query'
 import { Identity } from '@ginjou/core'
+import type { ToMaybeRefs } from '../utils/refs'
 import type { UseAuthContextFromProps } from './auth'
 import { useAuthContext } from './auth'
 
-export interface UseGetIdentityProps<
+export type UseGetIdentityProps<
 	TData,
 	TParams,
 	TError,
-> {
-	params?: MaybeRef<TParams | undefined>
-	queryOptions?: MaybeRef<
-		| Omit<
-				QueryObserverOptions<TData, TError>,
-				| 'queryFn'
-				| 'queryKey'
-			>
-		| undefined
-	>
-}
+> = ToMaybeRefs<
+	Identity.Props<TData, TParams, TError>
+>
 
 export type UseGetIdentityContext = Simplify<
 	& UseAuthContextFromProps
@@ -50,16 +42,20 @@ export function useGetIdentity<
 		return unref(props?.params)
 	}
 
+	const queryKey = computed(() => Identity.createQueryKey<TParams>(getParams()))
+	const queryFn = Identity.createQueryFn<TData, TParams>({
+		auth,
+		getParams,
+	})
+	const isEnabled = computedEager(() => Identity.getQueryEnabled({
+		enabled: toValue(unref(unref(props?.queryOptions)?.enabled)),
+		auth,
+	}))
+
 	return useQuery<TData, TError>(computed(() => ({
 		...unref(props?.queryOptions),
-		queryKey: computed(() => Identity.createQueryKey<TParams>(getParams())),
-		queryFn: Identity.createQueryFn<TData, TParams>({
-			auth,
-			getParams,
-		}),
-		enabled: computedEager(() => Identity.getQueryEnabled({
-			enabled: toValue(unref(unref(props?.queryOptions)?.enabled)),
-			auth,
-		})),
+		queryKey,
+		queryFn,
+		enabled: isEnabled,
 	})))
 }

@@ -1,26 +1,19 @@
 import type { Simplify } from 'type-fest'
 import { computed, unref } from 'vue-demi'
-import { type MaybeRef, computedEager, toValue } from '@vueuse/shared'
-import type { QueryObserverOptions, UseQueryReturnType } from '@tanstack/vue-query'
+import { computedEager, toValue } from '@vueuse/shared'
+import type { UseQueryReturnType } from '@tanstack/vue-query'
 import { useQuery } from '@tanstack/vue-query'
 import { Permissions } from '@ginjou/core'
+import type { ToMaybeRefs } from '../utils/refs'
 import { type UseAuthContextFromProps, useAuthContext } from './auth'
 
-export interface UsePermissionsProps<
-	TData = unknown,
-	TParams = unknown,
-	TError = unknown,
-> {
-	params?: MaybeRef<TParams | undefined>
-	queryOptions?: MaybeRef<
-		| Omit<
-				QueryObserverOptions<TData, TError>,
-				| 'queryFn'
-				| 'queryKey'
-			>
-		| undefined
-	>
-}
+export type UsePermissionsProps<
+	TData,
+	TParams,
+	TError,
+> = ToMaybeRefs<
+	Permissions.Props<TData, TParams, TError>
+>
 
 export type UserPermissionsContext = Simplify<
 	& UseAuthContextFromProps
@@ -47,16 +40,20 @@ export function usePermissions<
 		return unref(props?.params)
 	}
 
+	const queryKey = computed(() => Permissions.createQueryKey<TParams>(getParams()))
+	const queryFn = Permissions.createQueryFn<TData, TParams>({
+		auth,
+		getParams,
+	})
+	const isEnabled = computedEager(() => Permissions.getQueryEnabled({
+		auth,
+		enabled: toValue(unref(unref(props?.queryOptions)?.enabled)),
+	}))
+
 	return useQuery<TData, TError>(computed(() => ({
 		...unref(props?.queryOptions),
-		queryKey: computed(() => Permissions.createQueryKey<TParams>(getParams())),
-		queryFn: Permissions.createQueryFn<TData, TParams>({
-			auth,
-			getParams,
-		}),
-		enabled: computedEager(() => Permissions.getQueryEnabled({
-			auth,
-			enabled: toValue(unref(unref(props?.queryOptions)?.enabled)),
-		})),
+		queryKey,
+		queryFn,
+		enabled: isEnabled,
 	})))
 }

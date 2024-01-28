@@ -1,7 +1,7 @@
 import type { Simplify } from 'type-fest'
 import { computed, unref } from 'vue-demi'
-import { type MaybeRef, toValue } from '@vueuse/shared'
-import type { QueryObserverOptions, UseQueryReturnType } from '@tanstack/vue-query'
+import { toValue } from '@vueuse/shared'
+import type { UseQueryReturnType } from '@tanstack/vue-query'
 import { useQuery } from '@tanstack/vue-query'
 import type { AccessCanParams, AccessCanResult } from '@ginjou/core'
 import { CanAccess } from '@ginjou/core'
@@ -11,19 +11,8 @@ import { useAccessContext } from './access'
 
 export type UseCanAccessProps<
 	TError,
-> = Simplify<
-	& ToMaybeRefs<AccessCanParams>
-	& {
-		queryOptions?: MaybeRef<
-			| Omit<
-					QueryObserverOptions<AccessCanResult, TError>,
-					| 'queryFn'
-					| 'queryKey'
-					| 'retry'
-				>
-			| undefined
-		>
-	}
+> = ToMaybeRefs<
+	CanAccess.Props<TError>
 >
 
 export type UseCanAccessContext = Simplify<

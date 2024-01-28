@@ -1,4 +1,5 @@
 import type { InfiniteData, InfiniteQueryObserverOptions, QueryClient, QueryFunctionContext, QueryKey } from '@tanstack/query-core'
+import type { Simplify } from 'type-fest'
 import { NotificationType, type NotifyFn } from '../notification'
 import type { TranslateFn } from '../i18n'
 import type { CheckError } from '../auth'
@@ -6,7 +7,7 @@ import { getErrorMessage } from '../utils/error'
 import { getFetcher } from './fetchers'
 import type { Fetchers } from './fetchers'
 import type { BaseRecord, GetInfiniteListResult, GetOneResult, Pagination } from './fetcher'
-import type { ResolvedQueryProps } from './get-list'
+import type { QueryProps, ResolvedQueryProps } from './get-list'
 import { createQueryKey as createGetOneQueryKey } from './get-one'
 import type { NotifyProps } from './notify'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
@@ -20,6 +21,24 @@ export type QueryOptions<
 	GetInfiniteListResult<TData, TPageParam>,
 	TError,
 	GetInfiniteListResult<TResultData, TPageParam>
+>
+
+export type Props<
+	TData extends BaseRecord,
+	TError,
+	TResultData extends BaseRecord,
+	TPageParam,
+> = Simplify<
+	& QueryProps<TPageParam>
+	& NotifyProps<InfiniteData<GetInfiniteListResult<TResultData, TPageParam>>, ResolvedQueryProps<TPageParam>, TError>
+	& {
+		queryOptions?: Omit<
+			QueryOptions<TData, TError, TResultData, TPageParam>,
+			| 'queryFn'
+			| 'queryKey'
+			| 'queryClient'
+		>
+	}
 >
 
 export interface CreateQueryFnProps<
