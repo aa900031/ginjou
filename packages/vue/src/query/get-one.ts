@@ -35,9 +35,8 @@ export type UseGetOneContext = Simplify<
 >
 
 export type UseGetOneResult<
-	TData extends BaseRecord = BaseRecord,
-	TError = unknown,
-	TResultData extends BaseRecord = TData,
+	TError,
+	TResultData extends BaseRecord,
 > = Simplify<
 	& UseQueryReturnType<GetOneResult<TResultData>, TError>
 	& {
@@ -52,7 +51,7 @@ export function useGetOne<
 >(
 	props: UseGetOneProps<TData, TError, TResultData>,
 	context?: UseGetOneContext,
-): UseGetOneResult<TData, TError, TResultData> {
+): UseGetOneResult<TError, TResultData> {
 	const queryClient = useQueryClientContext(context)
 	const fetchers = useFetchersContext({ ...context, strict: true })
 	const notify = useNotify(context)
