@@ -2,7 +2,7 @@ import type { Simplify } from 'type-fest'
 import type { Ref } from 'vue-demi'
 import { computed, ref, unref } from 'vue-demi'
 import type { BaseRecord, Filters } from '@ginjou/core'
-import { Select } from '@ginjou/core'
+import { Select, getFetcherName, getResourceIdentifier } from '@ginjou/core'
 import type { UseGetListContext, UseGetListResult, UseGetManyContext } from '../query'
 import { useGetList, useGetMany } from '../query'
 import type { UseResourceContext } from '../resource'
@@ -48,7 +48,13 @@ export function useSelect<
 	const resource = useResource({ name: props?.resource }, context)
 	const searchFilters = ref<Filters | undefined>()
 
-	const resourceName = computed(() => unref(resource)?.resource.name)
+	const resourceName = computed(() => getResourceIdentifier({
+		resource: unref(resource),
+	}))
+	const fetcherName = computed(() => getFetcherName({
+		resource: unref(resource),
+		fetcherNameFromProp: unref(props?.fetcherName),
+	}))
 	const filters = computed(() => Select.getListFilters({
 		filterFormProp: unref(props?.filters),
 		searchFilters: unref(searchFilters),
@@ -60,6 +66,7 @@ export function useSelect<
 	const listResult = useGetList<TData, TError, TResultData, TPageParam>({
 		...props,
 		resource: resourceName,
+		fetcherName,
 		filters,
 		queryOptions: props?.queryOptionsForOptions,
 	})
@@ -67,8 +74,8 @@ export function useSelect<
 	const manyResult = useGetMany<TData, TError, TResultData>({
 		resource: resourceName,
 		ids,
+		fetcherName,
 		queryOptions: props?.queryOptionsForValue,
-		fetcherName: props?.fetcherName,
 		meta: props?.meta,
 	})
 

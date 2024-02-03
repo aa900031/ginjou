@@ -4,7 +4,7 @@ import { computed, ref, unref } from 'vue-demi'
 import type { MaybeRef } from '@vueuse/shared'
 import { watchDebounced } from '@vueuse/shared'
 import type { BaseRecord, Filters, Sorters } from '@ginjou/core'
-import { List } from '@ginjou/core'
+import { List, getFetcherName, getResourceIdentifier } from '@ginjou/core'
 import { useGetList } from '../query'
 import type { UseGetListContext, UseGetListProps, UseGetListResult } from '../query'
 import type { UseResourceContext } from '../resource'
@@ -64,9 +64,13 @@ export function useList<
 	const go = useGo(context)
 	const resource = useResource({ name: props?.resource }, context)
 
-	const resourceName = computed(() => List.getResourceName({
+	const resourceName = computed(() => getResourceIdentifier({
 		resource: unref(resource),
-		resourceFromProps: unref(props?.resource),
+		resourceFromProp: unref(props?.resource),
+	}))
+	const fetcherName = computed(() => getFetcherName({
+		resource: unref(resource),
+		fetcherNameFromProp: unref(props?.fetcherName),
 	}))
 
 	const currentPage = ref(
@@ -123,6 +127,7 @@ export function useList<
 	const listResult = useGetList<TData, TError, TResultData, TPageParam>({
 		...props,
 		resource: resourceName,
+		fetcherName,
 		pagination: paginationForQuery,
 		sorters: sortersForQuery,
 		filters: filtersForQuery,

@@ -10,18 +10,6 @@ export type Props<
 	& GetOne.Props<TData, TError, TResultData>
 >
 
-export interface GetResourceNameProps {
-	resource: ResolvedResource | undefined
-}
-
-export function getResourceName(
-	{
-		resource,
-	}: GetResourceNameProps,
-): string | undefined {
-	return resource?.resource.name
-}
-
 export interface GetDefaultIdProps {
 	resourceFromProp: string | undefined
 	idFromProp: RecordKey | undefined

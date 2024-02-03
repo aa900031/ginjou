@@ -1,6 +1,6 @@
 import type { ValueOf } from 'type-fest'
 
-export type Meta = Record<string, any>
+export type Meta = Record<string | number | symbol, unknown>
 
 export type RecordKey = string | number
 

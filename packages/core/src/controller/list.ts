@@ -4,22 +4,6 @@ import { type RouterGoParams, RouterGoType } from '../router'
 import type { BaseRecord, Filter, Filters, GetListResult, Pagination, PaginationPayload, Sort, Sorters } from '../query'
 import type { ResolvedResource } from '../resource'
 
-export interface GetResourceNameProps {
-	resource: ResolvedResource | undefined
-	resourceFromProps: string | undefined
-}
-
-export function getResourceName(
-	{
-		resource,
-		resourceFromProps,
-	}: GetResourceNameProps,
-) {
-	return resourceFromProps
-		?? resource?.resource.name
-		?? '' // TODO: // maybe use undeined?
-}
-
 export type PaginationOptions<
 	TPageParam,
 > = Simplify<

@@ -1,4 +1,5 @@
 import type { SetRequired } from 'type-fest'
+import type { ResolvedResource } from '../resource'
 import type { Fetcher } from './fetcher'
 
 export type Fetchers = Record<string, Fetcher>
@@ -33,4 +34,18 @@ export function resolveFetcherProps(
 	return {
 		fetcherName: props.fetcherName ?? 'default',
 	}
+}
+
+export interface GetFetcherNameProps {
+	resource: ResolvedResource | undefined
+	fetcherNameFromProp: string | undefined
+}
+
+export function getFetcherName(
+	{
+		resource,
+		fetcherNameFromProp: fetchNameFromProp,
+	}: GetFetcherNameProps,
+): string | undefined {
+	return fetchNameFromProp ?? resource?.resource.meta?.fetcherName
 }

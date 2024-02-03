@@ -1,7 +1,7 @@
 import type { Simplify } from 'type-fest'
 import type { Ref } from 'vue-demi'
 import { computed, ref, unref, watch } from 'vue-demi'
-import { Show } from '@ginjou/core'
+import { Show, getFetcherName, getResourceIdentifier } from '@ginjou/core'
 import type { BaseRecord, RecordKey } from '@ginjou/core'
 import type { ToMaybeRefs } from '../utils/refs'
 import type { UseGetOneContext, UseGetOneResult } from '../query'
@@ -42,8 +42,12 @@ export function useShow<
 ): UseShowResult<TError, TResultData> {
 	const resource = useResource({ name: props?.resource }, context)
 	const inferredResource = useResource(undefined, context)
-	const resourceName = computed(() => Show.getResourceName({
+	const resourceName = computed(() => getResourceIdentifier({
 		resource: unref(resource),
+	}))
+	const fetcherName = computed(() => getFetcherName({
+		resource: unref(resource),
+		fetcherNameFromProp: unref(props?.fetcherName),
 	}))
 	const defaultId = computed(() => Show.getDefaultId({
 		resourceFromProp: unref(props?.resource),
@@ -57,6 +61,7 @@ export function useShow<
 		...props,
 		resource: resourceName,
 		id,
+		fetcherName,
 	})
 
 	watch(defaultId, (val) => {

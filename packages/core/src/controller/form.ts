@@ -1,9 +1,11 @@
 import type { SetOptional, SetRequired } from 'type-fest'
 import type { BaseRecord, CreateResult, Meta, UpdateResult } from '../query'
+import { getFetcherName } from '../query'
 import type { MutateFn as CreateMutateFn, MutationOptionsFromProps as CreateMutationOptionsFromProps, MutationProps as CreateMutationProps } from '../query/create'
 import type { MutateFn as UpdateMutateFn, MutationOptionsFromProps as UpdateMutationOptionsFromProps, MutationProps as UpdateMutationProps } from '../query/update'
 import type { QueryOptionsFromProps } from '../query/get-one'
 import type { ResolvedResource, ResourceActionForForm } from '../resource'
+import { getResourceIdentifier } from '../resource'
 
 export type CreateProps<
 	TMutationParams,
@@ -121,7 +123,8 @@ export function resolveProps<
 	}: ResolvePropsParams<TQueryData, TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError>,
 ): ResolvedProps<TQueryData, TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError> {
 	const action = props.action ?? resource?.action
-	const resourceName = props.resource ?? resource?.resource.name ?? '' // TODO: // maybe use undeined?
+	const resourceName = getResourceIdentifier({ resource }) ?? '' // TODO: // maybe use undeined?
+	const fetcherName = getFetcherName({ resource, fetcherNameFromProp: props.fetcherName })
 	switch (action) {
 		case 'edit': {
 			return {
@@ -129,6 +132,7 @@ export function resolveProps<
 				action,
 				resource: resourceName,
 				id: 'id' in props ? props.id ?? '' : '', // TODO: maybe use undeined?
+				fetcherName,
 			}
 		}
 		case 'create':
@@ -136,6 +140,7 @@ export function resolveProps<
 				...props as ResolvedCreateProps<TMutationParams, TMutationData, TMutationError>,
 				action,
 				resource: resourceName,
+				fetcherName,
 			}
 		default:
 			throw new Error('No')

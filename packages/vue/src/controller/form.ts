@@ -53,7 +53,7 @@ export function useForm<
 				...opts,
 			}
 		}),
-		fetcherName: props?.fetcherName,
+		fetcherName: computed(() => unref(resolvedProps).fetcherName),
 		meta: computed(() => {
 			const _props = unref(resolvedProps)
 			if ('queryMeta' in _props)
