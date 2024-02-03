@@ -73,7 +73,7 @@ export interface TriggerInvalidateBaseProps {
 export type TriggerInvalidateAllProps = Simplify<
 	& TriggerInvalidateBaseProps
 	& {
-		fetcherName?: string
+		fetcherName: string
 	}
 >
 
@@ -81,7 +81,7 @@ export type TriggerInvalidateResourceProps = Simplify<
 	& TriggerInvalidateBaseProps
 	& {
 		resource?: string
-		fetcherName?: string
+		fetcherName: string
 	}
 >
 
@@ -89,7 +89,7 @@ export type TriggerInvalidateListProps = Simplify<
 	& TriggerInvalidateBaseProps
 	& {
 		resource: string
-		fetcherName?: string
+		fetcherName: string
 	}
 >
 
@@ -98,7 +98,7 @@ export type TriggerInvalidateManyProps = Simplify<
 	& {
 		resource: string
 		ids: RecordKey[]
-		fetcherName?: string
+		fetcherName: string
 	}
 >
 
@@ -108,12 +108,12 @@ export type TriggerInvalidateOneProps = Simplify<
 		| {
 			resource: string
 			id: RecordKey
-			fetcherName?: string
+			fetcherName: string
 		}
 		| {
 			resource: string
 			ids: RecordKey[]
-			fetcherName?: string
+			fetcherName: string
 		}
 	)
 >
@@ -166,7 +166,7 @@ export async function triggerInvalidate(
 	switch (target) {
 		case InvalidateTarget.All:
 			await queryClient.invalidateQueries(
-				[props.fetcherName ?? 'default'], // TODO:
+				props.fetcherName,
 				invalidateFilters,
 				invalidateOptions,
 			)
@@ -201,7 +201,7 @@ export async function triggerInvalidate(
 
 			await queryClient.invalidateQueries(
 				[
-					fetcherName ?? 'default', // TODO:
+					fetcherName,
 					resource,
 				],
 				invalidateFilters,
