@@ -1,4 +1,4 @@
-import type { SetRequired, Simplify } from 'type-fest'
+import type { SetRequired, Simplify, ValueOf } from 'type-fest'
 import type { InvalidateOptions, InvalidateQueryFilters, QueryClient } from '@tanstack/query-core'
 import { createQueryKey as genGetListQueryKey } from './get-list'
 import { createQueryKey as genGetManyQueryKey } from './get-many'
@@ -31,7 +31,7 @@ export const InvalidateTarget = {
 	One: 'one',
 } as const
 
-export type InvalidateTargetType = typeof InvalidateTarget[keyof typeof InvalidateTarget]
+export type InvalidateTargetType = ValueOf<typeof InvalidateTarget>
 
 export type TriggerInvalidatesProps = Simplify<
 	& TriggerInvalidateProps

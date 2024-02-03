@@ -1,11 +1,14 @@
 export * from './fetcher'
 export * from './fetchers'
-export {
-	InvalidateTarget,
+export type {
 	InvalidateTargetType,
 	InvalidatesProps,
 } from './invalidate'
 export {
+	InvalidateTarget,
+} from './invalidate'
+
+export type {
 	NotifyProps,
 } from './notify'
 
