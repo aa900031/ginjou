@@ -1,0 +1,17 @@
+{
+	"extends": "@ginjou/tsconfig/base.json",
+	"references": [
+		{ "path": "../../packages/vue/tsconfig.app.json" },
+		{ "path": "../../packages/with-vue-router/tsconfig.app.json" },
+		{ "path": "../../packages/with-vue-i18n/tsconfig.app.json" },
+	],
+	"include": [
+		"env.d.ts",
+		"src/**/*",
+		"src/**/*.vue"
+	],
+	"exclude": [
+		"src/**/*.test.ts",
+		"src/**/*.spec.ts"
+	]
+}
