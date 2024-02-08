@@ -4,6 +4,7 @@ import { createRouter as createVueRouter, createWebHistory } from 'vue-router'
 import type { Fetchers, ResourceDefinition } from '@ginjou/core'
 import { defineFetchers, defineResourceContext, defineRouterContext } from '@ginjou/vue'
 import { defineRouterBinding } from '@ginjou/with-vue-router'
+import { createFetcher } from '@ginjou/with-rest-api'
 import { QueryClient } from '@tanstack/vue-query'
 import type { Decorator } from '@storybook/vue3'
 
@@ -81,28 +82,8 @@ function createRouter(
 
 function createFetchers(): Fetchers {
 	return {
-		default: {
-			getList: async ({ resource }) => {
-				switch (resource) {
-					case 'posts':
-						return {
-							data: [
-								{
-									id: '1',
-									name: 'ya',
-								},
-								{
-									id: '2',
-									name: 'ya2',
-								},
-							],
-							total: 2,
-						} as any
-
-					default:
-						throw new Error('No')
-				}
-			},
-		},
+		default: createFetcher({
+			url: 'https://localhost',
+		}),
 	}
 }

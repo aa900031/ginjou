@@ -1,6 +1,6 @@
 import type { Preview } from '@storybook/vue3'
 
-import '@unocss/reset/tailwind-compat.css'
+// import '@unocss/reset/tailwind-compat.css'
 import 'uno.css'
 
 export default {

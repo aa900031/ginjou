@@ -24,6 +24,7 @@
 		"@ginjou/vue": "workspace:*",
 		"@ginjou/with-vue-i18n": "workspace:*",
 		"@ginjou/with-vue-router": "workspace:*",
+		"@ginjou/with-rest-api": "workspace:*",
 		"@storybook/addon-essentials": "^7.5.3",
 		"@storybook/addon-interactions": "^7.5.3",
 		"@storybook/addon-links": "^7.5.3",

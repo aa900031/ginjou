@@ -15,6 +15,7 @@ export default defineConfig({
 			'@ginjou/core': path.join(DIR_PKGS, './core/src'),
 			'@ginjou/with-vue-router': path.join(DIR_PKGS, './with-vue-router/src'),
 			'@ginjou/with-vue-i18n': path.join(DIR_PKGS, './with-vue-i18n/src'),
+			'@ginjou/with-rest-api': path.join(DIR_PKGS, './with-rest-api/src'),
 		},
 	},
 })
