@@ -5,6 +5,8 @@ import type { UseQueryReturnType } from '@tanstack/vue-query'
 import { useQuery } from '@tanstack/vue-query'
 import { Identity } from '@ginjou/core'
 import type { ToMaybeRefs } from '../utils/refs'
+import type { UseQueryClientContextProps } from '../query'
+import { useQueryClientContext } from '../query'
 import type { UseAuthContextFromProps } from './auth'
 import { useAuthContext } from './auth'
 
@@ -18,6 +20,7 @@ export type UseGetIdentityProps<
 
 export type UseGetIdentityContext = Simplify<
 	& UseAuthContextFromProps
+	& UseQueryClientContextProps
 >
 
 export type UseGetIdentityResult<
@@ -36,7 +39,8 @@ export function useGetIdentity<
 	props?: UseGetIdentityProps<TData, TParams, TError>,
 	context?: UseGetIdentityContext,
 ): UseGetIdentityResult<TData, TError> {
-	const auth = useAuthContext({ ...context, strict: true })
+	const auth = useAuthContext(context)
+	const queryClient = useQueryClientContext(context)
 
 	function getParams(): TParams | undefined {
 		return unref(props?.params)
@@ -57,5 +61,6 @@ export function useGetIdentity<
 		queryKey,
 		queryFn,
 		enabled: isEnabled,
+		queryClient,
 	})))
 }

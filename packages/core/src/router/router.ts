@@ -3,8 +3,8 @@ import type { RouterGetLocationFn, RouterOnChangeLocationFn } from './location'
 import type { RouterResolveFn } from './resolve'
 
 export interface Router<
-	TGoMeta = unknown,
-	TLocationMeta = unknown,
+	TGoMeta,
+	TLocationMeta,
 > {
 	go: RouterGoFn<TGoMeta>
 	back: RouterBackFn

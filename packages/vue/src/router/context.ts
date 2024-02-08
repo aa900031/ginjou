@@ -5,14 +5,14 @@ import type { Router } from '@ginjou/core'
 const KEY = Symbol('@ginjou/router')
 
 export function defineRouterContext<
-	T extends Router,
+	T extends Router<any, any>,
 >(value: T): T {
 	provide(KEY, value)
 	return value
 }
 
 export interface UseRouterContextFromProps {
-	router?: Router
+	router?: Router<any, any>
 }
 
 export type UseRouterContextProps = Simplify<
@@ -38,7 +38,7 @@ export function useRouterContext<
 
 export function useRouterContext(
 	props?: UseRouterContextProps,
-): Router | undefined {
+): Router<any, any> | undefined {
 	const value = inject(KEY, undefined) ?? props?.router
 	if (props?.strict === true && value == null)
 		throw new Error('No')

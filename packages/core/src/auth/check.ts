@@ -29,7 +29,7 @@ export function createQueryKey<
 export interface CreateQueryFnProps<
 	TParams,
 > {
-	auth: Auth
+	auth: Auth | undefined
 	getParams: () => TParams | undefined
 }
 
@@ -42,10 +42,31 @@ export function createQueryFn<
 	}: CreateQueryFnProps<TParams>,
 ): QueryFunction<AuthCheckResult> {
 	return async function checkQueryFn() {
-		const { check } = auth
+		const { check } = auth ?? {}
+		if (typeof check !== 'function')
+			throw new Error('No')
+
 		const params = getParams()
 		const result = await check(params)
 
 		return result
 	}
+}
+
+export interface GetQueryEnabledProps {
+	auth: Auth | undefined
+	enabled?: boolean
+}
+
+export function getQueryEnabled(
+	{
+		auth,
+		enabled,
+	}: GetQueryEnabledProps,
+) {
+	return (
+		enabled != null ? enabled : true
+	) && (
+		typeof auth?.check === 'function'
+	)
 }

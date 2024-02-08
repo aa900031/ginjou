@@ -5,6 +5,8 @@ import type { AuthCheckErrorResult } from '@ginjou/core'
 import { CheckError } from '@ginjou/core'
 import { useGo } from '../router'
 import type { UseGoContext } from '../router'
+import type { UseQueryClientContextProps } from '../query'
+import { useQueryClientContext } from '../query'
 import type { UseAuthContextFromProps } from './auth'
 import { useAuthContext } from './auth'
 import type { UseLogoutContext } from './logout'
@@ -14,6 +16,7 @@ export type UseCheckErrorContext = Simplify<
 	& UseAuthContextFromProps
 	& UseLogoutContext
 	& UseGoContext
+	& UseQueryClientContextProps
 >
 
 export type UseCheckErrorResult<
@@ -32,7 +35,8 @@ export function useCheckError<
 >(
 	context?: UseCheckErrorContext,
 ): UseCheckErrorResult<TParams, TError> {
-	const auth = useAuthContext({ ...context, strict: true })
+	const auth = useAuthContext(context)
+	const queryClient = useQueryClientContext(context)
 	const go = useGo(context)
 	const { mutateAsync: logout } = useLogout(context)
 
@@ -45,5 +49,6 @@ export function useCheckError<
 			logout,
 			go,
 		}),
+		queryClient,
 	})
 }

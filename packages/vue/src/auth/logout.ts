@@ -38,7 +38,7 @@ export function useLogout<
 >(
 	context?: UseLogoutContext,
 ): UseLogoutResult<TParams, TError> {
-	const auth = useAuthContext({ ...context, strict: true })
+	const auth = useAuthContext(context)
 	const queryClient = useQueryClientContext(context)
 	const go = useGo(context)
 	const notify = useNotify(context)
@@ -57,5 +57,6 @@ export function useLogout<
 			notify,
 			translate,
 		}),
+		queryClient,
 	})
 }

@@ -11,13 +11,19 @@
 		"url": "https://github.com/aa900031/ginjou/issues"
 	},
 	"scripts": {
-		"dev": "vue-demi-switch 3 && storybook dev -p 6007 --no-open",
+		"dev": "run-s dev:prepare dev:sb",
+		"dev:sb": "storybook dev -p 6007 --no-open",
+		"dev:prepare": "run-p dev:prepare:*",
+		"dev:prepare:vue-3": "vue-demi-switch 3",
 		"build": "storybook build -o dist",
 		"preview": "sirv ./dist --host -p 7007",
 		"clean:cache": "rimraf ./node_moudles/.cache"
 	},
 	"devDependencies": {
 		"@ginjou/tsconfig": "workspace:*",
+		"@ginjou/vue": "workspace:*",
+		"@ginjou/with-vue-i18n": "workspace:*",
+		"@ginjou/with-vue-router": "workspace:*",
 		"@storybook/addon-essentials": "^7.5.3",
 		"@storybook/addon-interactions": "^7.5.3",
 		"@storybook/addon-links": "^7.5.3",
@@ -25,10 +31,13 @@
 		"@storybook/testing-library": "^0.2.2",
 		"@storybook/vue3": "^7.5.3",
 		"@storybook/vue3-vite": "^7.5.3",
+		"@tanstack/vue-query": "^4.37.1",
+		"npm-run-all2": "^6.1.2",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
 		"storybook": "^7.5.3",
 		"unocss": "^0.57.3",
-		"vue": "^3.3.8"
+		"vue": "^3.3.8",
+		"vue-router": "^4.2.5"
 	}
 }

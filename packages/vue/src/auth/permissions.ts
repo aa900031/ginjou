@@ -5,6 +5,8 @@ import type { UseQueryReturnType } from '@tanstack/vue-query'
 import { useQuery } from '@tanstack/vue-query'
 import { Permissions } from '@ginjou/core'
 import type { ToMaybeRefs } from '../utils/refs'
+import type { UseQueryClientContextProps } from '../query'
+import { useQueryClientContext } from '../query'
 import { type UseAuthContextFromProps, useAuthContext } from './auth'
 
 export type UsePermissionsProps<
@@ -17,6 +19,7 @@ export type UsePermissionsProps<
 
 export type UserPermissionsContext = Simplify<
 	& UseAuthContextFromProps
+	& UseQueryClientContextProps
 >
 
 export type UsePermissionsResult<
@@ -35,7 +38,8 @@ export function usePermissions<
 	props?: UsePermissionsProps<TData, TParams, TError>,
 	context?: UserPermissionsContext,
 ): UsePermissionsResult<TData, TError> {
-	const auth = useAuthContext({ ...context, strict: true })
+	const auth = useAuthContext(context)
+	const queryClient = useQueryClientContext(context)
 	function getParams(): TParams | undefined {
 		return unref(props?.params)
 	}
@@ -55,5 +59,6 @@ export function usePermissions<
 		queryKey,
 		queryFn,
 		enabled: isEnabled,
+		queryClient,
 	})))
 }

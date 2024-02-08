@@ -20,7 +20,7 @@ export function createMutationKey(): MutationKey {
 }
 
 export interface CreateMutationFnProps {
-	auth: Auth
+	auth: Auth | undefined
 }
 
 export type MutationFn<
@@ -39,7 +39,7 @@ export function createMutationFn<
 	}: CreateMutationFnProps,
 ): NonNullable<MutationOptions<TParams, TError>['mutationFn']> {
 	return async function mutationFn(params) {
-		const { checkError } = auth
+		const { checkError } = auth ?? {}
 		if (typeof checkError !== 'function')
 			throw new Error('no')
 

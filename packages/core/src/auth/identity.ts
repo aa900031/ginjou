@@ -29,7 +29,7 @@ export function createQueryKey<
 export interface CreateQueryFnProps<
 	TParams,
 > {
-	auth: Auth
+	auth: Auth | undefined
 	getParams: () => TParams | undefined
 }
 
@@ -43,8 +43,8 @@ export function createQueryFn<
 	}: CreateQueryFnProps<TParams>,
 ): QueryFunction<TData> {
 	return async function getIdentityQueryFn() {
-		const { getIdentity } = auth
-		if (!getIdentity)
+		const { getIdentity } = auth ?? {}
+		if (typeof getIdentity !== 'function')
 			throw new Error('No')
 
 		const params = getParams()
@@ -54,7 +54,7 @@ export function createQueryFn<
 }
 
 export interface GetQueryEnabledProps {
-	auth: Auth
+	auth: Auth | undefined
 	enabled?: boolean
 }
 
@@ -67,6 +67,6 @@ export function getQueryEnabled(
 	return (
 		enabled != null ? enabled : true
 	) && (
-		typeof auth.getIdentity === 'function'
+		typeof auth?.getIdentity === 'function'
 	)
 }

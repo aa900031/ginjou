@@ -23,3 +23,5 @@ dist/
 *.sw?
 
 .turbo/
+
+/stories/vue/public/mockServiceWorker.js

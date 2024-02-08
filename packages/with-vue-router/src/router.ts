@@ -72,13 +72,13 @@ function toRouteLocation(
 		...query,
 	}
 
-	const nextHash = `#${(
+	const nextHash = `${(
 		hash
-		|| (keepHash && currentHash)
+		|| (keepHash && resolveHash(currentHash))
 		|| ''
-	).replace(/^#/, '')}`
+	)}`
 
-	return {
+	return JSON.parse(JSON.stringify({
 		...meta,
 		...('name' in meta)
 			? {
@@ -92,8 +92,8 @@ function toRouteLocation(
 				},
 		replace: !!(meta.replace ?? type === 'replace'),
 		query: nextQuery,
-		hash: nextHash,
-	}
+		hash: nextHash || undefined,
+	}))
 }
 
 function toLocation(
@@ -108,4 +108,10 @@ function toLocation(
 			location: current,
 		},
 	}
+}
+
+function resolveHash(
+	rawHash: string | undefined,
+) {
+	return rawHash?.replace(/^#/, '')
 }

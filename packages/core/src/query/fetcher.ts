@@ -312,7 +312,7 @@ export interface GetInfiniteListResult<
 	TData extends BaseRecord = BaseRecord,
 	TPageParam = number,
 > extends BaseGetListResult<TData> {
-	pagination: Pagination<TPageParam>
+	pagination?: Pagination<TPageParam>
 	cursor?: Cursor<TPageParam>
 }
 

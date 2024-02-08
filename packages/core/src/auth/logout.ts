@@ -24,7 +24,7 @@ export function createMutationKey(): MutationKey {
 }
 
 export interface CreateMutationFnProps {
-	auth: Auth
+	auth: Auth | undefined
 }
 
 export function createMutationFn<
@@ -35,7 +35,10 @@ export function createMutationFn<
 	}: CreateMutationFnProps,
 ): MutationFunction<AuthLogoutResult, TParams> {
 	return async function mutationFn(params) {
-		const { logout } = auth
+		const { logout } = auth ?? {}
+		if (typeof logout !== 'function')
+			throw new Error('No')
+
 		const result = await logout(params)
 		return result
 	}

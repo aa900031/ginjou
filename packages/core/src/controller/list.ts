@@ -42,7 +42,13 @@ export type Props<
 	TResultData extends BaseRecord,
 	TPageParam,
 > = Simplify<
-	& GetList.Props<TData, TError, TResultData, TPageParam>
+	& Omit<
+			GetList.Props<TData, TError, TResultData, TPageParam>,
+			| 'pagination'
+			| 'sorters'
+			| 'filters'
+			| 'syncRoute'
+		>
 	& {
 		pagination?: PaginationProp<TPageParam>
 		sorters?: SortersProp

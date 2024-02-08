@@ -1,6 +1,6 @@
 import type { Simplify } from 'type-fest'
 import type { Ref } from 'vue-demi'
-import { computed, unref } from 'vue-demi'
+import { computed, unref, watchEffect } from 'vue-demi'
 import type { MaybeRef } from '@vueuse/shared'
 import type { ResolvedResource } from '@ginjou/core'
 import { resolveResource } from '@ginjou/core'
