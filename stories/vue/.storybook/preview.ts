@@ -1,10 +1,7 @@
 import type { Preview } from '@storybook/vue3'
-import { initialize, mswDecorator } from 'msw-storybook-addon'
 
 // import '@unocss/reset/tailwind-compat.css'
 import 'uno.css'
-
-initialize()
 
 export default {
 	parameters: {
@@ -18,7 +15,4 @@ export default {
 			},
 		},
 	},
-	decorators: [
-		mswDecorator,
-	],
 } satisfies Preview
