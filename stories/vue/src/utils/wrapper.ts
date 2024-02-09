@@ -83,7 +83,7 @@ function createRouter(
 function createFetchers(): Fetchers {
 	return {
 		default: createFetcher({
-			url: 'https://localhost',
+			url: 'https://rest-api.local',
 		}),
 	}
 }

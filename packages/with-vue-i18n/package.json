@@ -40,8 +40,8 @@
 	"peerDependencies": {
 		"@ginjou/vue": "workspace:^",
 		"@vue/composition-api": "^1.1.0",
-		"vue-i18n": "^9.*.*",
-		"vue": "^2.6.12 || ^3.2.0"
+		"vue": "^2.6.12 || ^3.2.0",
+		"vue-i18n": "^9.*.*"
 	},
 	"peerDependenciesMeta": {
 		"vue": {
@@ -55,10 +55,10 @@
 		"vue-demi": "latest"
 	},
 	"devDependencies": {
-		"@ginjou/vue": "workspace:^",
 		"@ginjou/release-it-config": "workspace:*",
 		"@ginjou/tsconfig": "workspace:*",
-		"vue-i18n": "^9.8.0",
-		"vue": "^3.3.7"
+		"@ginjou/vue": "workspace:^",
+		"vue": "^3.4.16",
+		"vue-i18n": "^9.8.0"
 	}
 }

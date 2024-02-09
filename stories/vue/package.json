@@ -1,44 +1,54 @@
 {
-	"name": "@ginjou/storybook-vue",
-	"private": true,
-	"author": "zhong666 <hi@zhong666.me>",
-	"license": "MIT",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/aa900031/ginjou"
-	},
-	"bugs": {
-		"url": "https://github.com/aa900031/ginjou/issues"
-	},
-	"scripts": {
-		"dev": "run-s dev:prepare dev:sb",
-		"dev:sb": "storybook dev -p 6007 --no-open",
-		"dev:prepare": "run-p dev:prepare:*",
-		"dev:prepare:vue-3": "vue-demi-switch 3",
-		"build": "storybook build -o dist",
-		"preview": "sirv ./dist --host -p 7007",
-		"clean:cache": "rimraf ./node_moudles/.cache"
-	},
-	"devDependencies": {
-		"@ginjou/tsconfig": "workspace:*",
-		"@ginjou/vue": "workspace:*",
-		"@ginjou/with-vue-i18n": "workspace:*",
-		"@ginjou/with-vue-router": "workspace:*",
-		"@ginjou/with-rest-api": "workspace:*",
-		"@storybook/addon-essentials": "^7.5.3",
-		"@storybook/addon-interactions": "^7.5.3",
-		"@storybook/addon-links": "^7.5.3",
-		"@storybook/blocks": "^7.5.3",
-		"@storybook/testing-library": "^0.2.2",
-		"@storybook/vue3": "^7.5.3",
-		"@storybook/vue3-vite": "^7.5.3",
-		"@tanstack/vue-query": "^4.37.1",
-		"npm-run-all2": "^6.1.2",
-		"react": "^18.2.0",
-		"react-dom": "^18.2.0",
-		"storybook": "^7.5.3",
-		"unocss": "^0.57.3",
-		"vue": "^3.3.8",
-		"vue-router": "^4.2.5"
-	}
+  "name": "@ginjou/storybook-vue",
+  "private": true,
+  "author": "zhong666 <hi@zhong666.me>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aa900031/ginjou"
+  },
+  "bugs": {
+    "url": "https://github.com/aa900031/ginjou/issues"
+  },
+  "scripts": {
+    "dev": "run-s dev:prepare dev:sb",
+    "dev:sb": "storybook dev -p 6007 --no-open",
+    "dev:prepare": "run-p dev:prepare:*",
+    "dev:prepare:vue-3": "vue-demi-switch 3",
+    "dev:prepare:msw": "msw init ./public --save",
+    "build": "storybook build -o dist",
+    "preview": "sirv ./dist --host -p 7007",
+    "clean:cache": "rimraf ./node_moudles/.cache"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^8.4.1",
+    "@ginjou/tsconfig": "workspace:*",
+    "@ginjou/vue": "workspace:*",
+    "@ginjou/with-rest-api": "workspace:*",
+    "@ginjou/with-vue-i18n": "workspace:*",
+    "@ginjou/with-vue-router": "workspace:*",
+    "@mswjs/data": "^0.16.1",
+    "@storybook/addon-essentials": "^7.5.3",
+    "@storybook/addon-interactions": "^7.5.3",
+    "@storybook/addon-links": "^7.5.3",
+    "@storybook/blocks": "^7.5.3",
+    "@storybook/testing-library": "^0.2.2",
+    "@storybook/vue3": "^7.5.3",
+    "@storybook/vue3-vite": "^7.5.3",
+    "@tanstack/vue-query": "^4.37.1",
+    "msw": "^2.1.7",
+    "msw-storybook-addon": "2.0.0-beta.1",
+    "npm-run-all2": "^6.1.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "storybook": "^7.5.3",
+    "unocss": "^0.57.3",
+    "vue": "^3.4.16",
+    "vue-router": "^4.2.5"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
+  }
 }

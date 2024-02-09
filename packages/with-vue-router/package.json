@@ -59,7 +59,7 @@
 		"@ginjou/release-it-config": "workspace:*",
 		"@ginjou/tsconfig": "workspace:*",
 		"@ginjou/vue": "workspace:^",
-		"vue": "^3.3.7",
+		"vue": "^3.4.16",
 		"vue-router": "^4.2.5"
 	}
 }

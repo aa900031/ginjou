@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, unref } from 'vue'
+import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useList } from '@ginjou/vue'
+import type { Post } from './api/posts'
 
 const route = useRoute()
 
@@ -11,12 +12,12 @@ const {
 	pageCount,
 	perPage,
 	currentPage,
-} = useList({
+} = useList<Post>({
 	syncRoute: true,
 })
 
-const hasNext = computed(() => unref(currentPage) < unref(pageCount))
-const hasPrev = computed(() => unref(currentPage) > 1)
+const hasNext = computed(() => pageCount.value == null ? false : currentPage.value < pageCount.value)
+const hasPrev = computed(() => currentPage.value > 1)
 </script>
 
 <template>
@@ -67,7 +68,7 @@ const hasPrev = computed(() => unref(currentPage) > 1)
 					<button :disabled="!hasNext" @click="currentPage = currentPage + 1">
 						Next
 					</button>
-					<button :disabled="!hasNext" @click="currentPage = pageCount">
+					<button :disabled="!hasNext" @click="currentPage = pageCount!">
 						Last
 					</button>
 				</div>

@@ -11,6 +11,9 @@
 				"test/**/*"
 			]
 		},
+		"dev": {
+			"cache": false
+		},
 		"dev:test": {
 			"cache": false
 		},
