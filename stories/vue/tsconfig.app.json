@@ -5,7 +5,7 @@
 		{ "path": "../../packages/vue/tsconfig.app.json" },
 		{ "path": "../../packages/with-vue-router/tsconfig.app.json" },
 		{ "path": "../../packages/with-vue-i18n/tsconfig.app.json" },
-		{ "path": "../../packages/with-rest-api/tsconfig.app.json" },
+		{ "path": "../../packages/with-rest-api/tsconfig.app.json" }
 	],
 	"include": [
 		"env.d.ts",

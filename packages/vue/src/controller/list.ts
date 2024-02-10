@@ -1,6 +1,6 @@
 import type { Simplify } from 'type-fest'
 import type { Ref } from 'vue-demi'
-import { computed, unref, watchEffect } from 'vue-demi'
+import { computed, unref } from 'vue-demi'
 import { watchDebounced } from '@vueuse/shared'
 import type { BaseRecord, Filters, Sorters } from '@ginjou/core'
 import { List, getFetcherName, getResourceIdentifier } from '@ginjou/core'
