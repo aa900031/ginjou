@@ -238,7 +238,7 @@ export function useList<
 		setSorters,
 		filters: computed({
 			get: () => unref(_filters),
-			set: setFilters,
+			set: val => setFilters(val, List.SetFilterBehavior.Replace),
 		}),
 		setFilters,
 

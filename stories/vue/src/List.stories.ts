@@ -6,22 +6,23 @@ import MOCK_POSTS from '../data/mock-posts.json'
 import { createWrapper } from './utils/wrapper'
 import { createMsw } from './utils/msw'
 import { MockModel } from './api/posts'
-import ListPagination from './ListPagination.vue'
 import { toHandlers } from './utils/msw-data'
+import ListPagination from './ListPagination.vue'
+import ListFilters from './ListFilters.vue'
 
 const meta: Meta = {
 	title: 'List',
 }
 
-const dbForPagination = factory(MockModel)
-MOCK_POSTS.forEach(dbForPagination.posts.create)
+const db = factory(MockModel)
+MOCK_POSTS.forEach(db.posts.create)
 
 export const Pagination: StoryObj<typeof meta> = {
 	name: 'Pagination',
 	render: () => () => h(RouterView),
 	loaders: [
 		createMsw(
-			toHandlers(dbForPagination, 'posts', 'https://rest-api.local'),
+			toHandlers(db, 'posts', 'https://rest-api.local'),
 		),
 	],
 	decorators: [
@@ -40,6 +41,36 @@ export const Pagination: StoryObj<typeof meta> = {
 				{
 					path: '/posts',
 					component: ListPagination,
+				},
+			],
+		}),
+	],
+}
+
+export const Filters: StoryObj<typeof meta> = {
+	name: 'Filters',
+	render: () => () => h(RouterView),
+	loaders: [
+		createMsw(
+			toHandlers(db, 'posts', 'https://rest-api.local'),
+		),
+	],
+	decorators: [
+		createWrapper({
+			resources: [
+				{
+					name: 'posts',
+					list: '/posts',
+				},
+			],
+			routes: [
+				{
+					path: '/',
+					redirect: '/posts',
+				},
+				{
+					path: '/posts',
+					component: ListFilters,
 				},
 			],
 		}),
