@@ -9,6 +9,7 @@ import { MockModel } from './api/posts'
 import { toHandlers } from './utils/msw-data'
 import ListPagination from './ListPagination.vue'
 import ListFilters from './ListFilters.vue'
+import ListSorters from './ListSorters.vue'
 
 const meta: Meta = {
 	title: 'List',
@@ -71,6 +72,36 @@ export const Filters: StoryObj<typeof meta> = {
 				{
 					path: '/posts',
 					component: ListFilters,
+				},
+			],
+		}),
+	],
+}
+
+export const Sorters: StoryObj<typeof meta> = {
+	name: 'Sorters',
+	render: () => () => h(RouterView),
+	loaders: [
+		createMsw(
+			toHandlers(db, 'posts', 'https://rest-api.local'),
+		),
+	],
+	decorators: [
+		createWrapper({
+			resources: [
+				{
+					name: 'posts',
+					list: '/posts',
+				},
+			],
+			routes: [
+				{
+					path: '/',
+					redirect: '/posts',
+				},
+				{
+					path: '/posts',
+					component: ListSorters,
 				},
 			],
 		}),
