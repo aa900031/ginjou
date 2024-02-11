@@ -7,7 +7,7 @@ export interface Post {
 	status: string
 }
 
-export const mock = {
+export const MockModel = {
 	posts: {
 		id: primaryKey(faker.string.uuid),
 		title: faker.word.sample,

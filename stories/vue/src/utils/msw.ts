@@ -6,7 +6,7 @@ export function createMsw(
 	handlers: RequestHandler[],
 ): Loader {
 	return async () => {
-		const worker = setupWorker()
+		const worker = setupWorker(...handlers)
 
 		await worker.start({
 			onUnhandledRequest: (
@@ -19,8 +19,6 @@ export function createMsw(
 				print.warning()
 			},
 		})
-
-		worker.use(...handlers)
 	}
 }
 
