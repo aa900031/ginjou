@@ -1,6 +1,6 @@
 import type { Simplify } from 'type-fest'
 import type { Ref } from 'vue-demi'
-import { computed, unref } from 'vue-demi'
+import { computed, unref, watch } from 'vue-demi'
 import { watchDebounced } from '@vueuse/shared'
 import type { BaseRecord, Filters, Sorters } from '@ginjou/core'
 import { List, getFetcherName, getResourceIdentifier } from '@ginjou/core'
@@ -18,9 +18,8 @@ export type UseListProps<
 	TData extends BaseRecord,
 	TError,
 	TResultData extends BaseRecord,
-	TPageParam,
 > = ToMaybeRefs<
-	List.Props<TData, TError, TResultData, TPageParam>
+	List.Props<TData, TError, TResultData>
 >
 
 export type UseListContext = Simplify<
@@ -32,11 +31,10 @@ export type UseListContext = Simplify<
 export type UseListResult<
 	TError,
 	TResultData extends BaseRecord,
-	TPageParam,
 > = Simplify<
-	& UseGetListResult<TError, TResultData, TPageParam>
+	& UseGetListResult<TError, TResultData, number>
 	& {
-		currentPage: Ref<TPageParam>
+		currentPage: Ref<number>
 		perPage: Ref<number>
 		sorters: Ref<Sorters>
 		setSorters: List.SetSortersFn
@@ -52,21 +50,20 @@ export function useList<
 	TData extends BaseRecord = BaseRecord,
 	TError = unknown,
 	TResultData extends BaseRecord = TData,
-	TPageParam = number,
 >(
-	props?: UseListProps<TData, TError, TResultData, TPageParam>,
+	props?: UseListProps<TData, TError, TResultData>,
 	context?: UseListContext,
-): UseListResult<TError, TResultData, TPageParam> {
+): UseListResult<TError, TResultData> {
 	const go = useGo(context)
 	const resource = useResource({ name: props?.resource }, context)
 
 	const currentPageProp = refSub(
 		props?.pagination,
-		List.getPropCurrentPage<TPageParam>,
+		List.getPropCurrentPage,
 	)
 	const perPageProp = refSub(
 		props?.pagination,
-		List.getPropPerPage<TPageParam>,
+		List.getPropPerPage,
 	)
 	const paginationModeProp = refSub(
 		props?.pagination,
@@ -103,11 +100,11 @@ export function useList<
 
 	const currentPageResource = refSub(
 		resource,
-		List.getResourceCurrentPage<TPageParam>,
+		List.getResourceCurrentPage,
 	)
 	const perPageResource = refSub(
 		resource,
-		List.getResourcePerPage<TPageParam>,
+		List.getResourcePerPage,
 	)
 	const filtersResource = refSub(
 		resource,
@@ -128,14 +125,14 @@ export function useList<
 	}))
 
 	const currentPage = refFallback(
-		() => List.getCurrentPage<TPageParam>({
+		() => List.getCurrentPage({
 			currentPageFromProp: unref(currentPageProp),
 			currentPageFromResource: unref(currentPageResource),
 			syncRouteFromProp: unref(props?.syncRoute),
 		}),
 	)
 	const perPage = refFallback(
-		() => List.getPerPage<TPageParam>({
+		() => List.getPerPage({
 			perPageFromProp: unref(perPageProp),
 			perPageFromResource: unref(perPageResource),
 			syncRouteFromProp: unref(props?.syncRoute),
@@ -167,7 +164,7 @@ export function useList<
 		update: getter => _sorters.value = getter(unref(_sorters)),
 	})
 
-	const paginationForQuery = computed(() => List.getPaginationForQuery<TPageParam>({
+	const paginationForQuery = computed(() => List.getPaginationForQuery({
 		paginationModeFromProp: unref(paginationModeProp),
 		currentPage: unref(currentPage),
 		perPage: unref(perPage),
@@ -181,7 +178,7 @@ export function useList<
 		filters: unref(_filters),
 	}))
 
-	const listResult = useGetList<TData, TError, TResultData, TPageParam>({
+	const listResult = useGetList<TData, TError, TResultData, number>({
 		...props,
 		resource: resourceName,
 		fetcherName,
@@ -190,7 +187,7 @@ export function useList<
 		filters: filtersForQuery,
 	}, context)
 
-	const pageCount = computed(() => List.getPageCount<TResultData, TPageParam>({
+	const pageCount = computed(() => List.getPageCount<TResultData>({
 		queryData: unref(listResult.data),
 		perPage: unref(perPage),
 	}))
@@ -217,6 +214,16 @@ export function useList<
 		flush: 'post',
 		debounce: 100,
 		immediate: true,
+	})
+
+	watch(() => ({
+		perPage: unref(perPage),
+		_filters: unref(_filters),
+		_sorters: unref(_sorters),
+	}), () => {
+		currentPage.value = 1
+	}, {
+		flush: 'sync',
 	})
 
 	return {
