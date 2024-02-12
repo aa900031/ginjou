@@ -11,7 +11,7 @@ import { createWrapper } from './utils/wrapper'
 import ShowBasic from './ShowBasic.vue'
 
 const meta: Meta = {
-	title: 'Show',
+	title: 'Controllers/Show',
 }
 
 const db = factory(MockModel)

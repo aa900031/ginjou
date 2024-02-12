@@ -9,7 +9,7 @@ import { createWrapper } from './utils/wrapper'
 import SelectBasic from './SelectBasic.vue'
 
 const meta: Meta = {
-	title: 'Select',
+	title: 'Controllers/Select',
 }
 
 const db = factory(MockModel)

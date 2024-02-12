@@ -14,5 +14,12 @@ export default {
 				date: /Date$/,
 			},
 		},
+		options: {
+			storySort: {
+				order: [
+					'Controllers',
+				],
+			},
+		},
 	},
 } satisfies Preview

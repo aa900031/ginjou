@@ -22,7 +22,7 @@ watch(keyword, (val) => {
 <template>
 	<input
 		v-model="keyword"
-		placeholder="Keyword for select"
+		placeholder="Keyword for option list"
 	>
 	<select v-model="value">
 		<option

@@ -13,7 +13,7 @@ import ListFilters from './ListFilters.vue'
 import ListSorters from './ListSorters.vue'
 
 const meta: Meta = {
-	title: 'List',
+	title: 'Controllers/List',
 }
 
 const db = factory(MockModel)
