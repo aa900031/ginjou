@@ -1,6 +1,7 @@
 import { h } from 'vue'
 import { RouterView } from 'vue-router'
 import type { Meta, StoryObj } from '@storybook/vue3'
+import { vueRouter } from 'storybook-vue3-router'
 import { factory } from '@mswjs/data'
 import MOCK_POSTS from '../data/mock-posts.json'
 import { createWrapper } from './utils/wrapper'
@@ -34,17 +35,18 @@ export const Pagination: StoryObj<typeof meta> = {
 					list: '/posts',
 				},
 			],
-			routes: [
-				{
-					path: '/',
-					redirect: '/posts',
-				},
-				{
-					path: '/posts',
-					component: ListPagination,
-				},
-			],
+			router: true,
 		}),
+		vueRouter([
+			{
+				path: '/',
+				redirect: '/posts',
+			},
+			{
+				path: '/posts',
+				component: ListPagination,
+			},
+		]),
 	],
 }
 
@@ -64,17 +66,18 @@ export const Filters: StoryObj<typeof meta> = {
 					list: '/posts',
 				},
 			],
-			routes: [
-				{
-					path: '/',
-					redirect: '/posts',
-				},
-				{
-					path: '/posts',
-					component: ListFilters,
-				},
-			],
+			router: true,
 		}),
+		vueRouter([
+			{
+				path: '/',
+				redirect: '/posts',
+			},
+			{
+				path: '/posts',
+				component: ListFilters,
+			},
+		]),
 	],
 }
 
@@ -94,17 +97,18 @@ export const Sorters: StoryObj<typeof meta> = {
 					list: '/posts',
 				},
 			],
-			routes: [
-				{
-					path: '/',
-					redirect: '/posts',
-				},
-				{
-					path: '/posts',
-					component: ListSorters,
-				},
-			],
+			router: true,
 		}),
+		vueRouter([
+			{
+				path: '/',
+				redirect: '/posts',
+			},
+			{
+				path: '/posts',
+				component: ListSorters,
+			},
+		]),
 	],
 }
 

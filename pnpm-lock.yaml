@@ -1,9 +1,5 @@
 lockfileVersion: '6.0'
 
-settings:
-  autoInstallPeers: false
-  excludeLinksFromLockfile: false
-
 overrides:
   '@tanstack/vue-query>vue-demi': latest
   mkdist>esbuild: 0.19.2
@@ -214,7 +210,7 @@ importers:
         version: link:../../packages/with-vue-router
       '@mswjs/data':
         specifier: ^0.16.1
-        version: 0.16.1(typescript@5.2.2)
+        version: 0.16.1
       '@storybook/addon-essentials':
         specifier: ^7.5.3
         version: 7.6.13(react-dom@18.2.0)(react@18.2.0)
@@ -235,13 +231,13 @@ importers:
         version: 7.6.13(vue@3.4.16)
       '@storybook/vue3-vite':
         specifier: ^7.5.3
-        version: 7.6.13(typescript@5.2.2)(vue@3.4.16)
+        version: 7.6.13(vue@3.4.16)
       '@tanstack/vue-query':
         specifier: ^4.37.1
         version: 4.37.1(vue@3.4.16)
       msw:
         specifier: ^2.1.7
-        version: 2.1.7(typescript@5.2.2)
+        version: 2.1.7
       msw-storybook-addon:
         specifier: 2.0.0-beta.1
         version: 2.0.0-beta.1(msw@2.1.7)
@@ -257,12 +253,15 @@ importers:
       storybook:
         specifier: ^7.5.3
         version: 7.6.13
+      storybook-vue3-router:
+        specifier: ^5.0.0
+        version: 5.0.0(@storybook/vue3@7.6.13)(vue-router@4.2.5)(vue@3.4.16)
       unocss:
         specifier: ^0.57.3
         version: 0.57.7
       vue:
         specifier: ^3.4.16
-        version: 3.4.16(typescript@5.2.2)
+        version: 3.4.16
       vue-router:
         specifier: ^4.2.5
         version: 4.2.5(vue@3.4.16)
@@ -2517,7 +2516,7 @@ packages:
     requiresBuild: true
     dev: true
 
-  /@mswjs/data@0.16.1(typescript@5.2.2):
+  /@mswjs/data@0.16.1:
     resolution: {integrity: sha512-VhJvL/VmgAuU9/tDOcKcxHfNd+8nxYntZnrkaQEQPvZZnFwQQR9bzI1FTRROGxCHVoyfv9v84AEkl/7CIw4FAg==}
     dependencies:
       '@types/lodash': 4.14.202
@@ -2534,7 +2533,7 @@ packages:
       strict-event-emitter: 0.5.1
       uuid: 8.3.2
     optionalDependencies:
-      msw: 2.1.7(typescript@5.2.2)
+      msw: 2.1.7
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -3631,7 +3630,7 @@ packages:
       - supports-color
     dev: true
 
-  /@storybook/builder-vite@7.6.13(typescript@5.2.2):
+  /@storybook/builder-vite@7.6.13:
     resolution: {integrity: sha512-BpOUP1QPS7NeTTTs5i2gUmORtjigo2S6B57Pb08vDyy1/1bd+NpkLvHvdc/TxBBc57FI4TS/7m8NtwIYHtwkcQ==}
     peerDependencies:
       '@preact/preset-vite': '*'
@@ -3662,7 +3661,6 @@ packages:
       fs-extra: 11.1.1
       magic-string: 0.30.5
       rollup: 3.28.1
-      typescript: 5.2.2
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -4055,13 +4053,13 @@ packages:
       file-system-cache: 2.3.0
     dev: true
 
-  /@storybook/vue3-vite@7.6.13(typescript@5.2.2)(vue@3.4.16):
+  /@storybook/vue3-vite@7.6.13(vue@3.4.16):
     resolution: {integrity: sha512-QN9+BJDkXZq9hjUqX6R4ZR5T2qUwBR973V9TIQveScZatZYHQxBCEgl1v8WS1/D1AZe7CAEwjYCc2TD+/OLmHA==}
     engines: {node: ^14.18 || >=16}
     peerDependencies:
       vite: ^3.0.0 || ^4.0.0 || ^5.0.0
     dependencies:
-      '@storybook/builder-vite': 7.6.13(typescript@5.2.2)
+      '@storybook/builder-vite': 7.6.13
       '@storybook/core-server': 7.6.13
       '@storybook/vue3': 7.6.13(vue@3.4.16)
       '@vitejs/plugin-vue': 4.6.2(vue@3.4.16)
@@ -4093,7 +4091,7 @@ packages:
       lodash: 4.17.21
       ts-dedent: 2.2.0
       type-fest: 2.19.0
-      vue: 3.4.16(typescript@5.2.2)
+      vue: 3.4.16
       vue-component-type-helpers: 1.8.27
     transitivePeerDependencies:
       - encoding
@@ -4184,8 +4182,8 @@ packages:
       '@tanstack/match-sorter-utils': 8.8.4
       '@tanstack/query-core': 4.36.1
       '@vue/devtools-api': 6.5.0
-      vue: 3.4.16(typescript@5.2.2)
-      vue-demi: 0.14.6(vue@3.4.16)
+      vue: 3.4.16
+      vue-demi: 0.14.7(vue@3.4.16)
     dev: true
 
   /@testing-library/dom@9.3.1:
@@ -4930,7 +4928,7 @@ packages:
       vite: ^4.0.0 || ^5.0.0
       vue: ^3.2.25
     dependencies:
-      vue: 3.4.16(typescript@5.2.2)
+      vue: 3.4.16
     dev: true
 
   /@vitest/expect@0.34.6:
@@ -5082,7 +5080,7 @@ packages:
     dependencies:
       '@vue/compiler-ssr': 3.4.16
       '@vue/shared': 3.4.16
-      vue: 3.4.16(typescript@5.2.2)
+      vue: 3.4.16
 
   /@vue/shared@3.3.7:
     resolution: {integrity: sha512-N/tbkINRUDExgcPTBvxNkvHGu504k8lzlNQRITVnm6YjOjwa4r0nnbd4Jb01sNpur5hAllyRJzSK5PvB9PPwRg==}
@@ -9654,10 +9652,10 @@ packages:
       msw: ^2.0.0
     dependencies:
       is-node-process: 1.2.0
-      msw: 2.1.7(typescript@5.2.2)
+      msw: 2.1.7
     dev: true
 
-  /msw@2.1.7(typescript@5.2.2):
+  /msw@2.1.7:
     resolution: {integrity: sha512-yTIYqEMqDSrdbVMrfmqP6rTKQsnIbglTvVmAHDWwNegyXPXRcV+RjsaFEqubRS266gwWCDLm9YdOkWSKLdDvJQ==}
     engines: {node: '>=18'}
     hasBin: true
@@ -9685,7 +9683,6 @@ packages:
       path-to-regexp: 6.2.1
       strict-event-emitter: 0.5.1
       type-fest: 4.9.0
-      typescript: 5.2.2
       yargs: 17.7.2
     dev: true
 
@@ -11434,6 +11431,24 @@ packages:
     resolution: {integrity: sha512-siT1RiqlfQnGqgT/YzXVUNsom9S0H1OX+dpdGN1xkyYATo4I6sep5NmsRD/40s3IIOvlCq6akxkqG82urIZW1w==}
     dev: true
 
+  /storybook-vue3-router@5.0.0(@storybook/vue3@7.6.13)(vue-router@4.2.5)(vue@3.4.16):
+    resolution: {integrity: sha512-Q5ePPv8xyYT+9IzcEMSAQeCT8OlPDX0rfUfYCmiYDXsGPvvDej2Oyid3wyaxZmU/LXt1XzMDRO3v9qk/EN6pXg==}
+    peerDependencies:
+      '@storybook/preview-api': 7.x||>=7.0.0-rc.0
+      '@storybook/vue3': 7.x||>=7.0.0-rc.0
+      vue: 3.x
+      vue-router: 4.x
+    peerDependenciesMeta:
+      vue:
+        optional: true
+      vue-router:
+        optional: true
+    dependencies:
+      '@storybook/vue3': 7.6.13(vue@3.4.16)
+      vue: 3.4.16
+      vue-router: 4.2.5(vue@3.4.16)
+    dev: true
+
   /storybook@7.6.13:
     resolution: {integrity: sha512-c06c27f1m9OeXUtyA0/pwVLWJo+OD9SDIaTcPtojtwt5QEtSKfhQN+b9fnq/+GXRAHdkPF13AqR0uCXJZ/9Xtw==}
     hasBin: true
@@ -12486,6 +12501,22 @@ packages:
         optional: true
     dependencies:
       vue: 3.4.16(typescript@5.2.2)
+    dev: false
+
+  /vue-demi@0.14.7(vue@3.4.16):
+    resolution: {integrity: sha512-EOG8KXDQNwkJILkx/gPcoL/7vH+hORoBaKgGe+6W7VFMvCYJfmF2dGbvgDroVnI8LU7/kTu8mbjRZGBU1z9NTA==}
+    engines: {node: '>=12'}
+    hasBin: true
+    requiresBuild: true
+    peerDependencies:
+      '@vue/composition-api': ^1.0.0-rc.1
+      vue: ^3.0.0-0 || ^2.6.0
+    peerDependenciesMeta:
+      '@vue/composition-api':
+        optional: true
+    dependencies:
+      vue: 3.4.16
+    dev: true
 
   /vue-docgen-api@4.75.1(vue@3.4.16):
     resolution: {integrity: sha512-MECZ3uExz+ssmhD/2XrFoQQs93y17IVO1KDYTp8nr6i9GNrk67AAto6QAtilW1H/pTDPMkQxJ7w/25ZIqVtfAA==}
@@ -12502,7 +12533,7 @@ packages:
       pug: 3.0.2
       recast: 0.23.4
       ts-map: 1.0.3
-      vue: 3.4.16(typescript@5.2.2)
+      vue: 3.4.16
       vue-inbrowser-compiler-independent-utils: 4.71.1(vue@3.4.16)
     dev: true
 
@@ -12541,7 +12572,7 @@ packages:
     peerDependencies:
       vue: '>=2'
     dependencies:
-      vue: 3.4.16(typescript@5.2.2)
+      vue: 3.4.16
     dev: true
 
   /vue-router@4.2.5(vue@3.4.16):
@@ -12550,8 +12581,22 @@ packages:
       vue: ^3.2.0
     dependencies:
       '@vue/devtools-api': 6.5.0
-      vue: 3.4.16(typescript@5.2.2)
+      vue: 3.4.16
     dev: true
+
+  /vue@3.4.16:
+    resolution: {integrity: sha512-l5/KcZRp3GbsFXQGeCL9ll1JfRU285K/7l8mZM+dEO+CnE1j26MvfBKJi17iCRRwstl+Jz7KSLlzj9L79fB6WA==}
+    peerDependencies:
+      typescript: '*'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+    dependencies:
+      '@vue/compiler-dom': 3.4.16
+      '@vue/compiler-sfc': 3.4.16
+      '@vue/runtime-dom': 3.4.16
+      '@vue/server-renderer': 3.4.16(vue@3.4.16)
+      '@vue/shared': 3.4.16
 
   /vue@3.4.16(typescript@5.2.2):
     resolution: {integrity: sha512-l5/KcZRp3GbsFXQGeCL9ll1JfRU285K/7l8mZM+dEO+CnE1j26MvfBKJi17iCRRwstl+Jz7KSLlzj9L79fB6WA==}
@@ -12870,3 +12915,7 @@ packages:
     resolution: {integrity: sha512-9bnSc/HEW2uRy67wc+T8UwauLuPJVn28jb+GtJY16iiKWyvmYJRXVT4UamsAEGQfPohgr2q4Tq0sQbQlxTfi1g==}
     engines: {node: '>=12.20'}
     dev: true
+
+settings:
+  autoInstallPeers: false
+  excludeLinksFromLockfile: false

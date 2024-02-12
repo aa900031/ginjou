@@ -1,6 +1,4 @@
 import { getCurrentInstance, provide } from 'vue'
-import type { RouteRecordRaw, Router } from 'vue-router'
-import { createRouter as createVueRouter, createWebHistory } from 'vue-router'
 import type { Fetchers, ResourceDefinition } from '@ginjou/core'
 import { defineFetchers, defineResourceContext, defineRouterContext } from '@ginjou/vue'
 import { defineRouterBinding } from '@ginjou/with-vue-router'
@@ -10,11 +8,11 @@ import type { Decorator } from '@storybook/vue3'
 
 export type CreateWrapperProps =
 	& {
+		router?: boolean
 		fetchers?: Fetchers
 		resources?: ResourceDefinition[]
 		queryClient?: QueryClient
 	}
-	& CreateRouterProps
 
 export function createWrapper(
 	props?: CreateWrapperProps,
@@ -24,20 +22,19 @@ export function createWrapper(
 	const resolved = {
 		fetchers: props?.fetchers ?? createFetchers(),
 		queryClient: props?.queryClient ?? new QueryClient(),
-		router: createRouter(props),
 		resources: props?.resources,
+		router: props?.router ?? false,
 	} as const
 
-	return () => ({
+	return story => ({
+		name: 'GinjouWrapper',
+		components: { story },
 		setup: () => {
 			const { app } = getCurrentInstance()!.appContext
+			if (inited.has(app))
+				return
 
 			for (const [key, value] of Object.entries(resolved)) {
-				if (value == null || inited.has(value))
-					continue
-
-				inited.add(value)
-
 				switch (key) {
 					case 'queryClient':
 						provide('VUE_QUERY_CLIENT', value)
@@ -51,33 +48,17 @@ export function createWrapper(
 						})
 						break
 					case 'router':
-						app.use(value as any)
-						app.runWithContext(() => defineRouterContext(defineRouterBinding()))
-						;(value as Router).replace('/')
+						defineRouterContext(
+							defineRouterBinding(),
+						)
 						break
 				}
 			}
+
+			inited.add(app)
 		},
 		template: '<story />',
 	})
-}
-
-interface CreateRouterProps {
-	router?: boolean | Router
-	routes?: RouteRecordRaw[]
-}
-
-function createRouter(
-	props?: CreateRouterProps,
-) {
-	return props?.router === true || props?.routes
-		? createVueRouter({
-			history: createWebHistory(),
-			routes: props.routes ?? [],
-		})
-		: props?.router === false
-			? undefined
-			: props?.router
 }
 
 function createFetchers(): Fetchers {

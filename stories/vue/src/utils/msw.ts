@@ -1,24 +1,23 @@
 import type { RequestHandler } from 'msw'
+import type { SetupWorker } from 'msw/browser'
 import { setupWorker } from 'msw/browser'
 import type { Loader } from '@storybook/vue3'
+
+let worker: SetupWorker
 
 export function createMsw(
 	handlers: RequestHandler[],
 ): Loader {
 	return async () => {
-		const worker = setupWorker(...handlers)
+		if (!worker) {
+			worker = setupWorker()
+			await worker.start({
+				onUnhandledRequest: handleUnhandledRequest,
+			})
+		}
 
-		await worker.start({
-			onUnhandledRequest: (
-				request,
-				print,
-			) => {
-				if (shouldFilterUrl(request.url))
-					return
-
-				print.warning()
-			},
-		})
+		worker.resetHandlers()
+		worker.use(...handlers)
 	}
 }
 
@@ -43,4 +42,14 @@ function shouldFilterUrl(url: string): boolean {
 		return true
 
 	return false
+}
+
+function handleUnhandledRequest(
+	request: Request,
+	print: { warning: () => void },
+) {
+	if (shouldFilterUrl(request.url))
+		return
+
+	print.warning()
 }
