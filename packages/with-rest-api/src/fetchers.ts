@@ -57,5 +57,16 @@ export function createFetcher(
 				total: +(total || data.length),
 			}
 		},
+		getOne: async ({ resource, id, meta }) => {
+			const response = await client.raw(`${resource}/${id}`, {
+				baseURL: `${url}`,
+				method: 'GET',
+				headers: meta?.headers as any,
+			})
+
+			return {
+				data: response._data,
+			}
+		},
 	}
 }

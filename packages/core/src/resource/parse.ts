@@ -107,11 +107,17 @@ function parseFromString(
 	location: RouterLocation,
 ): ResourceParseResult | undefined {
 	const parsed = parseRegexparam(pattern)
-	return parseFromRegExp(parsed.pattern, action, location)
+	return parseFromRegExp(
+		parsed.pattern,
+		parsed.keys,
+		action,
+		location,
+	)
 }
 
 function parseFromRegExp(
 	pattern: RegExp,
+	keys: string[],
 	action: ResourceActionTypeValues,
 	location: RouterLocation,
 ): ResourceParseResult | undefined {
@@ -129,12 +135,21 @@ function parseFromRegExp(
 				params,
 			}
 		case ResourceActionType.Edit:
-		case ResourceActionType.Show:
+		case ResourceActionType.Show: {
+			const index = keys.indexOf('id')
+			if (index < 0)
+				throw new Error('No')
+
+			const id = matched[index + 1]
+			if (id == null)
+				throw new Error('No')
+
 			return {
 				action,
-				id: matched.groups!.id,
+				id,
 				params,
 			}
+		}
 		default:
 			throw new Error('Nooo')
 	}

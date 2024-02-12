@@ -12,6 +12,8 @@ export function toHandlers<
 	baseUrl: string,
 ): any {
 	const model = factory[modelName] as ModelAPI<Dictionary, ModelName>
+	const [_getList, getOne, create, update, remove] = model.toHandlers('rest', baseUrl)
+
 	return [
 		http.get(
 			resolveURL(baseUrl, modelName.toString()),
@@ -88,5 +90,9 @@ export function toHandlers<
 				})
 			}),
 		),
+		getOne,
+		create,
+		update,
+		remove,
 	]
 }
