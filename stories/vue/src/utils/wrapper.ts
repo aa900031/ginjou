@@ -48,7 +48,7 @@ export function createWrapper(
 						})
 						break
 					case 'router':
-						defineRouterContext(
+						value && defineRouterContext(
 							defineRouterBinding(),
 						)
 						break

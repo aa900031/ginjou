@@ -17,7 +17,7 @@ export type Props<
 	& {
 		labelKey?: string
 		valueKey?: string
-		value: any | any[] // TODO: generice
+		value?: any | any[] // TODO: generice
 		searchToFilters?: SearchToFiltersFn<any> // TODO: generic
 		queryOptionsForOptions?: NonNullable<GetList.Props<TData, TError, TResultData, TPageParam>['queryOptions']>
 		queryOptionsForValue?: NonNullable<GetMany.Props<TData, TError, TResultData>['queryOptions']>
@@ -125,7 +125,7 @@ export function getListFilters(
 		searchFilters,
 	}: GetListFiltersProps,
 ): Filters | undefined {
-	return resolveFilters(undefined, filterFormProp, searchFilters)
+	return resolveFilters(searchFilters ?? [], filterFormProp)
 }
 
 export interface GetValueIdsProps {
