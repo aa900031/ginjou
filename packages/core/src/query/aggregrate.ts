@@ -21,23 +21,7 @@ export function createAggregrateFn<
 	const allArgs: TArgs[] = []
 	const allResolves: PromiseResolvePair<TResult>[] = []
 
-	const exec = () => {
-		const aggregated = resolveArgs(allArgs, allResolves)
-
-		for (const [args, resolves] of aggregated) {
-			fn(...args)
-				.then((r) => {
-					for (const { resolve } of resolves)
-						resolve(r)
-				})
-				.catch((e) => {
-					for (const { reject } of resolves)
-						reject(e)
-				})
-		}
-	}
-
-	return (function (this: ThisType<TFn>, ...args: TArgs): Promise<TResult> {
+	function wrapFn(this: ThisType<TFn>, ...args: TArgs): Promise<TResult> {
 		return new Promise<TResult>((resolve, reject) => {
 			allArgs.push(args)
 			allResolves.push({ resolve, reject })
@@ -45,11 +29,35 @@ export function createAggregrateFn<
 			if (time)
 				clearTimeout(time)
 
-			time = setTimeout(() => {
+			time = setTimeout(async () => {
 				time = undefined
-				exec()
-				allArgs.length = 0
+
+				try {
+					exec()
+				}
+				finally {
+					allArgs.length = 0
+					allResolves.length = 0
+				}
 			}, 0)
 		})
-	}) as unknown as TFn
+	}
+
+	async function exec() {
+		const aggregated = resolveArgs(allArgs, allResolves)
+
+		for (const [args, resolves] of aggregated) {
+			try {
+				const r = await fn(...args)
+				for (const { resolve } of resolves)
+					resolve(r)
+			}
+			catch (e) {
+				for (const { reject } of resolves)
+					reject(e)
+			}
+		}
+	}
+
+	return wrapFn as unknown as TFn
 }
