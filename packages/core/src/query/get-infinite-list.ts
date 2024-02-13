@@ -90,7 +90,7 @@ export function getNextPageParam<
 	if (cursor)
 		return cursor.next
 
-	const { current, perPage } = pagination
+	const { current, perPage } = pagination!
 	if (typeof current === 'number') {
 		const totalPages = Math.ceil((lastPage.total || 0) / perPage)
 
@@ -109,7 +109,7 @@ export function getPreviousPageParam<
 	if (cursor)
 		return cursor.prev
 
-	const { current } = pagination
+	const { current } = pagination!
 	if (typeof current === 'number')
 		return current === 1 ? undefined : current - 1
 }

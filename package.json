@@ -6,7 +6,7 @@
 	"author": "zhong666 <hi@zhong666.me>",
 	"license": "MIT",
 	"scripts": {
-		"build": "turbo run build",
+		"build:pkgs": "turbo run build --filter=./packages/*",
 		"test": "turbo run test",
 		"dev:test": "turbo run dev:test",
 		"dev:sb-vue": "turbo run dev --filter=@ginjou/storybook-vue",

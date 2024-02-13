@@ -3,6 +3,7 @@ import { AbortController, Headers, createFetch, fetch } from 'ofetch'
 import type { Fetcher } from '@ginjou/core'
 import { genFilters } from './utils/filters'
 import { genSorters } from './utils/sorters'
+import { toMethod } from './utils/method'
 
 export interface CreateFetcherProps {
 	url: URL | string
@@ -86,6 +87,47 @@ export function createFetcher(
 				method: meta?.method as any ?? 'PUT',
 				body: params as any,
 				headers: meta?.headers as any,
+			})
+
+			return {
+				data: response._data,
+			}
+		},
+		deleteOne: async ({ resource, id, params, meta }) => {
+			const response = await client.raw(`${resource}/${id}`, {
+				baseURL: `${url}`,
+				method: meta?.method as any ?? 'DELETE',
+				body: params as any,
+				headers: meta?.headers as any,
+			})
+
+			return {
+				data: response._data,
+			}
+		},
+		custom: async ({
+			url,
+			method,
+			filters,
+			sorters,
+			payload,
+			query,
+			headers,
+		}) => {
+			const queryFilters = genFilters(filters)
+			const querySorters = genSorters(sorters)
+			const reqMethod = toMethod(method)
+			const reqQuery = {
+				_order: querySorters?._order,
+				_sort: querySorters?._sort,
+				...queryFilters,
+				...query,
+			}
+			const response = await client.raw(url, {
+				method: reqMethod,
+				query: reqQuery,
+				headers,
+				params: payload as any,
 			})
 
 			return {
