@@ -1,4 +1,4 @@
-import { computed, unref } from 'vue-demi'
+import { computed, unref, watchEffect } from 'vue-demi'
 import { type BaseRecord, Form } from '@ginjou/core'
 import { useCreate, useGetOne, useUpdate } from '../query'
 import { useResource } from '../resource'
@@ -25,7 +25,8 @@ export function useForm<
 	TMutationError = unknown,
 >(
 	props?: UseFormProps<TQueryData, TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError>,
-) {
+	// TODO: context
+) { // TODO: result
 	const resource = useResource({ name: props?.resource })
 	const resolvedProps = computed(() => Form.resolveProps<TQueryData, TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError>({
 		// eslint-disable-next-line ts/ban-ts-comment
@@ -64,13 +65,13 @@ export function useForm<
 	const mutationCreateResult = useCreate<TMutationData, TMutationError, TMutationParams>({
 		// eslint-disable-next-line ts/ban-ts-comment
 		// @ts-expect-error
-		mutationOptions: props.mutationOptions,
+		mutationOptions: props?.mutationOptions,
 	})
 
 	const mutationUpdateResult = useUpdate<TMutationData, TMutationError, TMutationParams>({
 		// eslint-disable-next-line ts/ban-ts-comment
 		// @ts-expect-error
-		mutationOptions: props.mutationOptions,
+		mutationOptions: props?.mutationOptions,
 	})
 
 	const isLoading = computed(() => Form.getIsLoading({
@@ -88,6 +89,11 @@ export function useForm<
 
 	// TODO: return record
 	return {
+		record: computed(() => {
+			if (unref(resource)?.action !== 'edit')
+				return
+			return unref(queryResult.data)?.data
+		}),
 		isLoading,
 		save,
 	}

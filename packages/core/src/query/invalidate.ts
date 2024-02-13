@@ -173,7 +173,7 @@ export async function triggerInvalidate(
 			break
 		case InvalidateTarget.List:
 			await queryClient.invalidateQueries(
-				genGetListQueryKey(props),
+				genGetListQueryKey({ props }),
 				invalidateFilters,
 				invalidateOptions,
 			)
@@ -185,9 +185,11 @@ export async function triggerInvalidate(
 
 			await queryClient.invalidateQueries(
 				genGetManyQueryKey({
-					...props,
-					resource,
-					ids,
+					props: {
+						...props,
+						resource,
+						ids,
+					},
 				}),
 				invalidateFilters,
 				invalidateOptions,
@@ -217,9 +219,11 @@ export async function triggerInvalidate(
 			if (id) {
 				await queryClient.invalidateQueries(
 					genGetOneQueryKey({
-						...props,
-						resource,
-						id,
+						props: {
+							...props,
+							resource,
+							id,
+						},
 					}),
 					invalidateFilters,
 					invalidateOptions,
@@ -228,9 +232,11 @@ export async function triggerInvalidate(
 			else if (ids) {
 				await Promise.all(ids.map((id: any) => queryClient.invalidateQueries(
 					genGetOneQueryKey({
-						...props,
-						resource,
-						id,
+						props: {
+							...props,
+							resource,
+							id,
+						},
 					}),
 					invalidateFilters,
 					invalidateOptions,
@@ -239,8 +245,10 @@ export async function triggerInvalidate(
 			else {
 				await queryClient.invalidateQueries(
 					genGetOneQueryKey({
-						...props,
-						resource,
+						props: {
+							...props,
+							resource,
+						},
 					}),
 					invalidateFilters,
 					invalidateOptions,

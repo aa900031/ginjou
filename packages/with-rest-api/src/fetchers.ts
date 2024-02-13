@@ -68,5 +68,29 @@ export function createFetcher(
 				data: response._data,
 			}
 		},
+		create: async ({ resource, params, meta }) => {
+			const response = await client.raw(`${resource}`, {
+				baseURL: `${url}`,
+				method: 'POST',
+				body: params as any,
+				headers: meta?.headers as any,
+			})
+
+			return {
+				data: response._data,
+			}
+		},
+		update: async ({ resource, id, params, meta }) => {
+			const response = await client.raw(`${resource}/${id}`, {
+				baseURL: `${url}`,
+				method: 'PATCH',
+				body: params as any,
+				headers: meta?.headers as any,
+			})
+
+			return {
+				data: response._data,
+			}
+		},
 	}
 }

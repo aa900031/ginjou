@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useShow } from '@ginjou/vue'
 import { useRoute } from 'vue-router'
+import { useShow } from '@ginjou/vue'
 import type { Post } from './api/posts'
 
 const route = useRoute()
