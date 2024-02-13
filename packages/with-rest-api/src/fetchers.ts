@@ -41,7 +41,7 @@ export function createFetcher(
 
 			const response = await client.raw(resource, {
 				baseURL: `${url}`,
-				method: 'GET',
+				method: meta?.method as any ?? 'GET',
 				query: {
 					...query,
 					...queryFilters,
@@ -60,7 +60,7 @@ export function createFetcher(
 		getOne: async ({ resource, id, meta }) => {
 			const response = await client.raw(`${resource}/${id}`, {
 				baseURL: `${url}`,
-				method: 'GET',
+				method: meta?.method as any ?? 'GET',
 				headers: meta?.headers as any,
 			})
 
@@ -71,7 +71,7 @@ export function createFetcher(
 		create: async ({ resource, params, meta }) => {
 			const response = await client.raw(`${resource}`, {
 				baseURL: `${url}`,
-				method: 'POST',
+				method: meta?.method as any ?? 'POST',
 				body: params as any,
 				headers: meta?.headers as any,
 			})
@@ -83,7 +83,7 @@ export function createFetcher(
 		update: async ({ resource, id, params, meta }) => {
 			const response = await client.raw(`${resource}/${id}`, {
 				baseURL: `${url}`,
-				method: 'PATCH',
+				method: meta?.method as any ?? 'PUT',
 				body: params as any,
 				headers: meta?.headers as any,
 			})

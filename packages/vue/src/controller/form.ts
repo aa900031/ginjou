@@ -1,4 +1,4 @@
-import { computed, unref, watchEffect } from 'vue-demi'
+import { computed, unref } from 'vue-demi'
 import { type BaseRecord, Form } from '@ginjou/core'
 import { useCreate, useGetOne, useUpdate } from '../query'
 import { useResource } from '../resource'

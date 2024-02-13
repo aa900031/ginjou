@@ -131,7 +131,9 @@ export function resolveProps<
 				...props as ResolvedUpdateProps<TQueryData, TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError>,
 				action,
 				resource: resourceName,
-				id: 'id' in props ? props.id ?? '' : '', // TODO: maybe use undeined?
+				id: ('id' in props ? props.id : undefined)
+					?? (resource && resource.action === 'edit' ? resource.id : undefined)
+					?? '', // TODO: maybe use undeined?
 				fetcherName,
 			}
 		}
