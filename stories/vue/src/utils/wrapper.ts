@@ -107,5 +107,11 @@ function createAuth(): Auth {
 				return null
 			}
 		},
+		getPermissions: async () => {
+			if ((window as any).__AUTH)
+				return ['admin']
+			else
+				return null
+		},
 	}
 }
