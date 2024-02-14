@@ -41,7 +41,7 @@
 		"npm-run-all2": "^6.1.2",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
-		"storybook": "^7.5.3",
+		"storybook": "^7.6.15",
 		"storybook-vue3-router": "^5.0.0",
 		"unocss": "^0.57.3",
 		"vue": "^3.4.16",
