@@ -1,5 +1,6 @@
 export * from './auth'
 export * from './authenticated'
+export * from './identity'
 export * from './login'
 export * from './logout'
 export * from './check-error'

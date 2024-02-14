@@ -97,5 +97,15 @@ function createAuth(): Auth {
 			}
 		},
 		checkError: async () => ({}),
+		getIdentity: async () => {
+			if ((window as any).__AUTH) {
+				return {
+					username: (window as any).__AUTH,
+				}
+			}
+			else {
+				return null
+			}
+		},
 	}
 }
