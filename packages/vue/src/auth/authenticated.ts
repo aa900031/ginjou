@@ -1,4 +1,5 @@
 import type { Simplify } from 'type-fest'
+import type { Ref } from 'vue-demi'
 import { computed, unref } from 'vue-demi'
 import type { UseQueryReturnType } from '@tanstack/vue-query'
 import { useQuery } from '@tanstack/vue-query'

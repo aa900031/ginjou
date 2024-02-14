@@ -1,6 +1,7 @@
+import { delay } from 'msw'
 import { getCurrentInstance, provide } from 'vue'
-import type { Fetchers, ResourceDefinition } from '@ginjou/core'
-import { defineFetchers, defineResourceContext, defineRouterContext } from '@ginjou/vue'
+import type { Auth, Fetchers, ResourceDefinition } from '@ginjou/core'
+import { defineAuthContext, defineFetchers, defineResourceContext, defineRouterContext } from '@ginjou/vue'
 import { createRouterBinding } from '@ginjou/with-vue-router'
 import { createFetcher } from '@ginjou/with-rest-api'
 import { QueryClient } from '@tanstack/vue-query'
@@ -11,6 +12,7 @@ export type CreateWrapperProps =
 		router?: boolean
 		fetchers?: Fetchers
 		resources?: ResourceDefinition[]
+		auth?: Auth | boolean
 		queryClient?: QueryClient
 	}
 
@@ -23,6 +25,11 @@ export function createWrapper(
 		fetchers: props?.fetchers ?? createFetchers(),
 		queryClient: props?.queryClient ?? new QueryClient(),
 		resources: props?.resources,
+		auth: props?.auth === true
+			? createAuth()
+			: props?.auth === false
+				? undefined
+				: props?.auth,
 		router: props?.router ?? false,
 	} as const
 
@@ -52,6 +59,9 @@ export function createWrapper(
 							createRouterBinding(),
 						)
 						break
+					case 'auth':
+						value && defineAuthContext(value as Auth)
+						break
 				}
 			}
 
@@ -66,5 +76,26 @@ function createFetchers(): Fetchers {
 		default: createFetcher({
 			url: 'https://rest-api.local',
 		}),
+	}
+}
+
+function createAuth(): Auth {
+	return {
+		login: async () => {
+			await delay(500)
+			;(window as any).__AUTH = 'user001'
+		},
+		logout: async () => {
+			await delay(500)
+			;(window as any).__AUTH = undefined
+		},
+		check: async () => {
+			await delay(500)
+			return {
+				authenticated: (window as any).__AUTH != null,
+				logout: (window as any).__AUTH == null,
+			}
+		},
+		checkError: async () => ({}),
 	}
 }

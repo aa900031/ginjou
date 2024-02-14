@@ -19,7 +19,7 @@ export interface Auth {
 	login: (params: any) => Promise<AuthLoginResult>
 	logout: (params: any) => Promise<AuthLogoutResult>
 	check: (params?: any) => Promise<AuthCheckResult>
-	checkError: (error: unknown) => Promise<AuthCheckErrorResult>
+	checkError: (error: unknown) => Promise<AuthCheckErrorResult>// TODO: Can return void or undefind
 	getPermissions?: (params?: any) => Promise<unknown>
 	getIdentity?: (params?: any) => Promise<unknown>
 }
