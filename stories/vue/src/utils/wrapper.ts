@@ -96,7 +96,15 @@ function createAuth(): Auth {
 				logout: (window as any).__AUTH == null,
 			}
 		},
-		checkError: async () => ({}),
+		checkError: async (error) => {
+			if (error && (error as any).isAuthError) {
+				return {
+					logout: true,
+					error,
+				}
+			}
+			return {}
+		},
 		getIdentity: async () => {
 			if ((window as any).__AUTH) {
 				return {

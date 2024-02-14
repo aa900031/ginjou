@@ -1,15 +1,15 @@
 import { h } from 'vue'
 import type { Meta, StoryObj } from '@storybook/vue3'
 import { createWrapper } from './utils/wrapper'
-import AuthGetIdentity from './AuthGetIdentity.vue'
+import AuthCheckError from './AuthCheckError.vue'
 
 const meta: Meta = {
-	title: 'Auth/Get Identity',
+	title: 'Auth/Check Error',
 }
 
 export const Basic: StoryObj<typeof meta> = {
 	name: 'Basic',
-	render: () => () => h(AuthGetIdentity),
+	render: () => () => h(AuthCheckError),
 	decorators: [
 		createWrapper({
 			auth: true,
