@@ -1,7 +1,7 @@
 import { getCurrentInstance, provide } from 'vue'
 import type { Fetchers, ResourceDefinition } from '@ginjou/core'
 import { defineFetchers, defineResourceContext, defineRouterContext } from '@ginjou/vue'
-import { defineRouterBinding } from '@ginjou/with-vue-router'
+import { createRouterBinding } from '@ginjou/with-vue-router'
 import { createFetcher } from '@ginjou/with-rest-api'
 import { QueryClient } from '@tanstack/vue-query'
 import type { Decorator } from '@storybook/vue3'
@@ -49,7 +49,7 @@ export function createWrapper(
 						break
 					case 'router':
 						value && defineRouterContext(
-							defineRouterBinding(),
+							createRouterBinding(),
 						)
 						break
 				}

@@ -1,8 +1,9 @@
 import type { SetRequired, Simplify } from 'type-fest'
 import { watch } from 'vue-demi'
-import type { LocationAsRelativeRaw, RouteLocationNormalizedLoaded, RouteLocationOptions, RouteLocationRaw } from 'vue-router'
+import type { LocationAsRelativeRaw, RouteLocationNormalizedLoaded, RouteLocationOptions } from 'vue-router'
 import { onBeforeRouteLeave, useRouter } from 'vue-router'
-import type { Router, RouterGoParams, RouterLocation } from '@ginjou/core'
+import type { Router } from '@ginjou/core'
+import { toLocation, toRouteLocation } from './location'
 
 export type RouteGoMeta = Simplify<
 	| RouteLocationOptions
@@ -16,7 +17,7 @@ export interface RouteParsedMeta {
 	location: RouteLocationNormalizedLoaded
 }
 
-export function defineRouterBinding(): Router<
+export function createRouterBinding(): Router<
 	RouteGoMeta,
 	RouteParsedMeta
 > {
@@ -44,77 +45,9 @@ export function defineRouterBinding(): Router<
 			const stopWatch = watch(router.currentRoute, (val) => {
 				handler(toLocation(val))
 			})
-			onBeforeRouteLeave(() => stopWatch)
+			onBeforeRouteLeave(stopWatch)
 
 			return stopWatch
 		},
 	}
-}
-
-function toRouteLocation(
-	params: RouterGoParams<RouteGoMeta>,
-	current: RouteLocationNormalizedLoaded,
-): RouteLocationRaw {
-	const {
-		meta = {},
-		to,
-		type,
-		query,
-		hash,
-		keepQuery,
-		keepHash,
-	} = params
-
-	const {
-		query: currentQuery,
-		hash: currentHash,
-	} = current
-
-	const nextQuery = {
-		...(keepQuery && currentQuery),
-		...query,
-	}
-
-	const nextHash = `${(
-		hash
-		|| (keepHash && resolveHash(currentHash))
-		|| ''
-	)}`
-
-	return JSON.parse(JSON.stringify({
-		...meta,
-		...('name' in meta)
-			? {
-					path: undefined,
-					name: meta.name,
-					params: meta.params,
-				}
-			: {
-					path: to,
-					name: undefined,
-				},
-		replace: !!(meta.replace ?? type === 'replace'),
-		query: nextQuery,
-		hash: nextHash || undefined,
-	}))
-}
-
-function toLocation(
-	current: RouteLocationNormalizedLoaded,
-): RouterLocation<RouteParsedMeta> {
-	return {
-		path: current.path,
-		params: current.params,
-		query: current.query,
-		hash: current.hash,
-		meta: {
-			location: current,
-		},
-	}
-}
-
-function resolveHash(
-	rawHash: string | undefined,
-) {
-	return rawHash?.replace(/^#/, '')
 }
