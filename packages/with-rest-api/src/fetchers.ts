@@ -18,14 +18,6 @@ export function createFetcher(
 ): Fetcher {
 	return {
 		getList: async ({ resource, pagination, filters, sorters, meta }) => {
-			const {
-				current = 1,
-				perPage = 10,
-			} = pagination ?? {}
-
-			const queryFilters = genFilters(filters)
-			const querySorters = genSorters(sorters)
-
 			const query: {
 				_start?: number
 				_end?: number
@@ -33,12 +25,23 @@ export function createFetcher(
 				_order?: string
 			} = {}
 
-			query._start = (current as number - 1) * perPage
-			query._end = current as number * perPage
+			if (pagination) {
+				const {
+					current,
+					perPage,
+				} = pagination
+
+				query._start = (current as number - 1) * perPage
+				query._end = current as number * perPage
+			}
+
+			const querySorters = genSorters(sorters)
 			if (querySorters) {
 				query._sort = querySorters._sort
 				query._order = querySorters._order
 			}
+
+			const queryFilters = genFilters(filters)
 
 			const response = await client.raw(resource, {
 				baseURL: `${url}`,
