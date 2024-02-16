@@ -4,7 +4,7 @@ import { createWrapper } from './utils/wrapper'
 import Auth from './Auth.vue'
 
 const meta: Meta = {
-	title: 'Auth/Authenticated',
+	title: 'Authentication/Authenticated',
 }
 
 export const Basic: StoryObj<typeof meta> = {

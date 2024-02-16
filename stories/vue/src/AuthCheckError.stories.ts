@@ -4,7 +4,7 @@ import { createWrapper } from './utils/wrapper'
 import AuthCheckError from './AuthCheckError.vue'
 
 const meta: Meta = {
-	title: 'Auth/Check Error',
+	title: 'Authentication/Check Error',
 }
 
 export const Basic: StoryObj<typeof meta> = {
