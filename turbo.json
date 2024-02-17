@@ -19,6 +19,12 @@
 		},
 		"release": {
 			"cache": false
+		},
+		"preview": {
+			"cache": false
+		},
+		"@ginjou/storybook-vue#build": {
+			"outputs": ["dist/**"]
 		}
 	}
 }

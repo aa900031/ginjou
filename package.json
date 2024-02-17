@@ -7,6 +7,8 @@
 	"license": "MIT",
 	"scripts": {
 		"build:pkgs": "turbo run build --filter=./packages/*",
+		"build:sb-vue": "turbo run build --filter=@ginjou/storybook-vue",
+		"preview:sb-vue": "turbo run preview --filter=@ginjou/storybook-vue",
 		"test": "turbo run test",
 		"dev:test": "turbo run dev:test",
 		"dev:sb-vue": "turbo run dev --filter=@ginjou/storybook-vue",
@@ -21,6 +23,7 @@
 		"eslint": "^8.52.0",
 		"happy-dom": "^11.2.0",
 		"release-it": "^16.2.1",
+		"sirv-cli": "^2.0.2",
 		"turbo": "^1.10.16",
 		"typescript": "^5.2.2",
 		"unbuild": "^2.0.0",

@@ -17,8 +17,7 @@
 		"dev:prepare:vue-3": "vue-demi-switch 3",
 		"dev:prepare:msw": "msw init ./public --save",
 		"build": "storybook build -o dist",
-		"preview": "sirv ./dist --host -p 7007",
-		"clean:cache": "rimraf ./node_moudles/.cache"
+		"preview": "sirv ./dist --host -p 7007"
 	},
 	"devDependencies": {
 		"@faker-js/faker": "^8.4.1",
