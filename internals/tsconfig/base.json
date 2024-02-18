@@ -8,8 +8,8 @@
 			"ESNext"
 		],
 		"target": "ESNext",
-		"module": "NodeNext",
-		"moduleResolution": "NodeNext",
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
 		"resolveJsonModule": true,
 		"strict": true,
 		"noImplicitThis": true,
@@ -22,8 +22,11 @@
 		"forceConsistentCasingInFileNames": true,
 		"skipLibCheck": true,
 		"paths": {
-			"@ginjou/query": ["../../packages/query/src/index.ts"],
-			"@ginjou/vue-query": ["../../packages/vue-query/src/index.ts"]
+			"@ginjou/core": ["../../packages/core/src/index.ts"],
+			"@ginjou/vue": ["../../packages/vue/src/index.ts"],
+			"@ginjou/with-vue-router": ["../../packages/with-vue-router/src/index.ts"],
+			"@ginjou/with-vue-i18n": ["../../packages/with-vue-i18n/src/index.ts"],
+			"@ginjou/with-rest-api": ["../../packages/with-rest-api/src/index.ts"]
 		}
 	}
 }

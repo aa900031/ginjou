@@ -1,0 +1,20 @@
+{
+	"extends": "@ginjou/tsconfig/base.json",
+	"references": [
+		{ "path": "../../packages/core/tsconfig.app.json" },
+		{ "path": "../../packages/vue/tsconfig.app.json" },
+		{ "path": "../../packages/with-vue-router/tsconfig.app.json" },
+		{ "path": "../../packages/with-vue-i18n/tsconfig.app.json" },
+		{ "path": "../../packages/with-rest-api/tsconfig.app.json" }
+	],
+	"include": [
+		"env.d.ts",
+		"src/**/*",
+		"src/**/*.vue",
+		".storybook/preview.ts"
+	],
+	"exclude": [
+		"src/**/*.test.ts",
+		"src/**/*.spec.ts"
+	]
+}

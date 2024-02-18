@@ -1,0 +1,8 @@
+{
+	"extends": "@ginjou/tsconfig/node.json",
+	"include": [
+		"unocss.config.ts",
+		".storybook/main.ts",
+		".storybook/vite.config.ts"
+	]
+}

@@ -1,0 +1,15 @@
+{
+	"extends": "@ginjou/tsconfig/base.json",
+	"references": [
+		{ "path": "../core/tsconfig.app.json" },
+		{ "path": "../vue/tsconfig.app.json" }
+	],
+	"include": [
+		"src/**/*.ts",
+		"src/**/*.d.ts"
+	],
+	"exclude": [
+		"src/**/*.test.ts",
+		"src/**/*.spec.ts"
+	]
+}

@@ -6,9 +6,12 @@
 	"author": "zhong666 <hi@zhong666.me>",
 	"license": "MIT",
 	"scripts": {
-		"build": "turbo run build",
+		"build:pkgs": "turbo run build --filter=./packages/*",
+		"build:sb-vue": "turbo run build --filter=@ginjou/storybook-vue",
+		"preview:sb-vue": "turbo run preview --filter=@ginjou/storybook-vue",
 		"test": "turbo run test",
 		"dev:test": "turbo run dev:test",
+		"dev:sb-vue": "turbo run dev --filter=@ginjou/storybook-vue",
 		"release": "turbo run release --concurrency=1",
 		"lint": "eslint . --cache --cache-location ./node_modules/.cache/eslint"
 	},
@@ -20,9 +23,17 @@
 		"eslint": "^8.52.0",
 		"happy-dom": "^11.2.0",
 		"release-it": "^16.2.1",
+		"sirv-cli": "^2.0.2",
 		"turbo": "^1.10.16",
 		"typescript": "^5.2.2",
 		"unbuild": "^2.0.0",
 		"vitest": "^0.34.6"
+	},
+	"pnpm": {
+		"overrides": {
+			"@tanstack/vue-query>vue-demi": "latest",
+			"mkdist>esbuild": "0.19.2",
+			"vite>esbuild": "0.19.2"
+		}
 	}
 }

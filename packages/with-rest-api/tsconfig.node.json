@@ -1,0 +1,7 @@
+{
+	"extends": "@ginjou/tsconfig/node.json",
+	"include": [
+		"build.config.ts",
+		"vitest.config.ts"
+	]
+}
