@@ -67,7 +67,7 @@ export function getPropCurrentPage(
 		prev,
 	}: GetPropCurrentPageProps,
 ): PaginationProp<number>['current'] {
-	return getPropValue({
+	return getSubValue({
 		path: 'current',
 		prop,
 		prev,
@@ -85,7 +85,7 @@ export function getPropPerPage(
 		prev,
 	}: GetPropPerPageProps,
 ): PaginationProp<number>['perPage'] {
-	return getPropValue({
+	return getSubValue({
 		path: 'perPage',
 		prop,
 		prev,
@@ -103,7 +103,7 @@ export function getPropPaginationMode(
 		prev,
 	}: GetPropPaginationModeProps,
 ): PaginationProp<any>['mode'] {
-	return getPropValue({
+	return getSubValue({
 		path: 'mode',
 		prop,
 		prev,
@@ -121,12 +121,11 @@ export function getPropFilters(
 		prev,
 	}: GetPropFiltersProps,
 ) {
-	return getPropValue({
+	return getSubValue({
 		path: 'value',
 		prop,
 		prev,
 		isValue: checkFiltersValue,
-		getFromProp: true,
 	})
 }
 
@@ -141,11 +140,10 @@ export function getPropFiltersPermanent(
 		prev,
 	}: GetPropFiltersPermanentProps,
 ): FiltersOptions['permanent'] {
-	return getPropValue({
+	return getSubValue({
 		path: 'permanent',
 		prop,
 		prev,
-		isValue: checkFiltersValue,
 	})
 }
 
@@ -160,11 +158,10 @@ export function getPropFiltersBehavior(
 		prev,
 	}: GetPropFiltersBehaviorProps,
 ): FiltersOptions['behavior'] {
-	return getPropValue({
+	return getSubValue({
 		path: 'behavior',
 		prop,
 		prev,
-		isValue: checkFiltersValue,
 	})
 }
 
@@ -179,11 +176,10 @@ export function getPropFiltersMode(
 		prev,
 	}: GetPropFiltersModeProps,
 ): FiltersOptions['mode'] {
-	return getPropValue({
+	return getSubValue({
 		path: 'mode',
 		prop,
 		prev,
-		isValue: checkFiltersValue,
 	})
 }
 
@@ -198,12 +194,11 @@ export function getPropSorters(
 		prev,
 	}: GetPropSortersProps,
 ) {
-	return getPropValue({
+	return getSubValue({
 		path: 'value',
 		prop,
 		prev,
 		isValue: checkSortersValue,
-		getFromProp: true,
 	})
 }
 
@@ -218,11 +213,10 @@ export function getPropSortersPermanent(
 		prev,
 	}: GetPropSortersPermanentProps,
 ): SortersOptions['permanent'] {
-	return getPropValue({
+	return getSubValue({
 		path: 'permanent',
 		prop,
 		prev,
-		isValue: checkSortersValue,
 	})
 }
 
@@ -237,11 +231,10 @@ export function getPropSortersMode(
 		prev,
 	}: GetPropSortersModeProps,
 ): SortersOptions['mode'] {
-	return getPropValue({
-		prop,
+	return getSubValue({
 		path: 'mode',
+		prop,
 		prev,
-		isValue: checkSortersValue,
 	})
 }
 
@@ -256,7 +249,7 @@ export function getResourceCurrentPage(
 		prev,
 	}: GetResourceCurrentPageProps,
 ): number | undefined {
-	return getPropValue({
+	return getSubValue({
 		path: 'params.pagination.current',
 		prop,
 		prev,
@@ -274,7 +267,7 @@ export function getResourcePerPage(
 		prev,
 	}: GetResourcePerPageProps,
 ): number | undefined {
-	return getPropValue({
+	return getSubValue({
 		path: 'params.pagination.perPage',
 		prop,
 		prev,
@@ -292,7 +285,7 @@ export function getResourceFilters(
 		prev,
 	}: GetResourceFiltersProps,
 ): Filters | undefined {
-	return getPropValue({
+	return getSubValue({
 		path: 'params.filters',
 		prop,
 		prev,
@@ -310,7 +303,7 @@ export function getResourceSorters(
 		prev,
 	}: GetResourceSortersProps,
 ): Sorters | undefined {
-	return getPropValue({
+	return getSubValue({
 		path: 'params.sorters',
 		prop,
 		prev,
@@ -715,45 +708,31 @@ export function resolveFilters(
 	}
 }
 
-function getValue<T>(
-	current: T | undefined,
-	prev?: T,
-): T | undefined {
-	if (prev != null) {
-		if (
-			current == null
-			|| isEqual(current, prev)
-		)
-			return prev
-	}
-	return current
-}
-
-function getPropValue<
+function getSubValue<
 	TProp,
 	TResult,
 >(
 	{
 		prop,
 		path,
-		isValue,
 		prev,
-		getFromProp,
+		isValue,
 	}: {
 		prop: TProp | undefined
 		path: string
-		isValue?: (prop: TProp) => boolean
 		prev?: TResult
-		getFromProp?: boolean
+		isValue?: (prop: TProp) => boolean
 	},
 ): TResult | undefined {
 	const current = prop == null
 		? undefined
 		: isValue?.(prop)
-			? (getFromProp === true ? prop : undefined)
+			? prop
 			: get(prop, path)
 
-	return getValue(current, prev)
+	return isEqual(current, prev)
+		? prev
+		: current
 }
 
 function checkFiltersValue(
