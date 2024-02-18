@@ -16,7 +16,10 @@
 		"dev:prepare": "run-p dev:prepare:*",
 		"dev:prepare:vue-3": "vue-demi-switch 3",
 		"dev:prepare:msw": "msw init ./public --save",
-		"build": "storybook build -o dist",
+		"build": "run-s buile:prepare build:sb",
+		"build:sb": "storybook build -o dist",
+		"buile:prepare": "run-p build:prepare:*",
+		"build:prepare:msw": "msw init ./public --save",
 		"preview": "sirv ./dist --host -p 7007"
 	},
 	"devDependencies": {
