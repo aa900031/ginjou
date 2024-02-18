@@ -1,7 +1,6 @@
 import type { Simplify } from 'type-fest'
 import type { Ref } from 'vue-demi'
-import { noop } from '@vueuse/shared'
-import { eventRef } from '@bouzu/vue-helper'
+import { ref } from 'vue-demi'
 import type { RouterLocation } from '@ginjou/core'
 import type { UseRouterContextFromProps } from './context'
 import { useRouterContext } from './context'
@@ -24,14 +23,9 @@ export function useLocation<
 ): UseLocationResult<TMeta> {
 	const router = useRouterContext<unknown, TMeta>(context)
 
-	const [result] = eventRef({
-		register: (handler) => {
-			if (!router)
-				return noop
-
-			return router.onChangeLocation!(handler)
-		},
-		get: () => router?.getLocation(),
+	const result = ref(router?.getLocation()) as Ref<RouterLocation<TMeta> | undefined>
+	router?.onChangeLocation((location) => {
+		result.value = location
 	})
 
 	return result
