@@ -18,6 +18,7 @@
 			"cache": false
 		},
 		"release": {
+			"dependsOn": ["^release"],
 			"cache": false
 		},
 		"preview": {

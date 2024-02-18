@@ -12,7 +12,7 @@
 		"test": "turbo run test",
 		"dev:test": "turbo run dev:test",
 		"dev:sb-vue": "turbo run dev --filter=@ginjou/storybook-vue",
-		"release": "turbo run release --concurrency=1",
+		"release:pkgs": "turbo run release --concurrency=1 --filter=./packages/*",
 		"lint": "eslint . --cache --cache-location ./node_modules/.cache/eslint"
 	},
 	"devDependencies": {
