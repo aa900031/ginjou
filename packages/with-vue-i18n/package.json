@@ -1,7 +1,7 @@
 {
 	"name": "@ginjou/with-vue-i18n",
 	"type": "module",
-	"version": "0.0.0",
+	"version": "0.1.0-beta.0",
 	"author": "zhong666 <hi@zhong666.me>",
 	"license": "MIT",
 	"repository": {
