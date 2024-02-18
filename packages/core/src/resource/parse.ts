@@ -1,4 +1,5 @@
 import type { Simplify } from 'type-fest'
+import { omit } from 'lodash-unified'
 import { parse as parseRegexparam } from 'regexparam'
 import type { ResourceActionTypeValues, ResourceDefinition } from '../resource'
 import type { Filters, Pagination, RecordKey, Sorters } from '../query'
@@ -180,7 +181,7 @@ function setCache(
 	location: RouterLocation,
 	parsed: ResourceParseResult,
 ) {
-	const hash = JSON.stringify(location)
+	const hash = JSON.stringify(omit(location, 'meta'))
 	const map = getLocationMap(resource)
 	map[hash] = parsed
 }
@@ -189,7 +190,7 @@ function getCache(
 	resource: ResourceDefinition,
 	location: RouterLocation,
 ): ResourceParseResult | undefined {
-	const hash = JSON.stringify(location)
+	const hash = JSON.stringify(omit(location, 'meta'))
 	return getLocationMap(resource)[hash] || undefined
 }
 
