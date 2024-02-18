@@ -22,6 +22,7 @@
 	"devDependencies": {
 		"@faker-js/faker": "^8.4.1",
 		"@ginjou/tsconfig": "workspace:*",
+		"@ginjou/core": "workspace:*",
 		"@ginjou/vue": "workspace:*",
 		"@ginjou/with-rest-api": "workspace:*",
 		"@ginjou/with-vue-i18n": "workspace:*",

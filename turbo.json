@@ -21,9 +21,10 @@
 			"cache": false
 		},
 		"preview": {
-			"cache": false
+			"dependsOn": ["build"]
 		},
 		"@ginjou/storybook-vue#build": {
+			"dependsOn": ["^build"],
 			"outputs": ["dist/**"]
 		}
 	}
