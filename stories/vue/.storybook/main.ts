@@ -1,8 +1,5 @@
 import '@storybook/types'
-import { mergeConfig } from 'vite'
-import type { UserConfigFn } from 'vite'
 import type { StorybookConfig } from '@storybook/vue3-vite'
-import ViteConfig from './vite.config'
 
 export default {
 	stories: [
@@ -20,14 +17,5 @@ export default {
 	},
 	docs: {
 		autodocs: 'tag',
-	},
-	viteFinal: async (config, opts) => {
-		return mergeConfig(
-			config,
-			await (ViteConfig as UserConfigFn)({
-				command: 'serve',
-				mode: opts.configType!.toLowerCase(),
-			}),
-		)
 	},
 } satisfies StorybookConfig

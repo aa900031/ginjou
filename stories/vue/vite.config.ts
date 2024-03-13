@@ -1,13 +1,15 @@
 import path from 'node:path'
 import { URL, fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
+import Vue from '@vitejs/plugin-vue'
 import Unocss from 'unocss/vite'
 
-const DIR_PKGS = fileURLToPath(new URL('../../../packages', import.meta.url))
+const DIR_PKGS = fileURLToPath(new URL('../../packages', import.meta.url))
 
 export default defineConfig(env => ({
 	plugins: [
 		Unocss(),
+		Vue(),
 	],
 	resolve: {
 		alias: env.mode !== 'production'

@@ -20,11 +20,7 @@ MOCK_POSTS.forEach(db.posts.create)
 export const Basic: StoryObj<typeof meta> = {
 	name: 'Basic',
 	render: () => () => h(RouterView),
-	loaders: [
-		createMsw(
-			toHandlers(db, 'posts', 'https://rest-api.local'),
-		),
-	],
+	loaders: [createMsw(toHandlers(db, 'posts', 'https://rest-api.local'))],
 	decorators: [
 		createWrapper({
 			resources: [

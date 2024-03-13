@@ -22,11 +22,7 @@ MOCK_POSTS.forEach(db.posts.create)
 export const Pagination: StoryObj<typeof meta> = {
 	name: 'Pagination',
 	render: () => () => h(RouterView),
-	loaders: [
-		createMsw(
-			toHandlers(db, 'posts', 'https://rest-api.local'),
-		),
-	],
+	loaders: [createMsw(toHandlers(db, 'posts', 'https://rest-api.local'))],
 	decorators: [
 		createWrapper({
 			resources: [
@@ -53,11 +49,7 @@ export const Pagination: StoryObj<typeof meta> = {
 export const Filters: StoryObj<typeof meta> = {
 	name: 'Filters',
 	render: () => () => h(RouterView),
-	loaders: [
-		createMsw(
-			toHandlers(db, 'posts', 'https://rest-api.local'),
-		),
-	],
+	loaders: [createMsw(toHandlers(db, 'posts', 'https://rest-api.local'))],
 	decorators: [
 		createWrapper({
 			resources: [
@@ -84,11 +76,7 @@ export const Filters: StoryObj<typeof meta> = {
 export const Sorters: StoryObj<typeof meta> = {
 	name: 'Sorters',
 	render: () => () => h(RouterView),
-	loaders: [
-		createMsw(
-			toHandlers(db, 'posts', 'https://rest-api.local'),
-		),
-	],
+	loaders: [createMsw(toHandlers(db, 'posts', 'https://rest-api.local'))],
 	decorators: [
 		createWrapper({
 			resources: [
