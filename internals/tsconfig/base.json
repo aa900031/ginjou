@@ -26,7 +26,8 @@
 			"@ginjou/vue": ["../../packages/vue/src/index.ts"],
 			"@ginjou/with-vue-router": ["../../packages/with-vue-router/src/index.ts"],
 			"@ginjou/with-vue-i18n": ["../../packages/with-vue-i18n/src/index.ts"],
-			"@ginjou/with-rest-api": ["../../packages/with-rest-api/src/index.ts"]
+			"@ginjou/with-rest-api": ["../../packages/with-rest-api/src/index.ts"],
+			"@ginjou/with-supabase": ["../../packages/with-supabase/src/index.ts"],
 		}
 	}
 }
