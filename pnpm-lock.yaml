@@ -147,6 +147,9 @@ importers:
       '@directus/sdk':
         specifier: ^15.0.0
         version: 15.1.0
+      '@ginjou/core':
+        specifier: workspace:^
+        version: link:../core
       '@ginjou/release-it-config':
         specifier: workspace:*
         version: link:../../internals/release-it-config
@@ -172,6 +175,9 @@ importers:
 
   packages/with-supabase:
     devDependencies:
+      '@ginjou/core':
+        specifier: workspace:^
+        version: link:../core
       '@ginjou/release-it-config':
         specifier: workspace:*
         version: link:../../internals/release-it-config
@@ -235,7 +241,7 @@ importers:
         specifier: ^8.4.1
         version: 8.4.1
       '@ginjou/core':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packages/core
       '@ginjou/tsconfig':
         specifier: workspace:*
@@ -807,6 +813,7 @@ packages:
   /@babel/highlight@7.24.2:
     resolution: {integrity: sha512-Yac1ao4flkTxTteCDZLEvdxg2fZfz1v8M4QpaGypq/WPDqg3ijHYbDfs+LG5hvzSoqaSZ9/Z9lKSP3CjZjv+pA==}
     engines: {node: '>=6.9.0'}
+    requiresBuild: true
     dependencies:
       '@babel/helper-validator-identifier': 7.22.20
       chalk: 2.4.2

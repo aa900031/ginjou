@@ -38,12 +38,13 @@
 		"release": "release-it --ci"
 	},
 	"peerDependencies": {
-		"@ginjou/core": "workspace:*",
+		"@ginjou/core": "workspace:^",
 		"@supabase/supabase-js": "^2.7.0"
 	},
 	"devDependencies": {
 		"@ginjou/release-it-config": "workspace:*",
 		"@ginjou/tsconfig": "workspace:*",
+		"@ginjou/core": "workspace:^",
 		"@supabase/supabase-js": "^2.7.0"
 	}
 }
