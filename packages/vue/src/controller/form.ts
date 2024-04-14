@@ -1,6 +1,10 @@
+import type { Ref } from 'vue-demi'
 import { computed, unref } from 'vue-demi'
 import { type BaseRecord, Form } from '@ginjou/core'
+import type { Simplify } from 'type-fest'
+import type { UseCreateContext, UseGetOneContext, UseUpdateContext } from '../query'
 import { useCreate, useGetOne, useUpdate } from '../query'
+import type { UseResourceContext } from '../resource'
 import { useResource } from '../resource'
 import type { ToMaybeRefs } from '../utils/refs'
 import { unrefs } from '../utils/unrefs'
@@ -16,6 +20,25 @@ export type UseFormProps<
 	Form.Props<TQueryData, TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError>
 >
 
+export type UseFormContext = Simplify<
+	& UseResourceContext
+	& UseGetOneContext
+	& UseCreateContext
+	& UseUpdateContext
+>
+
+export type UseFormResult<
+	TMutationParams,
+	TQueryResultData extends BaseRecord,
+	TMutationData extends BaseRecord,
+> = Simplify<
+	& {
+		record: Ref<TQueryResultData | undefined>
+		isLoading: Ref<boolean>
+		save: Form.SaveFn<TMutationParams, TMutationData>
+	}
+>
+
 export function useForm<
 	TQueryData extends BaseRecord = BaseRecord,
 	TMutationParams = unknown,
@@ -25,9 +48,9 @@ export function useForm<
 	TMutationError = unknown,
 >(
 	props?: UseFormProps<TQueryData, TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError>,
-	// TODO: context
-) { // TODO: result
-	const resource = useResource({ name: props?.resource })
+	context?: UseFormContext,
+): UseFormResult<TMutationParams, TQueryResultData, TMutationData> {
+	const resource = useResource({ name: props?.resource }, context)
 	const resolvedProps = computed(() => Form.resolveProps<TQueryData, TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError>({
 		// eslint-disable-next-line ts/ban-ts-comment
 		// @ts-expect-error
@@ -60,19 +83,19 @@ export function useForm<
 			if ('queryMeta' in _props)
 				return _props.queryMeta
 		}),
-	})
+	}, context)
 
 	const mutationCreateResult = useCreate<TMutationData, TMutationError, TMutationParams>({
 		// eslint-disable-next-line ts/ban-ts-comment
 		// @ts-expect-error
 		mutationOptions: props?.mutationOptions,
-	})
+	}, context)
 
 	const mutationUpdateResult = useUpdate<TMutationData, TMutationError, TMutationParams>({
 		// eslint-disable-next-line ts/ban-ts-comment
 		// @ts-expect-error
 		mutationOptions: props?.mutationOptions,
-	})
+	}, context)
 
 	const isLoading = computed(() => Form.getIsLoading({
 		action: unref(resolvedProps).action,
@@ -87,13 +110,13 @@ export function useForm<
 		mutateFnForUpdate: mutationUpdateResult.mutateAsync,
 	})
 
-	// TODO: return record
+	const record = computed(() => Form.getRecord<TQueryResultData>({
+		resolvedProps: unref(resolvedProps),
+		queryResultData: unref(queryResult.data),
+	}))
+
 	return {
-		record: computed(() => {
-			if (unref(resource)?.action !== 'edit')
-				return
-			return unref(queryResult.data)?.data
-		}),
+		record,
 		isLoading,
 		save,
 	}

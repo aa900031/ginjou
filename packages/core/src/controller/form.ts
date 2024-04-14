@@ -1,5 +1,5 @@
 import type { SetOptional, SetRequired } from 'type-fest'
-import type { BaseRecord, CreateResult, Meta, UpdateResult } from '../query'
+import type { BaseRecord, CreateResult, GetOneResult, Meta, UpdateResult } from '../query'
 import { getFetcherName } from '../query'
 import type { MutateFn as CreateMutateFn, MutationOptionsFromProps as CreateMutationOptionsFromProps, MutationProps as CreateMutationProps } from '../query/create'
 import type { MutateFn as UpdateMutateFn, MutationOptionsFromProps as UpdateMutationOptionsFromProps, MutationProps as UpdateMutationProps } from '../query/update'
@@ -252,4 +252,25 @@ export function createSaveFn<
 				throw new Error('No')
 		}
 	}
+}
+
+export interface GetRecordParams<
+	TQueryResultData extends BaseRecord,
+> {
+	resolvedProps: ResolvedProps<any, any, any, TQueryResultData, any, any>
+	queryResultData: GetOneResult<TQueryResultData> | undefined
+}
+
+export function getRecord<
+	TQueryResultData extends BaseRecord,
+>(
+	{
+		resolvedProps,
+		queryResultData,
+	}: GetRecordParams<TQueryResultData>,
+): TQueryResultData | undefined {
+	if (resolvedProps.action !== 'edit')
+		return
+
+	return queryResultData?.data
 }
