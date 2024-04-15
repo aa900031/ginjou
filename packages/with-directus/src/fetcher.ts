@@ -28,9 +28,9 @@ export function createFetcher<
 		getList: async ({ resource, pagination, filters, sorters, meta }) => {
 			const query = {
 				...(meta as FetcherMeta)?.query,
-				meta: (meta as FetcherMeta).query?.meta ?? '*',
-				page: (meta as FetcherMeta).query?.page ?? pagination.current,
-				limit: (meta as FetcherMeta).query?.limit ?? pagination.perPage,
+				meta: (meta as FetcherMeta)?.query?.meta ?? '*',
+				page: (meta as FetcherMeta)?.query?.page ?? pagination.current,
+				limit: (meta as FetcherMeta)?.query?.limit ?? pagination.perPage,
 				fields: (meta as FetcherMeta)?.query?.fields ?? ['*'],
 				...(filters ? genFilters(filters, meta) : undefined),
 				...(sorters ? genSorters(sorters) : undefined),
@@ -63,7 +63,7 @@ export function createFetcher<
 			}
 		},
 		create: async ({ resource, params, meta }) => {
-			const query = (meta as FetcherMeta).query
+			const query = (meta as FetcherMeta)?.query
 			const item = params as any
 
 			const fn = getProtectedFunction(resource, 'create')
@@ -74,7 +74,7 @@ export function createFetcher<
 			}
 		},
 		update: async ({ resource, id, params, meta }) => {
-			const query = (meta as FetcherMeta).query
+			const query = (meta as FetcherMeta)?.query
 			const item = params as any
 
 			const fn = getProtectedFunction(resource, 'update')
