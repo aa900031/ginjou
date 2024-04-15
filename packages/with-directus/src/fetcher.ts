@@ -27,7 +27,7 @@ export function createFetcher<
 	return {
 		getList: async ({ resource, pagination, filters, sorters, meta }) => {
 			const query = {
-				...(meta as FetcherMeta).query,
+				...(meta as FetcherMeta)?.query,
 				meta: (meta as FetcherMeta).query?.meta ?? '*',
 				page: (meta as FetcherMeta).query?.page ?? pagination.current,
 				limit: (meta as FetcherMeta).query?.limit ?? pagination.perPage,
@@ -40,16 +40,15 @@ export function createFetcher<
 			const data = await client.request(fn ? fn(query) : sdk.readItems(resource, query))
 
 			const aggregateOptions = {
-				query: {
-					...query,
-					page: undefined,
-				},
+				query: { ...query },
 				aggregate: meta?.aggregate ?? { countDistinct: 'id' },
 			}
+			delete aggregateOptions.query.page
+
 			const aggregate = await client.request(sdk.aggregate(resource, aggregateOptions))
 
 			return {
-				data: data as any,
+				data: data && !Array.isArray(data) ? [data] : data as any,
 				total: (aggregate[0] as any)?.countDistinct[(aggregateOptions.aggregate as any)?.countDistinct ?? 'id'] ?? 0 as number,
 			}
 		},
