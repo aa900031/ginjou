@@ -123,7 +123,10 @@ export function resolveProps<
 	}: ResolvePropsParams<TQueryData, TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError>,
 ): ResolvedProps<TQueryData, TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError> {
 	const action = props.action ?? resource?.action
-	const resourceName = getResourceIdentifier({ resource }) ?? '' // TODO: // maybe use undeined?
+	const resourceName = getResourceIdentifier({
+		resource,
+		resourceFromProp: props.resource,
+	}) ?? '' // TODO: // maybe use undeined?
 	const fetcherName = getFetcherName({ resource, fetcherNameFromProp: props.fetcherName })
 	switch (action) {
 		case 'edit': {

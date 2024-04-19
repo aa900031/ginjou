@@ -50,6 +50,7 @@ export function useSelect<
 
 	const resourceName = computed(() => getResourceIdentifier({
 		resource: unref(resource),
+		resourceFromProp: unref(props?.resource),
 	}))
 	const fetcherName = computed(() => getFetcherName({
 		resource: unref(resource),
