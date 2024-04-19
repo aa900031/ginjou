@@ -39,9 +39,9 @@ export function createMutationFn<
 	}: CreateMutationFnProps,
 ): NonNullable<MutationOptions<TParams, TError>['mutationFn']> {
 	return async function mutationFn(params) {
-		const { checkError } = auth ?? {}
+		const checkError = auth?.checkError
 		if (typeof checkError !== 'function')
-			throw new Error('no')
+			return {}
 
 		const result = await checkError(params)
 		return result
