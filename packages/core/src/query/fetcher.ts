@@ -29,10 +29,6 @@ export interface Pagination<
 	perPage: number
 }
 
-export type PaginationPayload<
-	TPageParam = number,
-> = Partial<Pagination<TPageParam>>
-
 export const FilterOperator = {
 	eq: 'eq',
 	ne: 'ne',
@@ -295,7 +291,7 @@ export interface GetListProps<
 	TPageParam = number,
 > {
 	resource: string
-	pagination: Pagination<TPageParam>
+	pagination?: Pagination<TPageParam>
 	sorters?: Sorters
 	filters?: Filters
 	meta?: Meta

@@ -7,7 +7,7 @@ import type { CheckError } from '../auth'
 import { getErrorMessage } from '../utils/error'
 import { getFetcher, resolveFetcherProps } from './fetchers'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
-import type { BaseRecord, GetListProps, GetListResult, GetOneResult, Pagination, PaginationPayload } from './fetcher'
+import type { BaseRecord, GetListProps, GetListResult, GetOneResult } from './fetcher'
 import { createQueryKey as createGetOneQueryKey } from './get-one'
 import type { NotifyProps } from './notify'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
@@ -26,14 +26,8 @@ export type QueryOptions<
 export type QueryProps<
 	TPageParam,
 > = Simplify<
-	& Omit<
-			SetOptional<GetListProps<TPageParam>, 'resource'>,
-			| 'pagination'
-		>
+	& SetOptional<GetListProps<TPageParam>, 'resource'>
 	& FetcherProps
-	& {
-		pagination?: PaginationPayload<TPageParam>
-	}
 >
 
 export type ResolvedQueryProps<
@@ -43,11 +37,6 @@ export type ResolvedQueryProps<
 	& ResolvedFetcherProps
 >
 
-const DEFAULT_PAGINATION: Pagination<number> = {
-	current: 1,
-	perPage: 10,
-}
-
 export function resolveQueryProps<
 	TPageParam,
 >(
@@ -56,10 +45,7 @@ export function resolveQueryProps<
 	return {
 		...resolveFetcherProps(props),
 		resource: props.resource ?? '',
-		pagination: {
-			current: props.pagination?.current ?? DEFAULT_PAGINATION.current,
-			perPage: props.pagination?.perPage ?? DEFAULT_PAGINATION.perPage,
-		} as Pagination<TPageParam>,
+		pagination: props.pagination ?? undefined,
 		sorters: props.sorters ?? undefined,
 		filters: props.filters ?? undefined,
 		meta: props.meta,

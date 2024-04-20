@@ -68,14 +68,19 @@ export function createQueryFn<
 		const result = await fetcher.getList<TData, TPageParam>({
 			...props,
 			pagination: resolvedPagination,
-		}).then(r => ({
-			...r,
-			pagination: resolvedPagination,
-		}) as GetInfiniteListResult<TData, TPageParam>)
+		})
+		const resolved: GetInfiniteListResult<TData, TPageParam> = {
+			...result,
+			pagination: (
+				'cursor' in result || 'pagination' in result
+					? result.pagination
+					: undefined
+			) ?? resolvedPagination,
+		}
 
-		updateCache(queryClient, props, result)
+		updateCache(queryClient, props, resolved)
 
-		return result
+		return resolved
 	}
 }
 
@@ -197,10 +202,15 @@ function resolvePagination<
 >(
 	context: QueryFunctionContext<QueryKey, TPageParam>,
 	pagination: ResolvedQueryProps<TPageParam>['pagination'],
-): Pagination<TPageParam> {
+): Pagination<TPageParam> | undefined {
+	const current = context.pageParam ?? pagination?.current
+	const perPage = pagination?.perPage
+	if (current == null || perPage == null)
+		return
+
 	return {
-		current: context.pageParam ?? pagination.current,
-		perPage: pagination.perPage,
+		current,
+		perPage,
 	}
 }
 

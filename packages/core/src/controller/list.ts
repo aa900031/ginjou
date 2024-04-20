@@ -2,14 +2,12 @@ import type { Simplify, ValueOf } from 'type-fest'
 import { get, isEqual, unionWith } from 'lodash-unified'
 import type { RouterGoParams } from '../router'
 import { RouterGoType } from '../router'
-import type { BaseRecord, Filter, Filters, GetList, GetListResult, Pagination, PaginationPayload, Sort, Sorters } from '../query'
+import type { BaseRecord, Filter, Filters, GetList, GetListResult, Pagination, Sort, Sorters } from '../query'
 import { FilterOperator } from '../query'
 import type { ResolvedResource } from '../resource'
 
-export type PaginationProp<
-	TPageParam,
-> = Simplify<
-	& PaginationPayload<TPageParam>
+export type PaginationProp = Simplify<
+	& Partial<Pagination<number>>
 	& {
 		mode?: 'client' | 'server' | 'off'
 	}
@@ -49,7 +47,7 @@ export type Props<
 			| 'syncRoute'
 		>
 	& {
-		pagination?: PaginationProp<number>
+		pagination?: PaginationProp
 		sorters?: SortersProp
 		filters?: FiltersProp
 		syncRoute?: boolean
@@ -57,8 +55,8 @@ export type Props<
 >
 
 export interface GetPropCurrentPageProps {
-	prop: PaginationProp<number> | undefined
-	prev?: PaginationProp<number>['current']
+	prop: PaginationProp | undefined
+	prev?: PaginationProp['current']
 }
 
 export function getPropCurrentPage(
@@ -66,7 +64,7 @@ export function getPropCurrentPage(
 		prop,
 		prev,
 	}: GetPropCurrentPageProps,
-): PaginationProp<number>['current'] {
+): PaginationProp['current'] {
 	return getSubValue({
 		path: 'current',
 		prop,
@@ -75,8 +73,8 @@ export function getPropCurrentPage(
 }
 
 export interface GetPropPerPageProps {
-	prop: PaginationProp<number> | undefined
-	prev?: PaginationProp<number>['perPage']
+	prop: PaginationProp | undefined
+	prev?: PaginationProp['perPage']
 }
 
 export function getPropPerPage(
@@ -84,7 +82,7 @@ export function getPropPerPage(
 		prop,
 		prev,
 	}: GetPropPerPageProps,
-): PaginationProp<number>['perPage'] {
+): PaginationProp['perPage'] {
 	return getSubValue({
 		path: 'perPage',
 		prop,
@@ -93,8 +91,8 @@ export function getPropPerPage(
 }
 
 export interface GetPropPaginationModeProps {
-	prop: PaginationProp<any> | undefined
-	prev?: PaginationProp<any>['mode']
+	prop: PaginationProp | undefined
+	prev?: PaginationProp['mode']
 }
 
 export function getPropPaginationMode(
@@ -102,7 +100,7 @@ export function getPropPaginationMode(
 		prop,
 		prev,
 	}: GetPropPaginationModeProps,
-): PaginationProp<any>['mode'] {
+): PaginationProp['mode'] {
 	return getSubValue({
 		path: 'mode',
 		prop,
@@ -240,7 +238,7 @@ export function getPropSortersMode(
 
 export interface GetResourceCurrentPageProps {
 	prop: ResolvedResource | undefined
-	prev?: Pagination<number>['current']
+	prev?: Pagination['current']
 }
 
 export function getResourceCurrentPage(
@@ -311,8 +309,8 @@ export function getResourceSorters(
 }
 
 export interface GetCurrentPageProps {
-	currentPageFromProp: PaginationProp<number>['current'] | undefined
-	currentPageFromResource: PaginationProp<number>['current'] | undefined
+	currentPageFromProp: PaginationProp['current'] | undefined
+	currentPageFromResource: PaginationProp['current'] | undefined
 	syncRouteFromProp: boolean | undefined
 }
 
@@ -335,8 +333,8 @@ export function getCurrentPage(
 }
 
 export interface GetPerPageProps {
-	perPageFromProp: PaginationProp<number>['perPage'] | undefined
-	perPageFromResource: PaginationProp<number>['perPage'] | undefined
+	perPageFromProp: PaginationProp['perPage'] | undefined
+	perPageFromResource: PaginationProp['perPage'] | undefined
 	syncRouteFromProp: boolean | undefined
 }
 
@@ -482,7 +480,7 @@ export function createSetSortersFn(
 }
 
 export interface GetPaginationForQueryProps {
-	paginationModeFromProp: PaginationProp<number>['mode']
+	paginationModeFromProp: PaginationProp['mode']
 	currentPage: number
 	perPage: number
 }

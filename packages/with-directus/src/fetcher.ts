@@ -29,8 +29,8 @@ export function createFetcher<
 			const query = {
 				...(meta as FetcherMeta)?.query,
 				meta: (meta as FetcherMeta)?.query?.meta ?? '*',
-				page: (meta as FetcherMeta)?.query?.page ?? pagination.current,
-				limit: (meta as FetcherMeta)?.query?.limit ?? pagination.perPage,
+				page: (meta as FetcherMeta)?.query?.page ?? pagination?.current,
+				limit: (meta as FetcherMeta)?.query?.limit ?? pagination?.perPage,
 				fields: (meta as FetcherMeta)?.query?.fields ?? ['*'],
 				...(filters ? genFilters(filters, meta) : undefined),
 				...(sorters ? genSorters(sorters) : undefined),
