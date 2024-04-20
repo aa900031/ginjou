@@ -1,3 +1,4 @@
+import { dset } from 'dset'
 import { camelCase } from 'scule'
 import { plural as toPlural, singular as toSingular } from 'pluralize'
 import type { DirectusClient, RestClient } from '@directus/sdk'
@@ -233,11 +234,12 @@ function genLogicalFilter(
 	if (!clientOperator)
 		return
 
-	return {
-		[field]: {
-			[clientOperator]: value,
-		},
-	}
+	const result = {}
+	dset(result, field, {
+		[clientOperator]: value,
+	})
+
+	return result
 }
 
 function genConditionalFilter(
