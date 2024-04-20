@@ -648,6 +648,54 @@ export function resolveSorters(
 	}
 }
 
+export interface GetDataProps<
+	TResultData extends BaseRecord,
+> {
+	paginationModeFromProp: PaginationProp['mode']
+	currentPage: number | undefined
+	perPage: number | undefined
+	queryData: GetListResult<TResultData, number> | undefined
+}
+
+export function getData<
+	TResultData extends BaseRecord,
+>(
+	{
+		paginationModeFromProp,
+		currentPage,
+		perPage,
+		queryData,
+	}: GetDataProps<TResultData>,
+): GetListResult<TResultData, number>['data'] | undefined {
+	if (
+		paginationModeFromProp !== 'client'
+		|| currentPage == null
+		|| perPage == null
+	)
+		return queryData?.data
+
+	return queryData?.data.slice(
+		(currentPage - 1) * perPage,
+		currentPage * perPage,
+	)
+}
+
+export interface GetTotalProps<
+	TResultData extends BaseRecord,
+> {
+	queryData: GetListResult<TResultData, number> | undefined
+}
+
+export function getTotal<
+	TResultData extends BaseRecord,
+>(
+	{
+		queryData,
+	}: GetTotalProps<TResultData>,
+): number | undefined {
+	return queryData?.total
+}
+
 function compareFilter(
 	left: Filter,
 	right: Filter,

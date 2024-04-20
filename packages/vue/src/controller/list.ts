@@ -32,7 +32,10 @@ export type UseListResult<
 	TError,
 	TResultData extends BaseRecord,
 > = Simplify<
-	& UseGetListResult<TError, TResultData, number>
+	& Omit<
+			UseGetListResult<TError, TResultData, number>,
+			| 'data'
+		>
 	& {
 		currentPage: Ref<number>
 		perPage: Ref<number>
@@ -41,6 +44,7 @@ export type UseListResult<
 		filters: Ref<Filters>
 		setFilters: List.SetFiltersFn
 
+		data: Ref<TResultData[] | undefined>
 		total: Ref<number | undefined>
 		pageCount: Ref<number | undefined>
 	}
@@ -192,7 +196,16 @@ export function useList<
 		perPage: unref(perPage),
 	}))
 
-	const total = computed(() => unref(listResult.data)?.total)
+	const data = computed(() => List.getData<TResultData>({
+		paginationModeFromProp: unref(paginationModeProp),
+		currentPage: unref(currentPage),
+		perPage: unref(perPage),
+		queryData: unref(listResult.data),
+	}))
+
+	const total = computed(() => List.getTotal({
+		queryData: unref(listResult.data),
+	}))
 
 	watchDebounced(() => ({
 		syncRouteFromProp: unref(props?.syncRoute),
@@ -242,6 +255,7 @@ export function useList<
 		}),
 		setFilters,
 
+		data,
 		total,
 		pageCount,
 	}
