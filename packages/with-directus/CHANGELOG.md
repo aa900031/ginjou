@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.4
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/with-directus@0.1.0-beta.3...@ginjou/with-directus@0.1.0-beta.4)
+
+### 🚀 Enhancements
+
+-  **directus:** Auto remove undefined value in the query ([c08c67a](https://github.com/aa900031/ginjou/commit/c08c67abb361a660f38f5154c1259a5ec4e92592))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.3
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/with-directus@0.1.0-beta.2...@ginjou/with-directus@0.1.0-beta.3)
