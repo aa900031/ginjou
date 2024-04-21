@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.3
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/with-directus@0.1.0-beta.2...@ginjou/with-directus@0.1.0-beta.3)
+
+### 🚀 Enhancements
+
+-  **directus:** Filter support nested field ([acaec6f](https://github.com/aa900031/ginjou/commit/acaec6fa6ac5b69db3edfcd8d3309f3ab39130ee))
+-  Feat!(core): not use pagination to query ([c18f166](https://github.com/aa900031/ginjou/commit/c18f1664d96e23a970dcd1209bbf92e505e82c94))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.2
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/with-directus@0.1.0-beta.1...@ginjou/with-directus@0.1.0-beta.2)
