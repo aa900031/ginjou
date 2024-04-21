@@ -1,3 +1,4 @@
+import cleanDeep from 'clean-deep'
 import { dset } from 'dset'
 import { camelCase } from 'scule'
 import { plural as toPlural, singular as toSingular } from 'pluralize'
@@ -27,7 +28,7 @@ export function createFetcher<
 ): Fetcher {
 	return {
 		getList: async ({ resource, pagination, filters, sorters, meta }) => {
-			const query = {
+			const query = cleanDeep({
 				...(meta as FetcherMeta)?.query,
 				meta: (meta as FetcherMeta)?.query?.meta ?? '*',
 				page: (meta as FetcherMeta)?.query?.page ?? pagination?.current,
@@ -35,7 +36,7 @@ export function createFetcher<
 				fields: (meta as FetcherMeta)?.query?.fields ?? ['*'],
 				...(filters ? genFilters(filters, meta) : undefined),
 				...(sorters ? genSorters(sorters) : undefined),
-			}
+			})
 
 			const fn = getProtectedFunction(resource, 'read')
 			const data = await client.request(fn ? fn(query) : sdk.readItems(resource, query))
@@ -54,7 +55,9 @@ export function createFetcher<
 			}
 		},
 		getOne: async ({ resource, id, meta }) => {
-			const query = (meta as FetcherMeta)?.query
+			const query = cleanDeep({
+				...(meta as FetcherMeta)?.query,
+			})
 
 			const fn = getProtectedFunction(resource, 'read')
 			const data = await client.request(fn ? fn(id, query) : sdk.readItem(resource, id, query))
@@ -64,7 +67,9 @@ export function createFetcher<
 			}
 		},
 		create: async ({ resource, params, meta }) => {
-			const query = (meta as FetcherMeta)?.query
+			const query = cleanDeep({
+				...(meta as FetcherMeta)?.query,
+			})
 			const item = params as any
 
 			const fn = getProtectedFunction(resource, 'create')
@@ -75,7 +80,9 @@ export function createFetcher<
 			}
 		},
 		update: async ({ resource, id, params, meta }) => {
-			const query = (meta as FetcherMeta)?.query
+			const query = cleanDeep({
+				...(meta as FetcherMeta)?.query,
+			})
 			const item = params as any
 
 			const fn = getProtectedFunction(resource, 'update')
