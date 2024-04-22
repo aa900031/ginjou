@@ -4,24 +4,19 @@ import { useSelect } from '@ginjou/vue'
 import type { Post } from './api/posts'
 
 const value = ref<string>()
-const keyword = ref<string>()
 
 const {
 	options,
-	setSearch,
+	search,
 } = useSelect<Post>({
 	resource: 'posts',
 	value,
-})
-
-watch(keyword, (val) => {
-	setSearch(val)
 })
 </script>
 
 <template>
 	<input
-		v-model="keyword"
+		v-model="search"
 		placeholder="Keyword for option list"
 	>
 	<select v-model="value">

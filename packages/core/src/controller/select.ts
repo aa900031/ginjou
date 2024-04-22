@@ -79,53 +79,41 @@ export type SetSearchFn<
 	value: TSearchValue | undefined
 ) => void
 
-export interface CreateSetSearchFnProps<
+export interface GetListFiltersProps<
 	TSearchValue,
 > {
-	getLabelKey: () => string | undefined
-	getSearchToFilters: () => SearchToFiltersFn<TSearchValue> | undefined
-	update: (value: Filters | undefined) => void
+	filterFormProp: Filters | undefined
+	searchValue: TSearchValue | undefined
+	labelKey: string | undefined
+	searchToFilters: SearchToFiltersFn<TSearchValue> | undefined
 }
 
-export function createSetSearchFn<
+export function getListFilters<
 	TSearchValue,
 >(
 	{
-		getLabelKey,
-		getSearchToFilters,
-		update,
-	}: CreateSetSearchFnProps<TSearchValue>,
-): SetSearchFn<TSearchValue> {
-	return function setSearch(value) {
-		const searchToFilters = getSearchToFilters()
-		const nextValue = typeof searchToFilters === 'function'
-			? searchToFilters(value)
-			: value != null
-				? [
-						{
-							field: `${getLabelKey() ?? 'title'}`,
-							operator: FilterOperator.contains,
-							value,
-						},
-					]
-				: undefined
-
-		update(nextValue)
-	}
-}
-
-export interface GetListFiltersProps {
-	filterFormProp: Filters | undefined
-	searchFilters: Filters | undefined
-}
-
-export function getListFilters(
-	{
 		filterFormProp,
-		searchFilters,
-	}: GetListFiltersProps,
+		searchValue,
+		labelKey,
+		searchToFilters,
+	}: GetListFiltersProps<TSearchValue>,
 ): Filters | undefined {
-	return resolveFilters(searchFilters ?? [], filterFormProp)
+	const searchFilters = typeof searchToFilters === 'function'
+		? searchToFilters(searchValue)
+		: searchValue !== null
+			? [
+					{
+						field: `${labelKey ?? 'title'}`,
+						operator: FilterOperator.contains,
+						value: searchValue,
+					},
+				]
+			: undefined
+
+	return resolveFilters(
+		searchFilters ?? [],
+		filterFormProp,
+	)
 }
 
 export interface GetValueIdsProps {
