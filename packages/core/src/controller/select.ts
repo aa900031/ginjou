@@ -1,7 +1,8 @@
 import { get, unionBy } from 'lodash-unified'
 import type { Simplify } from 'type-fest'
-import type { BaseRecord, Filters, GetList, GetListResult, GetMany, GetManyResult } from '../query'
+import type { BaseRecord, Filters, GetList, GetListResult, GetMany, GetManyResult, Pagination } from '../query'
 import { FilterOperator } from '../query'
+import { getSubValue } from '../utils/sub-value'
 import { resolveFilters } from './list'
 
 export type Props<
@@ -132,4 +133,70 @@ export function getValueIds(
 		return valueFormProp
 
 	return [valueFormProp]
+}
+
+export interface GetPropCurrentPageProps<
+	TPageParam,
+> {
+	prop: Pagination<TPageParam> | undefined
+	prev?: Pagination<TPageParam>['current'] | undefined
+}
+
+export function getPropCurrentPage<
+	TPageParam,
+>(
+	{
+		prop,
+		prev,
+	}: GetPropCurrentPageProps<TPageParam>,
+): Pagination<TPageParam>['current'] | undefined {
+	return getSubValue({
+		path: 'current',
+		prop,
+		prev,
+	})
+}
+
+export interface GetPropPerPageProps<
+	TPageParam,
+> {
+	prop: Pagination<TPageParam> | undefined
+	prev?: Pagination<TPageParam>['perPage'] | undefined
+}
+
+export function getPropPerPage<
+	TPageParam,
+>(
+	{
+		prop,
+		prev,
+	}: GetPropPerPageProps<TPageParam>,
+): Pagination<TPageParam>['perPage'] | undefined {
+	return getSubValue({
+		path: 'perPage',
+		prop,
+		prev,
+	})
+}
+
+export interface GetPaginationProps<TPageParam> {
+	currentPage: Pagination<TPageParam>['current'] | undefined
+	perPage: Pagination<TPageParam>['perPage'] | undefined
+}
+
+export function getPagination<
+	TPageParam,
+>(
+	{
+		currentPage,
+		perPage,
+	}: GetPaginationProps<TPageParam>,
+): Pagination<TPageParam> | undefined {
+	if (currentPage == null || perPage == null)
+		return
+
+	return {
+		current: currentPage,
+		perPage,
+	}
 }

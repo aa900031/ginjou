@@ -1,10 +1,11 @@
 import type { Simplify, ValueOf } from 'type-fest'
-import { get, isEqual, unionWith } from 'lodash-unified'
+import { isEqual, unionWith } from 'lodash-unified'
 import type { RouterGoParams } from '../router'
 import { RouterGoType } from '../router'
 import type { BaseRecord, Filter, Filters, GetList, GetListResult, Pagination, Sort, Sorters } from '../query'
 import { FilterOperator } from '../query'
 import type { ResolvedResource } from '../resource'
+import { getSubValue } from '../utils/sub-value'
 
 export type PaginationProp = Simplify<
 	& Partial<Pagination<number>>
@@ -752,33 +753,6 @@ export function resolveFilters(
 		return unionWith(permanent, value, prev, compareFilter)
 			.filter(filterFilter)
 	}
-}
-
-function getSubValue<
-	TProp,
-	TResult,
->(
-	{
-		prop,
-		path,
-		prev,
-		isValue,
-	}: {
-		prop: TProp | undefined
-		path: string
-		prev?: TResult
-		isValue?: (prop: TProp) => boolean
-	},
-): TResult | undefined {
-	const current = prop == null
-		? undefined
-		: isValue?.(prop)
-			? prop
-			: get(prop, path)
-
-	return isEqual(current, prev)
-		? prev
-		: current
 }
 
 function checkFiltersValue(

@@ -1,13 +1,14 @@
 import type { Simplify } from 'type-fest'
 import type { ComputedRef, Ref } from 'vue-demi'
 import { computed, ref, unref } from 'vue-demi'
-import type { BaseRecord } from '@ginjou/core'
+import type { BaseRecord, Pagination } from '@ginjou/core'
 import { Select, getFetcherName, getResourceIdentifier } from '@ginjou/core'
 import type { UseGetListContext, UseGetListResult, UseGetManyContext } from '../query'
 import { useGetList, useGetMany } from '../query'
 import type { UseResourceContext } from '../resource'
 import { useResource } from '../resource'
 import type { ToMaybeRefs } from '../utils/refs'
+import { refSub } from '../utils/ref-sub'
 
 export type UseSelectProps<
 	TData extends BaseRecord,
@@ -33,6 +34,8 @@ export type UseSelectResult<
 	& {
 		options: ComputedRef<Select.OptionItem[] | undefined>
 		search: Ref<string | undefined> // TODO: TSearchValue from generic
+		currentPage: Ref<TPageParam | undefined>
+		perPage: Ref<number | undefined>
 	}
 >
 
@@ -47,6 +50,14 @@ export function useSelect<
 ): UseSelectResult<TError, TResultData, TPageParam> {
 	const resource = useResource({ name: props?.resource }, context)
 	const search = ref<string | undefined>()
+	const currentPage = refSub<TPageParam | undefined, Pagination<TPageParam> | undefined>(
+		props?.pagination,
+		Select.getPropCurrentPage,
+	)
+	const perPage = refSub<number | undefined, Pagination<TPageParam> | undefined>(
+		props?.pagination,
+		Select.getPropPerPage,
+	)
 
 	const resourceName = computed(() => getResourceIdentifier({
 		resource: unref(resource),
@@ -62,6 +73,10 @@ export function useSelect<
 		labelKey: unref(props?.labelKey),
 		searchToFilters: unref(props?.searchToFilters),
 	}))
+	const pagination = computed(() => Select.getPagination({
+		currentPage: unref(currentPage),
+		perPage: unref(perPage),
+	}))
 	const ids = computed(() => Select.getValueIds({
 		valueFormProp: unref(props?.value),
 	}))
@@ -71,6 +86,7 @@ export function useSelect<
 		resource: resourceName,
 		fetcherName,
 		filters,
+		pagination,
 		queryOptions: props?.queryOptionsForOptions,
 	})
 
@@ -93,5 +109,7 @@ export function useSelect<
 		...listResult,
 		options,
 		search,
+		currentPage,
+		perPage,
 	}
 }
