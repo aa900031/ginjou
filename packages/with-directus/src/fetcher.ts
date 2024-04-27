@@ -39,7 +39,7 @@ export function createFetcher<
 			})
 
 			const fn = getProtectedFunction(resource, 'read')
-			const data = await client.request(fn ? fn(query) : sdk.readItems(resource, query))
+			const data = await client.request(fn ? fn(query) : sdk.readItems(resource as any, query as any))
 
 			const aggregateOptions = {
 				query: { ...query },
@@ -47,7 +47,7 @@ export function createFetcher<
 			}
 			delete aggregateOptions.query.page
 
-			const aggregate = await client.request(sdk.aggregate(resource, aggregateOptions))
+			const aggregate = await client.request(sdk.aggregate(resource as any, aggregateOptions as any))
 
 			return {
 				data: data && !Array.isArray(data) ? [data] : data as any,
@@ -60,7 +60,7 @@ export function createFetcher<
 			})
 
 			const fn = getProtectedFunction(resource, 'read')
-			const data = await client.request(fn ? fn(id, query) : sdk.readItem(resource, id, query))
+			const data = await client.request(fn ? fn(id, query) : sdk.readItem(resource as any, id, query))
 
 			return {
 				data: data as any,
