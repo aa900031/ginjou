@@ -658,7 +658,7 @@ export interface GetDataProps<
 	queryData: GetListResult<TResultData, number> | undefined
 }
 
-export function getData<
+export function getRecords<
 	TResultData extends BaseRecord,
 >(
 	{
