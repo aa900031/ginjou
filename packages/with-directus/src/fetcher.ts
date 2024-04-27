@@ -1,7 +1,7 @@
 import cleanDeep from 'clean-deep'
 import { dset } from 'dset'
 import { camelCase } from 'scule'
-import { plural as toPlural, singular as toSingular } from 'pluralize'
+import pluralize from 'pluralize'
 import type { DirectusClient, RestClient } from '@directus/sdk'
 import * as sdk from '@directus/sdk'
 import type { ConditionalFilter, Fetcher, FilterOperatorType, Filters, LogicalFilter, Sorters } from '@ginjou/core'
@@ -168,7 +168,7 @@ function getProtectedFunction(
 		return
 
 	const name = resource.replace(prefix, '')
-	const formated = singular ? toSingular(name) : toPlural(name)
+	const formated = singular ? pluralize.singular(name) : pluralize.plural(name)
 	const funName = camelCase(`${type}_${formated}`)
 
 	return sdk[funName]
