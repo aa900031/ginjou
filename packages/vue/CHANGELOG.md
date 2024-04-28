@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.2
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/vue@0.1.0-beta.1...@ginjou/vue@0.1.0-beta.2)
+-  Feat!(core, vue): list records ([33f1be3](https://github.com/aa900031/ginjou/commit/33f1be37c8852255ceff44623f692ad740246f70))
+
+### 🚀 Enhancements
+
+-  ⚠️ Select add ref seach, remove setSearch func ([a289c72](https://github.com/aa900031/ginjou/commit/a289c7257c152fe0b1dd1ad4d07cf984365e9652))
+-  Select provide currentPage, perPage ([1999269](https://github.com/aa900031/ginjou/commit/1999269628a08197d0e3504dce4d869f760ffc03))
+
+
+### ⚠️ Breaking Changes
+
+-  select add ref seach, remove setSearch func ([a289c72](https://github.com/aa900031/ginjou/commit/a289c7257c152fe0b1dd1ad4d07cf984365e9652))
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.1
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/vue@0.1.0-beta.0...@ginjou/vue@0.1.0-beta.1)
