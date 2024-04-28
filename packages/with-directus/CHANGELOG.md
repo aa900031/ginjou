@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.5
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/with-directus@0.1.0-beta.4...@ginjou/with-directus@0.1.0-beta.5)
+
+### 🚀 Enhancements
+
+-  Export auth ([dbfeeb5](https://github.com/aa900031/ginjou/commit/dbfeeb53ac7e9c97973638a183d43bfd19a82393))
+
+### 🩹 Fixes
+
+-  Pluralize is not mulit export ([2a98623](https://github.com/aa900031/ginjou/commit/2a98623d13c792815b55775e0807b2d45bddffa1))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.4
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/with-directus@0.1.0-beta.3...@ginjou/with-directus@0.1.0-beta.4)
