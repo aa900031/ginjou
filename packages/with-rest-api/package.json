@@ -1,7 +1,7 @@
 {
 	"name": "@ginjou/with-rest-api",
 	"type": "module",
-	"version": "0.1.0-beta.0",
+	"version": "0.1.0-beta.1",
 	"author": "zhong666 <hi@zhong666.me>",
 	"license": "MIT",
 	"repository": {

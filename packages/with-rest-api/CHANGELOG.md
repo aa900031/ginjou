@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.1
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/with-rest-api@0.1.0-beta.0...@ginjou/with-rest-api@0.1.0-beta.1)
+
+### 🏡 Chore
+
+-  ERR_PNPM_CANNOT_RESOLVE_WORKSPACE_PROTOCOL ([eecacac](https://github.com/aa900031/ginjou/commit/eecacac61c72de8153e9f9936844a892bc7d9d16))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.0
 
 
