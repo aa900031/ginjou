@@ -1,12 +1,17 @@
-import { shallowRef, watchSyncEffect } from 'vue-demi'
+import { shallowRef, watch } from 'vue-demi'
 import type { Ref, ShallowRef } from 'vue-demi'
 
-export function refFallback<T>(
-	get: () => T,
+export function refFallback<T, TParams>(
+	params: () => TParams,
+	get: (params: TParams) => T,
 ): Ref<T> {
 	const result = shallowRef<T>()
-	watchSyncEffect(() => {
-		result.value = get()
+
+	watch(params, (val) => {
+		result.value = get(val)
+	}, {
+		flush: 'sync',
+		immediate: true,
 	})
 
 	return result as ShallowRef<T>

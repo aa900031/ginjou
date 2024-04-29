@@ -125,26 +125,29 @@ export function useList<
 	}))
 
 	const currentPage = refFallback(
-		() => List.getCurrentPage({
+		() => ({
 			currentPageFromProp: unref(currentPageProp),
 			currentPageFromResource: unref(currentPageResource),
 			syncRouteFromProp: unref(props?.syncRoute),
 		}),
+		List.getCurrentPage,
 	)
 	const perPage = refFallback(
-		() => List.getPerPage({
+		() => ({
 			perPageFromProp: unref(perPageProp),
 			perPageFromResource: unref(perPageResource),
 			syncRouteFromProp: unref(props?.syncRoute),
 		}),
+		List.getPerPage,
 	)
 	const _filters = refFallback(
-		() => List.getFilters({
+		() => ({
 			filtersFromResource: unref(filtersResource),
 			filtersFromProp: unref(filtersProp),
 			filtersPermanentFromProp: unref(filtersPermanentProp),
 			syncRouteFromProp: unref(props?.syncRoute),
 		}),
+		List.getFilters,
 	)
 	const setFilters = List.createSetFiltersFn({
 		getFiltersPermanent: () => unref(filtersPermanentProp),
@@ -152,12 +155,13 @@ export function useList<
 		update: getter => _filters.value = getter(unref(_filters)),
 	})
 	const _sorters = refFallback(
-		() => List.getSorters({
+		() => ({
 			sortersFromResource: unref(sortersResource),
 			sortersFromProp: unref(sortersProp),
 			sortersPermanentFromProp: unref(sortersPermanentProp),
 			syncRouteFromProp: unref(props?.syncRoute),
 		}),
+		List.getSorters,
 	)
 	const setSorters = List.createSetSortersFn({
 		getSortersPermanent: () => unref(sortersPermanentProp),
