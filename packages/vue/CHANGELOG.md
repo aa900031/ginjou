@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.3
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/vue@0.1.0-beta.2...@ginjou/vue@0.1.0-beta.3)
+
+### 🩹 Fixes
+
+-  **vue:** RefFallback with deps ([9626219](https://github.com/aa900031/ginjou/commit/96262193448ea5fb814aa9ab9fd68f06bb37c481))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.2
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/vue@0.1.0-beta.1...@ginjou/vue@0.1.0-beta.2)
