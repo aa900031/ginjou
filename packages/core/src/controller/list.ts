@@ -412,7 +412,7 @@ export function createSetFiltersFn(
 	return function setFilters(value, behavior) {
 		update((prev) => {
 			if (typeof value === 'function')
-				return unionWith(getFiltersPermanent(), value(prev))
+				return resolveFilters(getFiltersPermanent(), value(prev))
 
 			const _behavior = behavior
 				?? getFiltersBehavior()
@@ -420,9 +420,9 @@ export function createSetFiltersFn(
 
 			switch (_behavior) {
 				case SetFilterBehavior.Merge:
-					return unionWith(getFiltersPermanent(), value, prev)
+					return resolveFilters(getFiltersPermanent(), value, prev)
 				case SetFilterBehavior.Replace:
-					return unionWith(getFiltersPermanent(), value)
+					return resolveFilters(getFiltersPermanent(), value)
 				default:
 					throw new Error('No')
 			}
@@ -749,10 +749,12 @@ export function resolveFilters(
 	value: Filters | undefined,
 	prev?: Filters,
 ): Filters | undefined {
-	if (permanent || value) {
-		return unionWith(permanent, value, prev, compareFilter)
-			.filter(filterFilter)
-	}
+	return unionWith(
+		permanent,
+		value,
+		prev,
+		compareFilter,
+	).filter(filterFilter)
 }
 
 function checkFiltersValue(
