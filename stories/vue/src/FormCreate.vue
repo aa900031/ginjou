@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { reactive, shallowRef } from 'vue'
 import { useRoute } from 'vue-router'
 import { useForm } from '@ginjou/vue'
 import type { Post } from './api/posts'
@@ -10,8 +10,10 @@ const formData = reactive({
 	title: 'Test001',
 	status: 'draft',
 })
+const result = shallowRef<Post>()
 async function handleSubmit() {
-	await form.save(formData)
+	const resp = await form.save(formData)
+	result.value = resp.data
 }
 </script>
 
@@ -56,5 +58,10 @@ async function handleSubmit() {
 				Submit
 			</button>
 		</form>
+		<hr>
+		<details open>
+			<summary>Result</summary>
+			<pre v-text="result ?? 'undefined'" />
+		</details>
 	</div>
 </template>

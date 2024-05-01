@@ -7,6 +7,7 @@ import type { Post } from './api/posts'
 const route = useRoute()
 const form = useForm<Post, Partial<Post>>()
 const formData = reactive<Partial<Post>>({})
+const result = form.record
 
 watch(form.record, (val) => {
 	Object.assign(formData, val)
@@ -58,5 +59,11 @@ async function handleSubmit() {
 				Submit
 			</button>
 		</form>
+
+		<hr>
+		<details open>
+			<summary>Result</summary>
+			<pre v-text="result ?? 'undefined'" />
+		</details>
 	</div>
 </template>
