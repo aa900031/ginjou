@@ -55,7 +55,6 @@
 		"@bouzu/vue-helper": "^0.0.2",
 		"@ginjou/core": "workspace:^",
 		"@vueuse/shared": "^10.9.0",
-		"filter-obj": "^5.1.0",
 		"type-fest": "^4.18.0",
 		"vue-demi": "latest"
 	},
