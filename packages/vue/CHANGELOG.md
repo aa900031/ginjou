@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.4
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/vue@0.1.0-beta.3...@ginjou/vue@0.1.0-beta.4)
+
+### 🏡 Chore
+
+-  **deps:** Remove unless ([78780f3](https://github.com/aa900031/ginjou/commit/78780f3189978b0bbb7940f50e177a2e9c2848e9))
+-  **deps:** Update all non-major dependencies (#20) ([f0e52bf](https://github.com/aa900031/ginjou/commit/f0e52bfa2295409821a63d8a93bfce3d8b3e5d6b))
+
+### ✅ Tests
+
+-  Add refSub ([ab12d35](https://github.com/aa900031/ginjou/commit/ab12d35a691382204b507753f6d029ca9f206171))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+- Renovate[bot]
+
 ## v0.1.0-beta.3
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/vue@0.1.0-beta.2...@ginjou/vue@0.1.0-beta.3)
