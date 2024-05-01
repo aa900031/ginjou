@@ -33,7 +33,7 @@ export function createAggregrateFn<
 				time = undefined
 
 				try {
-					exec()
+					await exec()
 				}
 				finally {
 					allArgs.length = 0
