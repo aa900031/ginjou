@@ -27,7 +27,7 @@
 		"turbo": "^1.13.3",
 		"typescript": "^5.4.5",
 		"unbuild": "^2.0.0",
-		"vitest": "^0.34.6"
+		"vitest": "^1.5.3"
 	},
 	"pnpm": {
 		"overrides": {
