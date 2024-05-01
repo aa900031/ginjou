@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.3
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/core@0.1.0-beta.2...@ginjou/core@0.1.0-beta.3)
+
+### 🩹 Fixes
+
+-  Aggregrate not resolve ([2747e10](https://github.com/aa900031/ginjou/commit/2747e10777c80a0e64cb4e8f17eb4465cc449706))
+-  SetFilters not correct with compare ([5486b64](https://github.com/aa900031/ginjou/commit/5486b64b16b520577be61e31e163fd1b6c613276))
+
+### 🏡 Chore
+
+-  **deps:** Update all non-major dependencies (#20) ([f0e52bf](https://github.com/aa900031/ginjou/commit/f0e52bfa2295409821a63d8a93bfce3d8b3e5d6b))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+- Renovate[bot]
+
 ## v0.1.0-beta.2
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/core@0.1.0-beta.1...@ginjou/core@0.1.0-beta.2)
