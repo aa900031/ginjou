@@ -58,6 +58,7 @@ export function useGetInfiniteList<
 	const { mutateAsync: checkError } = useCheckError(context)
 
 	const queryProps = computed(() => GetList.resolveQueryProps<TPageParam>({
+		fetcherName: unref(props.fetcherName),
 		resource: unref(props.resource),
 		pagination: unref(props.pagination),
 		sorters: unref(props.sorters),
