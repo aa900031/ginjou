@@ -1,9 +1,10 @@
 import type { Simplify } from 'type-fest'
-import type { MutationObserverOptions, QueryClient, QueryKey } from '@tanstack/query-core'
+import type { MutationObserverOptions, QueryClient } from '@tanstack/query-core'
 import { NotificationType, type NotifyFn } from '../notification'
 import type { TranslateFn } from '../i18n'
 import type { CheckError } from '../auth'
 import { getErrorMessage } from '../utils/error'
+import { AbortDefer, defer } from '../utils/defer'
 import type { QueryPair } from './types'
 import { InvalidateTarget, resolveInvalidateProps, triggerInvalidates } from './invalidate'
 import type { InvalidateTargetType, InvalidatesProps, ResolvedInvalidatesProps } from './invalidate'
@@ -12,8 +13,13 @@ import { getFetcher, resolveFetcherProps } from './fetchers'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { BaseRecord, DeleteManyProps, DeleteManyResult } from './fetcher'
 import type { NotifyProps } from './notify'
-import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
+import { createProgressNotifyParams, resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
+import type { MutationModeProps, ResolvedMutationModeProps } from './mutation-mode'
+import { MutationMode, createRemoveListItemUpdaterFn, createRemoveManyUpdaterFn, resolveMutationModeProps } from './mutation-mode'
+import { createQueryKey as createResourceQueryKey } from './resource'
 import { createQueryKey as genGetOneQueryKey } from './get-one'
+import { createQueryKey as genGetListQueryKey } from './get-list'
+import { createBaseQueryKey as genBaseGetManyQueryKey } from './get-many'
 
 export type MutationProps<
 	TData extends BaseRecord,
@@ -24,6 +30,7 @@ export type MutationProps<
 	& FetcherProps
 	& InvalidatesProps
 	& NotifyProps<DeleteManyResult<TData>, DeleteManyProps<TParams>, TError>
+	& MutationModeProps
 >
 
 export type ResolvedMutationProps<
@@ -34,6 +41,7 @@ export type ResolvedMutationProps<
 	& MutationProps<TData, TError, TParams>
 	& ResolvedFetcherProps
 	& ResolvedInvalidatesProps
+	& ResolvedMutationModeProps
 >
 
 export interface MutationContext<
@@ -55,6 +63,8 @@ export type MutationOptions<
 
 export interface CreateMutationFnProps {
 	fetchers: Fetchers
+	notify: NotifyFn
+	translate: TranslateFn<unknown>
 }
 
 export function createMutationFn<
@@ -63,19 +73,35 @@ export function createMutationFn<
 >(
 	{
 		fetchers,
+		notify,
+		translate,
 	}: CreateMutationFnProps,
 ): NonNullable<MutationOptions<TData, unknown, TParams>['mutationFn']> {
 	return async function mutationFn(props) {
-		// TODO: undoable
-		// TODO: mutation mode
-
 		const resolvedProps = resolveMutationProps(props)
 
 		const fetcher = getFetcher(resolvedProps, fetchers)
-		const result = typeof fetcher.deleteMany === 'function'
-			? await fetcher.deleteMany<TData, TParams>(resolvedProps)
-			: await fakeMany(resolvedProps.ids.map(id => fetcher.deleteOne<TData, TParams>({ ...resolvedProps, id })))
+		const mutateFn = () => typeof fetcher.deleteMany === 'function'
+			? fetcher.deleteMany<TData, TParams>(resolvedProps)
+			: fakeMany(resolvedProps.ids.map(id => fetcher.deleteOne<TData, TParams>({ ...resolvedProps, id })))
 
+		if (resolvedProps.mutationMode === MutationMode.Undoable) {
+			const deferResult = defer(mutateFn)
+
+			notify(
+				createProgressNotifyParams({
+					method: 'deleteMany',
+					props: resolvedProps,
+					defer: deferResult,
+					translate,
+				}),
+			)
+
+			const result = await deferResult.promise
+			return result
+		}
+
+		const result = await mutateFn()
 		return result
 	}
 }
@@ -95,10 +121,7 @@ export function createMutateHandler<
 	return async function onMutate(props) {
 		const resolvedProps = resolveMutationProps(props)
 
-		const resourceQueryKey: QueryKey = [
-			resolvedProps.fetcherName,
-			resolvedProps.resource,
-		]
+		const resourceQueryKey = createResourceQueryKey({ props: resolvedProps })
 
 		const previousQueries: QueryPair<TData>[] = queryClient.getQueriesData<TData>(resourceQueryKey)
 
@@ -110,7 +133,21 @@ export function createMutateHandler<
 			},
 		)
 
-		// TODO: call updateCache for optimistic
+		if (resolvedProps.mutationMode !== MutationMode.Pessimistic) {
+			queryClient.setQueriesData(
+				genGetListQueryKey<number>({ props: resolvedProps }),
+				createRemoveListItemUpdaterFn<TData>(resolvedProps.ids),
+			)
+			queryClient.setQueriesData(
+				genBaseGetManyQueryKey({ props: resolvedProps }),
+				createRemoveManyUpdaterFn<TData>(resolvedProps.ids),
+			)
+			for (const id of resolvedProps.ids) {
+				queryClient.removeQueries(
+					genGetOneQueryKey({ props: { ...resolvedProps, id } }),
+				)
+			}
+		}
 
 		return {
 			previousQueries,
@@ -213,6 +250,9 @@ export function createErrorHandler<
 				queryClient.setQueryData(query[0], query[1])
 		}
 
+		if (error instanceof AbortDefer)
+			return
+
 		await checkError(error)
 
 		const resolvedProps = resolveMutationProps(variables)
@@ -247,79 +287,9 @@ function resolveMutationProps(
 		...props,
 		...resolveFetcherProps(props),
 		...resolveInvalidateProps(props, DEFAULT_INVALIDATES),
+		...resolveMutationModeProps(props),
 	}
 	cacheResolvedProps.set(props, result)
 
 	return result
 }
-
-// function updateCache<
-// 	TData extends BaseRecord,
-// 	TParams,
-// >(
-// 	queryClient: QueryClient,
-// 	props: MutationProps<TData, unknown, TParams>,
-// ): void {
-// 	queryClient.setQueriesData<GetListResult<TData>>(
-// 		genGetListQueryKey<number>({ props }),
-// 		(previous) => {
-// 			if (!previous)
-// 				return
-
-// 			const data = previous.data.map((record: TData) => {
-// 				if (record.id?.toString() === props.id?.toString()) {
-// 					return {
-// 						id: props.id,
-// 						...record,
-// 						...props.params,
-// 					} as unknown as TData
-// 				}
-// 				return record
-// 			})
-
-// 			return {
-// 				...previous,
-// 				data,
-// 			}
-// 		},
-// 	)
-
-// 	queryClient.setQueriesData<GetManyResult<TData>>(
-// 		genGetManyQueryKey({ props }),
-// 		(previous) => {
-// 			if (!previous)
-// 				return
-
-// 			const data = previous.data.map((record: TData) => {
-// 				if (record.id?.toString() === props.id?.toString()) {
-// 					record = {
-// 						id: props.id,
-// 						...record,
-// 						...props.params,
-// 					} as unknown as TData
-// 				}
-// 				return record
-// 			})
-// 			return {
-// 				...previous,
-// 				data,
-// 			}
-// 		},
-// 	)
-
-// 	queryClient.setQueriesData<GetOneResult<TData>>(
-// 		genGetOneQueryKey({ props }),
-// 		(previous) => {
-// 			if (!previous)
-// 				return
-
-// 			return {
-// 				...previous,
-// 				data: {
-// 					...previous.data,
-// 					...props.params,
-// 				},
-// 			}
-// 		},
-// 	)
-// }

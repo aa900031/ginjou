@@ -14,6 +14,8 @@ import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
 import type { NotifyProps } from './notify'
 import type { ResolvedQueryProps as GetOneResolvedQueryProps } from './get-one'
 import { createQueryKey as createGetOneQueryKey } from './get-one'
+import type { ResourceQueryProps } from './resource'
+import { createQueryKey as createResourceQueryKey } from './resource'
 
 export type QueryOptions<
 	TData extends BaseRecord,
@@ -27,10 +29,10 @@ export type QueryOptions<
 
 export type QueryProps = Simplify<
 	& SetOptional<
-			GetManyProps,
-			| 'ids'
-			| 'resource'
-		>
+		GetManyProps,
+		| 'ids'
+		| 'resource'
+	>
 	& FetcherProps
 	& {
 		aggregate?: boolean
@@ -74,24 +76,34 @@ export type Props<
 	}
 >
 
+export interface CreateBaseQueryKeyProps {
+	props: ResourceQueryProps
+}
+
+export function createBaseQueryKey(
+	{
+		props,
+	}: CreateBaseQueryKeyProps,
+) {
+	return [
+		...createResourceQueryKey({ props }),
+		'getMany',
+	]
+}
+
 export interface CreateQueryKeyProps {
 	props: ResolvedQueryProps
 }
 
 export function createQueryKey(
 	{
-		props: {
-			fetcherName,
-			resource,
-			ids,
-			meta,
-		},
+		props,
 	}: CreateQueryKeyProps,
 ): QueryKey {
+	const { ids, meta } = props
+
 	return [
-		fetcherName,
-		resource,
-		'getMany',
+		...createBaseQueryKey({ props }),
 		ids && ids.map(String),
 		{ meta },
 	]
@@ -256,7 +268,7 @@ export function getQueryEnabled(
 		enabled != null ? enabled : true
 	) && (
 		props.resource != null && props.resource !== ''
-			&& props.ids.length > 0
+		&& props.ids.length > 0
 	)
 }
 
@@ -274,7 +286,7 @@ function execGetMany<
 const aggregExecGetMany = createAggregrateFn(
 	execGetMany,
 	(allArgs, allResolves) => {
-		type ResourceMap = Record<string, { args: typeof allArgs[0][]; resolves: typeof allResolves[0][] }>
+		type ResourceMap = Record<string, { args: typeof allArgs[0][], resolves: typeof allResolves[0][] }>
 		type Result = [typeof allArgs[0], typeof allResolves[0][]][]
 
 		const resourceMap = allArgs.reduce((obj, args, index) => {

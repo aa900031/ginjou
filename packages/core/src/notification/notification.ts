@@ -3,19 +3,28 @@ import type { ValueOf } from 'type-fest'
 export const NotificationType = {
 	Success: 'success',
 	Error: 'error',
-	// Progress: 'progress'
+	Progress: 'progress',
 } as const
 
 export type NotificationTypeValues = ValueOf<typeof NotificationType>
 
-export interface OpenNotificationParams {
-	type: NotificationTypeValues
+export interface NormalNotificationParams {
+	type: typeof NotificationType.Success | typeof NotificationType.Error
 	message: string
-	key?: string
 	description?: string
-	cancelMutation?: () => void
-	undoableTimeout?: number
+	key?: string
 }
+
+export interface ProgressNotificationParams extends Omit<NormalNotificationParams, 'type'> {
+	type: typeof NotificationType.Progress
+	timeout: number
+	onFinish: () => void
+	onCancel: () => void
+}
+
+export type OpenNotificationParams =
+	| NormalNotificationParams
+	| ProgressNotificationParams
 
 export type NotificationOpenFn = (params: OpenNotificationParams) => void
 

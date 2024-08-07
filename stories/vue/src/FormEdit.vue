@@ -1,11 +1,19 @@
 <script setup lang="ts">
-import { reactive, watch } from 'vue'
+import { reactive, toRef, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useForm } from '@ginjou/vue'
+import type { MutationModeValues } from '@ginjou/core'
 import type { Post } from './api/posts'
 
+const props = defineProps<{
+	mutationMode: MutationModeValues
+}>()
+
 const route = useRoute()
-const form = useForm<Post, Partial<Post>>()
+const form = useForm<Post, Partial<Post>>({
+	action: 'edit',
+	mutationMode: toRef(props, 'mutationMode'),
+})
 const formData = reactive<Partial<Post>>({})
 const result = form.record
 

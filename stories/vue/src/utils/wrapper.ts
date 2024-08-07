@@ -1,7 +1,7 @@
 import { delay } from 'msw'
 import { getCurrentInstance, provide } from 'vue'
-import type { Auth, Fetchers, I18n, ResourceDefinition } from '@ginjou/core'
-import { defineAuthContext, defineFetchers, defineI18nContext, defineResourceContext, defineRouterContext } from '@ginjou/vue'
+import type { Auth, Fetchers, I18n, Notification, ResourceDefinition } from '@ginjou/core'
+import { defineAuthContext, defineFetchers, defineI18nContext, defineNotificationContext, defineResourceContext, defineRouterContext } from '@ginjou/vue'
 import { createRouterBinding } from '@ginjou/with-vue-router'
 import { createFetcher } from '@ginjou/with-rest-api'
 import { QueryClient } from '@tanstack/vue-query'
@@ -15,6 +15,7 @@ export type CreateWrapperProps =
 		auth?: Auth | boolean
 		i18n?: I18n | boolean
 		queryClient?: QueryClient
+		notification?: Notification | boolean
 	}
 
 export function createWrapper(
@@ -37,6 +38,11 @@ export function createWrapper(
 				? undefined
 				: props?.i18n,
 		router: props?.router ?? false,
+		notification: props?.notification === true
+			? createNotification()
+			: props?.notification === false
+				? undefined
+				: props?.notification,
 	} as const
 
 	return story => ({
@@ -70,6 +76,9 @@ export function createWrapper(
 						break
 					case 'i18n':
 						value && defineI18nContext(value as I18n)
+						break
+					case 'notification':
+						value && defineNotificationContext(value as Notification)
 						break
 				}
 			}
@@ -173,6 +182,27 @@ function createI18n(): I18n {
 		onChangeLocale: (handler) => {
 			subscribes.add(handler)
 			return () => subscribes.delete(handler)
+		},
+	}
+}
+
+function createNotification(): Notification {
+	const keys = new Map<string, number>()
+	return {
+		open: (params) => {
+			console.log('[Notification]: ', params)
+			const tm = window.setTimeout(() => {
+				(params as any).onFinish?.()
+			}, (params as any).timeout ?? 1000)
+			keys.set(params.key ?? 'nooooo', tm)
+		},
+		close: (key) => {
+			const tm = keys.get(key)
+			if (tm == null)
+				return
+
+			window.clearTimeout(tm)
+			keys.delete(key)
 		},
 	}
 }

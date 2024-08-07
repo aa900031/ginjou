@@ -13,10 +13,10 @@ export type CreateProps<
 	TMutationError,
 > = SetOptional<
 	& Omit<
-			CreateMutationProps<TMutationData, TMutationError, TMutationParams>,
-			| 'params'
-			| 'meta'
-		>
+		CreateMutationProps<TMutationData, TMutationError, TMutationParams>,
+		| 'params'
+		| 'meta'
+	>
 	& {
 		action: 'create'
 		mutationMeta?: Meta
@@ -35,10 +35,10 @@ export type UpdateProps<
 	TMutationError,
 > = SetOptional<
 	& Omit<
-			UpdateMutationProps<TMutationData, TMutationError, TMutationParams>,
-			| 'params'
-			| 'meta'
-		>
+		UpdateMutationProps<TMutationData, TMutationError, TMutationParams>,
+		| 'params'
+		| 'meta'
+	>
 	& {
 		action: 'edit'
 		queryMeta?: Meta
@@ -135,8 +135,8 @@ export function resolveProps<
 				action,
 				resource: resourceName,
 				id: ('id' in props ? props.id : undefined)
-					?? (resource && resource.action === 'edit' ? resource.id : undefined)
-					?? '', // TODO: maybe use undeined?
+				?? (resource && resource.action === 'edit' ? resource.id : undefined)
+				?? '', // TODO: maybe use undeined?
 				fetcherName,
 			}
 		}

@@ -3,6 +3,7 @@ import { RouterView } from 'vue-router'
 import { vueRouter } from 'storybook-vue3-router'
 import type { Meta, StoryObj } from '@storybook/vue3'
 import { factory } from '@mswjs/data'
+import { MutationMode } from '@ginjou/core'
 import MOCK_POSTS from '../data/mock-posts.json'
 import { MockModel } from './api/posts'
 import { createMsw } from './utils/msw'
@@ -47,7 +48,9 @@ export const Create: StoryObj<typeof meta> = {
 
 export const Edit: StoryObj<typeof meta> = {
 	name: 'Edit',
-	render: () => () => h(RouterView),
+	render: (args) => {
+		return () => h(RouterView, args)
+	},
 	loaders: [createMsw(toHandlers(db, 'posts', 'https://rest-api.local'))],
 	decorators: [
 		createWrapper({
@@ -58,6 +61,7 @@ export const Edit: StoryObj<typeof meta> = {
 				},
 			],
 			router: true,
+			notification: true,
 		}),
 		vueRouter([
 			{
@@ -70,6 +74,22 @@ export const Edit: StoryObj<typeof meta> = {
 			},
 		]),
 	],
+	argTypes: {
+		mutationMode: {
+			name: 'Mutation Mode',
+			control: {
+				type: 'radio',
+			},
+			options: [
+				MutationMode.Optimistic,
+				MutationMode.Pessimistic,
+				MutationMode.Undoable,
+			],
+		},
+	},
+	args: {
+		mutationMode: MutationMode.Pessimistic,
+	},
 }
 
 export default meta

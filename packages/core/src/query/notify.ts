@@ -1,5 +1,8 @@
-import type { OpenNotificationParams } from '../notification'
-import type { BaseRecord } from './fetcher'
+import type { TranslateFn } from '../i18n'
+import type { OpenNotificationParams, ProgressNotificationParams } from '../notification'
+import { NotificationType } from '../notification'
+import type { DeferResult } from '../utils/defer'
+import type { BaseRecord, RecordKey } from './fetcher'
 
 export interface NotifyProps<
 	TData extends BaseRecord,
@@ -7,11 +10,11 @@ export interface NotifyProps<
 	TError,
 > {
 	successNotify?:
-	| NotifyParamsResult
-	| CreateSuccessNotifyParamsFn<TData, TProps>
+		| NotifyParamsResult
+		| CreateSuccessNotifyParamsFn<TData, TProps>
 	errorNotify?:
-	| NotifyParamsResult
-	| CreateErrorNotifyParamsFn<TError, TProps>
+		| NotifyParamsResult
+		| CreateErrorNotifyParamsFn<TError, TProps>
 }
 
 export type NotifyParamsResult = false | OpenNotificationParams
@@ -37,9 +40,9 @@ export function resolveSuccessNotifyParams<
 	TProps,
 >(
 	params:
-	|	NotifyParamsResult
-	| CreateSuccessNotifyParamsFn<TData, TProps>
-	| undefined,
+		|	NotifyParamsResult
+		| CreateSuccessNotifyParamsFn<TData, TProps>
+		| undefined,
 	data: TData,
 	props: TProps,
 ): NotifyParamsResult | undefined {
@@ -54,9 +57,9 @@ export function resolveErrorNotifyParams<
 	TProps,
 >(
 	params:
-	|	NotifyParamsResult
-	| CreateErrorNotifyParamsFn<TError, TProps>
-	| undefined,
+		|	NotifyParamsResult
+		| CreateErrorNotifyParamsFn<TError, TProps>
+		| undefined,
 	error: TError,
 	props: TProps,
 ): NotifyParamsResult | undefined {
@@ -64,4 +67,62 @@ export function resolveErrorNotifyParams<
 		return params(error, props)
 
 	return params
+}
+
+export interface CreateProgressNotifyKeyProps {
+	method: 'update' | 'updateMany' | 'delete' | 'deleteMany'
+	props: {
+		fetcherName: string
+		resource: string
+		id: RecordKey
+	} | {
+		fetcherName: string
+		resource: string
+		ids: RecordKey[]
+	}
+}
+
+export function createProgressNotifyKey(
+	{
+		method,
+		props,
+	}: CreateProgressNotifyKeyProps,
+) {
+	const { fetcherName, resource } = props
+	const identitesText = 'id' in props
+		? props.id
+		: 'ids' in props
+			? props.ids.toString()
+			: undefined
+
+	return [
+		fetcherName,
+		resource,
+		method,
+		identitesText,
+	].join('-')
+}
+
+export interface ResolveProgressNotifyParamsProps extends CreateProgressNotifyKeyProps {
+	props: CreateProgressNotifyKeyProps['props'] & { undoableTimeout: number }
+	defer: DeferResult<unknown>
+	translate: TranslateFn<unknown>
+}
+
+export function createProgressNotifyParams(
+	{
+		method,
+		props,
+		defer,
+		translate,
+	}: ResolveProgressNotifyParamsProps,
+): ProgressNotificationParams {
+	return {
+		type: NotificationType.Progress,
+		key: createProgressNotifyKey({ props, method }),
+		message: translate('notifications.undoable'),
+		onFinish: defer.run,
+		onCancel: defer.cancel,
+		timeout: props.undoableTimeout,
+	}
 }

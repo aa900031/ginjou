@@ -58,6 +58,8 @@ export function useUpdate<
 		...unref(props?.mutationOptions) as any, // TODO:
 		mutationFn: Update.createMutationFn<TData, TParams>({
 			fetchers,
+			notify,
+			translate,
 		}),
 		onMutate: Update.createMutateHandler<TData, TParams>({
 			queryClient,
