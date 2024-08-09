@@ -1,8 +1,7 @@
 import { delay } from 'msw'
-import { getCurrentInstance, provide } from 'vue'
+import { provide } from 'vue'
 import type { ToastMessageOptions } from 'primevue/toast'
 import Toast from 'primevue/toast'
-import ToastService from 'primevue/toastservice'
 import { useToast } from 'primevue/usetoast'
 import { type Auth, type Fetchers, type I18n, type Notification, NotificationType, type ResourceDefinition } from '@ginjou/core'
 import { defineAuthContext, defineFetchers, defineI18nContext, defineNotificationContext, defineResourceContext, defineRouterContext } from '@ginjou/vue'
@@ -25,8 +24,6 @@ export type CreateWrapperProps =
 export function createWrapper(
 	props?: CreateWrapperProps,
 ): Decorator {
-	const inited = new WeakSet()
-
 	const resolved = {
 		fetchers: props?.fetchers ?? createFetchers,
 		queryClient: props?.queryClient ?? new QueryClient(),
@@ -53,10 +50,6 @@ export function createWrapper(
 		name: 'GinjouWrapper',
 		components: { story, Toast },
 		setup: () => {
-			const { app } = getCurrentInstance()!.appContext
-			if (inited.has(app))
-				return
-
 			for (const [key, value] of Object.entries(resolved)) {
 				switch (key) {
 					case 'queryClient':
@@ -82,24 +75,19 @@ export function createWrapper(
 						value && defineI18nContext((typeof value === 'function' ? value() : value) as any)
 						break
 					case 'notification':
-						if (value) {
-							app.use(ToastService)
-							defineNotificationContext((typeof value === 'function' ? value() : value) as any)
-						}
+						value && defineNotificationContext((typeof value === 'function' ? value() : value) as any)
 						break
 				}
 			}
 
-			inited.add(app)
-
-			function handleToastClose(opts: ToastMessageOptions) {
-				if ('_onCancel' in opts && typeof opts._onCancel === 'function')
-					opts._onCancel()
+			function handleToastClose({ message }: { message: ToastMessageOptions }) {
+				if ('_onCancel' in message && typeof message._onCancel === 'function')
+					message._onCancel()
 			}
 
-			function handleToastLifeEnd(opts: ToastMessageOptions) {
-				if ('_onFinish' in opts && typeof opts._onFinish === 'function')
-					opts._onFinish()
+			function handleToastLifeEnd({ message }: { message: ToastMessageOptions }) {
+				if ('_onFinish' in message && typeof message._onFinish === 'function')
+					message._onFinish()
 			}
 
 			return {
@@ -215,46 +203,68 @@ function createI18n(): I18n {
 }
 
 function createNotification(): Notification {
-	const keys = new Map<string, number>()
 	const toast = useToast()
+	const removeFnMap = new Map<string, () => void>()
 
 	return {
 		open: (params) => {
 			switch (params.type) {
 				case NotificationType.Success:
-				case NotificationType.Error:
-					toast.add({
+				case NotificationType.Error: {
+					const opt: ToastMessageOptions = {
 						severity: params.type,
-						group: params.key,
 						summary: params.message,
 						detail: params.description,
 						life: 3000,
-					})
+						...{
+							onFinish: () => {
+								params.key
+								&& removeFnMap.delete(params.key)
+							},
+							_onCancel: () => {
+								params.key
+								&& removeFnMap.delete(params.key)
+							},
+						},
+					}
+					toast.add(opt)
+					params.key
+					&& removeFnMap.set(params.key, () => toast.remove(opt))
+
 					break
-				case NotificationType.Progress:
-					toast.add({
+				}
+				case NotificationType.Progress: {
+					const opt: ToastMessageOptions = {
 						severity: 'secondary',
-						group: params.key,
 						summary: params.message,
 						detail: params.description,
 						life: params.timeout,
 						...{
-							_onFinish: params.onFinish,
-							_onCancel: params.onCancel,
+							_onFinish: () => {
+								params.key
+								&& removeFnMap.delete(params.key)
+								params.onFinish()
+							},
+							_onCancel: async () => {
+								params.key
+								&& removeFnMap.delete(params.key)
+								params.onCancel()
+							},
 						} as any,
-					})
+					}
+					toast.add(opt)
+
+					params.key
+					&& removeFnMap.set(params.key, () => toast.remove(opt))
+
 					break
+				}
 				default:
 					break
 			}
 		},
 		close: (key) => {
-			const tm = keys.get(key)
-			if (tm == null)
-				return
-
-			window.clearTimeout(tm)
-			keys.delete(key)
+			removeFnMap.get(key)?.()
 		},
 	}
 }

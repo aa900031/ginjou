@@ -1,7 +1,18 @@
-import type { Preview } from '@storybook/vue3'
-
-// import '@unocss/reset/tailwind-compat.css'
 import 'uno.css'
+import type { Preview } from '@storybook/vue3'
+import { setup } from '@storybook/vue3'
+import PrimeVue from 'primevue/config'
+import ToastService from 'primevue/toastservice'
+import Aura from '@primevue/themes/aura'
+
+setup((app) => {
+	app.use(PrimeVue, {
+		theme: {
+			preset: Aura,
+		},
+	})
+	app.use(ToastService)
+})
 
 export default {
 	parameters: {
