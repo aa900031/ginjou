@@ -15,6 +15,7 @@ export default {
 			storySort: {
 				order: [
 					'Controllers',
+					'Query',
 				],
 			},
 		},

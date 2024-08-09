@@ -100,9 +100,9 @@ export interface CursorBi<
 export type Cursor<
 	TPageParam = number,
 > =
- | CursorOnlyNext<TPageParam>
- | CursorOnlyPrev<TPageParam>
- | CursorBi<TPageParam>
+	| CursorOnlyNext<TPageParam>
+	| CursorOnlyPrev<TPageParam>
+	| CursorBi<TPageParam>
 
 export interface CreateProps<
 	TParams = Record<string, any>,
@@ -188,13 +188,13 @@ export interface CustomProps<
 > {
 	url: string
 	method:
-	| 'get'
-	| 'delete'
-	| 'head'
-	| 'options'
-	| 'post'
-	| 'put'
-	| 'patch'
+		| 'get'
+		| 'delete'
+		| 'head'
+		| 'options'
+		| 'post'
+		| 'put'
+		| 'patch'
 	sorters?: Sorters
 	filters?: Filters
 	payload?: TPayload

@@ -185,13 +185,13 @@ export function createRemoveListItemUpdaterFn<
 				.map(String)
 			const data = previous.data.filter(
 				item =>
-					(item.id != null) && ids.includes(item.id.toString()),
+					(item.id != null) && !ids.includes(item.id.toString()),
 			)
 
 			return {
 				...previous,
 				data,
-				total: previous.total - 1,
+				total: previous.total - ids.length,
 			}
 		}
 	}
@@ -229,7 +229,7 @@ export function createRemoveManyUpdaterFn<
 				.map(String)
 			const data = previous.data.filter(
 				item =>
-					(item.id != null) && ids.includes(item.id.toString()),
+					(item.id != null) && !ids.includes(item.id.toString()),
 			)
 
 			return {

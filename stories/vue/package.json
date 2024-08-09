@@ -1,7 +1,7 @@
 {
 	"name": "@ginjou/storybook-vue",
-	"private": true,
 	"type": "module",
+	"private": true,
 	"author": "zhong666 <hi@zhong666.me>",
 	"license": "MIT",
 	"repository": {
@@ -46,6 +46,7 @@
 		"msw": "^2.2.14",
 		"msw-storybook-addon": "2.0.0",
 		"npm-run-all2": "^6.1.2",
+		"primevue": "^4.0.4",
 		"storybook": "^8.0.9",
 		"storybook-vue3-router": "^5.0.0",
 		"unocss": "^0.59.4",

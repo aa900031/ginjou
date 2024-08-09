@@ -15,11 +15,12 @@ import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { BaseRecord, UpdateManyProps, UpdateManyResult } from './fetcher'
 import type { NotifyProps } from './notify'
 import { createProgressNotifyParams, resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
-import { MutationMode, type MutationModeProps, type ResolvedMutationModeProps, createModifyListItemUpdaterFn, createModifyManyUpdaterFn, createModifyOneUpdaterFn, resolveMutationModeProps } from './mutation-mode'
-import { createQueryKey as createResourceQueryKey } from './resource'
-import { createQueryKey as genGetOneQueryKey } from './get-one'
-import { createQueryKey as genGetListQueryKey } from './get-list'
+import type { MutationModeProps, ResolvedMutationModeProps } from './mutation-mode'
+import { MutationMode, createModifyListItemUpdaterFn, createModifyManyUpdaterFn, createModifyOneUpdaterFn, resolveMutationModeProps } from './mutation-mode'
+import { createBaseQueryKey as genBaseGetListQueryKey } from './get-list'
 import { createBaseQueryKey as genBaseGetManyQueryKey } from './get-many'
+import { createQueryKey as genGetOneQueryKey } from './get-one'
+import { createQueryKey as genResourceQueryKey } from './resource'
 
 export type MutationProps<
 	TData extends BaseRecord,
@@ -121,7 +122,7 @@ export function createMutateHandler<
 	return async function onMutate(props) {
 		const resolvedProps = resolveMutationProps(props)
 
-		const resourceQueryKey = createResourceQueryKey({ props: resolvedProps })
+		const resourceQueryKey = genResourceQueryKey({ props: resolvedProps })
 
 		const previousQueries: QueryPair<TData>[] = queryClient.getQueriesData<TData>(resourceQueryKey)
 
@@ -134,20 +135,10 @@ export function createMutateHandler<
 		)
 
 		if (resolvedProps.mutationMode !== MutationMode.Pessimistic) {
-			queryClient.setQueriesData(
-				genGetListQueryKey<number>({ props: resolvedProps }),
-				createModifyListItemUpdaterFn<TData, TParams>(resolvedProps.ids, resolvedProps.params),
+			updateCache(
+				resolvedProps,
+				queryClient,
 			)
-			queryClient.setQueriesData(
-				genBaseGetManyQueryKey({ props: resolvedProps }),
-				createModifyManyUpdaterFn<TData, TParams>(resolvedProps.ids, resolvedProps.params),
-			)
-			for (const id of resolvedProps.ids) {
-				queryClient.setQueriesData(
-					genGetOneQueryKey({ props: { ...resolvedProps, id } }),
-					createModifyOneUpdaterFn(resolvedProps.params),
-				)
-			}
 		}
 
 		return {
@@ -186,6 +177,7 @@ export function createSettledHandler<
 export interface CreateSuccessHandlerProps {
 	notify: NotifyFn
 	translate: TranslateFn<unknown>
+	queryClient: QueryClient
 }
 
 export function createSuccessHandler<
@@ -195,10 +187,18 @@ export function createSuccessHandler<
 	{
 		notify,
 		translate,
+		queryClient,
 	}: CreateSuccessHandlerProps,
 ): NonNullable<MutationOptions<TData, unknown, TParams>['onSuccess']> {
 	return async function onSuccess(data, props) {
 		const resolvedProps = resolveMutationProps(props)
+
+		if (resolvedProps.mutationMode === MutationMode.Pessimistic) {
+			updateCache(
+				resolvedProps,
+				queryClient,
+			)
+		}
 
 		notify(
 			resolveSuccessNotifyParams(resolvedProps.successNotify, data, resolvedProps),
@@ -281,4 +281,27 @@ function resolveMutationProps(
 	cacheResolvedProps.set(props, result)
 
 	return result
+}
+
+function updateCache<
+	TData extends BaseRecord,
+	TParams,
+>(
+	props: ResolvedMutationProps<TData, any, TParams>,
+	queryClient: QueryClient,
+) {
+	queryClient.setQueriesData(
+		genBaseGetListQueryKey({ props }),
+		createModifyListItemUpdaterFn<TData, TParams>(props.ids, props.params),
+	)
+	queryClient.setQueriesData(
+		genBaseGetManyQueryKey({ props }),
+		createModifyManyUpdaterFn<TData, TParams>(props.ids, props.params),
+	)
+	for (const id of props.ids) {
+		queryClient.setQueriesData(
+			genGetOneQueryKey({ props: { ...props, id } }),
+			createModifyOneUpdaterFn(props.params),
+		)
+	}
 }

@@ -9,6 +9,7 @@ import { getFetcher, resolveFetcherProps } from './fetchers'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { BaseRecord, GetListProps, GetListResult, GetOneResult } from './fetcher'
 import { createQueryKey as createGetOneQueryKey } from './get-one'
+import type { ResourceQueryProps } from './resource'
 import { createQueryKey as createResourceQueryKey } from './resource'
 import type { NotifyProps } from './notify'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
@@ -71,6 +72,21 @@ export type Props<
 	}
 >
 
+export interface CreateBaseQueryKeyProps {
+	props: ResourceQueryProps
+}
+
+export function createBaseQueryKey(
+	{
+		props,
+	}: CreateBaseQueryKeyProps,
+): QueryKey {
+	return [
+		...createResourceQueryKey({ props }),
+		'getList',
+	]
+}
+
 export interface CreateQueryKeyProps<
 	TPageParam,
 > {
@@ -87,8 +103,7 @@ export function createQueryKey<
 	const { pagination, sorters, filters, meta } = props
 
 	return [
-		...createResourceQueryKey({ props }),
-		'getList',
+		...createBaseQueryKey({ props }),
 		{
 			pagination,
 			sorters,

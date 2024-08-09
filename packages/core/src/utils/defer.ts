@@ -15,7 +15,12 @@ export function defer<
 >(
 	exec: () => Promisable<TResult>,
 ): DeferResult<TResult> {
-	const { promise, reject, resolve } = Promise.withResolvers<TResult>()
+	let resolve: Parameters<ConstructorParameters<typeof Promise<TResult>>[0]>[0]
+	let reject: Parameters<ConstructorParameters<typeof Promise<TResult>>[0]>[1]
+	const promise = new Promise<TResult>((res, rej) => {
+		resolve = res
+		reject = rej
+	})
 
 	async function run() {
 		try {

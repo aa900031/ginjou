@@ -84,7 +84,7 @@ export function createBaseQueryKey(
 	{
 		props,
 	}: CreateBaseQueryKeyProps,
-) {
+): QueryKey {
 	return [
 		...createResourceQueryKey({ props }),
 		'getMany',

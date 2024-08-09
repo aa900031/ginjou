@@ -17,19 +17,19 @@ export interface UseDeleteManyProps<
 > {
 	mutationOptions?: MaybeRef<
 		| Omit<
-				MutationObserverOptions<
-					DeleteManyResult<TData>,
-					TError,
-					DeleteMany.MutationProps<TData, TError, TParams>,
-					DeleteMany.MutationContext<TData>
-				>,
-				| 'mutationFn'
-				| 'onMutate'
-				| 'onSettled'
-				| 'onSuccess'
-				| 'onError'
-				| 'queryClient'
-			>
+			MutationObserverOptions<
+				DeleteManyResult<TData>,
+				TError,
+				DeleteMany.MutationProps<TData, TError, TParams>,
+				DeleteMany.MutationContext<TData>
+			>,
+			| 'mutationFn'
+			| 'onMutate'
+			| 'onSettled'
+			| 'onSuccess'
+			| 'onError'
+			| 'queryClient'
+		>
 		| undefined
 	>
 }
@@ -71,6 +71,8 @@ export function useDeleteMany<
 		...unref(props?.mutationOptions) as any, // TODO:
 		mutationFn: DeleteMany.createMutationFn<TData, TParams>({
 			fetchers,
+			notify,
+			translate,
 		}),
 		onMutate: DeleteMany.createMutateHandler<TData, TParams>({
 			queryClient,

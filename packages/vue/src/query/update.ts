@@ -68,6 +68,7 @@ export function useUpdate<
 			queryClient,
 		}),
 		onSuccess: Update.createSuccessHandler<TData, TParams>({
+			queryClient,
 			notify,
 			translate,
 		}),

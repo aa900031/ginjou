@@ -1,13 +1,14 @@
 import type { Simplify } from 'type-fest'
 import type { MutationObserverOptions, QueryClient } from '@tanstack/query-core'
-import { NotificationType, type NotifyFn } from '../notification'
+import type { NotifyFn } from '../notification'
+import { NotificationType } from '../notification'
 import type { TranslateFn } from '../i18n'
 import type { CheckError } from '../auth'
 import { getErrorMessage } from '../utils/error'
 import { AbortDefer, defer } from '../utils/defer'
 import type { QueryPair } from './types'
-import { InvalidateTarget, resolveInvalidateProps, triggerInvalidates } from './invalidate'
 import type { InvalidateTargetType, InvalidatesProps, ResolvedInvalidatesProps } from './invalidate'
+import { InvalidateTarget, resolveInvalidateProps, triggerInvalidates } from './invalidate'
 import { fakeMany } from './helper'
 import { getFetcher, resolveFetcherProps } from './fetchers'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
@@ -16,10 +17,10 @@ import type { NotifyProps } from './notify'
 import { createProgressNotifyParams, resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
 import type { MutationModeProps, ResolvedMutationModeProps } from './mutation-mode'
 import { MutationMode, createRemoveListItemUpdaterFn, createRemoveManyUpdaterFn, resolveMutationModeProps } from './mutation-mode'
-import { createQueryKey as createResourceQueryKey } from './resource'
-import { createQueryKey as genGetOneQueryKey } from './get-one'
-import { createQueryKey as genGetListQueryKey } from './get-list'
+import { createBaseQueryKey as genBaseGetListQueryKey } from './get-list'
 import { createBaseQueryKey as genBaseGetManyQueryKey } from './get-many'
+import { createQueryKey as genGetOneQueryKey } from './get-one'
+import { createQueryKey as genResourceQueryKey } from './resource'
 
 export type MutationProps<
 	TData extends BaseRecord,
@@ -121,7 +122,7 @@ export function createMutateHandler<
 	return async function onMutate(props) {
 		const resolvedProps = resolveMutationProps(props)
 
-		const resourceQueryKey = createResourceQueryKey({ props: resolvedProps })
+		const resourceQueryKey = genResourceQueryKey({ props: resolvedProps })
 
 		const previousQueries: QueryPair<TData>[] = queryClient.getQueriesData<TData>(resourceQueryKey)
 
@@ -134,19 +135,10 @@ export function createMutateHandler<
 		)
 
 		if (resolvedProps.mutationMode !== MutationMode.Pessimistic) {
-			queryClient.setQueriesData(
-				genGetListQueryKey<number>({ props: resolvedProps }),
-				createRemoveListItemUpdaterFn<TData>(resolvedProps.ids),
+			updateCache(
+				resolvedProps,
+				queryClient,
 			)
-			queryClient.setQueriesData(
-				genBaseGetManyQueryKey({ props: resolvedProps }),
-				createRemoveManyUpdaterFn<TData>(resolvedProps.ids),
-			)
-			for (const id of resolvedProps.ids) {
-				queryClient.removeQueries(
-					genGetOneQueryKey({ props: { ...resolvedProps, id } }),
-				)
-			}
 		}
 
 		return {
@@ -201,14 +193,10 @@ export function createSuccessHandler<
 	return async function onSuccess(data, props) {
 		const resolvedProps = resolveMutationProps(props)
 
-		for (const id of resolvedProps.ids) {
-			queryClient.removeQueries(
-				genGetOneQueryKey({
-					props: {
-						...resolvedProps,
-						id,
-					},
-				}),
+		if (resolvedProps.mutationMode === MutationMode.Pessimistic) {
+			updateCache(
+				resolvedProps,
+				queryClient,
 			)
 		}
 
@@ -292,4 +280,25 @@ function resolveMutationProps(
 	cacheResolvedProps.set(props, result)
 
 	return result
+}
+
+function updateCache<
+	TData extends BaseRecord,
+>(
+	props: ResolvedMutationProps<TData, any, any>,
+	queryClient: QueryClient,
+) {
+	queryClient.setQueriesData(
+		genBaseGetListQueryKey({ props }),
+		createRemoveListItemUpdaterFn<TData>(props.ids),
+	)
+	queryClient.setQueriesData(
+		genBaseGetManyQueryKey({ props }),
+		createRemoveManyUpdaterFn<TData>(props.ids),
+	)
+	for (const id of props.ids) {
+		queryClient.removeQueries(
+			genGetOneQueryKey({ props: { ...props, id } }),
+		)
+	}
 }

@@ -1,6 +1,10 @@
 import { delay } from 'msw'
 import { getCurrentInstance, provide } from 'vue'
-import type { Auth, Fetchers, I18n, Notification, ResourceDefinition } from '@ginjou/core'
+import type { ToastMessageOptions } from 'primevue/toast'
+import Toast from 'primevue/toast'
+import ToastService from 'primevue/toastservice'
+import { useToast } from 'primevue/usetoast'
+import { type Auth, type Fetchers, type I18n, type Notification, NotificationType, type ResourceDefinition } from '@ginjou/core'
 import { defineAuthContext, defineFetchers, defineI18nContext, defineNotificationContext, defineResourceContext, defineRouterContext } from '@ginjou/vue'
 import { createRouterBinding } from '@ginjou/with-vue-router'
 import { createFetcher } from '@ginjou/with-rest-api'
@@ -24,22 +28,22 @@ export function createWrapper(
 	const inited = new WeakSet()
 
 	const resolved = {
-		fetchers: props?.fetchers ?? createFetchers(),
+		fetchers: props?.fetchers ?? createFetchers,
 		queryClient: props?.queryClient ?? new QueryClient(),
 		resources: props?.resources,
 		auth: props?.auth === true
-			? createAuth()
+			? createAuth
 			: props?.auth === false
 				? undefined
 				: props?.auth,
 		i18n: props?.i18n === true
-			? createI18n()
+			? createI18n
 			: props?.i18n === false
 				? undefined
 				: props?.i18n,
 		router: props?.router ?? false,
 		notification: props?.notification === true
-			? createNotification()
+			? createNotification
 			: props?.notification === false
 				? undefined
 				: props?.notification,
@@ -47,7 +51,7 @@ export function createWrapper(
 
 	return story => ({
 		name: 'GinjouWrapper',
-		components: { story },
+		components: { story, Toast },
 		setup: () => {
 			const { app } = getCurrentInstance()!.appContext
 			if (inited.has(app))
@@ -59,7 +63,7 @@ export function createWrapper(
 						provide('VUE_QUERY_CLIENT', value)
 						break
 					case 'fetchers':
-						defineFetchers(value as any)
+						defineFetchers((typeof value === 'function' ? value() : value) as any)
 						break
 					case 'resources':
 						defineResourceContext({
@@ -72,20 +76,44 @@ export function createWrapper(
 						)
 						break
 					case 'auth':
-						value && defineAuthContext(value as Auth)
+						value && defineAuthContext((typeof value === 'function' ? value() : value) as any)
 						break
 					case 'i18n':
-						value && defineI18nContext(value as I18n)
+						value && defineI18nContext((typeof value === 'function' ? value() : value) as any)
 						break
 					case 'notification':
-						value && defineNotificationContext(value as Notification)
+						if (value) {
+							app.use(ToastService)
+							defineNotificationContext((typeof value === 'function' ? value() : value) as any)
+						}
 						break
 				}
 			}
 
 			inited.add(app)
+
+			function handleToastClose(opts: ToastMessageOptions) {
+				if ('_onCancel' in opts && typeof opts._onCancel === 'function')
+					opts._onCancel()
+			}
+
+			function handleToastLifeEnd(opts: ToastMessageOptions) {
+				if ('_onFinish' in opts && typeof opts._onFinish === 'function')
+					opts._onFinish()
+			}
+
+			return {
+				handleToastClose,
+				handleToastLifeEnd,
+			}
 		},
-		template: '<story />',
+		template: `
+			<story />
+			<Toast
+				@close="handleToastClose"
+				@life-end="handleToastLifeEnd"
+			/>
+		`,
 	})
 }
 
@@ -188,13 +216,37 @@ function createI18n(): I18n {
 
 function createNotification(): Notification {
 	const keys = new Map<string, number>()
+	const toast = useToast()
+
 	return {
 		open: (params) => {
-			console.log('[Notification]: ', params)
-			const tm = window.setTimeout(() => {
-				(params as any).onFinish?.()
-			}, (params as any).timeout ?? 1000)
-			keys.set(params.key ?? 'nooooo', tm)
+			switch (params.type) {
+				case NotificationType.Success:
+				case NotificationType.Error:
+					toast.add({
+						severity: params.type,
+						group: params.key,
+						summary: params.message,
+						detail: params.description,
+						life: 3000,
+					})
+					break
+				case NotificationType.Progress:
+					toast.add({
+						severity: 'secondary',
+						group: params.key,
+						summary: params.message,
+						detail: params.description,
+						life: params.timeout,
+						...{
+							_onFinish: params.onFinish,
+							_onCancel: params.onCancel,
+						} as any,
+					})
+					break
+				default:
+					break
+			}
 		},
 		close: (key) => {
 			const tm = keys.get(key)

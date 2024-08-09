@@ -7,8 +7,8 @@ import type { CheckError } from '../auth'
 import { getErrorMessage } from '../utils/error'
 import { AbortDefer, defer } from '../utils/defer'
 import type { QueryPair } from './types'
-import { InvalidateTarget, resolveInvalidateProps, triggerInvalidates } from './invalidate'
 import type { InvalidateTargetType, InvalidatesProps, ResolvedInvalidatesProps } from './invalidate'
+import { InvalidateTarget, resolveInvalidateProps, triggerInvalidates } from './invalidate'
 import { getFetcher, resolveFetcherProps } from './fetchers'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { BaseRecord, UpdateProps, UpdateResult } from './fetcher'
@@ -16,10 +16,10 @@ import type { NotifyProps } from './notify'
 import { createProgressNotifyParams, resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
 import type { MutationModeProps, ResolvedMutationModeProps } from './mutation-mode'
 import { MutationMode, createModifyListItemUpdaterFn, createModifyManyUpdaterFn, createModifyOneUpdaterFn, resolveMutationModeProps } from './mutation-mode'
-import { createQueryKey as genGetListQueryKey } from './get-list'
+import { createBaseQueryKey as genBaseGetListQueryKey } from './get-list'
 import { createBaseQueryKey as genBaseGetManyQueryKey } from './get-many'
 import { createQueryKey as genGetOneQueryKey } from './get-one'
-import { createQueryKey as createResourceQueryKey } from './resource'
+import { createQueryKey as genResourceQueryKey } from './resource'
 
 export type MutationProps<
 	TData extends BaseRecord,
@@ -144,7 +144,7 @@ export function createMutateHandler<
 	return async function onMutate(props) {
 		const resolvedProps = resolveMutationProps(props)
 
-		const resourceQueryKey = createResourceQueryKey({ props: resolvedProps })
+		const resourceQueryKey = genResourceQueryKey({ props: resolvedProps })
 
 		const previousQueries: QueryPair<TData>[] = queryClient.getQueriesData<TData>(resourceQueryKey)
 
@@ -157,17 +157,9 @@ export function createMutateHandler<
 		)
 
 		if (resolvedProps.mutationMode !== MutationMode.Pessimistic) {
-			queryClient.setQueriesData(
-				genGetListQueryKey<number>({ props: resolvedProps }),
-				createModifyListItemUpdaterFn<TData, TParams>(resolvedProps.id, resolvedProps.params),
-			)
-			queryClient.setQueriesData(
-				genBaseGetManyQueryKey({ props: resolvedProps }),
-				createModifyManyUpdaterFn<TData, TParams>(resolvedProps.id, resolvedProps.params),
-			)
-			queryClient.setQueriesData(
-				genGetOneQueryKey({ props: resolvedProps }),
-				createModifyOneUpdaterFn<TData, TParams>(resolvedProps.params),
+			updateCache(
+				resolvedProps,
+				queryClient,
 			)
 		}
 
@@ -207,6 +199,7 @@ export function createSettledHandler<
 export interface CreateSuccessHandlerProps {
 	notify: NotifyFn
 	translate: TranslateFn<unknown>
+	queryClient: QueryClient
 }
 
 export function createSuccessHandler<
@@ -216,10 +209,18 @@ export function createSuccessHandler<
 	{
 		notify,
 		translate,
+		queryClient,
 	}: CreateSuccessHandlerProps,
 ): NonNullable<MutationOptions<TData, unknown, TParams>['onSuccess']> {
 	return async function onSuccess(data, props) {
 		const resolvedProps = resolveMutationProps(props)
+
+		if (resolvedProps.mutationMode === MutationMode.Pessimistic) {
+			updateCache(
+				resolvedProps,
+				queryClient,
+			)
+		}
 
 		notify(
 			resolveSuccessNotifyParams(resolvedProps.successNotify, data, resolvedProps),
@@ -302,4 +303,25 @@ function resolveMutationProps(
 	cacheResolvedProps.set(props, result)
 
 	return result
+}
+
+function updateCache<
+	TData extends BaseRecord,
+	TParams,
+>(
+	props: ResolvedMutationProps<TData, any, TParams>,
+	queryClient: QueryClient,
+) {
+	queryClient.setQueriesData(
+		genBaseGetListQueryKey({ props }),
+		createModifyListItemUpdaterFn<TData, TParams>(props.id, props.params),
+	)
+	queryClient.setQueriesData(
+		genBaseGetManyQueryKey({ props }),
+		createModifyManyUpdaterFn<TData, TParams>(props.id, props.params),
+	)
+	queryClient.setQueriesData(
+		genGetOneQueryKey({ props }),
+		createModifyOneUpdaterFn<TData, TParams>(props.params),
+	)
 }

@@ -17,19 +17,19 @@ export interface UseUpdateManyProps<
 > {
 	mutationOptions?: MaybeRef<
 		| Omit<
-				MutationObserverOptions<
-					UpdateManyResult<TData>,
-					TError,
-					UpdateMany.MutationProps<TData, TError, TParams>,
-					UpdateMany.MutationContext<TData>
-				>,
-				| 'mutationFn'
-				| 'onMutate'
-				| 'onSettled'
-				| 'onSuccess'
-				| 'onError'
-				| 'queryClient'
-			>
+			MutationObserverOptions<
+				UpdateManyResult<TData>,
+				TError,
+				UpdateMany.MutationProps<TData, TError, TParams>,
+				UpdateMany.MutationContext<TData>
+			>,
+			| 'mutationFn'
+			| 'onMutate'
+			| 'onSettled'
+			| 'onSuccess'
+			| 'onError'
+			| 'queryClient'
+		>
 		| undefined
 	>
 }
@@ -71,6 +71,8 @@ export function useUpdateMany<
 		...unref(props?.mutationOptions) as any, // TODO:
 		mutationFn: UpdateMany.createMutationFn<TData, TParams>({
 			fetchers,
+			notify,
+			translate,
 		}),
 		onMutate: UpdateMany.createMutateHandler<TData, TParams>({
 			queryClient,
@@ -79,6 +81,7 @@ export function useUpdateMany<
 			queryClient,
 		}),
 		onSuccess: UpdateMany.createSuccessHandler<TData, TParams>({
+			queryClient,
 			notify,
 			translate,
 		}),

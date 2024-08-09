@@ -17,19 +17,19 @@ export interface UseDeleteProps<
 > {
 	mutationOptions?: MaybeRef<
 		| Omit<
-				MutationObserverOptions<
-					DeleteOneResult<TData>,
-					TError,
-					Delete.MutationProps<TData, TError, TParams>,
-					Delete.MutationContext<TData>
-				>,
-				| 'mutationFn'
-				| 'onMutate'
-				| 'onSettled'
-				| 'onSuccess'
-				| 'onError'
-				| 'queryClient'
-			>
+			MutationObserverOptions<
+				DeleteOneResult<TData>,
+				TError,
+				Delete.MutationProps<TData, TError, TParams>,
+				Delete.MutationContext<TData>
+			>,
+			| 'mutationFn'
+			| 'onMutate'
+			| 'onSettled'
+			| 'onSuccess'
+			| 'onError'
+			| 'queryClient'
+		>
 		| undefined
 	>
 }
@@ -71,6 +71,8 @@ export function useDelete<
 		...unref(props?.mutationOptions) as any, // TODO:
 		mutationFn: Delete.createMutationFn<TData, TParams>({
 			fetchers,
+			notify,
+			translate,
 		}),
 		onMutate: Delete.createMutateHandler<TData, TParams>({
 			queryClient,
