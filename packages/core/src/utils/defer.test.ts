@@ -21,7 +21,7 @@ describe('defer', () => {
 
 	it('should throw when exec has expection', async () => {
 		class E extends Error {
-			name: 'e'
+			name = 'e'
 		}
 		const exec = vi.fn(() => Promise.reject(new E()))
 		const { promise, run } = defer(exec)
