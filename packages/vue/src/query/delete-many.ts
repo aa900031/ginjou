@@ -1,7 +1,8 @@
 import type { Simplify } from 'type-fest'
 import { computed, unref } from 'vue-demi'
 import type { MaybeRef } from '@vueuse/shared'
-import { type MutationObserverOptions, type UseMutationReturnType, useMutation } from '@tanstack/vue-query'
+import type { UseMutationReturnType } from '@tanstack/vue-query'
+import { useMutation } from '@tanstack/vue-query'
 import { DeleteMany } from '@ginjou/core'
 import type { BaseRecord, DeleteManyResult } from '@ginjou/core'
 import { type UseNotifyContext, useNotify } from '../notification'
@@ -16,20 +17,7 @@ export interface UseDeleteManyProps<
 	TParams,
 > {
 	mutationOptions?: MaybeRef<
-		| Omit<
-			MutationObserverOptions<
-				DeleteManyResult<TData>,
-				TError,
-				DeleteMany.MutationProps<TData, TError, TParams>,
-				DeleteMany.MutationContext<TData>
-			>,
-			| 'mutationFn'
-			| 'onMutate'
-			| 'onSettled'
-			| 'onSuccess'
-			| 'onError'
-			| 'queryClient'
-		>
+		| DeleteMany.MutationOptionsFromProps<TData, TError, TParams>
 		| undefined
 	>
 }
@@ -76,20 +64,26 @@ export function useDeleteMany<
 		}),
 		onMutate: DeleteMany.createMutateHandler<TData, TParams>({
 			queryClient,
+			notify,
+			translate,
+			onMutate: unref(props?.mutationOptions)?.onMutate,
 		}),
 		onSettled: DeleteMany.createSettledHandler<TData, TError, TParams>({
 			queryClient,
+			onSettled: unref(props?.mutationOptions)?.onSettled,
 		}),
 		onSuccess: DeleteMany.createSuccessHandler<TData, TParams>({
 			queryClient,
 			notify,
 			translate,
+			onSuccess: unref(props?.mutationOptions)?.onSuccess,
 		}),
-		onError: DeleteMany.createErrorHandler<TError>({
+		onError: DeleteMany.createErrorHandler<TError, TParams>({
 			queryClient,
 			notify,
 			translate,
 			checkError,
+			onError: unref(props?.mutationOptions)?.onError,
 		}),
 		queryClient,
 	})))

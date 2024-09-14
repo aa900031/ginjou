@@ -68,10 +68,6 @@ export type MutationOptionsFromProps<
 > = Omit<
 	MutationOptions<TData, TError, TParams>,
 	| 'mutationFn'
-	| 'onMutate'
-	| 'onSettled'
-	| 'onSuccess'
-	| 'onError'
 	| 'queryClient'
 >
 
@@ -108,29 +104,39 @@ export function createMutationFn<
 		const fetcher = getFetcher(resolvedProps, fetchers)
 		const mutateFn = () => fetcher.update<TData, TParams>(resolvedProps)
 
-		if (resolvedProps.mutationMode === MutationMode.Undoable) {
-			const deferResult = defer(mutateFn)
+		switch (resolvedProps.mutationMode) {
+			case MutationMode.Undoable: {
+				const deferResult = defer(mutateFn)
 
-			notify(
-				createProgressNotifyParams({
-					method: 'update',
-					props: resolvedProps,
-					defer: deferResult,
-					translate,
-				}),
-			)
+				notify(
+					createProgressNotifyParams({
+						method: 'update',
+						props: resolvedProps,
+						defer: deferResult,
+						translate,
+					}),
+				)
 
-			const result = await deferResult.promise
-			return result
+				const result = await deferResult.promise
+				return result
+			}
+			case MutationMode.Optimistic:
+			case MutationMode.Pessimistic: {
+				const result = await mutateFn()
+				return result
+			}
 		}
-
-		const result = await mutateFn()
-		return result
 	}
 }
 
-export interface CreateMutateHandlerProps {
+export interface CreateMutateHandlerProps<
+	TData extends BaseRecord,
+	TParams,
+> {
 	queryClient: QueryClient
+	notify: NotifyFn
+	translate: TranslateFn<unknown>
+	onMutate: MutationOptions<TData, unknown, TParams>['onMutate']
 }
 
 export function createMutateHandler<
@@ -139,7 +145,10 @@ export function createMutateHandler<
 >(
 	{
 		queryClient,
-	}: CreateMutateHandlerProps,
+		notify,
+		translate,
+		onMutate: onMutateFromProp,
+	}: CreateMutateHandlerProps<TData, TParams>,
 ): NonNullable<MutationOptions<TData, unknown, TParams>['onMutate']> {
 	return async function onMutate(props) {
 		const resolvedProps = resolveMutationProps(props)
@@ -156,21 +165,49 @@ export function createMutateHandler<
 			},
 		)
 
-		if (resolvedProps.mutationMode !== MutationMode.Pessimistic) {
-			updateCache(
-				resolvedProps,
-				queryClient,
-			)
+		switch (resolvedProps.mutationMode) {
+			case MutationMode.Optimistic: {
+				updateCache(
+					resolvedProps,
+					queryClient,
+				)
+
+				setTimeout(() => {
+					dispatchSuccessNotify(
+						notify,
+						translate,
+						{ data: resolvedProps.params },
+						resolvedProps,
+					)
+				}, 0)
+
+				break
+			}
+			case MutationMode.Undoable: {
+				updateCache(
+					resolvedProps,
+					queryClient,
+				)
+				break
+			}
 		}
 
+		const resultFromCallback = await onMutateFromProp?.(resolvedProps)
+
 		return {
+			...resultFromCallback,
 			previousQueries,
 		}
 	}
 }
 
-export interface CreateSettledHandlerProps {
+export interface CreateSettledHandlerProps<
+	TData extends BaseRecord,
+	TError,
+	TParams,
+> {
 	queryClient: QueryClient
+	onSettled: MutationOptions<TData, TError, TParams>['onSettled']
 }
 
 export function createSettledHandler<
@@ -180,12 +217,14 @@ export function createSettledHandler<
 >(
 	{
 		queryClient,
-	}: CreateSettledHandlerProps,
+		onSettled: onSettledFromProp,
+	}: CreateSettledHandlerProps<TData, TError, TParams>,
 ): NonNullable<MutationOptions<TData, TError, TParams>['onSettled']> {
 	return async function onSettled(
-		_data,
-		_error,
+		data,
+		error,
 		props,
+		context,
 	) {
 		const resolvedProps = resolveMutationProps(props)
 
@@ -193,13 +232,19 @@ export function createSettledHandler<
 
 		// eslint-disable-next-line ts/no-use-before-define
 		cacheResolvedProps.delete(props)
+
+		await onSettledFromProp?.(data, error, resolvedProps, context)
 	}
 }
 
-export interface CreateSuccessHandlerProps {
+export interface CreateSuccessHandlerProps<
+	TData extends BaseRecord,
+	TParams,
+> {
+	queryClient: QueryClient
 	notify: NotifyFn
 	translate: TranslateFn<unknown>
-	queryClient: QueryClient
+	onSuccess: MutationOptions<TData, unknown, TParams>['onSuccess']
 }
 
 export function createSuccessHandler<
@@ -207,75 +252,82 @@ export function createSuccessHandler<
 	TParams,
 >(
 	{
+		queryClient,
 		notify,
 		translate,
-		queryClient,
-	}: CreateSuccessHandlerProps,
+		onSuccess: onSuccessFromProp,
+	}: CreateSuccessHandlerProps<TData, TParams>,
 ): NonNullable<MutationOptions<TData, unknown, TParams>['onSuccess']> {
-	return async function onSuccess(data, props) {
+	return async function onSuccess(
+		data,
+		props,
+		context,
+	) {
 		const resolvedProps = resolveMutationProps(props)
 
-		if (resolvedProps.mutationMode === MutationMode.Pessimistic) {
-			updateCache(
-				resolvedProps,
-				queryClient,
-			)
+		switch (resolvedProps.mutationMode) {
+			case MutationMode.Pessimistic:
+				updateCache(resolvedProps, queryClient)
+				dispatchSuccessNotify(notify, translate, data, resolvedProps)
+				break
+			case MutationMode.Undoable:
+				dispatchSuccessNotify(notify, translate, data, resolvedProps)
+				break
 		}
-
-		notify(
-			resolveSuccessNotifyParams(resolvedProps.successNotify, data, resolvedProps),
-			{
-				key: `update-${resolvedProps.resource}-notification`,
-				message: translate('notifications.updateSuccess'),
-				description: translate('notifications.success'),
-				type: NotificationType.Success,
-			},
-		)
 
 		// TODO: publish
 		// TODO: logs
+
+		await onSuccessFromProp?.(data, resolvedProps, context)
 	}
 }
 
-export interface CreateErrorHandlerProps {
+export interface CreateErrorHandlerProps<
+	TError,
+	TParams,
+> {
 	queryClient: QueryClient
 	notify: NotifyFn
-	translate: TranslateFn<unknown>
-	checkError: CheckError.MutationFn<unknown>
+	translate: TranslateFn<TParams>
+	checkError: CheckError.MutationFn<TError>
+	onError: MutationOptions<any, TError, TParams>['onError']
 }
 
 export function createErrorHandler<
 	TError,
+	TParams,
 >(
 	{
 		queryClient,
 		notify,
 		translate,
 		checkError,
-	}: CreateErrorHandlerProps,
-): NonNullable<MutationOptions<any, TError, any>['onError']> {
-	return async function onError(error, variables, context) {
+		onError: onErrorFromProp,
+	}: CreateErrorHandlerProps<TError, TParams>,
+): NonNullable<MutationOptions<any, TError, TParams>['onError']> {
+	return async function onError(error, props, context) {
+		const resolvedProps = resolveMutationProps(props)
+
 		if (context) {
 			for (const query of context.previousQueries)
 				queryClient.setQueryData(query[0], query[1])
 		}
 
-		if (error instanceof AbortDefer)
-			return
+		if (!(error instanceof AbortDefer)) {
+			await checkError(error)
 
-		await checkError(error)
+			notify(
+				resolveErrorNotifyParams(resolvedProps.errorNotify, error, resolvedProps),
+				{
+					key: `update-${resolvedProps.resource}-notification`,
+					message: translate('notifications.updateError'),
+					description: getErrorMessage(error),
+					type: NotificationType.Error,
+				},
+			)
+		}
 
-		const resolvedProps = resolveMutationProps(variables)
-
-		notify(
-			resolveErrorNotifyParams(resolvedProps.errorNotify, error, resolvedProps),
-			{
-				key: `update-${resolvedProps.resource}-notification`,
-				message: translate('notifications.updateError'),
-				description: getErrorMessage(error),
-				type: NotificationType.Error,
-			},
-		)
+		await onErrorFromProp?.(error, resolvedProps, context)
 	}
 }
 
@@ -323,5 +375,24 @@ function updateCache<
 	queryClient.setQueriesData(
 		genGetOneQueryKey({ props }),
 		createModifyOneUpdaterFn<TData, TParams>(props.params),
+	)
+}
+
+function dispatchSuccessNotify<
+	TData extends BaseRecord,
+>(
+	notify: NotifyFn,
+	translate: TranslateFn<any>,
+	data: UpdateResult<TData>,
+	resolvedProps: ResolvedMutationProps<any, any, any>,
+) {
+	notify(
+		resolveSuccessNotifyParams(resolvedProps.successNotify, data, resolvedProps),
+		{
+			key: `update-${resolvedProps.resource}-notification`,
+			message: translate('notifications.updateSuccess'),
+			description: translate('notifications.success'),
+			type: NotificationType.Success,
+		},
 	)
 }

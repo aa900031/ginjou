@@ -1,7 +1,8 @@
 import type { Simplify } from 'type-fest'
 import { computed, unref } from 'vue-demi'
 import type { MaybeRef } from '@vueuse/shared'
-import { type MutationObserverOptions, type UseMutationReturnType, useMutation } from '@tanstack/vue-query'
+import type { UseMutationReturnType } from '@tanstack/vue-query'
+import { useMutation } from '@tanstack/vue-query'
 import { UpdateMany } from '@ginjou/core'
 import type { BaseRecord, UpdateManyResult } from '@ginjou/core'
 import { type UseNotifyContext, useNotify } from '../notification'
@@ -16,20 +17,7 @@ export interface UseUpdateManyProps<
 	TParams,
 > {
 	mutationOptions?: MaybeRef<
-		| Omit<
-			MutationObserverOptions<
-				UpdateManyResult<TData>,
-				TError,
-				UpdateMany.MutationProps<TData, TError, TParams>,
-				UpdateMany.MutationContext<TData>
-			>,
-			| 'mutationFn'
-			| 'onMutate'
-			| 'onSettled'
-			| 'onSuccess'
-			| 'onError'
-			| 'queryClient'
-		>
+		| UpdateMany.MutationOptionsFromProps<TData, TError, TParams>
 		| undefined
 	>
 }
@@ -76,20 +64,26 @@ export function useUpdateMany<
 		}),
 		onMutate: UpdateMany.createMutateHandler<TData, TParams>({
 			queryClient,
+			notify,
+			translate,
+			onMutate: unref(props?.mutationOptions)?.onMutate,
 		}),
 		onSettled: UpdateMany.createSettledHandler<TData, TError, TParams>({
 			queryClient,
+			onSettled: unref(props?.mutationOptions)?.onSettled,
 		}),
 		onSuccess: UpdateMany.createSuccessHandler<TData, TParams>({
 			queryClient,
 			notify,
 			translate,
+			onSuccess: unref(props?.mutationOptions)?.onSuccess,
 		}),
-		onError: UpdateMany.createErrorHandler<TError>({
+		onError: UpdateMany.createErrorHandler<TError, TParams>({
 			queryClient,
 			notify,
 			translate,
 			checkError,
+			onError: unref(props?.mutationOptions)?.onError,
 		}),
 		queryClient,
 	})))
