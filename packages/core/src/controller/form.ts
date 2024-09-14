@@ -1,11 +1,13 @@
 import type { SetOptional, SetRequired } from 'type-fest'
 import type { BaseRecord, CreateResult, GetOneResult, Meta, UpdateResult } from '../query'
-import { getFetcherName } from '../query'
+import { MutationMode, getFetcherName } from '../query'
 import type { MutateFn as CreateMutateFn, MutationOptionsFromProps as CreateMutationOptionsFromProps, MutationProps as CreateMutationProps } from '../query/create'
 import type { MutateFn as UpdateMutateFn, MutationOptionsFromProps as UpdateMutationOptionsFromProps, MutationProps as UpdateMutationProps } from '../query/update'
 import type { QueryOptionsFromProps } from '../query/get-one'
-import type { ResolvedResource, ResourceActionForForm } from '../resource'
-import { getResourceIdentifier } from '../resource'
+import type { ResolvedResource, Resource, ResourceActionForForm, ResourceActionTypeValues } from '../resource'
+import { ResourceActionType, getResourceIdentifier } from '../resource'
+import type { RouterGoFn } from '../router'
+import { createToCreate, createToEdit, createToList, createToShow } from '../router'
 
 export type CreateProps<
 	TMutationParams,
@@ -19,6 +21,7 @@ export type CreateProps<
 	>
 	& {
 		action: 'create'
+		redirect?: ResourceActionTypeValues | false
 		mutationMeta?: Meta
 		mutationOptions?: CreateMutationOptionsFromProps<TMutationData, TMutationError, TMutationParams>
 	},
@@ -41,6 +44,7 @@ export type UpdateProps<
 	>
 	& {
 		action: 'edit'
+		redirect?: ResourceActionTypeValues | false
 		queryMeta?: Meta
 		queryOptions?: QueryOptionsFromProps<TQueryData, TQueryError, TQueryResultData>
 		mutationMeta?: Meta
@@ -209,6 +213,8 @@ export interface CreateSaveFnParams<
 	TMutationData extends BaseRecord,
 	TMutationError,
 > {
+	go: RouterGoFn
+	getResourceContext: () => Resource
 	getProps: () => ResolvedProps<TQueryData, TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError>
 	mutateFnForCreate: CreateMutateFn<TMutationData, TMutationError, TMutationParams>
 	mutateFnForUpdate: UpdateMutateFn<TMutationData, TMutationError, TMutationParams>
@@ -223,34 +229,54 @@ export function createSaveFn<
 	TMutationError,
 >(
 	{
+		go,
+		getResourceContext,
 		getProps,
 		mutateFnForCreate,
 		mutateFnForUpdate,
 	}: CreateSaveFnParams<TQueryData, TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError>,
 ): SaveFn<TMutationParams, TMutationData> {
 	return async function saveFn(params) {
-		const {
-			action,
-			...rest
-		} = getProps()
+		const resourceContext = getResourceContext()
+		const props = getProps()
 
-		switch (action) {
-			case 'create':
-				// TODO: redirect
+		switch (props.action) {
+			case 'create': {
+				const resolvedProps: ResolvedCreateProps<TMutationParams, TMutationData, TMutationError> = props
 				return mutateFnForCreate({
-					...rest as ResolvedCreateProps<TMutationParams, TMutationData, TMutationError>,
+					...resolvedProps,
 					params,
-					meta: rest.mutationMeta,
+					meta: props.mutationMeta,
+				}, {
+					onSuccess: (data) => {
+						dispatchRedirect(go, props as any, resourceContext, data)
+					},
 				})
-			case 'edit':
-				// TODO: mutationMode
-				// TODO: redirect
-				return mutateFnForUpdate({
-					...rest as ResolvedUpdateProps<TQueryData, TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError>,
-					params,
-					meta: rest.mutationMeta,
-				})
+			}
+			case 'edit': {
+				const resolvedProps: ResolvedUpdateProps<TQueryData, TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError> = props
+				const isPessimistic = resolvedProps.mutationMode == null || resolvedProps.mutationMode === MutationMode.Pessimistic
 
+				if (!isPessimistic) {
+					setTimeout(() => {
+						dispatchRedirect(go, props as any, resourceContext, { data: {
+							id: props.id,
+							...params,
+						} })
+					}, 0)
+				}
+
+				return mutateFnForUpdate({
+					...resolvedProps,
+					params,
+					meta: props.mutationMeta,
+				}, {
+					onSuccess: (data) => {
+						if (isPessimistic)
+							dispatchRedirect(go, props as any, resourceContext, data)
+					},
+				})
+			}
 			default:
 				throw new Error('No')
 		}
@@ -276,4 +302,43 @@ export function getRecord<
 		return
 
 	return queryResultData?.data
+}
+
+function dispatchRedirect<
+	TMutationData extends BaseRecord,
+>(
+	go: RouterGoFn,
+	props: ResolvedProps<any, any, any, any, any, TMutationData>,
+	resourceContext: Resource,
+	data: UpdateResult<TMutationData> | CreateResult<TMutationData>,
+) {
+	const actionType = props.redirect
+		?? (
+			props.action === 'create'
+				? ResourceActionType.List
+				: props.action === 'edit'
+					? ResourceActionType.Show
+					: false
+		)
+
+	switch (actionType) {
+		case ResourceActionType.List:
+			return createToList({ resourceContext, go })({
+				resource: props.resource,
+			})
+		case ResourceActionType.Create:
+			return createToCreate({ resourceContext, go })({
+				resource: props.resource,
+			})
+		case ResourceActionType.Edit:
+			return createToEdit({ resourceContext, go })({
+				resource: props.resource,
+				id: data.data.id!,
+			})
+		case ResourceActionType.Show:
+			return createToShow({ resourceContext, go })({
+				resource: props.resource,
+				id: data.data.id!,
+			})
+	}
 }

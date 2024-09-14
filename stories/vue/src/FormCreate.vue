@@ -1,11 +1,18 @@
 <script setup lang="ts">
-import { reactive, shallowRef } from 'vue'
+import { reactive, shallowRef, toRef } from 'vue'
 import { useRoute } from 'vue-router'
 import { useForm } from '@ginjou/vue'
+import type { ResourceActionTypeValues } from '@ginjou/core'
 import type { Post } from './api/posts'
 
+const props = defineProps<{
+	redirect: ResourceActionTypeValues | false
+}>()
+
 const route = useRoute()
-const form = useForm<Post, Partial<Post>>()
+const form = useForm<Post, Partial<Post>>({
+	redirect: toRef(props, 'redirect'),
+})
 const formData = reactive({
 	title: 'Test001',
 	status: 'draft',

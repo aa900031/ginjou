@@ -1,13 +1,16 @@
 import type { Ref } from 'vue-demi'
 import { computed, unref } from 'vue-demi'
-import { type BaseRecord, Form } from '@ginjou/core'
+import type { BaseRecord } from '@ginjou/core'
+import { Form } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
 import type { UseCreateContext, UseGetOneContext, UseUpdateContext } from '../query'
 import { useCreate, useGetOne, useUpdate } from '../query'
 import type { UseResourceContext } from '../resource'
-import { useResource } from '../resource'
+import { useResource, useResourceContext } from '../resource'
 import type { ToMaybeRefs } from '../utils/refs'
 import { unrefs } from '../utils/unrefs'
+import type { UseGoContext } from '../router'
+import { useGo } from '../router'
 
 export type UseFormProps<
 	TQueryData extends BaseRecord,
@@ -25,6 +28,7 @@ export type UseFormContext = Simplify<
 	& UseGetOneContext
 	& UseCreateContext
 	& UseUpdateContext
+	& UseGoContext
 >
 
 export type UseFormResult<
@@ -50,7 +54,10 @@ export function useForm<
 	props?: UseFormProps<TQueryData, TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError>,
 	context?: UseFormContext,
 ): UseFormResult<TMutationParams, TQueryResultData, TMutationData> {
+	const resourceContext = useResourceContext(context)
 	const resource = useResource({ name: props?.resource }, context)
+	const go = useGo(context)
+
 	const resolvedProps = computed(() => Form.resolveProps<TQueryData, TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError>({
 		// eslint-disable-next-line ts/ban-ts-comment
 		// @ts-expect-error
@@ -105,6 +112,8 @@ export function useForm<
 	}))
 
 	const save = Form.createSaveFn<TQueryData, TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError>({
+		go,
+		getResourceContext: () => unref(resourceContext!),
 		getProps: () => unref(resolvedProps),
 		mutateFnForCreate: mutationCreateResult.mutateAsync,
 		mutateFnForUpdate: mutationUpdateResult.mutateAsync,
