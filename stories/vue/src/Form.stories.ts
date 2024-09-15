@@ -1,7 +1,6 @@
 import { vueRouter } from 'storybook-vue3-router'
 import type { Meta, StoryObj } from '@storybook/vue3'
 import { factory } from '@mswjs/data'
-import { h } from 'vue'
 import MOCK_POSTS from '../data/mock-posts.json'
 import { MockModel } from './api/posts'
 import { createMsw } from './utils/msw'
@@ -12,6 +11,7 @@ import { argTypes as MutationModeArgTypes, args as MutationModeArgs } from './ut
 import { argTypes as RedirectArgTypes } from './utils/sb-args/redirect'
 import FormCreate from './FormCreate.vue'
 import FormEdit from './FormEdit.vue'
+import { PostCreate, PostEdit, PostList, PostShow } from './utils/sb-renders/post-simple-view'
 
 const meta: Meta = {
 	title: 'Controllers/Form',
@@ -31,6 +31,8 @@ export const Create: StoryObj<typeof meta> = {
 					name: 'posts',
 					create: '/posts/create',
 					list: '/posts',
+					show: '/posts/:id',
+					edit: '/posts/:id/edit',
 				},
 			],
 			router: true,
@@ -42,12 +44,20 @@ export const Create: StoryObj<typeof meta> = {
 				redirect: '/posts/create',
 			},
 			{
-				path: '/posts',
-				component: () => h('h1', 'Posts'),
-			},
-			{
 				path: '/posts/create',
 				component: FormCreate,
+			},
+			{
+				path: '/posts',
+				component: PostList,
+			},
+			{
+				path: '/posts/:id',
+				component: PostShow,
+			},
+			{
+				path: '/posts/:id/edit',
+				component: PostEdit,
 			},
 		]),
 	],
@@ -67,6 +77,8 @@ export const Edit: StoryObj<typeof meta> = {
 					name: 'posts',
 					edit: '/posts/:id/edit',
 					show: '/posts/:id',
+					create: '/posts/create',
+					list: '/posts',
 				},
 			],
 			router: true,
@@ -78,12 +90,20 @@ export const Edit: StoryObj<typeof meta> = {
 				redirect: '/posts/6c6d3a48-8eef-4c96-a1ba-156bdfd3d389/edit',
 			},
 			{
-				path: '/posts/:id',
-				component: () => h('h1', 'Posts'),
-			},
-			{
 				path: '/posts/:id/edit',
 				component: FormEdit,
+			},
+			{
+				path: '/posts/:id',
+				component: PostShow,
+			},
+			{
+				path: '/posts/create',
+				component: PostCreate,
+			},
+			{
+				path: '/posts',
+				component: PostList,
 			},
 		]),
 	],
