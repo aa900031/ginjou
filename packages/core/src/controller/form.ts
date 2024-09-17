@@ -4,10 +4,20 @@ import { MutationMode, getFetcherName } from '../query'
 import type { MutateFn as CreateMutateFn, MutationOptionsFromProps as CreateMutationOptionsFromProps, MutationProps as CreateMutationProps } from '../query/create'
 import type { MutateFn as UpdateMutateFn, MutationOptionsFromProps as UpdateMutationOptionsFromProps, MutationProps as UpdateMutationProps } from '../query/update'
 import type { QueryOptionsFromProps } from '../query/get-one'
-import type { ResolvedResource, Resource, ResourceActionForForm, ResourceActionTypeValues } from '../resource'
+import type { ResolvedResource, ResourceActionForForm, ResourceActionTypeValues } from '../resource'
 import { ResourceActionType, getResourceIdentifier } from '../resource'
-import type { RouterGoFn } from '../router'
-import { createToCreate, createToEdit, createToList, createToShow } from '../router'
+import type { NavigateToFn, NavigateToProps } from '../router'
+
+export type RedirectTo<
+	TResultData,
+> =
+	| ResourceActionTypeValues
+	| NavigateToProps
+	| (
+		(data: TResultData) =>
+		| ResourceActionTypeValues
+		| NavigateToProps
+	)
 
 export type CreateProps<
 	TMutationParams,
@@ -21,7 +31,7 @@ export type CreateProps<
 	>
 	& {
 		action: 'create'
-		redirect?: ResourceActionTypeValues | false
+		redirect?: RedirectTo<CreateResult<TMutationData>>
 		mutationMeta?: Meta
 		mutationOptions?: CreateMutationOptionsFromProps<TMutationData, TMutationError, TMutationParams>
 	},
@@ -44,7 +54,7 @@ export type UpdateProps<
 	>
 	& {
 		action: 'edit'
-		redirect?: ResourceActionTypeValues | false
+		redirect?: RedirectTo<UpdateResult<TMutationData>>
 		queryMeta?: Meta
 		queryOptions?: QueryOptionsFromProps<TQueryData, TQueryError, TQueryResultData>
 		mutationMeta?: Meta
@@ -213,8 +223,7 @@ export interface CreateSaveFnParams<
 	TMutationData extends BaseRecord,
 	TMutationError,
 > {
-	go: RouterGoFn
-	getResourceContext: () => Resource
+	navigateTo: NavigateToFn
 	getProps: () => ResolvedProps<TQueryData, TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError>
 	mutateFnForCreate: CreateMutateFn<TMutationData, TMutationError, TMutationParams>
 	mutateFnForUpdate: UpdateMutateFn<TMutationData, TMutationError, TMutationParams>
@@ -229,15 +238,13 @@ export function createSaveFn<
 	TMutationError,
 >(
 	{
-		go,
-		getResourceContext,
+		navigateTo,
 		getProps,
 		mutateFnForCreate,
 		mutateFnForUpdate,
 	}: CreateSaveFnParams<TQueryData, TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError>,
 ): SaveFn<TMutationParams, TMutationData> {
 	return async function saveFn(params) {
-		const resourceContext = getResourceContext()
 		const props = getProps()
 
 		switch (props.action) {
@@ -249,7 +256,11 @@ export function createSaveFn<
 					meta: props.mutationMeta,
 				}, {
 					onSuccess: (data) => {
-						dispatchRedirect(go, props as any, resourceContext, data)
+						dispatchRedirect(
+							navigateTo,
+							resolvedProps,
+							data,
+						)
 					},
 				})
 			}
@@ -259,10 +270,11 @@ export function createSaveFn<
 
 				if (!isPessimistic) {
 					setTimeout(() => {
-						dispatchRedirect(go, props as any, resourceContext, { data: {
-							id: props.id,
-							...params,
-						} })
+						dispatchRedirect(
+							navigateTo,
+							resolvedProps,
+							{ data: { id: props.id, ...params as any } },
+						)
 					}, 0)
 				}
 
@@ -272,8 +284,13 @@ export function createSaveFn<
 					meta: props.mutationMeta,
 				}, {
 					onSuccess: (data) => {
-						if (isPessimistic)
-							dispatchRedirect(go, props as any, resourceContext, data)
+						if (isPessimistic) {
+							dispatchRedirect(
+								navigateTo,
+								resolvedProps,
+								data,
+							)
+						}
 					},
 				})
 			}
@@ -306,39 +323,43 @@ export function getRecord<
 
 function dispatchRedirect<
 	TMutationData extends BaseRecord,
+	TMutationParams,
 >(
-	go: RouterGoFn,
-	props: ResolvedProps<any, any, any, any, any, TMutationData>,
-	resourceContext: Resource,
+	navigateTo: NavigateToFn,
+	props: ResolvedProps<any, TMutationParams, any, any, TMutationData, any>,
 	data: UpdateResult<TMutationData> | CreateResult<TMutationData>,
 ) {
-	const actionType = props.redirect
-		?? (
-			props.action === 'create'
-				? ResourceActionType.List
-				: props.action === 'edit'
-					? ResourceActionType.Show
-					: false
-		)
+	const resolvedRedirectTo = (
+		typeof props.redirect === 'function'
+			? props.redirect(data)
+			: props.redirect
+	) ?? (
+		props.action === 'create'
+			? ResourceActionType.List
+			: props.action === 'edit'
+				? ResourceActionType.Show
+				: false
+	)
 
-	switch (actionType) {
-		case ResourceActionType.List:
-			return createToList({ resourceContext, go })({
-				resource: props.resource,
-			})
-		case ResourceActionType.Create:
-			return createToCreate({ resourceContext, go })({
-				resource: props.resource,
-			})
-		case ResourceActionType.Edit:
-			return createToEdit({ resourceContext, go })({
-				resource: props.resource,
-				id: data.data.id!,
-			})
-		case ResourceActionType.Show:
-			return createToShow({ resourceContext, go })({
-				resource: props.resource,
-				id: data.data.id!,
-			})
-	}
+	const resolvedNavigateProps: NavigateToProps = (() => {
+		switch (resolvedRedirectTo) {
+			case ResourceActionType.List:
+			case ResourceActionType.Create:
+				return {
+					resource: props.resource,
+					action: resolvedRedirectTo,
+				}
+			case ResourceActionType.Edit:
+			case ResourceActionType.Show:
+				return {
+					resource: props.resource,
+					action: resolvedRedirectTo,
+					id: data.data.id!,
+				}
+			default:
+				return resolvedRedirectTo
+		}
+	})()
+
+	return navigateTo(resolvedNavigateProps)
 }

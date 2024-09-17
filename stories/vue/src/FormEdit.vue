@@ -2,12 +2,12 @@
 import { reactive, toRef, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useForm } from '@ginjou/vue'
-import type { MutationModeValues, ResourceActionTypeValues } from '@ginjou/core'
+import type { MutationModeValues } from '@ginjou/core'
 import type { Post } from './api/posts'
 
 const props = defineProps<{
 	mutationMode: MutationModeValues
-	redirect: ResourceActionTypeValues | false
+	redirect?: any
 }>()
 
 const route = useRoute()

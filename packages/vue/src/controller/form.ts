@@ -6,11 +6,11 @@ import type { Simplify } from 'type-fest'
 import type { UseCreateContext, UseGetOneContext, UseUpdateContext } from '../query'
 import { useCreate, useGetOne, useUpdate } from '../query'
 import type { UseResourceContext } from '../resource'
-import { useResource, useResourceContext } from '../resource'
+import { useResource } from '../resource'
 import type { ToMaybeRefs } from '../utils/refs'
 import { unrefs } from '../utils/unrefs'
 import type { UseGoContext } from '../router'
-import { useGo } from '../router'
+import { useNavigateTo } from '../router'
 
 export type UseFormProps<
 	TQueryData extends BaseRecord,
@@ -54,9 +54,8 @@ export function useForm<
 	props?: UseFormProps<TQueryData, TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError>,
 	context?: UseFormContext,
 ): UseFormResult<TMutationParams, TQueryResultData, TMutationData> {
-	const resourceContext = useResourceContext(context)
 	const resource = useResource({ name: props?.resource }, context)
-	const go = useGo(context)
+	const navigateTo = useNavigateTo()
 
 	const resolvedProps = computed(() => Form.resolveProps<TQueryData, TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError>({
 		// eslint-disable-next-line ts/ban-ts-comment
@@ -112,8 +111,7 @@ export function useForm<
 	}))
 
 	const save = Form.createSaveFn<TQueryData, TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError>({
-		go,
-		getResourceContext: () => unref(resourceContext!),
+		navigateTo,
 		getProps: () => unref(resolvedProps),
 		mutateFnForCreate: mutationCreateResult.mutateAsync,
 		mutateFnForUpdate: mutationUpdateResult.mutateAsync,

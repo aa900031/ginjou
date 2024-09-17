@@ -2,11 +2,10 @@
 import { reactive, shallowRef, toRef } from 'vue'
 import { useRoute } from 'vue-router'
 import { useForm } from '@ginjou/vue'
-import type { ResourceActionTypeValues } from '@ginjou/core'
 import type { Post } from './api/posts'
 
 const props = defineProps<{
-	redirect: ResourceActionTypeValues | false
+	redirect?: any
 }>()
 
 const route = useRoute()
