@@ -4,6 +4,7 @@ import { NotificationType, type NotifyFn } from '../notification'
 import type { TranslateFn } from '../i18n'
 import type { CheckError } from '../auth'
 import { getErrorMessage } from '../utils/error'
+import { createQueryKey as createResourceQueryKey } from './resource'
 import { getFetcher, resolveFetcherProps } from './fetchers'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { BaseRecord, GetOneProps, GetOneResult } from './fetcher'
@@ -33,10 +34,10 @@ export type QueryOptionsFromProps<
 
 export type QueryProps = Simplify<
 	& SetOptional<
-			GetOneProps,
-			| 'id'
-			| 'resource'
-		>
+		GetOneProps,
+		| 'id'
+		| 'resource'
+	>
 	& FetcherProps
 >
 
@@ -73,13 +74,14 @@ export interface CreateQueryKeyProps {
 }
 
 export function createQueryKey(
-	props: CreateQueryKeyProps,
+	{
+		props,
+	}: CreateQueryKeyProps,
 ): QueryKey {
-	const { fetcherName, resource, id, meta } = props.props
+	const { id, meta } = props
 
 	return [
-		fetcherName,
-		resource,
+		...createResourceQueryKey({ props }),
 		'getOne',
 		id,
 		{ meta },

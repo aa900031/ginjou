@@ -1,7 +1,10 @@
 import { delay } from 'msw'
-import { getCurrentInstance, provide } from 'vue'
-import type { Auth, Fetchers, I18n, ResourceDefinition } from '@ginjou/core'
-import { defineAuthContext, defineFetchers, defineI18nContext, defineResourceContext, defineRouterContext } from '@ginjou/vue'
+import { provide } from 'vue'
+import type { ToastMessageOptions } from 'primevue/toast'
+import Toast from 'primevue/toast'
+import { useToast } from 'primevue/usetoast'
+import { type Auth, type Fetchers, type I18n, type Notification, NotificationType, type ResourceDefinition } from '@ginjou/core'
+import { defineAuthContext, defineFetchers, defineI18nContext, defineNotificationContext, defineResourceContext, defineRouterContext } from '@ginjou/vue'
 import { createRouterBinding } from '@ginjou/with-vue-router'
 import { createFetcher } from '@ginjou/with-rest-api'
 import { QueryClient } from '@tanstack/vue-query'
@@ -15,45 +18,45 @@ export type CreateWrapperProps =
 		auth?: Auth | boolean
 		i18n?: I18n | boolean
 		queryClient?: QueryClient
+		notification?: Notification | boolean
 	}
 
 export function createWrapper(
 	props?: CreateWrapperProps,
 ): Decorator {
-	const inited = new WeakSet()
-
 	const resolved = {
-		fetchers: props?.fetchers ?? createFetchers(),
+		fetchers: props?.fetchers ?? createFetchers,
 		queryClient: props?.queryClient ?? new QueryClient(),
 		resources: props?.resources,
 		auth: props?.auth === true
-			? createAuth()
+			? createAuth
 			: props?.auth === false
 				? undefined
 				: props?.auth,
 		i18n: props?.i18n === true
-			? createI18n()
+			? createI18n
 			: props?.i18n === false
 				? undefined
 				: props?.i18n,
 		router: props?.router ?? false,
+		notification: props?.notification === true
+			? createNotification
+			: props?.notification === false
+				? undefined
+				: props?.notification,
 	} as const
 
 	return story => ({
 		name: 'GinjouWrapper',
-		components: { story },
+		components: { story, Toast },
 		setup: () => {
-			const { app } = getCurrentInstance()!.appContext
-			if (inited.has(app))
-				return
-
 			for (const [key, value] of Object.entries(resolved)) {
 				switch (key) {
 					case 'queryClient':
 						provide('VUE_QUERY_CLIENT', value)
 						break
 					case 'fetchers':
-						defineFetchers(value as any)
+						defineFetchers((typeof value === 'function' ? value() : value) as any)
 						break
 					case 'resources':
 						defineResourceContext({
@@ -66,17 +69,39 @@ export function createWrapper(
 						)
 						break
 					case 'auth':
-						value && defineAuthContext(value as Auth)
+						value && defineAuthContext((typeof value === 'function' ? value() : value) as any)
 						break
 					case 'i18n':
-						value && defineI18nContext(value as I18n)
+						value && defineI18nContext((typeof value === 'function' ? value() : value) as any)
+						break
+					case 'notification':
+						value && defineNotificationContext((typeof value === 'function' ? value() : value) as any)
 						break
 				}
 			}
 
-			inited.add(app)
+			function handleToastClose({ message }: { message: ToastMessageOptions }) {
+				if ('_onCancel' in message && typeof message._onCancel === 'function')
+					message._onCancel()
+			}
+
+			function handleToastLifeEnd({ message }: { message: ToastMessageOptions }) {
+				if ('_onFinish' in message && typeof message._onFinish === 'function')
+					message._onFinish()
+			}
+
+			return {
+				handleToastClose,
+				handleToastLifeEnd,
+			}
 		},
-		template: '<story />',
+		template: `
+			<story />
+			<Toast
+				@close="handleToastClose"
+				@life-end="handleToastLifeEnd"
+			/>
+		`,
 	})
 }
 
@@ -173,6 +198,73 @@ function createI18n(): I18n {
 		onChangeLocale: (handler) => {
 			subscribes.add(handler)
 			return () => subscribes.delete(handler)
+		},
+	}
+}
+
+function createNotification(): Notification {
+	const toast = useToast()
+	const removeFnMap = new Map<string, () => void>()
+
+	return {
+		open: (params) => {
+			switch (params.type) {
+				case NotificationType.Success:
+				case NotificationType.Error: {
+					const opt: ToastMessageOptions = {
+						severity: params.type,
+						summary: params.message,
+						detail: params.description,
+						life: 3000,
+						...{
+							onFinish: () => {
+								params.key
+								&& removeFnMap.delete(params.key)
+							},
+							_onCancel: () => {
+								params.key
+								&& removeFnMap.delete(params.key)
+							},
+						},
+					}
+					toast.add(opt)
+					params.key
+					&& removeFnMap.set(params.key, () => toast.remove(opt))
+
+					break
+				}
+				case NotificationType.Progress: {
+					const opt: ToastMessageOptions = {
+						severity: 'secondary',
+						summary: params.message,
+						detail: params.description,
+						life: params.timeout,
+						...{
+							_onFinish: () => {
+								params.key
+								&& removeFnMap.delete(params.key)
+								params.onFinish()
+							},
+							_onCancel: async () => {
+								params.key
+								&& removeFnMap.delete(params.key)
+								params.onCancel()
+							},
+						} as any,
+					}
+					toast.add(opt)
+
+					params.key
+					&& removeFnMap.set(params.key, () => toast.remove(opt))
+
+					break
+				}
+				default:
+					break
+			}
+		},
+		close: (key) => {
+			removeFnMap.get(key)?.()
 		},
 	}
 }

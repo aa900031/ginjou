@@ -1,7 +1,8 @@
 import type { Simplify } from 'type-fest'
 import { computed, unref } from 'vue-demi'
 import type { MaybeRef } from '@vueuse/shared'
-import { type UseMutationReturnType, useMutation } from '@tanstack/vue-query'
+import type { UseMutationReturnType } from '@tanstack/vue-query'
+import { useMutation } from '@tanstack/vue-query'
 import { Update } from '@ginjou/core'
 import type { BaseRecord, UpdateResult } from '@ginjou/core'
 import { type UseNotifyContext, useNotify } from '../notification'
@@ -58,22 +59,31 @@ export function useUpdate<
 		...unref(props?.mutationOptions) as any, // TODO:
 		mutationFn: Update.createMutationFn<TData, TParams>({
 			fetchers,
-		}),
-		onMutate: Update.createMutateHandler<TData, TParams>({
-			queryClient,
-		}),
-		onSettled: Update.createSettledHandler<TData, TError, TParams>({
-			queryClient,
-		}),
-		onSuccess: Update.createSuccessHandler<TData, TParams>({
 			notify,
 			translate,
 		}),
-		onError: Update.createErrorHandler<TError>({
+		onMutate: Update.createMutateHandler<TData, TParams>({
+			queryClient,
+			notify,
+			translate,
+			onMutate: unref(props?.mutationOptions)?.onMutate,
+		}),
+		onSettled: Update.createSettledHandler<TData, TError, TParams>({
+			queryClient,
+			onSettled: unref(props?.mutationOptions)?.onSettled,
+		}),
+		onSuccess: Update.createSuccessHandler<TData, TParams>({
+			queryClient,
+			notify,
+			translate,
+			onSuccess: unref(props?.mutationOptions)?.onSuccess,
+		}),
+		onError: Update.createErrorHandler<TError, TParams>({
 			queryClient,
 			notify,
 			translate,
 			checkError,
+			onError: unref(props?.mutationOptions)?.onError,
 		}),
 		queryClient,
 	})))

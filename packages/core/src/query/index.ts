@@ -12,6 +12,14 @@ export type {
 	NotifyProps,
 } from './notify'
 
+export type {
+	MutationModeValues,
+	MutationModeProps,
+} from './mutation-mode'
+export {
+	MutationMode,
+} from './mutation-mode'
+
 export * as GetOne from './get-one'
 export * as GetMany from './get-many'
 export * as GetList from './get-list'
