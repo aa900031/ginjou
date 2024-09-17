@@ -216,7 +216,7 @@ function genFilters(
 		if (filter.operator !== 'or' && filter.operator !== 'and' && 'field' in filter) {
 			const { field, value } = filter
 
-			if (value) {
+			if (value != null) {
 				if (field === 'search')
 					result.search = value
 				else

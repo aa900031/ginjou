@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.7
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/with-directus@0.1.0-beta.6...@ginjou/with-directus@0.1.0-beta.7)
+
+### 🩹 Fixes
+
+-  **directus:** Not apply filter when filter.value are falsey ([067428f](https://github.com/aa900031/ginjou/commit/067428f01882aac0cd802e6b4fc6fb7e2ea8e3f7))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.6
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/with-directus@0.1.0-beta.5...@ginjou/with-directus@0.1.0-beta.6)
