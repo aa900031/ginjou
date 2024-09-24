@@ -24,19 +24,19 @@ export function createEmitFn<
 	}: CreateEmitFnProps,
 ): EmitFn<TPayload> {
 	return function emitFn(event) {
+		if (typeof realtime?.publish !== 'function')
+			return
+
 		const _event = resolveEvent(event)
-		realtime?.publish?.(_event)
+		realtime.publish(_event)
 	}
 }
 
 function resolveEvent<
 	TPayload,
 >(
-	event: SetOptional<
-		RealtimeEvent<TPayload>,
-		| 'date'
-	>,
-): RealtimeEvent {
+	event: EmitEvent<TPayload>,
+): RealtimeEvent<TPayload> {
 	return {
 		...event,
 		date: event.date ?? new Date(),
