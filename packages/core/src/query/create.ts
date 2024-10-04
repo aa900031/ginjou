@@ -4,6 +4,8 @@ import { NotificationType, type NotifyFn } from '../notification'
 import type { TranslateFn } from '../i18n'
 import type { CheckError } from '../auth'
 import { getErrorMessage } from '../utils/error'
+import type { Publish } from '../realtime'
+import { RealtimeAction } from '../realtime/event'
 import type { InvalidateTargetType, InvalidatesProps, ResolvedInvalidatesProps } from './invalidate'
 import { InvalidateTarget, resolveInvalidateProps, triggerInvalidates } from './invalidate'
 import { getFetcher, resolveFetcherProps } from './fetchers'
@@ -11,6 +13,8 @@ import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { BaseRecord, CreateProps, CreateResult } from './fetcher'
 import type { NotifyProps } from './notify'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
+import type { PublishPayload } from './publish'
+import { createPublishMeta, createPublishPayloadByOne } from './publish'
 
 export type MutationProps<
 	TData extends BaseRecord,
@@ -89,6 +93,7 @@ export function createMutationFn<
 export interface CreateSuccessHandlerProps {
 	notify: NotifyFn
 	translate: TranslateFn<unknown>
+	publish: Publish.EmitFn<PublishPayload>
 	queryClient: QueryClient
 }
 
@@ -99,6 +104,7 @@ export function createSuccessHandler<
 	{
 		notify,
 		translate,
+		publish,
 		queryClient,
 	}: CreateSuccessHandlerProps,
 ): NonNullable<MutationOptions<TData, unknown, TParams>['onSuccess']> {
@@ -117,8 +123,12 @@ export function createSuccessHandler<
 
 		await triggerInvalidates(resolvedProps, queryClient)
 
-		// TODO: publish
+		publish(
+			createPublishEvent(resolvedProps, data),
+		)
+
 		// TODO: logs
+		// TODO: onSuccess
 	}
 }
 
@@ -151,6 +161,21 @@ export function createErrorHandler<
 				type: NotificationType.Error,
 			},
 		)
+	}
+}
+
+function createPublishEvent(
+	resolvedProps: ResolvedMutationProps<any, any, any>,
+	data: CreateResult,
+): Publish.EmitEvent<PublishPayload> {
+	const payload = createPublishPayloadByOne(resolvedProps, data)
+	const meta = createPublishMeta(resolvedProps)
+
+	return {
+		channel: `resources/${resolvedProps.resource}`,
+		action: RealtimeAction.Created,
+		payload,
+		meta,
 	}
 }
 
