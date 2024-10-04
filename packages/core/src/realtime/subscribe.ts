@@ -1,60 +1,65 @@
-import type { ValueOf } from 'type-fest'
-import type { Filter, Meta, Pagination, RecordKey, Sorters } from '../query'
-import type { UnsubscribeKey } from './unsubscribe'
-import type { RealtimeActionValues, RealtimeEvent } from './realtime'
+import type { SetOptional, SetRequired, Simplify } from 'type-fest'
+import { noop } from 'lodash-unified'
+import type { Realtime, SubscribeProps } from './realtime'
+import { RealtimeAction } from './event'
 
-export const SubscribeType = {
-	List: 'list',
-	One: 'one',
-	Many: 'many',
-} as const
-
-export type SubscribeTypeValues = ValueOf<typeof SubscribeType>
-
-export interface SubscribeListParams {
-	type: typeof SubscribeType.List
-	resource: string
-	pagination?: Pagination<any>
-	sorters?: Sorters
-	filters?: Filter
-	meta?: Meta
-}
-
-export interface SubscribeOneParams {
-	type: typeof SubscribeType.One
-	resource: string
-	id: RecordKey
-	meta?: Meta
-}
-
-export interface SubscribeManyParams {
-	type: typeof SubscribeType.Many
-	resource: string
-	ids: RecordKey[]
-	meta?: Meta
-}
-
-export type SubscribeCallbackFn<
+export type Props<
 	TPayload,
-> = (
-	event: RealtimeEvent<TPayload>
-) => void
+> = Simplify<
+	& SetOptional<
+		SubscribeProps<TPayload>,
+		| 'actions'
+		| 'callback'
+	>
+	& {
+		enabled?: boolean
+	}
+>
 
-export interface SubscribeProps<
+export type ResolvedProps<
 	TPayload,
-> {
-	channel: string
-	actions: RealtimeActionValues[]
-	callback: SubscribeCallbackFn<TPayload>
-	params?:
-		| SubscribeListParams
-		| SubscribeOneParams
-		| SubscribeManyParams
-	meta?: Meta
-}
+> = SetRequired<
+	Props<TPayload>,
+	| 'actions'
+	| 'callback'
+>
 
-export type SubscribeFn = <
+const DEFAULT_ACTIONS = [RealtimeAction.Any]
+
+export function resolveProps<
 	TPayload,
 >(
-	props: SubscribeProps<TPayload>,
-) => UnsubscribeKey
+	props: Props<TPayload>,
+): ResolvedProps<TPayload> {
+	return {
+		...props,
+		enabled: props.enabled ?? true,
+		actions: props.actions ?? DEFAULT_ACTIONS,
+		callback: props.callback ?? noop,
+	}
+}
+
+export interface RegisterProps<
+	TPayload,
+> {
+	props: ResolvedProps<TPayload>
+	realtime: Realtime | undefined
+}
+
+export function register<
+	TPayload,
+>(
+	{
+		props,
+		realtime,
+	}: RegisterProps<TPayload>,
+): () => void {
+	if (!realtime || !props.enabled)
+		return noop
+
+	const id = realtime.subscribe<TPayload>(props)
+
+	return () => {
+		realtime!.unsubscribe?.(id)
+	}
+}

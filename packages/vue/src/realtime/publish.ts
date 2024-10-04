@@ -1,4 +1,4 @@
-import { EmitPublish } from '@ginjou/core'
+import { Publish } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
 import type { UseRealtimeContextFormProps } from './realtime'
 import { useRealtimeContext } from './realtime'
@@ -7,12 +7,14 @@ export type UsePublishContext = Simplify<
 	& UseRealtimeContextFormProps
 >
 
-export function usePublish(
+export function usePublish<
+	TPayload,
+>(
 	context?: UsePublishContext,
-) {
+): Publish.EmitFn<TPayload> {
 	const realtime = useRealtimeContext(context)
 
-	return EmitPublish.createEmitFn({
+	return Publish.createEmitFn({
 		realtime,
 	})
 }
