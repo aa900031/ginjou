@@ -9,6 +9,7 @@ import type { FetcherProps, Fetchers } from './fetchers'
 import type { BaseRecord, CustomProps, CustomResult } from './fetcher'
 import type { NotifyProps } from './notify'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
+import type { RealtimeProps } from './realtime'
 
 export type QueryOptions<
 	TData extends BaseRecord,
@@ -37,6 +38,26 @@ export type ResolvedQueryProps<
 			FetcherProps,
 			| 'fetcherName'
 		>
+>
+
+export type Props<
+	TData extends BaseRecord,
+	TError,
+	TResultData extends BaseRecord,
+	TQuery,
+	TPayload,
+> = Simplify<
+	& QueryProps<TQuery, TPayload>
+	& NotifyProps<CustomResult<TResultData>, ResolvedQueryProps<TQuery, TPayload>, TError>
+	& RealtimeProps<unknown> // TODO:
+	& {
+		queryOptions?: Omit<
+			QueryOptions<TData, TError, TResultData>,
+			| 'queryFn'
+			| 'queryKey'
+			| 'queryClient'
+		>
+	}
 >
 
 export function resolveQueryProps<
