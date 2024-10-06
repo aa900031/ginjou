@@ -26,14 +26,17 @@ export function useSubscribe<
 	context?: UseSubscribeContext,
 ): UseSubscribeResult {
 	const realtime = useRealtimeContext(context)
-	const resolvedProps = computed(() => Subscribe.resolveProps<TPayload>({
-		channel: unref(props.channel),
-		actions: unref(props.actions),
-		callback: unref(props.callback),
-		params: unref(props.params),
-		meta: unref(props.meta),
-		enabled: unref(props.enabled),
-	}))
+	const resolvedProps = computed(() =>
+		Subscribe.resolveProps<TPayload>(
+			{
+				channel: unref(props.channel),
+				actions: unref(props.actions),
+				callback: unref(props.callback),
+				params: unref(props.params),
+				meta: unref(props.meta),
+				enabled: unref(props.enabled),
+			},
+		))
 
 	const stop = watch(resolvedProps, (val, oldVal, onCleanup) => {
 		const unsubscribe = Subscribe.register<TPayload>({

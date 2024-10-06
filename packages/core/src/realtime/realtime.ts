@@ -1,7 +1,7 @@
-import type { ValueOf } from 'type-fest'
-import type { Filter, Meta, Pagination, RecordKey, Sorters } from '../query'
-
+import type { SetRequired, Simplify, ValueOf } from 'type-fest'
+import type { Filters, Meta, Pagination, RecordKey, Sorters } from '../query'
 import type { RealtimeActionValues, RealtimeEvent } from './event'
+import type { RealtimeModeValue } from './mode'
 
 export const SubscribeType = {
 	List: 'list',
@@ -16,7 +16,7 @@ export interface SubscribeListParams {
 	resource: string
 	pagination?: Pagination<any>
 	sorters?: Sorters
-	filters?: Filter
+	filters?: Filters
 	meta?: Meta
 }
 
@@ -50,6 +50,7 @@ export interface SubscribeProps<
 		| SubscribeListParams
 		| SubscribeOneParams
 		| SubscribeManyParams
+		| Record<string, any>
 	meta?: Meta
 }
 
@@ -74,8 +75,32 @@ export type PublishFn = <
 	event: RealtimeEvent<TPayload>
 ) => void
 
+export interface RealtimeOptions<
+	TPayload,
+> {
+	mode?: RealtimeModeValue
+	callback?: SubscribeCallbackFn<TPayload>
+	channel?: string
+	params?: Record<string, unknown>
+}
+
+export type RealtimeContextOptions<
+	TPayload,
+> = Simplify<Omit<
+	RealtimeOptions<TPayload>,
+	| 'channel'
+>>
+
+export type ResolvedRealtimeOptions<
+	TPayload,
+> = SetRequired<
+	RealtimeOptions<TPayload>,
+	| 'mode'
+>
+
 export interface Realtime {
 	subscribe: SubscribeFn
 	unsubscribe?: UnsubscribeFn
 	publish?: PublishFn
+	options?: RealtimeContextOptions<unknown>
 }

@@ -1,11 +1,11 @@
 import type { Simplify } from 'type-fest'
 import type { Ref } from 'vue-demi'
 import { computed, unref } from 'vue-demi'
-import { toValue } from '@vueuse/shared'
+import { toRef, toValue } from '@vueuse/shared'
 import type { UseQueryReturnType } from '@tanstack/vue-query'
 import { useQuery } from '@tanstack/vue-query'
 import type { BaseRecord, GetListResult } from '@ginjou/core'
-import { GetList } from '@ginjou/core'
+import { GetList, RealtimeAction, createSubscribeCallback, getSubscribeChannel } from '@ginjou/core'
 import type { UseNotifyContext } from '../notification'
 import { useNotify } from '../notification'
 import type { UseTranslateContext } from '../i18n'
@@ -13,6 +13,8 @@ import { useTranslate } from '../i18n'
 import type { UseCheckErrorContext } from '../auth'
 import { useCheckError } from '../auth'
 import type { ToMaybeRefs } from '../utils/refs'
+import type { UseSubscribeContext } from '../realtime'
+import { useRealtimeOptions, useSubscribe } from '../realtime'
 import { useQueryClientContext } from './query-client'
 import type { UseQueryClientContextProps } from './query-client'
 import { useFetchersContext } from './fetchers'
@@ -33,6 +35,7 @@ export type UseGetListContext = Simplify<
 	& UseNotifyContext
 	& UseTranslateContext
 	& UseCheckErrorContext
+	& UseSubscribeContext
 >
 
 export type UseGetListResult<
@@ -57,6 +60,7 @@ export function useGetList<
 ): UseGetListResult<TError, TResultData, TPageParam> {
 	const queryClient = useQueryClientContext(context)
 	const fetchers = useFetchersContext({ ...context, strict: true })
+	const realtimeOptions = useRealtimeOptions(toRef(() => unref(props.realtime)), context)
 	const notify = useNotify(context)
 	const translate = useTranslate(context)
 	const { mutateAsync: checkError } = useCheckError(context)
@@ -105,6 +109,26 @@ export function useGetList<
 		onError: handleError,
 		queryClient,
 	})))
+
+	useSubscribe({
+		channel: computed(() => getSubscribeChannel({
+			resource: unref(queryProps).resource,
+			realtimeOptions: unref(realtimeOptions),
+		})),
+		params: computed(() => GetList.getSubscribeParams({
+			queryProps: unref(queryProps),
+			realtimeOptions: unref(realtimeOptions),
+		})),
+		meta: toRef(() => unref(queryProps).meta),
+		callback: createSubscribeCallback({
+			queryClient,
+			getRealtimeOptions: () => unref(realtimeOptions),
+			getResource: () => unref(queryProps).resource,
+			getFetcherName: () => unref(queryProps).fetcherName,
+		}),
+		actions: [RealtimeAction.Any],
+		enabled: isEnabled,
+	}, context)
 
 	return {
 		...query,
