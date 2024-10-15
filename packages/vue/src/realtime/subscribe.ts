@@ -45,6 +45,8 @@ export function useSubscribe<
 		})
 
 		onCleanup(() => unsubscribe())
+	}, {
+		immediate: true,
 	})
 
 	return {
