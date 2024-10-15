@@ -54,10 +54,15 @@ export function register<
 		realtime,
 	}: RegisterProps<TPayload>,
 ): () => void {
-	if (!realtime || !props.enabled)
+	const {
+		enabled,
+		...rest
+	} = props
+
+	if (!realtime || !enabled)
 		return noop
 
-	const id = realtime.subscribe<TPayload>(props)
+	const id = realtime.subscribe<TPayload>(rest)
 
 	return () => {
 		realtime!.unsubscribe?.(id)

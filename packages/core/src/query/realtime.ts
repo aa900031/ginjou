@@ -21,7 +21,7 @@ export function getSubscribeChannel(
 	}: GetSubscribeChannelProps,
 ): string {
 	return realtimeOptions.channel
-		?? `resource/${resource}`
+		?? `resources/${resource}`
 }
 
 export interface CreateSubscribeCallbackProps<
