@@ -3,10 +3,12 @@ import { computed, unref } from 'vue-demi'
 import type { MaybeRef } from '@vueuse/shared'
 import type { BaseRecord, CreateManyResult } from '@ginjou/core'
 import { CreateMany } from '@ginjou/core'
-import { type MutationObserverOptions, type UseMutationReturnType, useMutation } from '@tanstack/vue-query'
+import { type UseMutationReturnType, useMutation } from '@tanstack/vue-query'
 import { type UseNotifyContext, useNotify } from '../notification'
 import { type UseTranslateContext, useTranslate } from '../i18n'
 import { type UseCheckErrorContext, useCheckError } from '../auth'
+import type { UsePublishContext } from '../realtime'
+import { usePublish } from '../realtime'
 import { type UseQueryClientContextProps, useQueryClientContext } from './query-client'
 import { type UseFetcherContextFromProps, useFetchersContext } from './fetchers'
 
@@ -16,18 +18,7 @@ export interface UseCreateManyProps<
 	TParams,
 > {
 	mutationOptions?: MaybeRef<
-		| Omit<
-				MutationObserverOptions<
-					CreateManyResult<TData>,
-					TError,
-					CreateMany.MutationProps<TData, TError, TParams>,
-					any
-				>,
-				| 'mutationFn'
-				| 'onSuccess'
-				| 'onError'
-				| 'queryClient'
-			>
+		| CreateMany.MutationOptions<TData, TError, TParams>
 		| undefined
 	>
 }
@@ -38,6 +29,7 @@ export type UseCreateManyContext = Simplify<
 	& UseNotifyContext
 	& UseTranslateContext
 	& UseCheckErrorContext
+	& UsePublishContext
 >
 
 export type UseCreateManyResult<
@@ -63,6 +55,7 @@ export function useCreateMany<
 	const fetchers = useFetchersContext({ ...context, strict: true })
 	const notify = useNotify(context)
 	const translate = useTranslate(context)
+	const publish = usePublish(context)
 	const { mutateAsync: checkError } = useCheckError(context)
 
 	const mutation = useMutation<CreateManyResult<TData>, TError, CreateMany.MutationProps<TData, TError, TParams>, any>(computed(() => ({
@@ -73,6 +66,7 @@ export function useCreateMany<
 		onSuccess: CreateMany.createSuccessHandler<TData, TParams>({
 			notify,
 			translate,
+			publish,
 			queryClient,
 		}),
 		onError: CreateMany.createErrorHandler<TError>({

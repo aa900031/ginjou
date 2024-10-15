@@ -6,6 +6,8 @@ import type { TranslateFn } from '../i18n'
 import type { CheckError } from '../auth'
 import { getErrorMessage } from '../utils/error'
 import { AbortDefer, defer } from '../utils/defer'
+import type { Publish } from '../realtime'
+import { RealtimeAction } from '../realtime/event'
 import type { QueryPair } from './types'
 import type { InvalidateTargetType, InvalidatesProps, ResolvedInvalidatesProps } from './invalidate'
 import { InvalidateTarget, resolveInvalidateProps, triggerInvalidates } from './invalidate'
@@ -20,6 +22,8 @@ import { createBaseQueryKey as genBaseGetListQueryKey } from './get-list'
 import { createBaseQueryKey as genBaseGetManyQueryKey } from './get-many'
 import { createQueryKey as genGetOneQueryKey } from './get-one'
 import { createQueryKey as genResourceQueryKey } from './resource'
+import type { PublishPayload } from './publish'
+import { createPublishMeta, createPublishPayloadByOne } from './publish'
 
 export type MutationProps<
 	TData extends BaseRecord,
@@ -232,6 +236,7 @@ export interface CreateSuccessHandlerProps<
 > {
 	notify: NotifyFn
 	translate: TranslateFn<unknown>
+	publish: Publish.EmitFn<PublishPayload>
 	queryClient: QueryClient
 	onSuccess: MutationOptions<TData, unknown, TParams>['onSuccess']
 }
@@ -243,6 +248,7 @@ export function createSuccessHandler<
 	{
 		notify,
 		translate,
+		publish,
 		queryClient,
 		onSuccess: onSuccessFromProp,
 	}: CreateSuccessHandlerProps<TData, TParams>,
@@ -264,7 +270,10 @@ export function createSuccessHandler<
 				break
 		}
 
-		// TODO: publish
+		publish(
+			createPublishEvent(resolvedProps, data),
+		)
+
 		// TODO: logs
 
 		await onSuccessFromProp?.(data, resolvedProps, context)
@@ -317,6 +326,21 @@ export function createErrorHandler<
 		}
 
 		await onErrorFromProp?.(error, resolvedProps, context)
+	}
+}
+
+function createPublishEvent(
+	resolvedProps: ResolvedMutationProps<any, any, any>,
+	data: DeleteOneResult,
+): Publish.EmitEvent<PublishPayload> {
+	const payload = createPublishPayloadByOne(resolvedProps, data)
+	const meta = createPublishMeta(resolvedProps)
+
+	return {
+		channel: `resources/${resolvedProps.resource}`,
+		action: RealtimeAction.Deleted,
+		payload,
+		meta,
 	}
 }
 

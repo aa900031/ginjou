@@ -11,6 +11,7 @@ import type { QueryProps, ResolvedQueryProps } from './get-list'
 import { createQueryKey as createGetOneQueryKey } from './get-one'
 import type { NotifyProps } from './notify'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
+import type { RealtimeProps } from './realtime'
 
 export type QueryOptions<
 	TData extends BaseRecord,
@@ -31,6 +32,7 @@ export type Props<
 > = Simplify<
 	& QueryProps<TPageParam>
 	& NotifyProps<InfiniteData<GetInfiniteListResult<TResultData, TPageParam>>, ResolvedQueryProps<TPageParam>, TError>
+	& RealtimeProps<unknown> // TODO: payload
 	& {
 		queryOptions?: Omit<
 			QueryOptions<TData, TError, TResultData, TPageParam>,

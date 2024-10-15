@@ -4,6 +4,7 @@ import { NotificationType, type NotifyFn } from '../notification'
 import type { TranslateFn } from '../i18n'
 import type { CheckError } from '../auth'
 import { getErrorMessage } from '../utils/error'
+import type { Publish } from '../realtime'
 import { getFetcher, resolveFetcherProps } from './fetchers'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { BaseRecord, CustomProps, CustomResult } from './fetcher'
@@ -19,6 +20,16 @@ export type MutationProps<
 	& CustomProps<TQuery, TPayload>
 	& FetcherProps
 	& NotifyProps<CustomResult<TData>, CustomProps<TQuery, TPayload>, TError>
+	& {
+		publish?:
+			| Publish.EmitEvent<TPayload>
+			| (
+				(
+					props: ResolvedMutationProps<TData, TError, TQuery, TPayload>,
+					data: CustomResult<TData>,
+				) => Publish.EmitEvent<TPayload>
+			)
+	}
 >
 
 export type ResolvedMutationProps<
@@ -40,6 +51,17 @@ export type MutationOptions<
 	CustomResult<TData>,
 	TError,
 	MutationProps<TData, TError, TQuery, TPayload>
+>
+
+export type MutationOptionsFromProps<
+	TData extends BaseRecord,
+	TError,
+	TQuery,
+	TPayload,
+> = Omit<
+	MutationOptions<TData, TError, TQuery, TPayload>,
+	| 'mutationFn'
+	| 'queryClient'
 >
 
 export interface CreateMutationFnProps {
@@ -67,8 +89,14 @@ export function createMutationFn<
 	}
 }
 
-export interface CreateSuccessHandlerProps {
+export interface CreateSuccessHandlerProps<
+	TData extends BaseRecord,
+	TQuery,
+	TPayload,
+> {
 	notify: NotifyFn
+	publish: Publish.EmitFn<TPayload>
+	onSuccess: MutationOptions<TData, any, TQuery, TPayload>['onSuccess']
 }
 
 export function createSuccessHandler<
@@ -78,21 +106,38 @@ export function createSuccessHandler<
 >(
 	{
 		notify,
-	}: CreateSuccessHandlerProps,
+		publish,
+		onSuccess: onSuccessFromProp,
+	}: CreateSuccessHandlerProps<TData, TQuery, TPayload>,
 ): NonNullable<MutationOptions<TData, unknown, TQuery, TPayload>['onSuccess']> {
-	return async function onSuccess(data, variables) {
+	return async function onSuccess(data, variables, context) {
 		const resolvedProps = resolveMutationProps(variables)
 
 		notify(
 			resolveSuccessNotifyParams(resolvedProps.successNotify, data, resolvedProps),
 		)
+
+		if (variables.publish) {
+			const event = typeof variables.publish === 'function'
+				? variables.publish(resolvedProps, data)
+				: variables.publish
+
+			publish(event)
+		}
+
+		await onSuccessFromProp?.(data, resolvedProps, context)
 	}
 }
 
-export interface CreateErrorHandlerProps {
+export interface CreateErrorHandlerProps<
+	TError,
+	TQuery,
+	TPayload,
+> {
 	notify: NotifyFn
 	translate: TranslateFn<unknown>
 	checkError: CheckError.MutationFn<unknown>
+	onError: MutationOptions<any, TError, TQuery, TPayload>['onError']
 }
 
 export function createErrorHandler<
@@ -104,9 +149,10 @@ export function createErrorHandler<
 		notify,
 		translate,
 		checkError,
-	}: CreateErrorHandlerProps,
+		onError: onErrorFromProp,
+	}: CreateErrorHandlerProps<TError, TQuery, TPayload>,
 ): NonNullable<MutationOptions<any, TError, TQuery, TPayload>['onError']> {
-	return async function onError(error, variables) {
+	return async function onError(error, variables, context) {
 		await checkError(error)
 
 		const resolvedProps = resolveMutationProps(variables)
@@ -120,6 +166,8 @@ export function createErrorHandler<
 				type: NotificationType.Error,
 			},
 		)
+
+		await onErrorFromProp?.(error, resolvedProps, context)
 	}
 }
 

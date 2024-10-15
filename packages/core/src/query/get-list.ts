@@ -5,6 +5,8 @@ import { NotificationType } from '../notification'
 import type { TranslateFn } from '../i18n'
 import type { CheckError } from '../auth'
 import { getErrorMessage } from '../utils/error'
+import type { ResolvedRealtimeOptions, SubscribeListParams } from '../realtime'
+import { SubscribeType } from '../realtime'
 import { getFetcher, resolveFetcherProps } from './fetchers'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { BaseRecord, GetListProps, GetListResult, GetOneResult } from './fetcher'
@@ -13,6 +15,7 @@ import type { ResourceQueryProps } from './resource'
 import { createQueryKey as createResourceQueryKey } from './resource'
 import type { NotifyProps } from './notify'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
+import type { RealtimeProps } from './realtime'
 
 export type QueryOptions<
 	TData extends BaseRecord,
@@ -62,6 +65,7 @@ export type Props<
 > = Simplify<
 	& QueryProps<TPageParam>
 	& NotifyProps<GetListResult<TResultData>, ResolvedQueryProps<TPageParam>, TError>
+	& RealtimeProps<unknown> // TODO: payload
 	& {
 		queryOptions?: Omit<
 			QueryOptions<TData, TError, TResultData, TPageParam>,
@@ -238,6 +242,28 @@ export function getQueryEnabled(
 	) && (
 		!!props.resource != null && props.resource !== ''
 	)
+}
+
+export interface GetSubscribeParamsProps {
+	queryProps: ResolvedQueryProps<unknown>
+	realtimeOptions: ResolvedRealtimeOptions<unknown>
+}
+
+export function getSubscribeParams(
+	{
+		queryProps,
+		realtimeOptions,
+	}: GetSubscribeParamsProps,
+): SubscribeListParams {
+	return {
+		type: SubscribeType.List,
+		resource: queryProps.resource,
+		pagination: queryProps.pagination,
+		sorters: queryProps.sorters,
+		filters: queryProps.filters,
+		meta: queryProps.meta,
+		...realtimeOptions.params,
+	}
 }
 
 function updateCache<

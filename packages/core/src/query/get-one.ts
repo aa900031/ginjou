@@ -4,12 +4,15 @@ import { NotificationType, type NotifyFn } from '../notification'
 import type { TranslateFn } from '../i18n'
 import type { CheckError } from '../auth'
 import { getErrorMessage } from '../utils/error'
+import type { ResolvedRealtimeOptions, SubscribeOneParams } from '../realtime'
+import { SubscribeType } from '../realtime'
 import { createQueryKey as createResourceQueryKey } from './resource'
 import { getFetcher, resolveFetcherProps } from './fetchers'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { BaseRecord, GetOneProps, GetOneResult } from './fetcher'
 import type { NotifyProps } from './notify'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
+import type { RealtimeProps } from './realtime'
 
 export type QueryOptions<
 	TData extends BaseRecord,
@@ -64,6 +67,7 @@ export type Props<
 > = Simplify<
 	& QueryProps
 	& NotifyProps<GetOneResult<TResultData>, ResolvedQueryProps, TError>
+	& RealtimeProps<unknown> // TODO:
 	& {
 		queryOptions?: QueryOptions<TData, TError, TResultData>
 	}
@@ -203,4 +207,24 @@ export function getQueryEnabled(
 	) && (
 		props.id != null && props.id !== ''
 	)
+}
+
+export interface GetSubscribeParamsProps {
+	queryProps: ResolvedQueryProps
+	realtimeOptions: ResolvedRealtimeOptions<unknown>
+}
+
+export function getSubscribeParams(
+	{
+		queryProps,
+		realtimeOptions,
+	}: GetSubscribeParamsProps,
+): SubscribeOneParams {
+	return {
+		type: SubscribeType.One,
+		resource: queryProps.resource,
+		id: queryProps.id,
+		meta: queryProps.meta,
+		...realtimeOptions.params,
+	}
 }
