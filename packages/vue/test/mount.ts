@@ -2,8 +2,10 @@ import type { RenderResult } from '@testing-library/vue'
 import { render } from '@testing-library/vue'
 import type { Component, DefineComponent } from 'vue'
 import { defineComponent, h, provide } from 'vue'
-import { defineFetchers } from '../src/query/fetchers'
-import { MockFetchers, queryClient } from './setup'
+import type { Fetchers, Realtime } from '@ginjou/core'
+import type { QueryClient } from '@tanstack/vue-query'
+import { defineFetchers } from '../src/query'
+import { defineRealtimeContext } from '../src/realtime'
 
 export function mountSetup<
 	TSetupFn extends () => any,
@@ -25,18 +27,27 @@ export function mountSetup<
 	return rednered as any
 }
 
+export interface TestAppContexts {
+	queryClient?: QueryClient
+	fetchers?: Fetchers
+	realtime?: Realtime
+}
+
 export function mountTestApp<
 	TSetupFn extends () => any,
 >(
 	setup: TSetupFn,
+	contexts?: TestAppContexts,
 ): RenderResult & { result: ReturnType<TSetupFn> } {
 	return mountSetup(
 		setup,
 		Comp => ({
 			components: Comp,
 			setup: () => {
-				defineFetchers(MockFetchers)
-				provide('VUE_QUERY_CLIENT', queryClient)
+				contexts?.fetchers && defineFetchers(contexts.fetchers)
+				contexts?.realtime && defineRealtimeContext(contexts.realtime)
+				contexts?.queryClient && provide('VUE_QUERY_CLIENT', contexts?.queryClient)
+
 				return () => h(Comp)
 			},
 		} as any),
