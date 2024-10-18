@@ -1,16 +1,16 @@
+import type { Meta, StoryObj } from '@storybook/vue3'
+import { factory } from '@mswjs/data'
+import { vueRouter } from 'storybook-vue3-router'
 import { h } from 'vue'
 import { RouterView } from 'vue-router'
-import type { Meta, StoryObj } from '@storybook/vue3'
-import { vueRouter } from 'storybook-vue3-router'
-import { factory } from '@mswjs/data'
 import MOCK_POSTS from '../data/mock-posts.json'
-import { createWrapper } from './utils/wrapper'
-import { createMsw } from './utils/msw'
 import { MockModel } from './api/posts'
-import { toHandlers } from './utils/msw-data'
-import ListPagination from './ListPagination.vue'
 import ListFilters from './ListFilters.vue'
+import ListPagination from './ListPagination.vue'
 import ListSorters from './ListSorters.vue'
+import { createMsw } from './utils/msw'
+import { toHandlers } from './utils/msw-data'
+import { createWrapper } from './utils/wrapper'
 
 const meta: Meta = {
 	title: 'Controllers/List',

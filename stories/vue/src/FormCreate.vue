@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import type { Post } from './api/posts'
+import { useForm } from '@ginjou/vue'
 import { reactive, shallowRef, toRef } from 'vue'
 import { useRoute } from 'vue-router'
-import { useForm } from '@ginjou/vue'
-import type { Post } from './api/posts'
 
 const props = defineProps<{
 	redirect?: any

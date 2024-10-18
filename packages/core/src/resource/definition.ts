@@ -1,7 +1,7 @@
 import type { Simplify } from 'type-fest'
-import type { Resource } from './resource'
 import type { ResourceActionTypeValues } from './action'
 import type { ResourceParseFn } from './parse'
+import type { Resource } from './resource'
 
 export interface ResourceActionParse {
 	pattern: string
@@ -12,10 +12,10 @@ export type ResourceDefinition<
 	TMetaExtends extends Record<string, any> = Record<string, any>,
 > = Simplify<
 	& Partial<Record<
-			ResourceActionTypeValues,
-			| string
-			| ResourceActionParse
-		>>
+		ResourceActionTypeValues,
+		| string
+		| ResourceActionParse
+	>>
 	& {
 		name: string
 		meta?: ResourceDefinitionMeta<TMetaExtends>

@@ -1,11 +1,11 @@
+import type { DirectusClient, RestClient } from '@directus/sdk'
+import type { ConditionalFilter, Fetcher, FilterOperatorType, Filters, LogicalFilter, Sorters } from '@ginjou/core'
+import * as sdk from '@directus/sdk'
+import { SortOrder } from '@ginjou/core'
 import cleanDeep from 'clean-deep'
 import { dset } from 'dset'
-import { camelCase } from 'scule'
 import pluralize from 'pluralize'
-import type { DirectusClient, RestClient } from '@directus/sdk'
-import * as sdk from '@directus/sdk'
-import type { ConditionalFilter, Fetcher, FilterOperatorType, Filters, LogicalFilter, Sorters } from '@ginjou/core'
-import { SortOrder } from '@ginjou/core'
+import { camelCase } from 'scule'
 
 export interface CreateFetcherProps<
 	TClient extends DirectusClient<any> & RestClient<any>,

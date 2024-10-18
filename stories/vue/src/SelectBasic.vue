@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-import { useSelect } from '@ginjou/vue'
 import type { Post } from './api/posts'
+import { useSelect } from '@ginjou/vue'
+import { ref } from 'vue'
 
 const value = ref<string>()
 

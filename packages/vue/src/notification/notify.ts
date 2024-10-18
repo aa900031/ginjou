@@ -1,6 +1,6 @@
 import type { Simplify } from 'type-fest'
-import { type NotifyFn, createNotifyFn } from '@ginjou/core'
 import type { UseNotificationContextFromProps } from './context'
+import { createNotifyFn, type NotifyFn } from '@ginjou/core'
 import { useNotificationContext } from './context'
 
 export type UseNotifyContext = Simplify<

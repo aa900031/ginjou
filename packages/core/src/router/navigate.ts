@@ -1,7 +1,7 @@
 import type { RecordKey } from '../query'
 import type { ResolvedResource, Resource } from '../resource'
-import { ResourceActionType, createResourcePath, resolveResource } from '../resource'
 import type { RouterGoFn, RouterGoParams } from './go'
+import { createResourcePath, resolveResource, ResourceActionType } from '../resource'
 
 export interface NavigateToResourceProps {
 	resource?: string

@@ -1,7 +1,7 @@
+import type { Access } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
 import type { InjectionKey } from 'vue-demi'
 import { inject, provide } from 'vue-demi'
-import type { Access } from '@ginjou/core'
 
 const KEY: InjectionKey<Access> = Symbol('@ginjou/access')
 

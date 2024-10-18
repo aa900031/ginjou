@@ -1,5 +1,5 @@
-import { type AuthenticationClient, type DirectusClient, type LoginOptions, type RestClient, readMe } from '@directus/sdk'
 import type { Auth } from '@ginjou/core'
+import { type AuthenticationClient, type DirectusClient, type LoginOptions, readMe, type RestClient } from '@directus/sdk'
 
 export interface CreateAuthProps<
 	TClient extends DirectusClient<any> & AuthenticationClient<any> & RestClient<any>,

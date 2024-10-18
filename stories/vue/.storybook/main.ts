@@ -1,5 +1,5 @@
-import '@storybook/types'
 import type { StorybookConfig } from '@storybook/vue3-vite'
+import '@storybook/types'
 
 export default {
 	stories: [

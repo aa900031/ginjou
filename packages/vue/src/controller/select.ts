@@ -1,13 +1,13 @@
+import type { BaseRecord, Pagination } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
 import type { ComputedRef, Ref } from 'vue-demi'
-import { computed, ref, unref } from 'vue-demi'
-import type { BaseRecord, Pagination } from '@ginjou/core'
-import { Select, getFetcherName, getResourceIdentifier } from '@ginjou/core'
 import type { UseGetListContext, UseGetListResult, UseGetManyContext } from '../query'
-import { useGetList, useGetMany } from '../query'
 import type { UseResourceContext } from '../resource'
-import { useResource } from '../resource'
 import type { ToMaybeRefs } from '../utils/refs'
+import { getFetcherName, getResourceIdentifier, Select } from '@ginjou/core'
+import { computed, ref, unref } from 'vue-demi'
+import { useGetList, useGetMany } from '../query'
+import { useResource } from '../resource'
 import { refSub } from '../utils/ref-sub'
 
 export type UseSelectProps<

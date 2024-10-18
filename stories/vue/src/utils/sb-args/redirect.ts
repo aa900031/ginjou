@@ -1,5 +1,5 @@
-import { ResourceActionType } from '@ginjou/core'
 import type { ArgTypes } from '@storybook/vue3'
+import { ResourceActionType } from '@ginjou/core'
 
 export const argTypes = {
 	redirect: {

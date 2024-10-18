@@ -1,12 +1,12 @@
 import type { SetOptional, SetRequired } from 'type-fest'
 import type { BaseRecord, CreateResult, GetOneResult, Meta, UpdateResult } from '../query'
-import { MutationMode, getFetcherName } from '../query'
 import type { MutateFn as CreateMutateFn, MutationOptionsFromProps as CreateMutationOptionsFromProps, MutationProps as CreateMutationProps } from '../query/create'
-import type { MutateFn as UpdateMutateFn, MutationOptionsFromProps as UpdateMutationOptionsFromProps, MutationProps as UpdateMutationProps } from '../query/update'
 import type { QueryOptionsFromProps } from '../query/get-one'
+import type { MutateFn as UpdateMutateFn, MutationOptionsFromProps as UpdateMutationOptionsFromProps, MutationProps as UpdateMutationProps } from '../query/update'
 import type { ResolvedResource, ResourceActionForForm, ResourceActionTypeValues } from '../resource'
-import { ResourceActionType, getResourceIdentifier } from '../resource'
 import type { NavigateToFn, NavigateToProps } from '../router'
+import { getFetcherName, MutationMode } from '../query'
+import { getResourceIdentifier, ResourceActionType } from '../resource'
 
 export type RedirectTo<
 	TResultData,
@@ -15,8 +15,8 @@ export type RedirectTo<
 	| NavigateToProps
 	| (
 		(data: TResultData) =>
-		| ResourceActionTypeValues
-		| NavigateToProps
+			| ResourceActionTypeValues
+			| NavigateToProps
 	)
 
 export type CreateProps<
@@ -149,8 +149,8 @@ export function resolveProps<
 				action,
 				resource: resourceName,
 				id: ('id' in props ? props.id : undefined)
-				?? (resource && resource.action === 'edit' ? resource.id : undefined)
-				?? '', // TODO: maybe use undeined?
+					?? (resource && resource.action === 'edit' ? resource.id : undefined)
+					?? '', // TODO: maybe use undeined?
 				fetcherName,
 			}
 		}

@@ -1,8 +1,8 @@
+import { RealtimeAction } from '@ginjou/core'
 import { describe, expect, it, vi } from 'vitest'
 import { unref } from 'vue-demi'
-import { RealtimeAction } from '@ginjou/core'
-import { mountTestApp } from '../../test/mount'
 import { MockFetchers, queryClient } from '../../test/mock-fetcher'
+import { mountTestApp } from '../../test/mount'
 import { useUpdate } from './update'
 
 describe('useUpdate', () => {

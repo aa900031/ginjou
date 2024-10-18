@@ -1,13 +1,13 @@
-import type { Simplify } from 'type-fest'
-import { computed, unref } from 'vue-demi'
-import { computedEager, toValue } from '@vueuse/shared'
 import type { UseQueryReturnType } from '@tanstack/vue-query'
-import { useQuery } from '@tanstack/vue-query'
-import { Permissions } from '@ginjou/core'
-import type { ToMaybeRefs } from '../utils/refs'
+import type { Simplify } from 'type-fest'
 import type { UseQueryClientContextProps } from '../query'
+import type { ToMaybeRefs } from '../utils/refs'
+import { Permissions } from '@ginjou/core'
+import { useQuery } from '@tanstack/vue-query'
+import { computedEager, toValue } from '@vueuse/shared'
+import { computed, unref } from 'vue-demi'
 import { useQueryClientContext } from '../query'
-import { type UseAuthContextFromProps, useAuthContext } from './auth'
+import { useAuthContext, type UseAuthContextFromProps } from './auth'
 
 export type UsePermissionsProps<
 	TData,

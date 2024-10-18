@@ -1,9 +1,9 @@
 import type { Simplify } from 'type-fest'
+import type { Filters, Pagination, RecordKey, Sorters } from '../query'
+import type { ResourceActionTypeValues, ResourceDefinition } from '../resource'
+import type { RouterLocation } from '../router'
 import { omit } from 'lodash-unified'
 import { parse as parseRegexparam } from 'regexparam'
-import type { ResourceActionTypeValues, ResourceDefinition } from '../resource'
-import type { Filters, Pagination, RecordKey, Sorters } from '../query'
-import type { RouterLocation } from '../router'
 import { ResourceActionType } from './action'
 
 export type ResourceParseParams<

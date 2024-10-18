@@ -1,8 +1,8 @@
 import type { TranslateFn } from '../i18n'
 import type { OpenNotificationParams, ProgressNotificationParams } from '../notification'
-import { NotificationType } from '../notification'
 import type { DeferResult } from '../utils/defer'
 import type { BaseRecord, RecordKey } from './fetcher'
+import { NotificationType } from '../notification'
 
 export interface NotifyProps<
 	TData extends BaseRecord,

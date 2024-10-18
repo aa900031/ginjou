@@ -1,15 +1,15 @@
 import type { QueryKey, QueryObserverOptions } from '@tanstack/query-core'
 import type { SetRequired, Simplify } from 'type-fest'
-import { NotificationType, type NotifyFn } from '../notification'
-import type { TranslateFn } from '../i18n'
 import type { CheckError } from '../auth'
+import type { TranslateFn } from '../i18n'
+import type { BaseRecord, CustomProps, CustomResult } from './fetcher'
+import type { FetcherProps, Fetchers } from './fetchers'
+import type { NotifyProps } from './notify'
+import type { RealtimeProps } from './realtime'
+import { NotificationType, type NotifyFn } from '../notification'
 import { getErrorMessage } from '../utils/error'
 import { getFetcher } from './fetchers'
-import type { FetcherProps, Fetchers } from './fetchers'
-import type { BaseRecord, CustomProps, CustomResult } from './fetcher'
-import type { NotifyProps } from './notify'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
-import type { RealtimeProps } from './realtime'
 
 export type QueryOptions<
 	TData extends BaseRecord,
@@ -35,9 +35,9 @@ export type ResolvedQueryProps<
 > = Simplify<
 	& CustomProps<TQuery, TPayload>
 	& SetRequired<
-			FetcherProps,
+		FetcherProps,
 			| 'fetcherName'
-		>
+	>
 >
 
 export type Props<

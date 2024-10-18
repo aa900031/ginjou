@@ -1,5 +1,5 @@
-import { RealtimeMode } from './mode'
 import type { RealtimeContextOptions, RealtimeOptions, ResolvedRealtimeOptions } from './realtime'
+import { RealtimeMode } from './mode'
 
 export type Props<
 	TPayload,

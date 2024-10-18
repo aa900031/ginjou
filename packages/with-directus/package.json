@@ -49,8 +49,8 @@
 	},
 	"devDependencies": {
 		"@directus/sdk": "^15.1.0",
+		"@ginjou/core": "workspace:^",
 		"@ginjou/release-it-config": "workspace:*",
-		"@ginjou/tsconfig": "workspace:*",
-		"@ginjou/core": "workspace:^"
+		"@ginjou/tsconfig": "workspace:*"
 	}
 }

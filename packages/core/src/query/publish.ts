@@ -1,5 +1,5 @@
-import { uniq } from 'lodash-unified'
 import type { CreateManyResult, CreateResult, DeleteManyResult, DeleteOneResult, Meta, RecordKey, UpdateManyResult, UpdateResult } from './fetcher'
+import { uniq } from 'lodash-unified'
 
 export interface PublishPayload {
 	ids: RecordKey[] | undefined

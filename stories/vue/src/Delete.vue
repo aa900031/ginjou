@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
-import { useDelete, useList } from '@ginjou/vue'
 import type { MutationModeValues } from '@ginjou/core'
 import type { Post } from './api/posts'
+import { useDelete, useList } from '@ginjou/vue'
+import { useRoute } from 'vue-router'
 
 const props = defineProps<{
 	mutationMode: MutationModeValues

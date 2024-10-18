@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { reactive, toRef, watch } from 'vue'
-import { useRoute } from 'vue-router'
-import { useForm } from '@ginjou/vue'
 import type { MutationModeValues } from '@ginjou/core'
 import type { Post } from './api/posts'
+import { useForm } from '@ginjou/vue'
+import { reactive, toRef, watch } from 'vue'
+import { useRoute } from 'vue-router'
 
 const props = defineProps<{
 	mutationMode: MutationModeValues

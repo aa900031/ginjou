@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
-import { useShow } from '@ginjou/vue'
 import type { Post } from './api/posts'
+import { useShow } from '@ginjou/vue'
+import { useRoute } from 'vue-router'
 
 const route = useRoute()
 const { record } = useShow<Post>()

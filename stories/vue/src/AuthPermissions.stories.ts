@@ -1,7 +1,7 @@
-import { h } from 'vue'
 import type { Meta, StoryObj } from '@storybook/vue3'
-import { createWrapper } from './utils/wrapper'
+import { h } from 'vue'
 import AuthPermissions from './AuthPermissions.vue'
+import { createWrapper } from './utils/wrapper'
 
 const meta: Meta = {
 	title: 'Authentication/Permissions',

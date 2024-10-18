@@ -1,9 +1,9 @@
-import { describe, expect, it, vi } from 'vitest'
 import { RealtimeAction, SubscribeType } from '@ginjou/core'
+import { describe, expect, it, vi } from 'vitest'
 import { unref } from 'vue-demi'
-import { mountTestApp } from '../../test/mount'
 import { MockFetchers, queryClient } from '../../test/mock-fetcher'
-import { MockRealtimes, expectUnsubscribeCalled, subscribeFn } from '../../test/mock-realtime'
+import { expectUnsubscribeCalled, MockRealtimes, subscribeFn } from '../../test/mock-realtime'
+import { mountTestApp } from '../../test/mount'
 import { useGetMany } from './get-many'
 
 describe('useGetMany', () => {

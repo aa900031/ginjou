@@ -1,9 +1,9 @@
-import type { SetRequired, Simplify, ValueOf } from 'type-fest'
 import type { InvalidateOptions, InvalidateQueryFilters, QueryClient } from '@tanstack/query-core'
+import type { SetRequired, Simplify, ValueOf } from 'type-fest'
+import type { RecordKey } from './fetcher'
 import { createQueryKey as genGetListQueryKey } from './get-list'
 import { createQueryKey as genGetManyQueryKey } from './get-many'
 import { createQueryKey as genGetOneQueryKey } from './get-one'
-import type { RecordKey } from './fetcher'
 
 export interface InvalidatesProps {
 	invalidates?: InvalidateTargetType[]

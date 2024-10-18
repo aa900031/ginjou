@@ -1,10 +1,10 @@
-import 'uno.css'
-import { AbortDefer } from '@ginjou/core'
 import type { Preview } from '@storybook/vue3'
+import { AbortDefer } from '@ginjou/core'
+import Aura from '@primevue/themes/aura'
 import { setup } from '@storybook/vue3'
 import PrimeVue from 'primevue/config'
 import ToastService from 'primevue/toastservice'
-import Aura from '@primevue/themes/aura'
+import 'uno.css'
 
 setup((app) => {
 	app.use(PrimeVue, {

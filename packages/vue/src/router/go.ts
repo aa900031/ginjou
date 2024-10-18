@@ -1,5 +1,5 @@
-import type { Simplify } from 'type-fest'
 import type { RouterGoFn } from '@ginjou/core'
+import type { Simplify } from 'type-fest'
 import type { UseRouterContextFromProps } from './context'
 import { useRouterContext } from './context'
 

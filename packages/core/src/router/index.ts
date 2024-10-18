@@ -1,5 +1,5 @@
-export * from './router'
 export * from './go'
 export * from './location'
-export * from './resolve'
 export * from './navigate'
+export * from './resolve'
+export * from './router'

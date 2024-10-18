@@ -1,7 +1,7 @@
+import type { Loader } from '@storybook/vue3'
 import type { RequestHandler } from 'msw'
 import type { SetupWorker } from 'msw/browser'
 import { setupWorker } from 'msw/browser'
-import type { Loader } from '@storybook/vue3'
 
 let worker: SetupWorker
 
@@ -21,6 +21,7 @@ export function createMsw(
 	}
 }
 
+// eslint-disable-next-line regexp/no-unused-capturing-group
 const fileExtensionRE = /\.(js|jsx|ts|tsx|mjs|woff|woff2|ttf|otf|eot|vue)$/
 const urlSubstrings = [
 	'sb-common-assets',

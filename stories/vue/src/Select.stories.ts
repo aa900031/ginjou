@@ -1,12 +1,12 @@
-import { h } from 'vue'
 import type { Meta, StoryObj } from '@storybook/vue3'
 import { factory } from '@mswjs/data'
+import { h } from 'vue'
 import MOCK_POSTS from '../data/mock-posts.json'
 import { MockModel } from './api/posts'
+import SelectBasic from './SelectBasic.vue'
 import { createMsw } from './utils/msw'
 import { toHandlers } from './utils/msw-data'
 import { createWrapper } from './utils/wrapper'
-import SelectBasic from './SelectBasic.vue'
 
 const meta: Meta = {
 	title: 'Controllers/Select',

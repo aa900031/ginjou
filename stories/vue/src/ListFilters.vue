@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import type { Post } from './api/posts'
+import { FilterOperator } from '@ginjou/core'
+import { useList } from '@ginjou/vue'
 import { reactive, watchPostEffect } from 'vue'
 import { useRoute } from 'vue-router'
-import { useList } from '@ginjou/vue'
-import { FilterOperator } from '@ginjou/core'
-import type { Post } from './api/posts'
 
 const route = useRoute()
 

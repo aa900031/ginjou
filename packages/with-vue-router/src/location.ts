@@ -1,5 +1,5 @@
-import type { RouteLocationNormalizedLoaded, RouteLocationRaw } from 'vue-router'
 import type { RouterGoParams, RouterLocation } from '@ginjou/core'
+import type { RouteLocationNormalizedLoaded, RouteLocationRaw } from 'vue-router'
 import type { RouteGoMeta, RouteParsedMeta } from './router'
 
 export function toRouteLocation(

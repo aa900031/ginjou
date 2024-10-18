@@ -1,6 +1,6 @@
-import { get, unionBy } from 'lodash-unified'
 import type { Simplify } from 'type-fest'
 import type { BaseRecord, Filters, GetList, GetListResult, GetMany, GetManyResult, Pagination } from '../query'
+import { get, unionBy } from 'lodash-unified'
 import { FilterOperator } from '../query'
 import { getSubValue } from '../utils/sub-value'
 import { resolveFilters } from './list'
@@ -12,9 +12,9 @@ export type Props<
 	TPageParam,
 > = Simplify<
 	& Omit<
-			GetList.Props<TData, TError, TResultData, TPageParam>,
+		GetList.Props<TData, TError, TResultData, TPageParam>,
 			| 'queryOptions'
-		>
+	>
 	& {
 		labelKey?: string
 		valueKey?: string

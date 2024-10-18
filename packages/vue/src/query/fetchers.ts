@@ -1,6 +1,6 @@
-import type { Simplify } from 'type-fest'
 import type { Fetchers } from '@ginjou/core'
-import { type InjectionKey, inject, provide } from 'vue-demi'
+import type { Simplify } from 'type-fest'
+import { inject, type InjectionKey, provide } from 'vue-demi'
 
 const KEY: InjectionKey<Fetchers> = Symbol('@ginjou/fetchers')
 

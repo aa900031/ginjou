@@ -1,12 +1,12 @@
+import type { BaseRecord, RecordKey } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
 import type { Ref } from 'vue-demi'
-import { computed, ref, unref, watch } from 'vue-demi'
-import { Show, getFetcherName, getResourceIdentifier } from '@ginjou/core'
-import type { BaseRecord, RecordKey } from '@ginjou/core'
-import type { ToMaybeRefs } from '../utils/refs'
 import type { UseGetOneContext, UseGetOneResult } from '../query'
-import { useGetOne } from '../query'
 import type { UseResourceContext } from '../resource'
+import type { ToMaybeRefs } from '../utils/refs'
+import { getFetcherName, getResourceIdentifier, Show } from '@ginjou/core'
+import { computed, ref, unref, watch } from 'vue-demi'
+import { useGetOne } from '../query'
 import { useResource } from '../resource'
 
 export type UseShowProps<

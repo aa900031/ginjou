@@ -1,6 +1,6 @@
+import type { Notification } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
 import { inject, provide } from 'vue-demi'
-import type { Notification } from '@ginjou/core'
 
 const KEY = Symbol('@ginjou/notification')
 

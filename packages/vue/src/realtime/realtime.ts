@@ -1,6 +1,6 @@
 import type { Realtime } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
-import { type InjectionKey, inject, provide } from 'vue-demi'
+import { inject, type InjectionKey, provide } from 'vue-demi'
 
 const KEY: InjectionKey<Realtime> = Symbol('@ginjou/realtime')
 
