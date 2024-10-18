@@ -1,8 +1,8 @@
 import path from 'node:path'
-import { URL, fileURLToPath } from 'node:url'
-import { defineConfig } from 'vite'
+import { fileURLToPath, URL } from 'node:url'
 import Vue from '@vitejs/plugin-vue'
 import Unocss from 'unocss/vite'
+import { defineConfig } from 'vite'
 
 const DIR_PKGS = fileURLToPath(new URL('../../packages', import.meta.url))
 

@@ -1,5 +1,5 @@
-import { FilterOperator } from '@ginjou/core'
 import type { FilterOperatorType, Filters } from '@ginjou/core'
+import { FilterOperator } from '@ginjou/core'
 
 export function genFilters(
 	filters?: Filters,

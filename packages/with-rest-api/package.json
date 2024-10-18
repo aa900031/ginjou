@@ -44,8 +44,8 @@
 		"ofetch": "^1.3.4"
 	},
 	"devDependencies": {
+		"@ginjou/core": "workspace:^",
 		"@ginjou/release-it-config": "workspace:*",
-		"@ginjou/tsconfig": "workspace:*",
-		"@ginjou/core": "workspace:^"
+		"@ginjou/tsconfig": "workspace:*"
 	}
 }

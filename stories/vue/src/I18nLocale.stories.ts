@@ -1,5 +1,5 @@
-import { h } from 'vue'
 import type { Meta, StoryObj } from '@storybook/vue3'
+import { h } from 'vue'
 import I18nLocale from './I18nLocale.vue'
 import { createWrapper } from './utils/wrapper'
 

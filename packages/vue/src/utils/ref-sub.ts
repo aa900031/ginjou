@@ -3,7 +3,7 @@ import type { Ref } from 'vue-demi'
 import { shallowRef, unref, watch } from 'vue-demi'
 
 export type RefSubGetter<T, TProp> = (
-	props: { prop: TProp; prev?: T | undefined }
+	props: { prop: TProp, prev?: T | undefined }
 ) => T | undefined
 
 export function refSub<T, TProp>(

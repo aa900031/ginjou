@@ -1,6 +1,6 @@
 import type { Fetcher, FilterOperatorType, Filters, Sorters } from '@ginjou/core'
-import type { SupabaseClient } from '@supabase/supabase-js'
 import type { PostgrestFilterBuilder } from '@supabase/postgrest-js'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 export interface CreateFetcherProps {
 	client: SupabaseClient
@@ -227,8 +227,9 @@ function applyFilters(
 							item.operator !== 'or'
 							&& item.operator !== 'and'
 							&& 'field' in item
-						)
+						) {
 							return `${item.field}.${getOperator(item.operator)}.${item.value}`
+						}
 					})
 					.join(',')
 				query.or(orSyntax)

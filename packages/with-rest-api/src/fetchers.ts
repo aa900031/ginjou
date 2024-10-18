@@ -1,9 +1,9 @@
-import type { $Fetch } from 'ofetch'
-import { AbortController, Headers, createFetch, fetch } from 'ofetch'
 import type { Fetcher } from '@ginjou/core'
+import type { $Fetch } from 'ofetch'
+import { AbortController, createFetch, fetch, Headers } from 'ofetch'
 import { genFilters } from './utils/filters'
-import { genSorters } from './utils/sorters'
 import { toMethod } from './utils/method'
+import { genSorters } from './utils/sorters'
 
 export interface CreateFetcherProps {
 	url: URL | string

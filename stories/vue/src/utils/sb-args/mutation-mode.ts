@@ -1,5 +1,5 @@
-import { MutationMode } from '@ginjou/core'
 import type { ArgTypes } from '@storybook/vue3'
+import { MutationMode } from '@ginjou/core'
 
 export const argTypes = {
 	mutationMode: {

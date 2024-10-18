@@ -1,5 +1,5 @@
-import type { Simplify } from 'type-fest'
 import type { QueryKey, QueryObserverOptions } from '@tanstack/query-core'
+import type { Simplify } from 'type-fest'
 import type { Access, AccessCanParams, AccessCanResult } from './access'
 
 export type QueryOptions<

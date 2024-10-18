@@ -1,12 +1,12 @@
-import type { Simplify } from 'type-fest'
-import { computed, unref } from 'vue-demi'
-import { toValue } from '@vueuse/shared'
-import type { UseQueryReturnType } from '@tanstack/vue-query'
-import { useQuery } from '@tanstack/vue-query'
 import type { AccessCanParams, AccessCanResult } from '@ginjou/core'
-import { CanAccess } from '@ginjou/core'
+import type { UseQueryReturnType } from '@tanstack/vue-query'
+import type { Simplify } from 'type-fest'
 import type { ToMaybeRefs } from '../utils/refs'
 import type { UseAccessContextFromProps } from './access'
+import { CanAccess } from '@ginjou/core'
+import { useQuery } from '@tanstack/vue-query'
+import { toValue } from '@vueuse/shared'
+import { computed, unref } from 'vue-demi'
 import { useAccessContext } from './access'
 
 export type UseCanAccessProps<

@@ -1,6 +1,6 @@
+import type { I18n } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
 import { inject, provide } from 'vue-demi'
-import type { I18n } from '@ginjou/core'
 
 const KEY = Symbol('@ginjou/i18n')
 

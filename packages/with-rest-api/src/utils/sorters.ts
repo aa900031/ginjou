@@ -3,11 +3,11 @@ import type { Sorters } from '@ginjou/core'
 export function genSorters(
 	sorters?: Sorters,
 ): {
-		sorts: string[]
-		orders: string[]
-		_sort: string
-		_order: string
-	} | undefined {
+	sorts: string[]
+	orders: string[]
+	_sort: string
+	_order: string
+} | undefined {
 	if (!sorters || !sorters.length)
 		return
 

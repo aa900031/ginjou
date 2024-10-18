@@ -1,10 +1,10 @@
 import type { Simplify } from 'type-fest'
+import type { UseResourceContext } from '../resource'
+import { createNavigateToFn } from '@ginjou/core'
 import { type MaybeRef, toRef } from '@vueuse/shared'
 import { unref } from 'vue-demi'
-import { createNavigateToFn } from '@ginjou/core'
-import type { UseResourceContext } from '../resource'
 import { useResource, useResourceContext } from '../resource'
-import { type UseGoContext, useGo } from './go'
+import { useGo, type UseGoContext } from './go'
 
 export interface UseNavigateToProps {
 	resource?: MaybeRef<string | undefined>

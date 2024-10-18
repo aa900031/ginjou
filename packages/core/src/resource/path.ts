@@ -1,6 +1,6 @@
-import { inject as injectRegexparam } from 'regexparam'
 import type { ResourceActionTypeValues } from './action'
 import type { ResolvedResource } from './resolve'
+import { inject as injectRegexparam } from 'regexparam'
 
 export interface CreateResourcePathProps {
 	action: ResourceActionTypeValues

@@ -1,6 +1,6 @@
+import type { MaybeRef } from '@vueuse/shared'
 import type { UnwrapRef } from 'vue-demi'
 import { unref } from 'vue-demi'
-import type { MaybeRef } from '@vueuse/shared'
 
 export type UnwrapRefs<T extends Record<string, MaybeRef<any>>> = {
 	[K in keyof T]: UnwrapRef<T[K]>

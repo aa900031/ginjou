@@ -1,5 +1,5 @@
-import { shallowRef, watch } from 'vue-demi'
 import type { Ref, ShallowRef } from 'vue-demi'
+import { shallowRef, watch } from 'vue-demi'
 
 export function refFallback<T, TParams>(
 	params: () => TParams,

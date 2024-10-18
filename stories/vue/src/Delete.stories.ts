@@ -1,15 +1,15 @@
-import { vueRouter } from 'storybook-vue3-router'
 import type { Meta, StoryObj } from '@storybook/vue3'
 import { factory } from '@mswjs/data'
+import { vueRouter } from 'storybook-vue3-router'
 import MOCK_POSTS from '../data/mock-posts.json'
-import { createWrapper } from './utils/wrapper'
 import { MockModel } from './api/posts'
-import { createMsw } from './utils/msw'
-import { toHandlers } from './utils/msw-data'
-import { renderRouteView } from './utils/sb-renders/route-view'
-import { argTypes as MutationModeArgTypes, args as MutationModeArgs } from './utils/sb-args/mutation-mode'
 import Delete from './Delete.vue'
 import DeleteMany from './DeleteMany.vue'
+import { createMsw } from './utils/msw'
+import { toHandlers } from './utils/msw-data'
+import { args as MutationModeArgs, argTypes as MutationModeArgTypes } from './utils/sb-args/mutation-mode'
+import { renderRouteView } from './utils/sb-renders/route-view'
+import { createWrapper } from './utils/wrapper'
 
 const meta: Meta = {
 	title: 'Query/Delete',

@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import type { Post } from './api/posts'
+import { useList } from '@ginjou/vue'
 import { reactive, watchPostEffect } from 'vue'
 import { useRoute } from 'vue-router'
-import { useList } from '@ginjou/vue'
-import type { Post } from './api/posts'
 
 const route = useRoute()
 

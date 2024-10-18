@@ -1,10 +1,10 @@
 import type { MutateFunction, MutationFunction, MutationKey, MutationOptions, QueryClient } from '@tanstack/query-core'
-import { NotificationType, type NotifyFn } from '../notification'
 import type { TranslateFn } from '../i18n'
 import type { RouterGoFn } from '../router'
+import type { Auth, AuthLoginResult } from './auth'
+import { NotificationType, type NotifyFn } from '../notification'
 import { RouterGoType } from '../router'
 import { getErrorMessage } from '../utils/error'
-import type { Auth, AuthLoginResult } from './auth'
 import { triggerInvalidateAll } from './invalidate'
 
 export type LoginMutateFn<

@@ -42,9 +42,9 @@
 		"@supabase/supabase-js": "^2.7.0"
 	},
 	"devDependencies": {
+		"@ginjou/core": "workspace:^",
 		"@ginjou/release-it-config": "workspace:*",
 		"@ginjou/tsconfig": "workspace:*",
-		"@ginjou/core": "workspace:^",
 		"@supabase/supabase-js": "^2.43.0"
 	}
 }

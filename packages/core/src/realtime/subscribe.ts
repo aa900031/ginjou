@@ -1,6 +1,6 @@
 import type { SetOptional, SetRequired, Simplify } from 'type-fest'
-import { noop } from 'lodash-unified'
 import type { Realtime, SubscribeProps } from './realtime'
+import { noop } from 'lodash-unified'
 import { RealtimeAction } from './event'
 
 export type Props<

@@ -1,10 +1,10 @@
+import type { ResourceActionTypeValues } from '@ginjou/core'
+import type { MaybeRef } from '@vueuse/shared'
 import type { Simplify } from 'type-fest'
 import type { Ref } from 'vue-demi'
-import { computed, unref } from 'vue-demi'
-import type { MaybeRef } from '@vueuse/shared'
-import type { ResourceActionTypeValues } from '@ginjou/core'
-import { createResourcePath } from '@ginjou/core'
 import type { UseResourceContext } from './resource'
+import { createResourcePath } from '@ginjou/core'
+import { computed, unref } from 'vue-demi'
 import { useResource } from './resource'
 
 export interface UseResourcePathProps {

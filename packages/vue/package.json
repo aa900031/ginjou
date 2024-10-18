@@ -44,10 +44,10 @@
 		"vue": "^2.6.12 || ^3.2.0"
 	},
 	"peerDependenciesMeta": {
-		"vue": {
+		"@vue/composition-api": {
 			"optional": true
 		},
-		"@vue/composition-api": {
+		"vue": {
 			"optional": true
 		}
 	},

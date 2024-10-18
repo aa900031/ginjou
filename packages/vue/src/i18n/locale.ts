@@ -9,7 +9,9 @@ export function useLocale() {
 		|| !i18n.getLocale
 		|| !i18n.setLocale
 		|| !i18n.onChangeLocale
-	) throw new Error('No i18n locale properties')
+	) {
+		throw new Error('No i18n locale properties')
+	}
 
 	const [value] = eventRef({
 		register: handler => i18n.onChangeLocale!(handler),

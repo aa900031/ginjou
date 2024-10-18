@@ -3,6 +3,6 @@
 	"include": [
 		"unocss.config.ts",
 		"vite.config.ts",
-		".storybook/*.ts",
+		".storybook/*.ts"
 	]
 }

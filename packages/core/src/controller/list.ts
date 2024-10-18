@@ -1,10 +1,10 @@
 import type { Simplify, ValueOf } from 'type-fest'
-import { isEqual, unionWith } from 'lodash-unified'
-import type { RouterGoParams } from '../router'
-import { RouterGoType } from '../router'
 import type { BaseRecord, Filter, Filters, GetList, GetListResult, Pagination, Sort, Sorters } from '../query'
-import { FilterOperator } from '../query'
 import type { ResolvedResource } from '../resource'
+import type { RouterGoParams } from '../router'
+import { isEqual, unionWith } from 'lodash-unified'
+import { FilterOperator } from '../query'
+import { RouterGoType } from '../router'
 import { getSubValue } from '../utils/sub-value'
 
 export type PaginationProp = Simplify<
@@ -41,12 +41,12 @@ export type Props<
 	TResultData extends BaseRecord,
 > = Simplify<
 	& Omit<
-			GetList.Props<TData, TError, TResultData, number>,
-			| 'pagination'
-			| 'sorters'
-			| 'filters'
-			| 'syncRoute'
-		>
+		GetList.Props<TData, TError, TResultData, number>,
+		| 'pagination'
+		| 'sorters'
+		| 'filters'
+		| 'syncRoute'
+	>
 	& {
 		pagination?: PaginationProp
 		sorters?: SortersProp
@@ -603,8 +603,9 @@ export function toRouterGoParams<
 		[perPageResource, perPage],
 		[sortersResource, sorters],
 		[filtersResource, filters],
-	].every(([a, b]) => isEqual(a, b)))
+	].every(([a, b]) => isEqual(a, b))) {
 		return false
+	}
 
 	return {
 		type: RouterGoType.Replace,
@@ -672,8 +673,9 @@ export function getRecords<
 		paginationModeFromProp !== 'client'
 		|| currentPage == null
 		|| perPage == null
-	)
+	) {
 		return queryData?.data
+	}
 
 	return queryData?.data.slice(
 		(currentPage - 1) * perPage,
@@ -709,14 +711,14 @@ function compareFilter(
 	) {
 		return (
 			('field' in left ? left.field : undefined)
-				=== ('field' in right ? right.field : undefined)
+			=== ('field' in right ? right.field : undefined)
 			&& left.operator === right.operator
 		)
 	}
 
 	return (
 		('key' in left ? left.key : undefined)
-			=== ('key' in right ? right.key : undefined)
+		=== ('key' in right ? right.key : undefined)
 		&& left.operator === right.operator
 	)
 }
@@ -729,9 +731,9 @@ function filterFilter(
 		&& (filter.operator !== FilterOperator.or
 			|| (filter.operator === FilterOperator.or
 				&& filter.value.length !== 0))
-		&& (filter.operator !== FilterOperator.and
-			|| (filter.operator === FilterOperator.and
-				&& filter.value.length !== 0))
+				&& (filter.operator !== FilterOperator.and
+					|| (filter.operator === FilterOperator.and
+						&& filter.value.length !== 0))
 }
 
 export function resolveFilters(

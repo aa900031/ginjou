@@ -7,12 +7,12 @@ export interface CreateAuthProps {
 }
 
 export type LoginParams =
-| LoginWithPasswordParams
-| LoginWithOAuthParams
-| LoginWithIdTokenParams
-| LoginWithOtpParams
-| LoginWithSSOParams
-| LoginWithOtpTokenParams
+	| LoginWithPasswordParams
+	| LoginWithOAuthParams
+	| LoginWithIdTokenParams
+	| LoginWithOtpParams
+	| LoginWithSSOParams
+	| LoginWithOtpTokenParams
 
 export interface LoginWithPasswordParams {
 	type: 'password'

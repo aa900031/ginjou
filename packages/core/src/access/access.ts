@@ -1,6 +1,6 @@
 import type { LiteralUnion } from 'type-fest'
-import type { ResourceActionTypeValues } from '../resource'
 import type { RecordKey } from '../query'
+import type { ResourceActionTypeValues } from '../resource'
 
 export interface AccessCanParams {
 	action: LiteralUnion<ResourceActionTypeValues, string>

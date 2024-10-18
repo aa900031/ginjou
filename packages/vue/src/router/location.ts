@@ -1,8 +1,8 @@
+import type { RouterLocation } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
 import type { Ref } from 'vue-demi'
-import { ref } from 'vue-demi'
-import type { RouterLocation } from '@ginjou/core'
 import type { UseRouterContextFromProps } from './context'
+import { ref } from 'vue-demi'
 import { useRouterContext } from './context'
 
 export type UseLocationContext = Simplify<

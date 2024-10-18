@@ -1,7 +1,7 @@
-import { resolveURL } from 'ufo'
-import { HttpResponse, http } from 'msw'
 import type { Entity, FactoryAPI, ModelAPI, ModelDictionary } from '@mswjs/data/lib/glossary'
 import { withErrors } from '@mswjs/data/lib/model/generateRestHandlers'
+import { http, HttpResponse } from 'msw'
+import { resolveURL } from 'ufo'
 
 export function toHandlers<
 	Dictionary extends ModelDictionary,
