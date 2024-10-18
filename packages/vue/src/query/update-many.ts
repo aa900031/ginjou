@@ -8,6 +8,8 @@ import type { BaseRecord, UpdateManyResult } from '@ginjou/core'
 import { type UseNotifyContext, useNotify } from '../notification'
 import { type UseTranslateContext, useTranslate } from '../i18n'
 import { type UseCheckErrorContext, useCheckError } from '../auth'
+import type { UsePublishContext } from '../realtime'
+import { usePublish } from '../realtime'
 import { type UseQueryClientContextProps, useQueryClientContext } from './query-client'
 import { type UseFetcherContextFromProps, useFetchersContext } from './fetchers'
 
@@ -28,6 +30,7 @@ export type UseUpdateManyContext = Simplify<
 	& UseNotifyContext
 	& UseTranslateContext
 	& UseCheckErrorContext
+	& UsePublishContext
 >
 
 export type UseUpdateManyResult<
@@ -53,6 +56,7 @@ export function useUpdateMany<
 	const fetchers = useFetchersContext({ ...context, strict: true })
 	const notify = useNotify(context)
 	const translate = useTranslate(context)
+	const publish = usePublish(context)
 	const { mutateAsync: checkError } = useCheckError(context)
 
 	const mutation = useMutation<UpdateManyResult<TData>, TError, UpdateMany.MutationProps<TData, TError, TParams>, UpdateMany.MutationContext<TData>>(computed(() => ({
@@ -76,6 +80,7 @@ export function useUpdateMany<
 			queryClient,
 			notify,
 			translate,
+			publish,
 			onSuccess: unref(props?.mutationOptions)?.onSuccess,
 		}),
 		onError: UpdateMany.createErrorHandler<TError, TParams>({

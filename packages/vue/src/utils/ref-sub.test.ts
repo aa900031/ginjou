@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { reactive, ref, shallowReactive, unref, watchEffect } from 'vue'
+import { ref, unref } from 'vue-demi'
 import { refSub } from './ref-sub'
 
 describe('ref-sub', () => {

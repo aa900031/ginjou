@@ -20,6 +20,15 @@ export {
 	MutationMode,
 } from './mutation-mode'
 
+export type {
+	GetSubscribeChannelProps,
+	CreateSubscribeCallbackProps,
+} from './realtime'
+export {
+	getSubscribeChannel,
+	createSubscribeCallback,
+} from './realtime'
+
 export * as GetOne from './get-one'
 export * as GetMany from './get-many'
 export * as GetList from './get-list'

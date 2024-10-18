@@ -1,11 +1,11 @@
 import type { Simplify } from 'type-fest'
 import type { Ref } from 'vue-demi'
 import { computed, unref } from 'vue-demi'
-import type { MaybeRef } from '@vueuse/shared'
-import type { QueryObserverOptions, UseQueryReturnType } from '@tanstack/vue-query'
+import type { UseQueryReturnType } from '@tanstack/vue-query'
 import { useQuery } from '@tanstack/vue-query'
 import type { BaseRecord, CustomResult } from '@ginjou/core'
-import { Custom } from '@ginjou/core'
+import { Custom, RealtimeAction } from '@ginjou/core'
+import { toRef } from '@vueuse/shared'
 import type { UseNotifyContext } from '../notification'
 import { useNotify } from '../notification'
 import type { UseTranslateContext } from '../i18n'
@@ -13,6 +13,8 @@ import { useTranslate } from '../i18n'
 import type { UseCheckErrorContext } from '../auth'
 import { useCheckError } from '../auth'
 import type { ToMaybeRefs } from '../utils/refs'
+import type { UseSubscribeContext } from '../realtime'
+import { useSubscribe } from '../realtime'
 import { useQueryClientContext } from './query-client'
 import type { UseQueryClientContextProps } from './query-client'
 import { useFetchersContext } from './fetchers'
@@ -24,20 +26,8 @@ export type UseCustomProps<
 	TResultData extends BaseRecord,
 	TQuery,
 	TPayload,
-> = Simplify<
-	& ToMaybeRefs<Custom.QueryProps<TQuery, TPayload>>
-	& {
-		queryOptions?: MaybeRef<
-			| QueryObserverOptions<CustomResult<TData>, TError, CustomResult<TResultData>>
-			| undefined
-		>
-		successNotify?: MaybeRef<
-			ReturnType<Custom.CreateSuccessHandlerProps<TResultData, TQuery, TPayload>['getSuccessNotify']>
-		>
-		errorNotify?: MaybeRef<
-			ReturnType<Custom.CreateErrorHandlerProps<TError, TQuery, TPayload>['getErrorNotify']>
-		>
-	}
+> = ToMaybeRefs<
+	Custom.Props<TData, TError, TResultData, TQuery, TPayload>
 >
 
 export type UseCustomContext = Simplify<
@@ -46,6 +36,7 @@ export type UseCustomContext = Simplify<
 	& UseNotifyContext
 	& UseTranslateContext
 	& UseCheckErrorContext
+	& UseSubscribeContext
 >
 
 export type UseCustomResult<
@@ -116,6 +107,15 @@ export function useCustom<
 		onError: handleError,
 		queryClient,
 	})))
+
+	useSubscribe({
+		channel: toRef(() => unref(props.realtime)?.channel ?? ''),
+		params: toRef(() => unref(props.realtime)?.params),
+		meta: toRef(() => unref(queryProps).meta),
+		callback: event => unref(props.realtime)?.callback?.(event),
+		enabled: computed(() => unref(props.realtime)?.channel != null),
+		actions: [RealtimeAction.Any],
+	}, context)
 
 	return {
 		...query,
