@@ -41,7 +41,7 @@
 		"@ginjou/core": "workspace:^"
 	},
 	"dependencies": {
-		"ofetch": "^1.3.4"
+		"ofetch": "^1.4.1"
 	},
 	"devDependencies": {
 		"@ginjou/core": "workspace:^",
