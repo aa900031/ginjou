@@ -1,17 +1,18 @@
 import { describe, expect, it, vi } from 'vitest'
-import { RealtimeAction } from '@ginjou/core'
+import { RealtimeAction, SubscribeType } from '@ginjou/core'
 import { unref } from 'vue-demi'
 import { mountTestApp } from '../../test/mount'
 import { MockFetchers, queryClient } from '../../test/mock-fetcher'
 import { MockRealtimes, expectUnsubscribeCalled, subscribeFn } from '../../test/mock-realtime'
-import { useGetList } from './get-list'
+import { useGetMany } from './get-many'
 
-describe('useGetList', () => {
+describe('useGetMany', () => {
 	describe('subscribe', () => {
 		it('should call realtime.subscribe', async () => {
 			const { result } = mountTestApp(
-				() => useGetList({
+				() => useGetMany({
 					resource: 'posts',
+					ids: ['1', '2'],
 				}),
 				{
 					queryClient,
@@ -31,20 +32,19 @@ describe('useGetList', () => {
 				callback: expect.any(Function),
 				meta: undefined,
 				params: {
-					filters: undefined,
-					pagination: undefined,
-					sorters: undefined,
+					ids: ['1', '2'],
 					meta: undefined,
 					resource: 'posts',
-					type: 'list',
+					type: SubscribeType.Many,
 				},
 			})
 		})
 
 		it('should call realtime.unscribe on unmount', async () => {
 			const { result, unmount } = mountTestApp(
-				() => useGetList({
+				() => useGetMany({
 					resource: 'posts',
+					ids: ['1', '2'],
 				}),
 				{
 					queryClient,
@@ -62,10 +62,11 @@ describe('useGetList', () => {
 			expectUnsubscribeCalled()
 		})
 
-		it('should not subscribe if queryOptions.enabled is false', async () => {
+		it('should not call realtime.subscribe if queryOptions.enabled is false', async () => {
 			const { result } = mountTestApp(
-				() => useGetList({
+				() => useGetMany({
 					resource: 'posts',
+					ids: ['1', '2'],
 					queryOptions: {
 						enabled: false,
 					},

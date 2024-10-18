@@ -3,29 +3,24 @@ import { unref } from 'vue-demi'
 import { RealtimeAction } from '@ginjou/core'
 import { mountTestApp } from '../../test/mount'
 import { MockFetchers, queryClient } from '../../test/mock-fetcher'
-import { useUpdate } from './update'
+import { MockRealtimes, publishFn } from '../../test/mock-realtime'
+import { useUpdateMany } from './update-many'
 
-describe('useUpdate', () => {
+describe('useUpdateMany', () => {
 	describe('publish', () => {
 		it('should call realtime.publish', async () => {
-			const publish = vi.fn()
-			const subscribe = vi.fn()
-
 			const { result } = mountTestApp(
-				() => useUpdate(),
+				() => useUpdateMany(),
 				{
 					queryClient,
 					fetchers: MockFetchers,
-					realtime: {
-						subscribe,
-						publish,
-					},
+					realtime: MockRealtimes,
 				},
 			)
 
 			result.mutate({
 				resource: 'posts',
-				id: '1',
+				ids: ['1'],
 				params: {
 					title: 'Necessitatibus necessitatibus id et cupiditate provident est qui amet.',
 					slug: 'ut-ad-et',
@@ -44,8 +39,8 @@ describe('useUpdate', () => {
 				expect(unref(result.isSuccess)).toBeTruthy()
 			})
 
-			expect(publish).toBeCalled()
-			expect(publish).toBeCalledWith({
+			expect(publishFn).toBeCalled()
+			expect(publishFn).toBeCalledWith({
 				action: RealtimeAction.Updated,
 				channel: 'resources/posts',
 				date: expect.any(Date),
@@ -59,31 +54,27 @@ describe('useUpdate', () => {
 		})
 
 		it('should not call realtime.publish when mutation have exception', async () => {
-			const publish = vi.fn()
-			const update = vi.fn(() => {
+			const updateMany = vi.fn(() => {
 				throw new Error('No')
 			})
 
 			const { result } = mountTestApp(
-				() => useUpdate(),
+				() => useUpdateMany(),
 				{
 					queryClient,
 					fetchers: {
 						default: {
 							...MockFetchers.default,
-							update,
+							updateMany,
 						},
 					},
-					realtime: {
-						subscribe: vi.fn(),
-						publish,
-					},
+					realtime: MockRealtimes,
 				},
 			)
 
 			result.mutate({
 				resource: 'posts',
-				id: '1',
+				ids: ['1'],
 				params: {
 					title: 'Necessitatibus necessitatibus id et cupiditate provident est qui amet.',
 					slug: 'ut-ad-et',
@@ -103,8 +94,8 @@ describe('useUpdate', () => {
 			})
 
 			expect(unref(result.isError)).toBeTruthy()
-			expect(publish).not.toBeCalled()
-			expect(update).toBeCalled()
+			expect(publishFn).not.toBeCalled()
+			expect(updateMany).toBeCalled()
 		})
 	})
 })
