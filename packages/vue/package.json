@@ -1,5 +1,6 @@
 {
 	"name": "@ginjou/vue",
+	"type": "module",
 	"version": "0.1.0-beta.5",
 	"author": "zhong666 <hi@zhong666.me>",
 	"license": "MIT",
@@ -62,7 +63,7 @@
 		"@ginjou/release-it-config": "workspace:*",
 		"@ginjou/tsconfig": "workspace:*",
 		"@tanstack/vue-query": "^4.37.1",
-		"@testing-library/vue": "^7.0.0",
+		"@testing-library/vue": "^8.1.0",
 		"vue": "^3.5.12"
 	}
 }
