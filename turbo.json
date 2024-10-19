@@ -9,7 +9,8 @@
 			"inputs": [
 				"src/**/*",
 				"test/**/*"
-			]
+			],
+			"outputs": []
 		},
 		"dev": {
 			"cache": false
