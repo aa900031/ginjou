@@ -44,7 +44,7 @@
 		"@storybook/vue3-vite": "^8.3.6",
 		"@tanstack/vue-query": "^4.37.1",
 		"@vitejs/plugin-vue": "^5.1.4",
-		"msw": "^2.4.11",
+		"msw": "^2.4.12",
 		"msw-storybook-addon": "2.0.3",
 		"npm-run-all2": "^6.2.4",
 		"primevue": "^4.1.1",
