@@ -55,7 +55,7 @@
 		"@ginjou/release-it-config": "workspace:*",
 		"@ginjou/tsconfig": "workspace:*",
 		"@tanstack/query-core": "^4.36.1",
-		"@types/lodash": "^4.17.11",
+		"@types/lodash": "^4.17.13",
 		"@types/lodash-es": "^4.17.12"
 	}
 }
