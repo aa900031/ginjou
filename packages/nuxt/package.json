@@ -28,7 +28,8 @@
 		"access": "public"
 	},
 	"scripts": {
-		"build": "nuxt-module-build build",
+		"build": "run-s build:prepare build:bundle",
+		"build:bundle": "nuxt-module-build build",
 		"build:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare",
 		"dev:playground": "nuxi dev playground",
 		"dev": "run-s build:prepare dev:playground",
