@@ -34,10 +34,9 @@
 		"dev": "run-s build:prepare dev:playground",
 		"release": "release-it --ci"
 	},
-	"peerDependencies": {
-		"@ginjou/vue": "workspace:^"
-	},
 	"dependencies": {
+		"@ginjou/vue": "workspace:^",
+		"@ginjou/with-vue-router": "workspace:^",
 		"@nuxt/kit": "^3.9.0"
 	},
 	"devDependencies": {
