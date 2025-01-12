@@ -2,3 +2,4 @@ packages:
   - packages/*
   - internals/*
   - stories/*
+  - packages/nuxt/playground

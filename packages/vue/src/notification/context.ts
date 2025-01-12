@@ -1,13 +1,19 @@
 import type { Notification } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
-import { inject, provide } from 'vue-demi'
+import type { InjectionGetter, InjectionGetterKey } from '../utils/inject'
+import type { ProvideFn } from '../utils/provide'
+import { provide } from 'vue-demi'
+import { injectGetter } from '../utils/inject'
 
-const KEY = Symbol('@ginjou/notification')
+const KEY: InjectionGetterKey<Notification> = Symbol('@ginjou/notification')
 
 export function defineNotificationContext<
-	T extends Notification,
->(value: T): T {
-	provide(KEY, value)
+	T extends InjectionGetter<Notification>,
+>(
+	value: T,
+	provideFn: ProvideFn = provide,
+): T {
+	provideFn(KEY, value)
 	return value
 }
 
@@ -33,7 +39,7 @@ export function useNotificationContext(
 export function useNotificationContext(
 	props?: UseNotificationContextProps,
 ): Notification | undefined {
-	const value = inject(KEY, undefined) ?? props?.notification
+	const value = injectGetter(KEY) ?? props?.notification
 	if (props?.strict === true && value == null)
 		throw new Error('No')
 	return value

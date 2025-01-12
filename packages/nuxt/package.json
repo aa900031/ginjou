@@ -1,0 +1,51 @@
+{
+	"name": "@ginjou/nuxt",
+	"type": "module",
+	"version": "0.1.0-beta.0",
+	"author": "zhong666 <hi@zhong666.me>",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/aa900031/ginjou"
+	},
+	"bugs": {
+		"url": "https://github.com/aa900031/ginjou/issues"
+	},
+	"sideEffects": false,
+	"exports": {
+		".": {
+			"types": "./dist/module.d.ts",
+			"import": "./dist/module.mjs",
+			"require": "./dist/module.cjs"
+		}
+	},
+	"main": "./dist/module.mjs",
+	"types": "./dist/module.d.ts",
+	"files": [
+		"dist"
+	],
+	"publishConfig": {
+		"access": "public"
+	},
+	"scripts": {
+		"build": "nuxt-module-build build",
+		"build:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare",
+		"dev:playground": "nuxi dev playground",
+		"dev": "run-s build:prepare dev:playground",
+		"release": "release-it --ci"
+	},
+	"peerDependencies": {
+		"@ginjou/vue": "workspace:^"
+	},
+	"dependencies": {
+		"@nuxt/kit": "^3.9.0"
+	},
+	"devDependencies": {
+		"@ginjou/vue": "workspace:^",
+		"@nuxt/module-builder": "^0.8.4",
+		"@nuxt/schema": "^3.9.0",
+		"@nuxt/test-utils": "^3.14.4",
+		"npm-run-all2": "^6.2.6",
+		"nuxt": "^3.14.1592"
+	}
+}

@@ -1,0 +1,6 @@
+{
+	"extends": "./.nuxt/tsconfig.json",
+	"references": [
+		{ "path": "../vue/tsconfig.app.json" }
+	]
+}

@@ -1,13 +1,19 @@
 import type { Router } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
-import { inject, provide } from 'vue-demi'
+import type { InjectionGetter, InjectionGetterKey } from '../utils/inject'
+import type { ProvideFn } from '../utils/provide'
+import { provide } from 'vue-demi'
+import { injectGetter } from '../utils/inject'
 
-const KEY = Symbol('@ginjou/router')
+const KEY: InjectionGetterKey<Router<any, any>> = Symbol('@ginjou/router')
 
 export function defineRouterContext<
-	T extends Router<any, any>,
->(value: T): T {
-	provide(KEY, value)
+	T extends InjectionGetter<Router<any, any>>,
+>(
+	value: T,
+	provideFn: ProvideFn = provide,
+): T {
+	provideFn(KEY, value)
 	return value
 }
 
@@ -39,7 +45,7 @@ export function useRouterContext<
 export function useRouterContext(
 	props?: UseRouterContextProps,
 ): Router<any, any> | undefined {
-	const value = inject(KEY, undefined) ?? props?.router
+	const value = injectGetter(KEY) ?? props?.router
 	if (props?.strict === true && value == null)
 		throw new Error('No')
 	return value
