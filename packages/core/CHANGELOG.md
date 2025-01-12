@@ -3,6 +3,33 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.4
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/core@0.1.0-beta.3...@ginjou/core@0.1.0-beta.4)
+
+### 🚀 Enhancements
+
+-  Mutation mode (#27) ([88bd0d4](https://github.com/aa900031/ginjou/commit/88bd0d4dd03349e0dc2c058ce854d56e6002cd8b))
+-  Realtime (#28) ([f1ad855](https://github.com/aa900031/ginjou/commit/f1ad855857d9b66b5d77948e8dfdd8bcfc23a261))
+
+### 🩹 Fixes
+
+-  Pagination will restore (#34) ([3d5d7c7](https://github.com/aa900031/ginjou/commit/3d5d7c7424bd182e90fb11de880c024d273f50c0))
+
+### 🏡 Chore
+
+-  Adjuest tsconfigs ([ae9f8a1](https://github.com/aa900031/ginjou/commit/ae9f8a10c6c353280f079a0ab8c90f89dbfb0057))
+-  **deps:** Update npm non-major dependencies (#25) ([5130b03](https://github.com/aa900031/ginjou/commit/5130b03cbabca63bad6bedc8847f0638a80e277a))
+-  **deps:** Update npm non-major dependencies (#30) ([9fa6181](https://github.com/aa900031/ginjou/commit/9fa6181c50cf490b4f25ab50076bc386a88231f1))
+-  Update eslint (#29) ([588797b](https://github.com/aa900031/ginjou/commit/588797b53ef3e00033634dcc709d61083da12ab7))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+- Renovate[bot]
+
 ## v0.1.0-beta.3
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/core@0.1.0-beta.2...@ginjou/core@0.1.0-beta.3)
