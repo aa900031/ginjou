@@ -2,7 +2,7 @@
 import type { Post } from './api/posts'
 import { FilterOperator } from '@ginjou/core'
 import { useList } from '@ginjou/vue'
-import { reactive, watchPostEffect } from 'vue'
+import { reactive, unref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
@@ -19,23 +19,27 @@ const formData = reactive({
 	id: '',
 })
 
-watchPostEffect(() => {
+watch(() => unref(formData), (data) => {
 	filters.value = [
-		formData.title
+		data.title
 			? {
 					field: 'title',
 					operator: FilterOperator.contains,
-					value: formData.title,
+					value: data.title,
 				}
 			: undefined as any,
-		formData.id
+		data.id
 			? {
 					field: 'id',
 					operator: FilterOperator.eq,
-					value: formData.id,
+					value: data.id,
 				}
 			: undefined as any,
 	].filter(Boolean)
+}, {
+	flush: 'post',
+	deep: true,
+	immediate: true,
 })
 </script>
 

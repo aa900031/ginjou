@@ -644,10 +644,19 @@ export function resolveSorters(
 	permanent: Sorters | undefined,
 	value: Sorters | undefined,
 ): Sorters | undefined {
-	if (permanent || value) {
-		return unionWith(permanent, value, compareSort)
-			.filter(filterSort)
-	}
+	if (permanent == null && value == null)
+		return
+
+	const result = unionWith(
+		permanent,
+		value,
+		compareSort,
+	).filter(filterSort)
+
+	if (result.length === 0)
+		return DEFAULT_SORTERS
+
+	return result
 }
 
 export interface GetDataProps<
@@ -751,12 +760,17 @@ export function resolveFilters(
 	value: Filters | undefined,
 	prev?: Filters,
 ): Filters | undefined {
-	return unionWith(
+	const result = unionWith(
 		permanent,
 		value,
 		prev,
 		compareFilter,
 	).filter(filterFilter)
+
+	if (result.length === 0)
+		return DEFAULT_FILTERS
+
+	return result
 }
 
 function checkFiltersValue(

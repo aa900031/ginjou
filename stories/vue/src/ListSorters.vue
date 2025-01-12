@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Post } from './api/posts'
 import { useList } from '@ginjou/vue'
-import { reactive, watchPostEffect } from 'vue'
+import { reactive, unref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
@@ -14,21 +14,29 @@ const {
 })
 
 const formData = reactive({
-	id: false,
-	title: true,
+	id: undefined,
+	title: undefined,
 })
 
-watchPostEffect(() => {
+watch(() => unref(formData), (data) => {
 	sorters.value = [
-		{
-			field: 'title',
-			order: formData.title ? 'asc' : 'desc',
-		},
-		{
-			field: 'id',
-			order: formData.id ? 'asc' : 'desc',
-		},
-	]
+		data.title != null
+			? {
+					field: 'title',
+					order: data.title ? 'asc' : 'desc',
+				}
+			: undefined as any,
+		data.id != null
+			? {
+					field: 'id',
+					order: data.id ? 'asc' : 'desc',
+				}
+			: undefined as any,
+	].filter(Boolean)
+}, {
+	flush: 'post',
+	deep: true,
+	immediate: true,
 })
 </script>
 
