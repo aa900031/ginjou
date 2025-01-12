@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.6
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/vue@0.1.0-beta.5...@ginjou/vue@0.1.0-beta.6)
+
+### 🚀 Enhancements
+
+-  Mutation mode (#27) ([88bd0d4](https://github.com/aa900031/ginjou/commit/88bd0d4dd03349e0dc2c058ce854d56e6002cd8b))
+-  Nuxt module (#33) ([751397a](https://github.com/aa900031/ginjou/commit/751397ac0046e9255a87b2f4558e94ba447fc400))
+-  Realtime (#28) ([f1ad855](https://github.com/aa900031/ginjou/commit/f1ad855857d9b66b5d77948e8dfdd8bcfc23a261))
+
+### 🏡 Chore
+
+-  @ginjou/vue move to module type ([81b75bc](https://github.com/aa900031/ginjou/commit/81b75bc50f7eddcb92b4ad5c7390ced232280fb0))
+-  Adjuest tsconfigs ([ae9f8a1](https://github.com/aa900031/ginjou/commit/ae9f8a10c6c353280f079a0ab8c90f89dbfb0057))
+-  **deps:** Update npm non-major dependencies (#25) ([5130b03](https://github.com/aa900031/ginjou/commit/5130b03cbabca63bad6bedc8847f0638a80e277a))
+-  Update eslint (#29) ([588797b](https://github.com/aa900031/ginjou/commit/588797b53ef3e00033634dcc709d61083da12ab7))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+- Renovate[bot]
+
 ## v0.1.0-beta.5
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/vue@0.1.0-beta.4...@ginjou/vue@0.1.0-beta.5)
