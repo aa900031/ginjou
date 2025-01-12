@@ -5,7 +5,7 @@ import type { Ref } from 'vue-demi'
 import type { ToMaybeRefs } from '../utils/refs'
 import { RealtimeOption } from '@ginjou/core'
 import { computed, unref } from 'vue-demi'
-import { useRealtimeContext, type UseRealtimeContextFormProps } from './realtime'
+import { useRealtimeContext, type UseRealtimeContextFormProps } from './context'
 
 export type UseRealtimeProps<
 	TPayload,
