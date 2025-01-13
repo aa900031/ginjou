@@ -127,7 +127,7 @@ export default defineNuxtModule<
 			config.optimizeDeps.exclude ??= []
 			config.optimizeDeps.exclude.push(...[
 				'@ginjou/core',
-				'@ginjoy/vue',
+				'@ginjou/vue',
 				'@ginjou/with-vue-router',
 				'@ginjou/with-vue-i18n',
 			])
