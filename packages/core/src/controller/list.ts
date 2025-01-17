@@ -420,7 +420,7 @@ export function createSetFiltersFn(
 
 			switch (_behavior) {
 				case SetFilterBehavior.Merge:
-					return resolveFilters(getFiltersPermanent(), value, prev)
+					return resolveFilters(getFiltersPermanent(), value, prev, true)
 				case SetFilterBehavior.Replace:
 					return resolveFilters(getFiltersPermanent(), value)
 				default:
@@ -475,7 +475,7 @@ export function createSetSortersFn(
 	return function setSorters(value) {
 		update((prev) => {
 			const nextValue = typeof value === 'function' ? value(prev) : value
-			return resolveSorters(getSortersPermanent(), nextValue)
+			return resolveSorters(getSortersPermanent(), nextValue, prev)
 		})
 	}
 }
@@ -635,14 +635,17 @@ function filterSort(
 export function resolveSorters(
 	permanent: Sorters | undefined,
 	value: Sorters,
+	prev?: Sorters,
 ): Sorters
 export function resolveSorters(
 	permanent: Sorters | undefined,
 	value: Sorters | undefined,
+	prev?: Sorters,
 ): Sorters | undefined
 export function resolveSorters(
 	permanent: Sorters | undefined,
 	value: Sorters | undefined,
+	prev?: Sorters,
 ): Sorters | undefined {
 	if (permanent == null && value == null)
 		return
@@ -652,6 +655,9 @@ export function resolveSorters(
 		value,
 		compareSort,
 	).filter(filterSort)
+
+	if (prev != null && isEqual(prev, result))
+		return prev
 
 	if (result.length === 0)
 		return DEFAULT_SORTERS
@@ -748,24 +754,30 @@ function filterFilter(
 export function resolveFilters(
 	permanent: Filters | undefined,
 	value: Filters,
-	prev?: Filters
+	prev?: Filters,
+	isMerge?: boolean,
 ): Filters
 export function resolveFilters(
 	permanent: Filters | undefined,
 	value: Filters | undefined,
-	prev?: Filters
+	prev?: Filters,
+	isMerge?: boolean,
 ): Filters | undefined
 export function resolveFilters(
 	permanent: Filters | undefined,
 	value: Filters | undefined,
 	prev?: Filters,
+	isMerge?: boolean,
 ): Filters | undefined {
 	const result = unionWith(
 		permanent,
 		value,
-		prev,
+		isMerge ? prev : undefined,
 		compareFilter,
 	).filter(filterFilter)
+
+	if (prev != null && isEqual(prev, result))
+		return prev
 
 	if (result.length === 0)
 		return DEFAULT_FILTERS
