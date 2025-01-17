@@ -387,7 +387,8 @@ export function getFilters(
 export interface CreateSetFiltersFnProps {
 	getFiltersPermanent: () => FiltersOptions['permanent']
 	getFiltersBehavior: () => FiltersOptions['behavior']
-	update: (getter: (prev: Filters) => Filters) => void
+	getPrev: () => Filters
+	update: (nextValue: Filters) => void
 }
 
 export const SetFilterBehavior = {
@@ -406,27 +407,35 @@ export function createSetFiltersFn(
 	{
 		getFiltersPermanent,
 		getFiltersBehavior,
+		getPrev,
 		update,
 	}: CreateSetFiltersFnProps,
 ): SetFiltersFn {
 	return function setFilters(value, behavior) {
-		update((prev) => {
-			if (typeof value === 'function')
-				return resolveFilters(getFiltersPermanent(), value(prev))
+		const prev = getPrev()
 
+		let nextValue: Filters
+		if (typeof value === 'function') {
+			nextValue = resolveFilters(getFiltersPermanent(), value(prev))
+		}
+		else {
 			const _behavior = behavior
 				?? getFiltersBehavior()
 				?? SetFilterBehavior.Merge
 
 			switch (_behavior) {
 				case SetFilterBehavior.Merge:
-					return resolveFilters(getFiltersPermanent(), value, prev, true)
+					nextValue = resolveFilters(getFiltersPermanent(), value, prev, true)
+					break
 				case SetFilterBehavior.Replace:
-					return resolveFilters(getFiltersPermanent(), value)
+					nextValue = resolveFilters(getFiltersPermanent(), value)
+					break
 				default:
 					throw new Error('No')
 			}
-		})
+		}
+
+		update(nextValue)
 	}
 }
 
@@ -459,7 +468,8 @@ export function getSorters(
 
 export interface CreateSetSortersFnProps {
 	getSortersPermanent: () => SortersOptions['permanent']
-	update: (getter: (prev: Sorters) => Sorters) => void
+	getPrev: () => Sorters
+	update: (nextValue: Sorters) => void
 }
 
 export type SetSortersFn = (
@@ -469,14 +479,16 @@ export type SetSortersFn = (
 export function createSetSortersFn(
 	{
 		getSortersPermanent,
+		getPrev,
 		update,
 	}: CreateSetSortersFnProps,
 ): SetSortersFn {
 	return function setSorters(value) {
-		update((prev) => {
-			const nextValue = typeof value === 'function' ? value(prev) : value
-			return resolveSorters(getSortersPermanent(), nextValue, prev)
-		})
+		const prev = getPrev()
+		const generated = typeof value === 'function' ? value(prev) : value
+		const nextValue = resolveSorters(getSortersPermanent(), generated, prev)
+
+		update(nextValue)
 	}
 }
 

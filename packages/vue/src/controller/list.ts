@@ -152,7 +152,8 @@ export function useList<
 	const setFilters = List.createSetFiltersFn({
 		getFiltersPermanent: () => unref(filtersPermanentProp),
 		getFiltersBehavior: () => unref(filtersBehaviorProp),
-		update: getter => _filters.value = getter(unref(_filters)),
+		getPrev: () => unref(_filters),
+		update: value => _filters.value = value,
 	})
 	const _sorters = refFallback(
 		() => ({
@@ -165,7 +166,8 @@ export function useList<
 	)
 	const setSorters = List.createSetSortersFn({
 		getSortersPermanent: () => unref(sortersPermanentProp),
-		update: getter => _sorters.value = getter(unref(_sorters)),
+		getPrev: () => unref(_sorters),
+		update: value => _sorters.value = value,
 	})
 
 	const paginationForQuery = computed(() => List.getPaginationForQuery({
