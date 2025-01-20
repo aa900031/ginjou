@@ -119,7 +119,7 @@ export default defineNuxtModule<
 				filter: template => template.filename === target.template.filename,
 			})
 
-			await nuxt.hooks.callHook('restart', { hard: true })
+			await nuxt.callHook('restart')
 		})
 
 		nuxt.hook('vite:extend', ({ config }) => {
