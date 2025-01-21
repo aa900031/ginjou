@@ -387,7 +387,7 @@ export function getFilters(
 export interface CreateSetFiltersFnProps {
 	getFiltersPermanent: () => FiltersOptions['permanent']
 	getFiltersBehavior: () => FiltersOptions['behavior']
-	getPrev: () => Filters
+	getPrev: () => Filters | undefined
 	update: (nextValue: Filters) => void
 }
 
@@ -399,7 +399,7 @@ export const SetFilterBehavior = {
 export type SetFilterBehaviorType = ValueOf<typeof SetFilterBehavior>
 
 export type SetFiltersFn = (
-	value: Filters | ((prev: Filters) => Filters),
+	value: Filters | ((prev: Filters | undefined) => Filters),
 	behavior?: SetFilterBehaviorType
 ) => void
 
@@ -435,6 +435,13 @@ export function createSetFiltersFn(
 			}
 		}
 
+		if (
+			nextValue == null
+			|| (prev != null && isEqual(prev, nextValue))
+		) {
+			return
+		}
+
 		update(nextValue)
 	}
 }
@@ -468,12 +475,12 @@ export function getSorters(
 
 export interface CreateSetSortersFnProps {
 	getSortersPermanent: () => SortersOptions['permanent']
-	getPrev: () => Sorters
+	getPrev: () => Sorters | undefined
 	update: (nextValue: Sorters) => void
 }
 
 export type SetSortersFn = (
-	value: Sorters | ((prev: Sorters) => Sorters),
+	value: Sorters | ((prev: Sorters | undefined) => Sorters),
 ) => void
 
 export function createSetSortersFn(
@@ -486,7 +493,13 @@ export function createSetSortersFn(
 	return function setSorters(value) {
 		const prev = getPrev()
 		const generated = typeof value === 'function' ? value(prev) : value
-		const nextValue = resolveSorters(getSortersPermanent(), generated, prev)
+		const nextValue = resolveSorters(getSortersPermanent(), generated)
+		if (
+			nextValue == null
+			|| (prev != null && isEqual(prev, nextValue))
+		) {
+			return
+		}
 
 		update(nextValue)
 	}
@@ -647,17 +660,14 @@ function filterSort(
 export function resolveSorters(
 	permanent: Sorters | undefined,
 	value: Sorters,
-	prev?: Sorters,
 ): Sorters
 export function resolveSorters(
 	permanent: Sorters | undefined,
 	value: Sorters | undefined,
-	prev?: Sorters,
 ): Sorters | undefined
 export function resolveSorters(
 	permanent: Sorters | undefined,
 	value: Sorters | undefined,
-	prev?: Sorters,
 ): Sorters | undefined {
 	if (permanent == null && value == null)
 		return
@@ -667,9 +677,6 @@ export function resolveSorters(
 		value,
 		compareSort,
 	).filter(filterSort)
-
-	if (prev != null && isEqual(prev, result))
-		return prev
 
 	if (result.length === 0)
 		return DEFAULT_SORTERS
@@ -787,9 +794,6 @@ export function resolveFilters(
 		isMerge ? prev : undefined,
 		compareFilter,
 	).filter(filterFilter)
-
-	if (prev != null && isEqual(prev, result))
-		return prev
 
 	if (result.length === 0)
 		return DEFAULT_FILTERS
