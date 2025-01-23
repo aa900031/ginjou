@@ -1,0 +1,57 @@
+{
+	"name": "@ginjou/svelte",
+	"type": "module",
+	"version": "0.1.0-beta.0",
+	"author": "zhong666 <hi@zhong666.me>",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/aa900031/ginjou"
+	},
+	"bugs": {
+		"url": "https://github.com/aa900031/ginjou/issues"
+	},
+	"sideEffects": false,
+	"exports": {
+		".": {
+			"import": {
+				"types": "./dist/index.d.mts",
+				"default": "./dist/index.mjs"
+			},
+			"require": {
+				"types": "./dist/index.d.cts",
+				"default": "./dist/index.cjs"
+			}
+		}
+	},
+	"main": "dist/index.cjs",
+	"module": "dist/index.mjs",
+	"types": "dist/index.d.ts",
+	"files": [
+		"dist"
+	],
+	"publishConfig": {
+		"access": "public"
+	},
+	"scripts": {
+		"build": "unbuild",
+		"test": "vitest run",
+		"dev:test": "vitest",
+		"release": "release-it --ci"
+	},
+	"peerDependencies": {
+		"@tanstack/svelte-query": "^5.*",
+		"svelte": "^3.54.0 || ^4.0.0 || ^5.0.0"
+	},
+	"dependencies": {
+		"@ginjou/core": "workspace:^",
+		"type-fest": "^4.26.1"
+	},
+	"devDependencies": {
+		"@ginjou/release-it-config": "workspace:*",
+		"@ginjou/tsconfig": "workspace:*",
+		"@sveltejs/package": "^2.3.7",
+		"@tanstack/svelte-query": "^5.64.2",
+		"svelte": "^4.2.18"
+	}
+}
