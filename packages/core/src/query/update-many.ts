@@ -151,15 +151,15 @@ export function createMutateHandler<
 
 		const resourceQueryKey = genResourceQueryKey({ props: resolvedProps })
 
-		const previousQueries: QueryPair<TData>[] = queryClient.getQueriesData<TData>(resourceQueryKey)
+		const previousQueries: QueryPair<TData>[] = queryClient.getQueriesData<TData>({
+			queryKey: resourceQueryKey,
+		})
 
-		await queryClient.cancelQueries(
-			resourceQueryKey,
-			undefined,
-			{
-				silent: true,
-			},
-		)
+		await queryClient.cancelQueries({
+			queryKey: resourceQueryKey,
+		}, {
+			silent: true,
+		})
 
 		switch (resolvedProps.mutationMode) {
 			case MutationMode.Optimistic: {
@@ -381,16 +381,16 @@ function updateCache<
 	queryClient: QueryClient,
 ) {
 	queryClient.setQueriesData(
-		genBaseGetListQueryKey({ props }),
+		{ queryKey: genBaseGetListQueryKey({ props }) },
 		createModifyListItemUpdaterFn<TData, TParams>(props.ids, props.params),
 	)
 	queryClient.setQueriesData(
-		genBaseGetManyQueryKey({ props }),
+		{ queryKey: genBaseGetManyQueryKey({ props }) },
 		createModifyManyUpdaterFn<TData, TParams>(props.ids, props.params),
 	)
 	for (const id of props.ids) {
 		queryClient.setQueriesData(
-			genGetOneQueryKey({ props: { ...props, id } }),
+			{ queryKey: genGetOneQueryKey({ props: { ...props, id } }) },
 			createModifyOneUpdaterFn(props.params),
 		)
 	}

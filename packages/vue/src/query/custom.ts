@@ -99,14 +99,17 @@ export function useCustom<
 		emitParent: (...args) => unref(props.queryOptions)?.onError?.(...args),
 	})
 
-	const query = useQuery<CustomResult<TData>, TError, CustomResult<TResultData>>(computed(() => ({
-		queryKey,
-		queryFn,
-		...unref(props.queryOptions),
-		onSuccess: handleSuccess,
-		onError: handleError,
+	const query = useQuery<CustomResult<TData>, TError, CustomResult<TResultData>>(
+		computed(() => ({
+			queryKey,
+			queryFn,
+			// FIXME: type
+			...unref(props.queryOptions) as any,
+			onSuccess: handleSuccess,
+			onError: handleError,
+		})),
 		queryClient,
-	})))
+	)
 
 	useSubscribe({
 		channel: toRef(() => unref(props.realtime)?.channel ?? ''),

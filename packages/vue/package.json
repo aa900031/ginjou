@@ -51,7 +51,7 @@
 		"release": "release-it --ci"
 	},
 	"peerDependencies": {
-		"@tanstack/vue-query": "^4.*",
+		"@tanstack/vue-query": "^5.*",
 		"@vue/composition-api": "^1.1.0",
 		"vue": "^2.6.12 || ^3.2.0"
 	},
@@ -73,7 +73,7 @@
 	"devDependencies": {
 		"@ginjou/release-it-config": "workspace:*",
 		"@ginjou/tsconfig": "workspace:*",
-		"@tanstack/vue-query": "^4.37.1",
+		"@tanstack/vue-query": "^5.64.2",
 		"@testing-library/vue": "^8.1.0",
 		"vue": "^3.5.12"
 	}

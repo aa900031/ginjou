@@ -2,14 +2,17 @@ import type { QueryKey, QueryObserverOptions } from '@tanstack/query-core'
 import type { SetOptional, Simplify } from 'type-fest'
 import type { CheckError } from '../auth'
 import type { TranslateFn } from '../i18n'
+import type { NotifyFn } from '../notification'
 import type { ResolvedRealtimeOptions, SubscribeOneParams } from '../realtime'
+import type { EnabledGetter } from '../utils/query'
 import type { BaseRecord, GetOneProps, GetOneResult } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { NotifyProps } from './notify'
 import type { RealtimeProps } from './realtime'
-import { NotificationType, type NotifyFn } from '../notification'
+import { NotificationType } from '../notification'
 import { SubscribeType } from '../realtime'
 import { getErrorMessage } from '../utils/error'
+import { resolveEnabled } from '../utils/query'
 import { getFetcher, resolveFetcherProps } from './fetchers'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
 import { createQueryKey as createResourceQueryKey } from './resource'
@@ -18,10 +21,18 @@ export type QueryOptions<
 	TData extends BaseRecord,
 	TError,
 	TResultData extends BaseRecord,
-> = QueryObserverOptions<
-	GetOneResult<TData>,
-	TError,
-	GetOneResult<TResultData>
+> = Simplify<
+	& Omit<
+		QueryObserverOptions<
+			GetOneResult<TData>,
+			TError,
+			GetOneResult<TResultData>
+		>,
+		| 'enabled'
+	>
+	& {
+		enabled?: EnabledGetter
+	}
 >
 
 export type QueryOptionsFromProps<
@@ -193,7 +204,7 @@ export function createErrorHandler<
 
 export interface GetQueryEnabledProps {
 	props: ResolvedQueryProps
-	enabled?: boolean
+	enabled: QueryOptions<any, any, any>['enabled']
 }
 
 export function getQueryEnabled(
@@ -202,10 +213,9 @@ export function getQueryEnabled(
 		props,
 	}: GetQueryEnabledProps,
 ): boolean {
-	return (
-		enabled != null ? enabled : true
-	) && (
-		props.id != null && props.id !== ''
+	return resolveEnabled(
+		enabled,
+		props.id != null && props.id !== '',
 	)
 }
 

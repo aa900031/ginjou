@@ -148,11 +148,16 @@ export function createMutateHandler<
 
 		const resourceQueryKey = genResourceQueryKey({ props: resolvedProps })
 
-		const previousQueries: QueryPair<TData>[] = queryClient.getQueriesData<TData>(resourceQueryKey)
+		const previousQueries: QueryPair<TData>[] = queryClient.getQueriesData<TData>(
+			{
+				queryKey: resourceQueryKey,
+			},
+		)
 
 		await queryClient.cancelQueries(
-			resourceQueryKey,
-			undefined,
+			{
+				queryKey: resourceQueryKey,
+			},
 			{
 				silent: true,
 			},
@@ -376,15 +381,21 @@ function updateCache<
 	queryClient: QueryClient,
 ) {
 	queryClient.setQueriesData(
-		genBaseGetListQueryKey({ props }),
+		{
+			queryKey: genBaseGetListQueryKey({ props }),
+		},
 		createRemoveListItemUpdaterFn<TData>(props.id),
 	)
 	queryClient.setQueriesData(
-		genBaseGetManyQueryKey({ props }),
+		{
+			queryKey: genBaseGetManyQueryKey({ props }),
+		},
 		createRemoveManyUpdaterFn<TData>(props.id),
 	)
 	queryClient.removeQueries(
-		genGetOneQueryKey({ props }),
+		{
+			queryKey: genGetOneQueryKey({ props }),
+		},
 	)
 }
 

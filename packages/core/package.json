@@ -40,7 +40,7 @@
 		"release": "release-it --ci"
 	},
 	"peerDependencies": {
-		"@tanstack/query-core": "^4.*.*"
+		"@tanstack/query-core": "^5.*.*"
 	},
 	"dependencies": {
 		"klona": "^2.0.6",
@@ -54,7 +54,7 @@
 	"devDependencies": {
 		"@ginjou/release-it-config": "workspace:*",
 		"@ginjou/tsconfig": "workspace:*",
-		"@tanstack/query-core": "^4.36.1",
+		"@tanstack/query-core": "^5.64.2",
 		"@types/lodash": "^4.17.13",
 		"@types/lodash-es": "^4.17.12"
 	}

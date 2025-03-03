@@ -17,3 +17,19 @@ export function unrefs<T extends Record<string, MaybeRef<any>>>(
 
 	return result
 }
+
+export function resolveGetter<T>(
+	value: T | (() => T),
+): T
+
+export function resolveGetter(
+	value: undefined,
+): undefined
+
+export function resolveGetter<T>(
+	value: T | (() => T) | undefined,
+): T | undefined {
+	return typeof value === 'function'
+		? (value as any)()
+		: value
+}

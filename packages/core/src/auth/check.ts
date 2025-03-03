@@ -1,5 +1,7 @@
 import type { QueryFunction, QueryKey, QueryObserverOptions } from '@tanstack/query-core'
+import type { EnabledFn, EnabledGetter } from '../utils/query'
 import type { Auth, AuthCheckResult } from './auth'
+import { createEnabledFn } from '../utils/query'
 
 export interface Props<
 	TParams,
@@ -55,7 +57,7 @@ export function createQueryFn<
 
 export interface GetQueryEnabledProps {
 	auth: Auth | undefined
-	enabled?: boolean
+	enabled: EnabledGetter
 }
 
 export function getQueryEnabled(
@@ -63,10 +65,9 @@ export function getQueryEnabled(
 		auth,
 		enabled,
 	}: GetQueryEnabledProps,
-) {
-	return (
-		enabled != null ? enabled : true
-	) && (
-		typeof auth?.check === 'function'
+): EnabledFn {
+	return createEnabledFn(
+		enabled,
+		typeof auth?.check === 'function',
 	)
 }

@@ -2,12 +2,14 @@ import type { InfiniteData, InfiniteQueryObserverOptions, QueryClient, QueryFunc
 import type { Simplify } from 'type-fest'
 import type { CheckError } from '../auth'
 import type { TranslateFn } from '../i18n'
+import type { NotifyFn } from '../notification'
+import type { EnabledGetter } from '../utils/query'
 import type { BaseRecord, GetInfiniteListResult, GetOneResult, Pagination } from './fetcher'
 import type { Fetchers } from './fetchers'
 import type { QueryProps, ResolvedQueryProps } from './get-list'
 import type { NotifyProps } from './notify'
 import type { RealtimeProps } from './realtime'
-import { NotificationType, type NotifyFn } from '../notification'
+import { NotificationType } from '../notification'
 import { getErrorMessage } from '../utils/error'
 import { getFetcher } from './fetchers'
 import { createQueryKey as createGetOneQueryKey } from './get-one'
@@ -18,10 +20,21 @@ export type QueryOptions<
 	TError,
 	TResultData extends BaseRecord,
 	TPageParam,
-> = InfiniteQueryObserverOptions<
-	GetInfiniteListResult<TData, TPageParam>,
-	TError,
-	GetInfiniteListResult<TResultData, TPageParam>
+> = Simplify<
+	& Omit<
+		InfiniteQueryObserverOptions<
+			GetInfiniteListResult<TData, TPageParam>,
+			TError,
+			InfiniteData<GetInfiniteListResult<TResultData, TPageParam>>,
+			GetInfiniteListResult<TData, TPageParam>,
+			QueryKey,
+			TPageParam
+		>,
+		| 'enabled'
+	>
+	& {
+		enabled?: EnabledGetter
+	}
 >
 
 export type Props<
@@ -87,11 +100,11 @@ export function createQueryFn<
 }
 
 export function getNextPageParam<
-	TData extends BaseRecord,
 	TPageParam,
+	TData extends BaseRecord,
 >(
 	lastPage: GetInfiniteListResult<TData, TPageParam>,
-): TPageParam | number | undefined {
+): TPageParam | undefined {
 	const { cursor, pagination } = lastPage
 
 	if (cursor)
@@ -101,16 +114,16 @@ export function getNextPageParam<
 	if (typeof current === 'number') {
 		const totalPages = Math.ceil((lastPage.total || 0) / perPage)
 
-		return current < totalPages ? Number(current) + 1 : undefined
+		return current < totalPages ? (Number(current) + 1) as TPageParam : undefined
 	}
 }
 
 export function getPreviousPageParam<
-	TData extends BaseRecord,
 	TPageParam,
+	TData extends BaseRecord,
 >(
 	lastPage: GetInfiniteListResult<TData, TPageParam>,
-): TPageParam | number | undefined {
+): TPageParam | undefined {
 	const { cursor, pagination } = lastPage
 
 	if (cursor)
@@ -118,7 +131,7 @@ export function getPreviousPageParam<
 
 	const { current } = pagination!
 	if (typeof current === 'number')
-		return current === 1 ? undefined : current - 1
+		return current === 1 ? undefined : (current - 1) as TPageParam
 }
 
 export interface CreateSuccessHandlerProps<
@@ -211,7 +224,7 @@ function resolvePagination<
 		return
 
 	return {
-		current,
+		current: current as TPageParam,
 		perPage,
 	}
 }
