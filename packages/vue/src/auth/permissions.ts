@@ -49,10 +49,10 @@ export function usePermissions<
 		auth,
 		getParams,
 	})
-	const isEnabled = Permissions.getQueryEnabled({
+	const isEnabled = computed(() => Permissions.getQueryEnabled({
 		auth,
-		enabled: () => unref(props?.queryOptions)?.enabled,
-	})
+		enabled: unref(props?.queryOptions)?.enabled,
+	}))
 
 	return useQuery<TData, TError>(
 		computed(() => ({

@@ -1,4 +1,5 @@
 import type { PlaceholderDataFunction, QueryClient, QueryKey, QueryObserverOptions } from '@tanstack/query-core'
+import type { QueryCallbacks } from 'tanstack-query-callbacks'
 import type { SetOptional, Simplify } from 'type-fest'
 import type { CheckError } from '../auth'
 import type { TranslateFn } from '../i18n'
@@ -35,6 +36,10 @@ export type QueryOptions<
 			GetManyResult<TResultData>
 		>,
 		| 'enabled'
+	>
+	& QueryCallbacks<
+		GetManyResult<TResultData>,
+		TError
 	>
 	& {
 		enabled?: EnabledGetter

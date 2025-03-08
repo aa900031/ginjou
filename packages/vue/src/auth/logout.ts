@@ -57,6 +57,5 @@ export function useLogout<
 			notify,
 			translate,
 		}),
-		queryClient,
-	})
+	}, queryClient)
 }

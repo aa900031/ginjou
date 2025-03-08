@@ -63,9 +63,15 @@ export function useForm<
 		props: unrefs(props),
 		resource: unref(resource),
 	}))
-	const isEnabledQuery = computed(() => Form.getIsEnabledQuery({
-		action: unref(resolvedProps).action,
-	}))
+	const isEnabledQuery = computed(() => {
+		const _props = unref(resolvedProps)
+		const opts = 'queryOptions' in _props ? _props.queryOptions : undefined
+
+		return Form.getIsEnabledQuery({
+			action: _props.action,
+			enabled: opts?.enabled,
+		})
+	})
 
 	const queryResult = useGetOne<TQueryData, TQueryError, TQueryResultData>({
 		resource: computed(() => unref(resolvedProps).resource),
@@ -79,8 +85,8 @@ export function useForm<
 			const opts = 'queryOptions' in _props ? _props.queryOptions : undefined
 
 			return {
-				enabled: unref(isEnabledQuery),
 				...opts,
+				enabled: unref(isEnabledQuery),
 			}
 		}),
 		fetcherName: computed(() => unref(resolvedProps).fetcherName),
@@ -103,11 +109,11 @@ export function useForm<
 		mutationOptions: props?.mutationOptions,
 	}, context)
 
-	const isLoading = computed(() => Form.getIsLoading({
+	const isLoading = computed(() => Form.getIsPending({
 		action: unref(resolvedProps).action,
 		isQueryFetching: unref(queryResult.isFetching),
-		isCreateLoading: unref(mutationCreateResult.isLoading),
-		isUpdateLoading: unref(mutationUpdateResult.isLoading),
+		isCreatePending: unref(mutationCreateResult.isPending),
+		isUpdatePending: unref(mutationUpdateResult.isPending),
 	}))
 
 	const save = Form.createSaveFn<TQueryData, TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError>({

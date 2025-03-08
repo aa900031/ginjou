@@ -1,4 +1,5 @@
 import type { InfiniteData, InfiniteQueryObserverOptions, QueryClient, QueryFunctionContext, QueryKey } from '@tanstack/query-core'
+import type { QueryCallbacks } from 'tanstack-query-callbacks'
 import type { Simplify } from 'type-fest'
 import type { CheckError } from '../auth'
 import type { TranslateFn } from '../i18n'
@@ -31,6 +32,10 @@ export type QueryOptions<
 			TPageParam
 		>,
 		| 'enabled'
+	>
+	& QueryCallbacks<
+		InfiniteData<GetInfiniteListResult<TResultData, TPageParam>>,
+		TError
 	>
 	& {
 		enabled?: EnabledGetter
@@ -92,7 +97,6 @@ export function createQueryFn<
 					: undefined
 			) ?? resolvedPagination,
 		}
-
 		updateCache(queryClient, props, resolved)
 
 		return resolved
@@ -110,7 +114,10 @@ export function getNextPageParam<
 	if (cursor)
 		return cursor.next
 
-	const { current, perPage } = pagination!
+	if (pagination == null)
+		return undefined
+
+	const { current, perPage } = pagination
 	if (typeof current === 'number') {
 		const totalPages = Math.ceil((lastPage.total || 0) / perPage)
 
@@ -129,7 +136,10 @@ export function getPreviousPageParam<
 	if (cursor)
 		return cursor.prev
 
-	const { current } = pagination!
+	if (pagination == null)
+		return undefined
+
+	const { current } = pagination
 	if (typeof current === 'number')
 		return current === 1 ? undefined : (current - 1) as TPageParam
 }

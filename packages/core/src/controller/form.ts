@@ -1,12 +1,13 @@
 import type { SetOptional, SetRequired } from 'type-fest'
 import type { BaseRecord, CreateResult, GetOneResult, Meta, UpdateResult } from '../query'
 import type { MutateFn as CreateMutateFn, MutationOptionsFromProps as CreateMutationOptionsFromProps, MutationProps as CreateMutationProps } from '../query/create'
-import type { QueryOptionsFromProps } from '../query/get-one'
+import type { QueryOptions as GetOneQueryOptions } from '../query/get-one'
 import type { MutateFn as UpdateMutateFn, MutationOptionsFromProps as UpdateMutationOptionsFromProps, MutationProps as UpdateMutationProps } from '../query/update'
 import type { ResolvedResource, ResourceActionForForm, ResourceActionTypeValues } from '../resource'
 import type { NavigateToFn, NavigateToProps } from '../router'
 import { getFetcherName, MutationMode } from '../query'
 import { getResourceIdentifier, ResourceActionType } from '../resource'
+import { resolveEnabled } from '../utils/query'
 
 export type RedirectTo<
 	TResultData,
@@ -56,7 +57,7 @@ export type UpdateProps<
 		action: 'edit'
 		redirect?: RedirectTo<UpdateResult<TMutationData>>
 		queryMeta?: Meta
-		queryOptions?: QueryOptionsFromProps<TQueryData, TQueryError, TQueryResultData>
+		queryOptions?: GetOneQueryOptions<TQueryData, TQueryError, TQueryResultData>
 		mutationMeta?: Meta
 		mutationOptions?: UpdateMutationOptionsFromProps<TMutationData, TMutationError, TMutationParams>
 	},
@@ -167,42 +168,49 @@ export function resolveProps<
 }
 export interface GetIsEnabledQueryParams {
 	action: ResourceActionForForm
+	enabled: GetOneQueryOptions<any, unknown, any>['enabled']
 }
 
 export function getIsEnabledQuery(
 	{
 		action,
+		enabled,
 	}: GetIsEnabledQueryParams,
 ): boolean {
-	switch (action) {
-		// TODO: clone
-		case 'edit':
-			return true
-		default:
-			return false
-	}
+	return resolveEnabled(
+		enabled,
+		() => {
+			switch (action) {
+				// TODO: clone
+				case 'edit':
+					return true
+				default:
+					return false
+			}
+		},
+	)
 }
 
 export interface GetIsLoadingParams {
 	action: ResourceActionForForm
 	isQueryFetching: boolean
-	isCreateLoading: boolean
-	isUpdateLoading: boolean
+	isCreatePending: boolean
+	isUpdatePending: boolean
 }
 
-export function getIsLoading(
+export function getIsPending(
 	{
 		action,
 		isQueryFetching,
-		isCreateLoading,
-		isUpdateLoading,
+		isCreatePending,
+		isUpdatePending,
 	}: GetIsLoadingParams,
 ): boolean {
 	switch (action) {
 		case 'create':
-			return isCreateLoading
+			return isCreatePending
 		case 'edit':
-			return isQueryFetching || isUpdateLoading
+			return isQueryFetching || isUpdatePending
 		default:
 			throw new Error('No')
 	}

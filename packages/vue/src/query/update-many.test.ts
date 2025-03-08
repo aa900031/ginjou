@@ -90,7 +90,7 @@ describe('useUpdateMany', () => {
 			})
 
 			await vi.waitFor(() => {
-				expect(unref(result.isLoading)).toBeFalsy()
+				expect(unref(result.isPending)).toBeFalsy()
 			})
 
 			expect(unref(result.isError)).toBeTruthy()

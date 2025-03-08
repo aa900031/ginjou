@@ -1,4 +1,5 @@
 import type { QueryKey, QueryObserverOptions } from '@tanstack/query-core'
+import type { QueryCallbacks } from 'tanstack-query-callbacks'
 import type { SetOptional, Simplify } from 'type-fest'
 import type { CheckError } from '../auth'
 import type { TranslateFn } from '../i18n'
@@ -30,20 +31,13 @@ export type QueryOptions<
 		>,
 		| 'enabled'
 	>
+	& QueryCallbacks<
+		GetOneResult<TResultData>,
+		TError
+	>
 	& {
 		enabled?: EnabledGetter
 	}
->
-
-export type QueryOptionsFromProps<
-	TData extends BaseRecord,
-	TError,
-	TResultData extends BaseRecord,
-> = Omit<
-	QueryOptions<TData, TError, TResultData>,
-	| 'queryFn'
-	| 'queryKey'
-	| 'queryClient'
 >
 
 export type QueryProps = Simplify<
@@ -80,7 +74,12 @@ export type Props<
 	& NotifyProps<GetOneResult<TResultData>, ResolvedQueryProps, TError>
 	& RealtimeProps<unknown> // TODO:
 	& {
-		queryOptions?: QueryOptions<TData, TError, TResultData>
+		queryOptions?: Omit<
+			QueryOptions<TData, TError, TResultData>,
+			| 'queryFn'
+			| 'queryKey'
+			| 'queryClient'
+		>
 	}
 >
 

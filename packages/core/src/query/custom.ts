@@ -1,4 +1,5 @@
 import type { QueryKey, QueryObserverOptions } from '@tanstack/query-core'
+import type { QueryCallbacks } from 'tanstack-query-callbacks'
 import type { SetRequired, Simplify } from 'type-fest'
 import type { CheckError } from '../auth'
 import type { TranslateFn } from '../i18n'
@@ -16,10 +17,16 @@ export type QueryOptions<
 	TData extends BaseRecord,
 	TError,
 	TResultData extends BaseRecord,
-> = QueryObserverOptions<
-	CustomResult<TData>,
-	TError,
-	CustomResult<TResultData>
+> = Simplify<
+	& QueryObserverOptions<
+		CustomResult<TData>,
+		TError,
+		CustomResult<TResultData>
+	>
+	& QueryCallbacks<
+		CustomResult<TResultData>,
+		TError
+	>
 >
 
 export type QueryProps<

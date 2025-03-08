@@ -1,8 +1,8 @@
 import type { QueryKey, QueryObserverOptions } from '@tanstack/query-core'
 import type { Simplify } from 'type-fest'
-import type { EnabledFn, EnabledGetter } from '../utils/query'
+import type { EnabledGetter } from '../utils/query'
 import type { Access, AccessCanParams, AccessCanResult } from './access'
-import { createEnabledFn } from '../utils/query'
+import { resolveEnabled } from '../utils/query'
 
 export type QueryOptions<
 	TError,
@@ -77,8 +77,8 @@ export function getQueryEnabled(
 		enabled,
 		access,
 	}: GetQueryEnabledProps,
-): EnabledFn {
-	return createEnabledFn(
+): boolean {
+	return resolveEnabled(
 		enabled,
 		typeof access?.can === 'function',
 	)

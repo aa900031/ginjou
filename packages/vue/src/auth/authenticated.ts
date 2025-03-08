@@ -47,10 +47,10 @@ export function useAuthenticated<
 		auth,
 		getParams,
 	})
-	const isEnabled = CheckAuth.getQueryEnabled({
-		enabled: () => unref(props?.queryOptions)?.enabled,
+	const isEnabled = computed(() => CheckAuth.getQueryEnabled({
+		enabled: unref(props?.queryOptions)?.enabled,
 		auth,
-	})
+	}))
 
 	return useQuery<AuthCheckResult, TError>(
 		computed(() => ({

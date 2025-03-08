@@ -49,6 +49,7 @@
 		"lodash-unified": "^1.0.3",
 		"mitt": "^3.0.1",
 		"regexparam": "^3.0.0",
+		"tanstack-query-callbacks": "^0.2.0",
 		"type-fest": "^4.26.1"
 	},
 	"devDependencies": {

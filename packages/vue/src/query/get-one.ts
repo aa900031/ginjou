@@ -10,8 +10,9 @@ import type { ToMaybeRefs } from '../utils/refs'
 import type { UseFetcherContextFromProps } from './fetchers'
 import type { UseQueryClientContextProps } from './query-client'
 import { createSubscribeCallback, GetOne, getSubscribeChannel, RealtimeAction } from '@ginjou/core'
-import { useQuery } from '@tanstack/vue-query'
+import { hashKey, useQuery } from '@tanstack/vue-query'
 import { toRef } from '@vueuse/shared'
+import { useQueryCallbacks } from 'tanstack-query-callbacks/vue'
 import { computed, unref } from 'vue-demi'
 import { useCheckError } from '../auth'
 import { useTranslate } from '../i18n'
@@ -101,11 +102,16 @@ export function useGetOne<
 			queryKey,
 			queryFn,
 			enabled: isEnabled,
-			onSuccess: handleSuccess,
-			onError: handleError,
 		})),
 		queryClient,
 	)
+
+	useQueryCallbacks<GetOneResult<TResultData>, TError>({
+		queryKey,
+		onSuccess: handleSuccess,
+		onError: handleError,
+		queryClient,
+	})
 
 	useSubscribe({
 		channel: computed(() => getSubscribeChannel({
