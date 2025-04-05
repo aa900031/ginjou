@@ -65,7 +65,7 @@ export function useGetInfiniteList<
 	const translate = useTranslate(context)
 	const { mutateAsync: checkError } = useCheckError(context)
 
-	const queryProps = computed(() => GetList.resolveQueryProps<TPageParam>({
+	const queryProps = computed(() => GetInfiniteList.resolveQueryProps<TPageParam>({
 		fetcherName: unref(props.fetcherName),
 		resource: unref(props.resource),
 		pagination: unref(props.pagination),
@@ -104,6 +104,9 @@ export function useGetInfiniteList<
 		// eslint-disable-next-line ts/ban-ts-comment
 		// @ts-expect-error
 		computed(() => ({
+			initialPageParam: GetInfiniteList.getInitialPageParam({
+				props: unref(queryProps),
+			}),
 			getNextPageParam: GetInfiniteList.getNextPageParam,
 			getPreviousPageParam: GetInfiniteList.getPreviousPageParam,
 			// FIXME: type

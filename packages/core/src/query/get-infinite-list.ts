@@ -1,18 +1,17 @@
 import type { InfiniteData, InfiniteQueryObserverOptions, QueryClient, QueryFunctionContext, QueryKey } from '@tanstack/query-core'
 import type { QueryCallbacks } from 'tanstack-query-callbacks'
-import type { Simplify } from 'type-fest'
+import type { SetOptional, SetRequired, Simplify } from 'type-fest'
 import type { CheckError } from '../auth'
 import type { TranslateFn } from '../i18n'
 import type { NotifyFn } from '../notification'
 import type { EnabledGetter } from '../utils/query'
-import type { BaseRecord, GetInfiniteListResult, GetOneResult, Pagination } from './fetcher'
-import type { Fetchers } from './fetchers'
-import type { QueryProps, ResolvedQueryProps } from './get-list'
+import type { BaseRecord, GetInfiniteListResult, GetListProps, GetOneResult, Pagination } from './fetcher'
+import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { NotifyProps } from './notify'
 import type { RealtimeProps } from './realtime'
 import { NotificationType } from '../notification'
 import { getErrorMessage } from '../utils/error'
-import { getFetcher } from './fetchers'
+import { getFetcher, resolveFetcherProps } from './fetchers'
 import { createQueryKey as createGetOneQueryKey } from './get-one'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
 
@@ -23,13 +22,17 @@ export type QueryOptions<
 	TPageParam,
 > = Simplify<
 	& Omit<
-		InfiniteQueryObserverOptions<
-			GetInfiniteListResult<TData, TPageParam>,
-			TError,
-			InfiniteData<GetInfiniteListResult<TResultData, TPageParam>>,
-			GetInfiniteListResult<TData, TPageParam>,
-			QueryKey,
-			TPageParam
+		SetOptional<
+			InfiniteQueryObserverOptions<
+				GetInfiniteListResult<TData, TPageParam>,
+				TError,
+				InfiniteData<GetInfiniteListResult<TResultData, TPageParam>>,
+				GetInfiniteListResult<TData, TPageParam>,
+				QueryKey,
+				TPageParam
+			>,
+			| 'initialPageParam'
+			| 'getNextPageParam'
 		>,
 		| 'enabled'
 	>
@@ -41,6 +44,45 @@ export type QueryOptions<
 		enabled?: EnabledGetter
 	}
 >
+
+export type GetInfiniteListProps<
+	TPageParam
+> = SetRequired<
+	GetListProps<TPageParam>,
+	| 'pagination'
+>
+
+export type QueryProps<
+	TPageParam,
+> = Simplify<
+	& SetOptional<
+			GetInfiniteListProps<TPageParam>,
+			| 'resource'
+		>
+	& FetcherProps
+>
+
+export type ResolvedQueryProps<
+	TPageParam,
+> = Simplify<
+	& GetInfiniteListProps<TPageParam>
+	& ResolvedFetcherProps
+>
+
+export function resolveQueryProps<
+	TPageParam,
+>(
+	props: QueryProps<TPageParam>,
+): ResolvedQueryProps<TPageParam> {
+	return {
+		...resolveFetcherProps(props),
+		pagination: props.pagination,
+		resource: props.resource ?? '',
+		sorters: props.sorters ?? undefined,
+		filters: props.filters ?? undefined,
+		meta: props.meta,
+	}
+}
 
 export type Props<
 	TData extends BaseRecord,
@@ -90,17 +132,29 @@ export function createQueryFn<
 			pagination: resolvedPagination,
 		})
 		const resolved: GetInfiniteListResult<TData, TPageParam> = {
+			pagination: resolvedPagination,
 			...result,
-			pagination: (
-				'cursor' in result || 'pagination' in result
-					? result.pagination
-					: undefined
-			) ?? resolvedPagination,
 		}
 		updateCache(queryClient, props, resolved)
 
 		return resolved
 	}
+}
+
+export type GetInitialPageParamProps<
+	TPageParam
+> = {
+	props: ResolvedQueryProps<TPageParam>
+}
+
+export function getInitialPageParam<
+	TPageParam
+>(
+	{
+		props,
+	}: GetInitialPageParamProps<TPageParam>
+): TPageParam {
+	return props.pagination.current
 }
 
 export function getNextPageParam<
@@ -222,19 +276,18 @@ export function createErrorHandler<
 		)
 	}
 }
+
 function resolvePagination<
 	TPageParam,
 >(
 	context: QueryFunctionContext<QueryKey, TPageParam>,
 	pagination: ResolvedQueryProps<TPageParam>['pagination'],
 ): Pagination<TPageParam> | undefined {
-	const current = context.pageParam ?? pagination?.current
-	const perPage = pagination?.perPage
-	if (current == null || perPage == null)
-		return
+	const current = (context.pageParam as TPageParam | undefined) ?? pagination.current
+	const perPage = pagination.perPage
 
 	return {
-		current: current as TPageParam,
+		current,
 		perPage,
 	}
 }

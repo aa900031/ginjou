@@ -659,7 +659,7 @@ export function resolveSorters(
 	return result
 }
 
-export interface GetDataProps<
+export interface GetRecordsProps<
 	TResultData extends BaseRecord,
 > {
 	paginationModeFromProp: PaginationProp['mode']
@@ -676,7 +676,7 @@ export function getRecords<
 		currentPage,
 		perPage,
 		queryData,
-	}: GetDataProps<TResultData>,
+	}: GetRecordsProps<TResultData>,
 ): GetListResult<TResultData, number>['data'] | undefined {
 	if (
 		paginationModeFromProp !== 'client'

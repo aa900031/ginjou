@@ -4,14 +4,14 @@ import { getNextPageParam, getPreviousPageParam } from './get-infinite-list'
 describe('get infinite list', () => {
 	describe('for getNextPageParam', () => {
 		it('should get undefine when deafult', () => {
-			const hasNextPage = getNextPageParam({
+			const nextPage = getNextPageParam({
 				data: [],
 				total: 10,
 			})
-			expect(hasNextPage).toBe(undefined)
+			expect(nextPage).toBe(undefined)
 		})
 		it('should get value from pagination', () => {
-			const hasNextPage = getNextPageParam({
+			const nextPage = getNextPageParam({
 				data: [],
 				total: 10,
 				pagination: {
@@ -19,30 +19,30 @@ describe('get infinite list', () => {
 					perPage: 3,
 				},
 			})
-			expect(hasNextPage).toBe(3)
+			expect(nextPage).toBe(3)
 		})
 		it('should get value from cursor', () => {
-			const hasNextPage = getNextPageParam({
+			const nextPage = getNextPageParam({
 				data: [],
 				total: 10,
 				cursor: {
 					next: 2,
 				},
 			})
-			expect(hasNextPage).toBe(2)
+			expect(nextPage).toBe(2)
 		})
 	})
 
 	describe('for getPreviousPageParam', () => {
 		it('should get undefine when deafult', () => {
-			const hasPreviousPage = getPreviousPageParam({
+			const previousPage = getPreviousPageParam({
 				data: [],
 				total: 10,
 			})
-			expect(hasPreviousPage).toBe(undefined)
+			expect(previousPage).toBe(undefined)
 		})
 		it('should get value from pagination', () => {
-			const hasPreviousPage = getPreviousPageParam({
+			const previousPage = getPreviousPageParam({
 				data: [],
 				total: 10,
 				pagination: {
@@ -50,10 +50,10 @@ describe('get infinite list', () => {
 					perPage: 3,
 				},
 			})
-			expect(hasPreviousPage).toBe(1)
+			expect(previousPage).toBe(1)
 		})
 		it('should get value from cursor', () => {
-			const hasPreviousPage = getPreviousPageParam({
+			const previousPage = getPreviousPageParam({
 				data: [],
 				total: 10,
 				cursor: {
@@ -61,7 +61,7 @@ describe('get infinite list', () => {
 					prev: 1,
 				},
 			})
-			expect(hasPreviousPage).toBe(1)
+			expect(previousPage).toBe(1)
 		})
 	})
 })
