@@ -73,7 +73,6 @@ export type MutationOptionsFromProps<
 > = Omit<
 	MutationOptions<TData, TError, TParams>,
 	| 'mutationFn'
-	| 'queryClient'
 >
 
 export interface CreateMutationFnProps {

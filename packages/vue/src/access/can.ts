@@ -52,10 +52,10 @@ export function useCanAccess<
 		access,
 		getParams: () => unref(params),
 	})
-	const isEnabled = CanAccess.getQueryEnabled({
-		enabled: () => unref(props.queryOptions)?.enabled,
+	const isEnabled = computed(() => CanAccess.getQueryEnabled({
+		enabled: unref(props.queryOptions)?.enabled,
 		access,
-	})
+	}))
 
 	return useQuery<AccessCanResult, TError>(
 		computed(() => ({

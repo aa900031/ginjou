@@ -56,7 +56,6 @@ export type MutationOptionsFromProps<
 	| 'mutationFn'
 	| 'onSuccess'
 	| 'onError'
-	| 'queryClient'
 >
 
 export type MutateFn<

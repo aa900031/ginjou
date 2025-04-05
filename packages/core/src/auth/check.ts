@@ -9,9 +9,6 @@ export type QueryOptions<
 > = Simplify<
 	& Omit<
 		QueryObserverOptions<AuthCheckResult, TError>,
-		| 'queryFn'
-		| 'queryKey'
-		| 'retry'
 		| 'enabled'
 	>
 	& {
@@ -24,7 +21,12 @@ export interface Props<
 	TError,
 > {
 	params?: TParams
-	queryOptions?: QueryOptions<TError>
+	queryOptions?: Omit<
+		QueryOptions<TError>,
+		| 'queryFn'
+		| 'queryKey'
+		| 'retry'
+	>
 }
 
 export function createQueryKey<

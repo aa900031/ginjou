@@ -6,9 +6,14 @@ import { resolveEnabled } from '../utils/query'
 
 export type QueryOptions<
 	TError,
-> = QueryObserverOptions<
-	AccessCanResult,
-	TError
+> = Simplify<
+	& Omit<
+		QueryObserverOptions<AccessCanResult, TError>,
+		| 'enabled'
+	>
+	& {
+		enabled?: EnabledGetter
+	}
 >
 
 export type Props<
@@ -69,7 +74,7 @@ export function createQueryFn<
 
 export interface GetQueryEnabledProps {
 	access: Access | undefined
-	enabled: EnabledGetter
+	enabled: QueryOptions<unknown>['enabled']
 }
 
 export function getQueryEnabled(

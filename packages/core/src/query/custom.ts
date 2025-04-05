@@ -63,7 +63,6 @@ export type Props<
 			QueryOptions<TData, TError, TResultData>,
 			| 'queryFn'
 			| 'queryKey'
-			| 'queryClient'
 		>
 	}
 >

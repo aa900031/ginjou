@@ -98,7 +98,6 @@ export type Props<
 			QueryOptions<TData, TError, TResultData, TPageParam>,
 			| 'queryFn'
 			| 'queryKey'
-			| 'queryClient'
 		>
 	}
 >
