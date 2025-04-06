@@ -12,6 +12,7 @@ import type { UseQueryClientContextProps } from './query-client'
 import { Custom, RealtimeAction } from '@ginjou/core'
 import { useQuery } from '@tanstack/vue-query'
 import { toRef } from '@vueuse/shared'
+import { useQueryCallbacks } from 'tanstack-query-callbacks/vue'
 import { computed, unref } from 'vue-demi'
 import { useCheckError } from '../auth'
 import { useTranslate } from '../i18n'
@@ -99,14 +100,22 @@ export function useCustom<
 		emitParent: (...args) => unref(props.queryOptions)?.onError?.(...args),
 	})
 
-	const query = useQuery<CustomResult<TData>, TError, CustomResult<TResultData>>(computed(() => ({
+	const query = useQuery<CustomResult<TData>, TError, CustomResult<TResultData>>(
+		computed(() => ({
+			queryKey,
+			queryFn,
+			// FIXME: type
+			...unref(props.queryOptions) as any,
+		})),
+		queryClient,
+	)
+
+	useQueryCallbacks<CustomResult<TResultData>, TError>({
 		queryKey,
-		queryFn,
-		...unref(props.queryOptions),
 		onSuccess: handleSuccess,
 		onError: handleError,
 		queryClient,
-	})))
+	})
 
 	useSubscribe({
 		channel: toRef(() => unref(props.realtime)?.channel ?? ''),

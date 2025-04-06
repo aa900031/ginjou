@@ -166,15 +166,19 @@ export async function triggerInvalidate(
 	switch (target) {
 		case InvalidateTarget.All:
 			await queryClient.invalidateQueries(
-				props.fetcherName,
-				invalidateFilters,
+				{
+					queryKey: props.fetcherName,
+					...invalidateFilters,
+				},
 				invalidateOptions,
 			)
 			break
 		case InvalidateTarget.List:
 			await queryClient.invalidateQueries(
-				genGetListQueryKey({ props }),
-				invalidateFilters,
+				{
+					queryKey: genGetListQueryKey({ props }),
+					...invalidateFilters,
+				},
 				invalidateOptions,
 			)
 			break
@@ -184,14 +188,16 @@ export async function triggerInvalidate(
 				throw new Error('`resource` is required')
 
 			await queryClient.invalidateQueries(
-				genGetManyQueryKey({
-					props: {
-						...props,
-						resource,
-						ids,
-					},
-				}),
-				invalidateFilters,
+				{
+					queryKey: genGetManyQueryKey({
+						props: {
+							...props,
+							resource,
+							ids,
+						},
+					}),
+					...invalidateFilters,
+				},
 				invalidateOptions,
 			)
 			break
@@ -202,11 +208,13 @@ export async function triggerInvalidate(
 				throw new Error('`resource` is required')
 
 			await queryClient.invalidateQueries(
-				[
-					fetcherName,
-					resource,
-				],
-				invalidateFilters,
+				{
+					queryKey: [
+						fetcherName,
+						resource,
+					],
+					...invalidateFilters,
+				},
 				invalidateOptions,
 			)
 			break
@@ -218,39 +226,45 @@ export async function triggerInvalidate(
 
 			if (id) {
 				await queryClient.invalidateQueries(
-					genGetOneQueryKey({
-						props: {
-							...props,
-							resource,
-							id,
-						},
-					}),
-					invalidateFilters,
+					{
+						queryKey: genGetOneQueryKey({
+							props: {
+								...props,
+								resource,
+								id,
+							},
+						}),
+						...invalidateFilters,
+					},
 					invalidateOptions,
 				)
 			}
 			else if (ids) {
 				await Promise.all(ids.map((id: any) => queryClient.invalidateQueries(
-					genGetOneQueryKey({
-						props: {
-							...props,
-							resource,
-							id,
-						},
-					}),
-					invalidateFilters,
+					{
+						queryKey: genGetOneQueryKey({
+							props: {
+								...props,
+								resource,
+								id,
+							},
+						}),
+						...invalidateFilters,
+					},
 					invalidateOptions,
 				)))
 			}
 			else {
 				await queryClient.invalidateQueries(
-					genGetOneQueryKey({
-						props: {
-							...props,
-							resource,
-						},
-					}),
-					invalidateFilters,
+					{
+						queryKey: genGetOneQueryKey({
+							props: {
+								...props,
+								resource,
+							},
+						}),
+						...invalidateFilters,
+					},
 					invalidateOptions,
 				)
 			}

@@ -6,7 +6,6 @@ import type { ToMaybeRefs } from '../utils/refs'
 import type { UseAuthContextFromProps } from './auth'
 import { CheckAuth } from '@ginjou/core'
 import { useQuery } from '@tanstack/vue-query'
-import { computedEager, toValue } from '@vueuse/shared'
 import { computed, unref } from 'vue-demi'
 import { useQueryClientContext } from '../query'
 import { useAuthContext } from './auth'
@@ -48,17 +47,19 @@ export function useAuthenticated<
 		auth,
 		getParams,
 	})
-	const isEnabled = computedEager(() => CheckAuth.getQueryEnabled({
-		enabled: toValue(unref(unref(props?.queryOptions)?.enabled)),
+	const isEnabled = computed(() => CheckAuth.getQueryEnabled({
+		enabled: unref(props?.queryOptions)?.enabled,
 		auth,
 	}))
 
-	return useQuery<AuthCheckResult, TError>(computed(() => ({
-		...unref(props?.queryOptions),
-		queryKey,
-		queryFn,
-		enabled: isEnabled,
-		retry: false,
+	return useQuery<AuthCheckResult, TError>(
+		computed(() => ({
+			...unref(props?.queryOptions),
+			queryKey,
+			queryFn,
+			enabled: isEnabled,
+			retry: false,
+		})),
 		queryClient,
-	})))
+	)
 }

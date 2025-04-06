@@ -1,9 +1,11 @@
 import type { QueryClient, QueryKey, QueryObserverOptions } from '@tanstack/query-core'
+import type { QueryCallbacks } from 'tanstack-query-callbacks'
 import type { SetOptional, Simplify } from 'type-fest'
 import type { CheckError } from '../auth'
 import type { TranslateFn } from '../i18n'
 import type { NotifyFn } from '../notification'
 import type { ResolvedRealtimeOptions, SubscribeListParams } from '../realtime'
+import type { EnabledGetter } from '../utils/query'
 import type { BaseRecord, GetListProps, GetListResult, GetOneResult } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { NotifyProps } from './notify'
@@ -12,6 +14,7 @@ import type { ResourceQueryProps } from './resource'
 import { NotificationType } from '../notification'
 import { SubscribeType } from '../realtime'
 import { getErrorMessage } from '../utils/error'
+import { resolveEnabled } from '../utils/query'
 import { getFetcher, resolveFetcherProps } from './fetchers'
 import { createQueryKey as createGetOneQueryKey } from './get-one'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
@@ -22,10 +25,25 @@ export type QueryOptions<
 	TError,
 	TResultData extends BaseRecord,
 	TPageParam,
-> = QueryObserverOptions<
-	GetListResult<TData, TPageParam>,
-	TError,
-	GetListResult<TResultData, TPageParam>
+> = Simplify<
+	& Omit<
+		QueryObserverOptions<
+			GetListResult<TData, TPageParam>,
+			TError,
+			GetListResult<TResultData, TPageParam>,
+			GetListResult<TResultData, TPageParam>,
+			QueryKey,
+			TPageParam
+		>,
+		| 'enabled'
+	>
+	& QueryCallbacks<
+		GetListResult<TResultData, TPageParam>,
+		TError
+	>
+	& {
+		enabled?: EnabledGetter
+	}
 >
 
 export type QueryProps<
@@ -71,7 +89,6 @@ export type Props<
 			QueryOptions<TData, TError, TResultData, TPageParam>,
 			| 'queryFn'
 			| 'queryKey'
-			| 'queryClient'
 		>
 	}
 >
@@ -228,7 +245,7 @@ export function createErrorHandler<
 
 export interface GetQueryEnabledProps {
 	props: ResolvedQueryProps<any>
-	enabled?: boolean
+	enabled: QueryOptions<any, any, any, any>['enabled']
 }
 
 export function getQueryEnabled(
@@ -237,10 +254,9 @@ export function getQueryEnabled(
 		props,
 	}: GetQueryEnabledProps,
 ): boolean {
-	return (
-		enabled != null ? enabled : true
-	) && (
-		!!props.resource != null && props.resource !== ''
+	return resolveEnabled(
+		enabled,
+		!!props.resource != null && props.resource !== '',
 	)
 }
 

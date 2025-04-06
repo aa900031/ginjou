@@ -1,5 +1,23 @@
 import type { QueryFunction, QueryKey, QueryObserverOptions } from '@tanstack/query-core'
+import type { Simplify } from 'type-fest'
+import type { EnabledGetter } from '../utils/query'
 import type { Auth } from './auth'
+import { resolveEnabled } from '../utils/query'
+
+export type QueryOptions<
+	TData,
+	TError,
+> = Simplify<
+	& Omit<
+		QueryObserverOptions<TData, TError>,
+		| 'queryFn'
+		| 'queryKey'
+		| 'enabled'
+	>
+	& {
+		enabled?: EnabledGetter
+	}
+>
 
 export interface Props<
 	TData,
@@ -7,11 +25,7 @@ export interface Props<
 	TError,
 > {
 	params?: TParams
-	queryOptions?: Omit<
-		QueryObserverOptions<TData, TError>,
-		| 'queryFn'
-		| 'queryKey'
-	>
+	queryOptions?: QueryOptions<TData, TError>
 }
 
 export function createQueryKey<
@@ -55,7 +69,7 @@ export function createQueryFn<
 
 export interface GetQueryEnabledProps {
 	auth: Auth | undefined
-	enabled?: boolean
+	enabled: QueryOptions<unknown, unknown>['enabled']
 }
 
 export function getQueryEnabled(
@@ -63,10 +77,9 @@ export function getQueryEnabled(
 		auth,
 		enabled,
 	}: GetQueryEnabledProps,
-) {
-	return (
-		enabled != null ? enabled : true
-	) && (
-		typeof auth?.getIdentity === 'function'
+): boolean {
+	return resolveEnabled(
+		enabled,
+		typeof auth?.getIdentity === 'function',
 	)
 }

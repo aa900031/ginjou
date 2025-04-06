@@ -1,17 +1,22 @@
 import type { PlaceholderDataFunction, QueryClient, QueryKey, QueryObserverOptions } from '@tanstack/query-core'
+import type { QueryCallbacks } from 'tanstack-query-callbacks'
 import type { SetOptional, Simplify } from 'type-fest'
 import type { CheckError } from '../auth'
 import type { TranslateFn } from '../i18n'
+import type { NotifyFn } from '../notification'
+import type { ResolvedRealtimeOptions, SubscribeManyParams } from '../realtime'
+import type { EnabledGetter } from '../utils/query'
 import type { BaseRecord, Fetcher, GetManyProps, GetManyResult, GetOneResult } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { ResolvedQueryProps as GetOneResolvedQueryProps } from './get-one'
 import type { NotifyProps } from './notify'
 import type { RealtimeProps } from './realtime'
 import type { ResourceQueryProps } from './resource'
-import { hashQueryKey } from '@tanstack/query-core'
-import { NotificationType, type NotifyFn } from '../notification'
-import { type ResolvedRealtimeOptions, type SubscribeManyParams, SubscribeType } from '../realtime'
+import { hashKey } from '@tanstack/query-core'
+import { NotificationType } from '../notification'
+import { SubscribeType } from '../realtime'
 import { getErrorMessage } from '../utils/error'
+import { resolveEnabled } from '../utils/query'
 import { createAggregrateFn } from './aggregrate'
 import { getFetcher, resolveFetcherProps } from './fetchers'
 import { createQueryKey as createGetOneQueryKey } from './get-one'
@@ -23,10 +28,22 @@ export type QueryOptions<
 	TData extends BaseRecord,
 	TError,
 	TResultData extends BaseRecord,
-> = QueryObserverOptions<
-	GetManyResult<TData>,
-	TError,
-	GetManyResult<TResultData>
+> = Simplify<
+	& Omit<
+		QueryObserverOptions<
+			GetManyResult<TData>,
+			TError,
+			GetManyResult<TResultData>
+		>,
+		| 'enabled'
+	>
+	& QueryCallbacks<
+		GetManyResult<TResultData>,
+		TError
+	>
+	& {
+		enabled?: EnabledGetter
+	}
 >
 
 export type QueryProps = Simplify<
@@ -74,7 +91,6 @@ export type Props<
 			QueryOptions<TData, TError, TResultData>,
 			| 'queryFn'
 			| 'queryKey'
-			| 'queryClient'
 		>
 	}
 >
@@ -258,7 +274,7 @@ export function createErrorHandler<
 
 export interface GetQueryEnabledProps {
 	props: ResolvedQueryProps
-	enabled?: boolean
+	enabled: QueryOptions<any, any, any>['enabled']
 }
 
 export function getQueryEnabled(
@@ -267,11 +283,12 @@ export function getQueryEnabled(
 		props,
 	}: GetQueryEnabledProps,
 ): boolean {
-	return (
-		enabled != null ? enabled : true
-	) && (
-		props.resource != null && props.resource !== ''
-		&& props.ids.length > 0
+	return resolveEnabled(
+		enabled,
+		(
+			props.resource != null && props.resource !== ''
+			&& props.ids.length > 0
+		),
 	)
 }
 
@@ -378,6 +395,6 @@ function findGetOneCached<
 	queryClient: QueryClient,
 ): GetOneResult<TResultData> | undefined {
 	const queryCache = queryClient.getQueryCache()
-	const queryHash = hashQueryKey(createGetOneQueryKey({ props }))
+	const queryHash = hashKey(createGetOneQueryKey({ props }))
 	return queryCache.get<GetOneResult<TData>, TError, GetOneResult<TResultData>>(queryHash)?.state.data
 }

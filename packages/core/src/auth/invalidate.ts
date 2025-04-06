@@ -11,6 +11,10 @@ export async function triggerInvalidateAll(
 			createCheckQueryKey(),
 			createIdentityQueryKey(),
 			createPermissionsQueryKey(),
-		].map(key => queryClient.invalidateQueries(key)),
+		].map(key => queryClient.invalidateQueries(
+			{
+				queryKey: key,
+			},
+		)),
 	)
 }

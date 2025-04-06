@@ -11,7 +11,8 @@ import type { UseFetcherContextFromProps } from './fetchers'
 import type { UseQueryClientContextProps } from './query-client'
 import { createSubscribeCallback, GetMany, getSubscribeChannel, RealtimeAction } from '@ginjou/core'
 import { useQuery } from '@tanstack/vue-query'
-import { toRef, toValue } from '@vueuse/shared'
+import { toRef } from '@vueuse/shared'
+import { useQueryCallbacks } from 'tanstack-query-callbacks/vue'
 import { computed, unref } from 'vue-demi'
 import { useCheckError } from '../auth'
 import { useTranslate } from '../i18n'
@@ -74,7 +75,7 @@ export function useGetMany<
 		props: unref(queryProps),
 	}))
 	const isEnabled = computed(() => GetMany.getQueryEnabled({
-		enabled: toValue(unref(props.queryOptions)?.enabled),
+		enabled: unref(props.queryOptions)?.enabled,
 		props: unref(queryProps),
 	}))
 	const queryFn = GetMany.createQueryFn<TData, TResultData, TError>({
@@ -101,16 +102,24 @@ export function useGetMany<
 		queryClient,
 	})
 
-	const query = useQuery<GetManyResult<TData>, TError, GetManyResult<TResultData>>(computed(() => ({
-		...unref(props.queryOptions),
+	const query = useQuery<GetManyResult<TData>, TError, GetManyResult<TResultData>>(
+		computed(() => ({
+			// FIXME: type
+			...unref(props.queryOptions) as any,
+			queryKey,
+			queryFn,
+			enabled: isEnabled,
+			placeholderData,
+		})),
+		queryClient,
+	)
+
+	useQueryCallbacks<GetManyResult<TResultData>, TError>({
 		queryKey,
-		queryFn,
-		enabled: isEnabled,
 		onSuccess: handleSuccess,
 		onError: handleError,
-		placeholderData,
 		queryClient,
-	})))
+	})
 
 	useSubscribe({
 		channel: computed(() => getSubscribeChannel({

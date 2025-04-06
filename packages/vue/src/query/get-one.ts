@@ -10,8 +10,9 @@ import type { ToMaybeRefs } from '../utils/refs'
 import type { UseFetcherContextFromProps } from './fetchers'
 import type { UseQueryClientContextProps } from './query-client'
 import { createSubscribeCallback, GetOne, getSubscribeChannel, RealtimeAction } from '@ginjou/core'
-import { useQuery } from '@tanstack/vue-query'
-import { toRef, toValue } from '@vueuse/shared'
+import { hashKey, useQuery } from '@tanstack/vue-query'
+import { toRef } from '@vueuse/shared'
+import { useQueryCallbacks } from 'tanstack-query-callbacks/vue'
 import { computed, unref } from 'vue-demi'
 import { useCheckError } from '../auth'
 import { useTranslate } from '../i18n'
@@ -72,7 +73,7 @@ export function useGetOne<
 		props: unref(queryProps),
 	}))
 	const isEnabled = computed(() => GetOne.getQueryEnabled({
-		enabled: toValue(unref(props.queryOptions)?.enabled),
+		enabled: unref(props.queryOptions)?.enabled,
 		props: unref(queryProps),
 	}))
 	const queryFn = GetOne.createQueryFn<TData, TResultData, TError>({
@@ -94,15 +95,23 @@ export function useGetOne<
 		emitParent: (...args) => unref(props.queryOptions)?.onError?.(...args),
 	})
 
-	const query = useQuery<GetOneResult<TData>, TError, GetOneResult<TResultData>>(computed(() => ({
-		...unref(props.queryOptions),
+	const query = useQuery<GetOneResult<TData>, TError, GetOneResult<TResultData>>(
+		computed(() => ({
+			// FIXME: type
+			...unref(props.queryOptions) as any,
+			queryKey,
+			queryFn,
+			enabled: isEnabled,
+		})),
+		queryClient,
+	)
+
+	useQueryCallbacks<GetOneResult<TResultData>, TError>({
 		queryKey,
-		queryFn,
-		enabled: isEnabled,
 		onSuccess: handleSuccess,
 		onError: handleError,
 		queryClient,
-	})))
+	})
 
 	useSubscribe({
 		channel: computed(() => getSubscribeChannel({

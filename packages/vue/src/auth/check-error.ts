@@ -49,6 +49,5 @@ export function useCheckError<
 			logout,
 			go,
 		}),
-		queryClient,
-	})
+	}, queryClient)
 }

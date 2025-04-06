@@ -1,5 +1,5 @@
 import type { BaseRecord, GetInfiniteListResult } from '@ginjou/core'
-import type { UseInfiniteQueryReturnType } from '@tanstack/vue-query'
+import type { InfiniteData, UseInfiniteQueryReturnType } from '@tanstack/vue-query'
 import type { Simplify } from 'type-fest'
 import type { UseCheckErrorContext } from '../auth'
 import type { UseTranslateContext } from '../i18n'
@@ -10,7 +10,8 @@ import type { UseFetcherContextFromProps } from './fetchers'
 import type { UseQueryClientContextProps } from './query-client'
 import { createSubscribeCallback, GetInfiniteList, GetList, getSubscribeChannel, RealtimeAction } from '@ginjou/core'
 import { useInfiniteQuery } from '@tanstack/vue-query'
-import { toRef, toValue } from '@vueuse/shared'
+import { toRef } from '@vueuse/shared'
+import { useQueryCallbacks } from 'tanstack-query-callbacks/vue'
 import { computed, unref } from 'vue-demi'
 import { useCheckError } from '../auth'
 import { useTranslate } from '../i18n'
@@ -42,7 +43,10 @@ export type UseGetInfiniteListResult<
 	TResultData extends BaseRecord,
 	TPageParam,
 > = Simplify<
-	& UseInfiniteQueryReturnType<GetInfiniteListResult<TResultData, TPageParam>, TError>
+	& UseInfiniteQueryReturnType<
+		InfiniteData<GetInfiniteListResult<TResultData, TPageParam>>,
+		TError
+	>
 >
 
 export function useGetInfiniteList<
@@ -61,7 +65,7 @@ export function useGetInfiniteList<
 	const translate = useTranslate(context)
 	const { mutateAsync: checkError } = useCheckError(context)
 
-	const queryProps = computed(() => GetList.resolveQueryProps<TPageParam>({
+	const queryProps = computed(() => GetInfiniteList.resolveQueryProps<TPageParam>({
 		fetcherName: unref(props.fetcherName),
 		resource: unref(props.resource),
 		pagination: unref(props.pagination),
@@ -73,7 +77,7 @@ export function useGetInfiniteList<
 		props: unref(queryProps),
 	}))
 	const isEnabled = computed(() => GetList.getQueryEnabled({
-		enabled: toValue(unref(props.queryOptions)?.enabled),
+		enabled: unref(props.queryOptions)?.enabled,
 		props: unref(queryProps),
 	}))
 	const queryFn = GetInfiniteList.createQueryFn<TData, TError, TResultData, TPageParam>({
@@ -96,17 +100,30 @@ export function useGetInfiniteList<
 		emitParent: (...args) => unref(props.queryOptions)?.onError?.(...args),
 	})
 
-	const query = useInfiniteQuery<GetInfiniteListResult<TData, TPageParam>, TError, GetInfiniteListResult<TResultData, TPageParam>, any>(computed(() => ({
-		getNextPageParam: GetInfiniteList.getNextPageParam,
-		getPreviousPageParam: GetInfiniteList.getPreviousPageParam,
-		...unref(props.queryOptions),
+	const query = useInfiniteQuery<GetInfiniteListResult<TData, TPageParam>, TError, InfiniteData<GetInfiniteListResult<TResultData, TPageParam>>, any, TPageParam>(
+		// eslint-disable-next-line ts/ban-ts-comment
+		// @ts-expect-error
+		computed(() => ({
+			initialPageParam: GetInfiniteList.getInitialPageParam({
+				props: unref(queryProps),
+			}),
+			getNextPageParam: GetInfiniteList.getNextPageParam,
+			getPreviousPageParam: GetInfiniteList.getPreviousPageParam,
+			// FIXME: type
+			...unref(props.queryOptions) as any,
+			queryKey,
+			queryFn,
+			enabled: isEnabled,
+		})),
+		queryClient,
+	)
+
+	useQueryCallbacks<InfiniteData<GetInfiniteListResult<TResultData, TPageParam>>, TError>({
 		queryKey,
-		queryFn,
-		enabled: isEnabled,
 		onSuccess: handleSuccess,
 		onError: handleError,
 		queryClient,
-	})))
+	})
 
 	useSubscribe({
 		channel: computed(() => getSubscribeChannel({
