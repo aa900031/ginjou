@@ -1,19 +1,16 @@
 import type { I18n } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
-import type { InjectionGetter, InjectionGetterKey } from '../utils/inject'
-import type { ProvideFn } from '../utils/provide'
-import { provide } from 'vue-demi'
-import { injectGetter } from '../utils/inject'
+import type { InjectionKey } from 'vue-demi'
+import { inject, provide } from 'vue-demi'
 
-const KEY: InjectionGetterKey<I18n> = Symbol('@ginjou/i18n')
+const KEY: InjectionKey<I18n> = Symbol('@ginjou/i18n')
 
 export function defineI18nContext<
-	T extends InjectionGetter<I18n>,
+	T extends I18n,
 >(
 	value: T,
-	provideFn: ProvideFn = provide,
 ): T {
-	provideFn(KEY, value)
+	provide(KEY, value)
 	return value
 }
 
@@ -39,7 +36,7 @@ export function useI18nContext(
 export function useI18nContext(
 	props?: UseI18nContextProps,
 ): I18n | undefined {
-	const value = injectGetter(KEY) ?? props?.i18n
+	const value = inject(KEY) ?? props?.i18n
 	if (props?.strict === true && value == null)
 		throw new Error('No')
 	return value
