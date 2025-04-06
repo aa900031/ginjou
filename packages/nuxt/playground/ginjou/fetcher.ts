@@ -1,6 +1,6 @@
-import type { Fetchers } from '@ginjou/core'
+import { defineFetchers } from '@ginjou/vue'
 
-export default () => ({
+export default () => defineFetchers({
 	default: {
 		getOne: async ({ resource, id }) => {
 			switch (resource) {
@@ -23,7 +23,6 @@ export default () => ({
 					throw new Error('No')
 			}
 		},
-
 		getList: async ({ resource }) => {
 			switch (resource) {
 				case 'posts':
@@ -39,10 +38,10 @@ export default () => ({
 							},
 						],
 						total: 2,
-					}
+					} as any
 				default:
-					break
+					throw new Error('No')
 			}
 		},
 	},
-} satisfies Fetchers)
+})
