@@ -22,16 +22,6 @@
 				"types": "./dist/index.d.cts",
 				"default": "./dist/index.cjs"
 			}
-		},
-		"./plugin": {
-			"import": {
-				"types": "./dist/plugin.d.mts",
-				"default": "./dist/plugin.mjs"
-			},
-			"require": {
-				"types": "./dist/plugin.d.cts",
-				"default": "./dist/plugin.cjs"
-			}
 		}
 	},
 	"main": "dist/index.cjs",
