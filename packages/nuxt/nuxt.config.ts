@@ -1,7 +1,7 @@
 import { fileURLToPath, URL } from 'node:url'
 
-export default {
+export default defineNuxtConfig({
 	alias: {
-		'@ginjou/vue/plugin': fileURLToPath(new URL('../vue/src/plugin', import.meta.url)),
+		'@ginjou/vue': fileURLToPath(new URL('../vue/src', import.meta.url)),
 	},
-}
+})
