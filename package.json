@@ -30,11 +30,7 @@
 		"unbuild": "^2.0.0",
 		"vitest": "^2.1.9"
 	},
-	"pnpm": {
-		"overrides": {
-			"@tanstack/vue-query>vue-demi": "latest",
-			"mkdist>esbuild": "0.25.2",
-			"vite>esbuild": "0.25.2"
-		}
+	"resolutions": {
+		"@tanstack/vue-query>vue-demi": "latest"
 	}
 }
