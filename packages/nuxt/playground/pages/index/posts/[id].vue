@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { record } = useShow()
+const { record } = await useAsyncShow()
 </script>
 
 <template>
