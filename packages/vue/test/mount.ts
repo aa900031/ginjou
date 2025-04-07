@@ -3,8 +3,8 @@ import type { QueryClient } from '@tanstack/vue-query'
 import type { RenderResult } from '@testing-library/vue'
 import type { Component, DefineComponent } from 'vue'
 import { render } from '@testing-library/vue'
-import { defineComponent, h, provide } from 'vue'
-import { defineFetchers } from '../src/query'
+import { defineComponent, h } from 'vue'
+import { defineFetchers, defineQueryClientContext } from '../src/query'
 import { defineRealtimeContext } from '../src/realtime'
 
 export function mountSetup<
@@ -46,7 +46,7 @@ export function mountTestApp<
 			setup: () => {
 				contexts?.fetchers && defineFetchers(contexts.fetchers)
 				contexts?.realtime && defineRealtimeContext(contexts.realtime)
-				contexts?.queryClient && provide('VUE_QUERY_CLIENT', contexts?.queryClient)
+				contexts?.queryClient && defineQueryClientContext(contexts.queryClient)
 
 				return () => h(Comp)
 			},
