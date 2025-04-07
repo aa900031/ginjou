@@ -1,7 +1,7 @@
 import type { BaseRecord } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
 import type { Ref } from 'vue-demi'
-import type { UseCreateContext, UseGetOneContext, UseUpdateContext } from '../query'
+import type { UseCreateContext, UseCreateResult, UseGetOneContext, UseGetOneResult, UseUpdateContext, UseUpdateResult } from '../query'
 import type { UseResourceContext } from '../resource'
 import type { UseGoContext } from '../router'
 import type { ToMaybeRefs } from '../utils/refs'
@@ -33,10 +33,15 @@ export type UseFormContext = Simplify<
 
 export type UseFormResult<
 	TMutationParams,
+	TQueryError,
 	TQueryResultData extends BaseRecord,
 	TMutationData extends BaseRecord,
+	TMutationError = unknown,
 > = Simplify<
 	& {
+		query: UseGetOneResult<TQueryError, TQueryResultData>
+		create: UseCreateResult<TMutationData, TMutationError, TMutationParams>
+		update: UseUpdateResult<TMutationData, TMutationError, TMutationParams>
 		record: Ref<TQueryResultData | undefined>
 		isLoading: Ref<boolean>
 		save: Form.SaveFn<TMutationParams, TMutationData>
@@ -53,7 +58,7 @@ export function useForm<
 >(
 	props?: UseFormProps<TQueryData, TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError>,
 	context?: UseFormContext,
-): UseFormResult<TMutationParams, TQueryResultData, TMutationData> {
+): UseFormResult<TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError> {
 	const resource = useResource({ name: props?.resource }, context)
 	const navigateTo = useNavigateTo()
 
@@ -129,6 +134,9 @@ export function useForm<
 	}))
 
 	return {
+		query: queryResult,
+		create: mutationCreateResult,
+		update: mutationUpdateResult,
 		record,
 		isLoading,
 		save,
