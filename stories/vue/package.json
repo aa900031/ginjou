@@ -46,7 +46,6 @@
 		"@vitejs/plugin-vue": "^5.2.3",
 		"msw": "^2.7.3",
 		"msw-storybook-addon": "2.0.4",
-		"npm-run-all2": "^6.2.6",
 		"primevue": "^4.3.3",
 		"storybook": "^8.6.12",
 		"storybook-vue3-router": "^5.0.0",
