@@ -58,7 +58,7 @@
 		"@ginjou/release-it-config": "workspace:*",
 		"@ginjou/tsconfig": "workspace:*",
 		"@ginjou/vue": "workspace:^",
-		"vue": "^3.5.12",
-		"vue-i18n": "^9.14.1"
+		"vue": "^3.5.13",
+		"vue-i18n": "^9.14.4"
 	}
 }

@@ -45,6 +45,6 @@
 		"@ginjou/core": "workspace:^",
 		"@ginjou/release-it-config": "workspace:*",
 		"@ginjou/tsconfig": "workspace:*",
-		"@supabase/supabase-js": "^2.46.1"
+		"@supabase/supabase-js": "^2.49.4"
 	}
 }

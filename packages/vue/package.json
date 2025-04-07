@@ -58,14 +58,14 @@
 		"@ginjou/core": "workspace:^",
 		"@vueuse/shared": "^10.11.1",
 		"tanstack-query-callbacks": "^0.2.0",
-		"type-fest": "^4.26.1",
+		"type-fest": "^4.39.1",
 		"vue-demi": "latest"
 	},
 	"devDependencies": {
 		"@ginjou/release-it-config": "workspace:*",
 		"@ginjou/tsconfig": "workspace:*",
-		"@tanstack/vue-query": "^5.64.2",
+		"@tanstack/vue-query": "^5.72.0",
 		"@testing-library/vue": "^8.1.0",
-		"vue": "^3.5.12"
+		"vue": "^3.5.13"
 	}
 }
