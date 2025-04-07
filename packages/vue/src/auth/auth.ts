@@ -1,19 +1,16 @@
 import type { Auth } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
-import type { InjectionGetter, InjectionGetterKey } from '../utils/inject'
-import type { ProvideFn } from '../utils/provide'
-import { provide } from 'vue-demi'
-import { injectGetter } from '../utils/inject'
+import type { InjectionKey } from 'vue-demi'
+import { inject, provide } from 'vue-demi'
 
-const KEY: InjectionGetterKey<Auth> = Symbol('@ginjou/auth')
+const KEY: InjectionKey<Auth> = Symbol('@ginjou/auth')
 
 export function defineAuthContext<
-	T extends InjectionGetter<Auth>,
+	T extends Auth,
 >(
 	value: T,
-	provideFn: ProvideFn = provide,
 ) {
-	provideFn(KEY, value)
+	provide(KEY, value)
 	return value
 }
 
@@ -39,7 +36,7 @@ export function useAuthContext(
 export function useAuthContext(
 	props?: UseAuthContextProps,
 ): Auth | undefined {
-	const value = injectGetter(KEY) ?? props?.auth
+	const value = inject(KEY, undefined) ?? props?.auth
 	if (props?.strict === true && value == null)
 		throw new Error('No')
 	return value

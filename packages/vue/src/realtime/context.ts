@@ -1,19 +1,16 @@
 import type { Realtime } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
-import type { InjectionGetter, InjectionGetterKey } from '../utils/inject'
-import type { ProvideFn } from '../utils/provide'
-import { provide } from 'vue-demi'
-import { injectGetter } from '../utils/inject'
+import type { InjectionKey } from 'vue-demi'
+import { inject, provide } from 'vue-demi'
 
-const KEY: InjectionGetterKey<Realtime> = Symbol('@ginjou/realtime')
+const KEY: InjectionKey<Realtime> = Symbol('@ginjou/realtime')
 
 export function defineRealtimeContext<
-	T extends InjectionGetter<Realtime>,
+	T extends Realtime,
 >(
 	value: T,
-	provideFn: ProvideFn = provide,
 ): T {
-	provideFn(KEY, value)
+	provide(KEY, value)
 	return value
 }
 
@@ -39,7 +36,7 @@ export function useRealtimeContext(
 export function useRealtimeContext(
 	props?: UseRealtimeContextProps,
 ): Realtime | undefined {
-	const value = injectGetter(KEY) ?? props?.realtime
+	const value = inject(KEY, undefined) ?? props?.realtime
 	if (props?.strict === true && value == null)
 		throw new Error('No')
 	return value

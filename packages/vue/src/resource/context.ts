@@ -1,19 +1,16 @@
 import type { Resource } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
-import type { InjectionGetter, InjectionGetterKey } from '../utils/inject'
-import type { ProvideFn } from '../utils/provide'
-import { provide } from 'vue-demi'
-import { injectGetter } from '../utils/inject'
+import type { InjectionKey } from 'vue-demi'
+import { inject, provide } from 'vue-demi'
 
-const KEY: InjectionGetterKey<Resource> = Symbol('@ginjou/resource')
+const KEY: InjectionKey<Resource> = Symbol('@ginjou/resource')
 
 export function defineResourceContext<
-	T extends InjectionGetter<Resource>,
+	T extends Resource,
 >(
 	value: T,
-	provideFn: ProvideFn = provide,
 ): T {
-	provideFn(KEY, value)
+	provide(KEY, value)
 	return value
 }
 
@@ -39,7 +36,7 @@ export function useResourceContext(
 export function useResourceContext(
 	props?: UseResourceContextProps,
 ): Resource | undefined {
-	const value = injectGetter(KEY) ?? props?.resource
+	const value = inject(KEY, undefined) ?? props?.resource
 	if (props?.strict === true && value == null)
 		throw new Error('No')
 	return value

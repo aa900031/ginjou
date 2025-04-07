@@ -1,6 +1,6 @@
-import type { Resource } from '@ginjou/core'
+import { defineResourceContext } from '@ginjou/vue'
 
-export default () => ({
+export default () => defineResourceContext({
 	resources: [
 		{
 			name: 'posts',
@@ -8,4 +8,4 @@ export default () => ({
 			list: '/posts',
 		},
 	],
-} satisfies Resource)
+})

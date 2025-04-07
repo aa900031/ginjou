@@ -1,14 +1,13 @@
 import type { Decorator } from '@storybook/vue3'
+import type { QueryClient } from '@tanstack/vue-query'
 import type { ToastMessageOptions } from 'primevue/toast'
 import { type Auth, type Fetchers, type I18n, type Notification, NotificationType, type ResourceDefinition } from '@ginjou/core'
-import { defineAuthContext, defineFetchers, defineI18nContext, defineNotificationContext, defineResourceContext, defineRouterContext } from '@ginjou/vue'
+import { defineAuthContext, defineFetchers, defineI18nContext, defineNotificationContext, defineQueryClientContext, defineResourceContext, defineRouterContext } from '@ginjou/vue'
 import { createFetcher } from '@ginjou/with-rest-api'
 import { createRouterBinding } from '@ginjou/with-vue-router'
-import { QueryClient } from '@tanstack/vue-query'
 import { delay } from 'msw'
 import Toast from 'primevue/toast'
 import { useToast } from 'primevue/usetoast'
-import { provide } from 'vue'
 
 export type CreateWrapperProps =
 	& {
@@ -26,7 +25,7 @@ export function createWrapper(
 ): Decorator {
 	const resolved = {
 		fetchers: props?.fetchers ?? createFetchers,
-		queryClient: props?.queryClient ?? new QueryClient(),
+		queryClient: props?.queryClient,
 		resources: props?.resources,
 		auth: props?.auth === true
 			? createAuth
@@ -53,7 +52,7 @@ export function createWrapper(
 			for (const [key, value] of Object.entries(resolved)) {
 				switch (key) {
 					case 'queryClient':
-						provide('VUE_QUERY_CLIENT', value)
+						defineQueryClientContext(value as any)
 						break
 					case 'fetchers':
 						defineFetchers((typeof value === 'function' ? value() : value) as any)

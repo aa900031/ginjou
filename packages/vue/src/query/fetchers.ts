@@ -1,19 +1,16 @@
 import type { Fetchers } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
-import type { InjectionGetter, InjectionGetterKey } from '../utils/inject'
-import type { ProvideFn } from '../utils/provide'
-import { provide } from 'vue-demi'
-import { injectGetter } from '../utils/inject'
+import type { InjectionKey } from 'vue-demi'
+import { inject, provide } from 'vue-demi'
 
-const KEY: InjectionGetterKey<Fetchers> = Symbol('@ginjou/fetchers')
+const KEY: InjectionKey<Fetchers> = Symbol('@ginjou/fetchers')
 
 export function defineFetchers<
-	T extends InjectionGetter<Fetchers>,
+	T extends Fetchers,
 >(
 	value: T,
-	provideFn: ProvideFn = provide,
 ): T {
-	provideFn(KEY, value)
+	provide(KEY, value)
 	return value
 }
 
@@ -39,7 +36,7 @@ export function useFetchersContext(
 export function useFetchersContext(
 	props?: UseFetchersContextProps,
 ): Fetchers | undefined {
-	const value = injectGetter(KEY) ?? props?.fetchers
+	const value = inject(KEY, undefined) ?? props?.fetchers
 	if (props?.strict === true && value == null)
 		throw new Error('No')
 	return value
