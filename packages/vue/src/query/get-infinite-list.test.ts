@@ -18,7 +18,7 @@ describe('useGetList', () => {
 				{
 					queryClient,
 					fetchers: MockFetchers,
-				}
+				},
 			)
 
 			await vi.waitFor(() => {

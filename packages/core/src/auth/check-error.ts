@@ -1,7 +1,8 @@
 import type { MutationFunction, MutationKey, MutationObserverOptions } from '@tanstack/query-core'
+import type { RouterGoFn } from '../router'
 import type { Auth, AuthCheckErrorResult } from './auth'
 import type { LogoutMutateFn } from './logout'
-import { type RouterGoFn, RouterGoType } from '../router'
+import { RouterGoType } from '../router'
 
 export type MutationOptions<
 	TParams,

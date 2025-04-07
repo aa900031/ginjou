@@ -765,9 +765,9 @@ function filterFilter(
 		&& (filter.operator !== FilterOperator.or
 			|| (filter.operator === FilterOperator.or
 				&& filter.value.length !== 0))
-				&& (filter.operator !== FilterOperator.and
-					|| (filter.operator === FilterOperator.and
-						&& filter.value.length !== 0))
+			&& (filter.operator !== FilterOperator.and
+				|| (filter.operator === FilterOperator.and
+					&& filter.value.length !== 0))
 }
 
 export function resolveFilters(
