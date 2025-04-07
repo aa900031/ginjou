@@ -387,7 +387,8 @@ export function getFilters(
 export interface CreateSetFiltersFnProps {
 	getFiltersPermanent: () => FiltersOptions['permanent']
 	getFiltersBehavior: () => FiltersOptions['behavior']
-	update: (getter: (prev: Filters) => Filters) => void
+	getPrev: () => Filters | undefined
+	update: (nextValue: Filters) => void
 }
 
 export const SetFilterBehavior = {
@@ -398,7 +399,7 @@ export const SetFilterBehavior = {
 export type SetFilterBehaviorType = ValueOf<typeof SetFilterBehavior>
 
 export type SetFiltersFn = (
-	value: Filters | ((prev: Filters) => Filters),
+	value: Filters | ((prev: Filters | undefined) => Filters),
 	behavior?: SetFilterBehaviorType
 ) => void
 
@@ -406,27 +407,42 @@ export function createSetFiltersFn(
 	{
 		getFiltersPermanent,
 		getFiltersBehavior,
+		getPrev,
 		update,
 	}: CreateSetFiltersFnProps,
 ): SetFiltersFn {
 	return function setFilters(value, behavior) {
-		update((prev) => {
-			if (typeof value === 'function')
-				return resolveFilters(getFiltersPermanent(), value(prev))
+		const prev = getPrev()
 
+		let nextValue: Filters
+		if (typeof value === 'function') {
+			nextValue = resolveFilters(getFiltersPermanent(), value(prev))
+		}
+		else {
 			const _behavior = behavior
 				?? getFiltersBehavior()
 				?? SetFilterBehavior.Merge
 
 			switch (_behavior) {
 				case SetFilterBehavior.Merge:
-					return resolveFilters(getFiltersPermanent(), value, prev)
+					nextValue = resolveFilters(getFiltersPermanent(), value, prev, true)
+					break
 				case SetFilterBehavior.Replace:
-					return resolveFilters(getFiltersPermanent(), value)
+					nextValue = resolveFilters(getFiltersPermanent(), value)
+					break
 				default:
 					throw new Error('No')
 			}
-		})
+		}
+
+		if (
+			nextValue == null
+			|| (prev != null && isEqual(prev, nextValue))
+		) {
+			return
+		}
+
+		update(nextValue)
 	}
 }
 
@@ -459,24 +475,33 @@ export function getSorters(
 
 export interface CreateSetSortersFnProps {
 	getSortersPermanent: () => SortersOptions['permanent']
-	update: (getter: (prev: Sorters) => Sorters) => void
+	getPrev: () => Sorters | undefined
+	update: (nextValue: Sorters) => void
 }
 
 export type SetSortersFn = (
-	value: Sorters | ((prev: Sorters) => Sorters),
+	value: Sorters | ((prev: Sorters | undefined) => Sorters),
 ) => void
 
 export function createSetSortersFn(
 	{
 		getSortersPermanent,
+		getPrev,
 		update,
 	}: CreateSetSortersFnProps,
 ): SetSortersFn {
 	return function setSorters(value) {
-		update((prev) => {
-			const nextValue = typeof value === 'function' ? value(prev) : value
-			return resolveSorters(getSortersPermanent(), nextValue)
-		})
+		const prev = getPrev()
+		const generated = typeof value === 'function' ? value(prev) : value
+		const nextValue = resolveSorters(getSortersPermanent(), generated)
+		if (
+			nextValue == null
+			|| (prev != null && isEqual(prev, nextValue))
+		) {
+			return
+		}
+
+		update(nextValue)
 	}
 }
 
@@ -748,22 +773,25 @@ function filterFilter(
 export function resolveFilters(
 	permanent: Filters | undefined,
 	value: Filters,
-	prev?: Filters
+	prev?: Filters,
+	isMerge?: boolean,
 ): Filters
 export function resolveFilters(
 	permanent: Filters | undefined,
 	value: Filters | undefined,
-	prev?: Filters
+	prev?: Filters,
+	isMerge?: boolean,
 ): Filters | undefined
 export function resolveFilters(
 	permanent: Filters | undefined,
 	value: Filters | undefined,
 	prev?: Filters,
+	isMerge?: boolean,
 ): Filters | undefined {
 	const result = unionWith(
 		permanent,
 		value,
-		prev,
+		isMerge ? prev : undefined,
 		compareFilter,
 	).filter(filterFilter)
 

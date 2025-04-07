@@ -112,7 +112,7 @@ export function getListFilters<
 			: undefined
 
 	return resolveFilters(
-		searchFilters ?? [],
+		searchFilters,
 		filterFormProp,
 	)
 }
