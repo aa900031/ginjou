@@ -184,9 +184,9 @@ export function createPlacholerDataFn<
 		const records = (!ids || ids.length === 0)
 			? []
 			: ids.map(id => findGetOneCached<TData, TError, TResultData>(
-				{ ...rest, id },
-				queryClient,
-			))
+					{ ...rest, id },
+					queryClient,
+				))
 
 		if (records.includes(undefined))
 			return undefined

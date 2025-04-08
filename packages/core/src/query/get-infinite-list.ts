@@ -46,7 +46,7 @@ export type QueryOptions<
 >
 
 export type GetInfiniteListProps<
-	TPageParam
+	TPageParam,
 > = SetRequired<
 	GetListProps<TPageParam>,
 	| 'pagination'
@@ -56,9 +56,9 @@ export type QueryProps<
 	TPageParam,
 > = Simplify<
 	& SetOptional<
-			GetInfiniteListProps<TPageParam>,
+		GetInfiniteListProps<TPageParam>,
 			| 'resource'
-		>
+	>
 	& FetcherProps
 >
 
@@ -140,18 +140,18 @@ export function createQueryFn<
 	}
 }
 
-export type GetInitialPageParamProps<
-	TPageParam
-> = {
+export interface GetInitialPageParamProps<
+	TPageParam,
+> {
 	props: ResolvedQueryProps<TPageParam>
 }
 
 export function getInitialPageParam<
-	TPageParam
+	TPageParam,
 >(
 	{
 		props,
-	}: GetInitialPageParamProps<TPageParam>
+	}: GetInitialPageParamProps<TPageParam>,
 ): TPageParam {
 	return props.pagination.current
 }
