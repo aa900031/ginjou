@@ -1,8 +1,9 @@
 import type { Simplify } from 'type-fest'
 import type { RouterLocation } from '../router'
+import type { ResourceDefinition } from './definition'
 import type { ResourceParseResult } from './parse'
 import type { Resource } from './resource'
-import { getResourceDefinition, type ResourceDefinition } from './definition'
+import { getResourceDefinition } from './definition'
 import { parseResource } from './parse'
 
 export type ResolvedResource<

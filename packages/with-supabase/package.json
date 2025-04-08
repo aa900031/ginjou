@@ -4,9 +4,11 @@
 	"version": "0.1.0-beta.2",
 	"author": "zhong666 <hi@zhong666.me>",
 	"license": "MIT",
+	"homepage": "https://github.com/aa900031/ginjou#readme",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/aa900031/ginjou"
+		"url": "git+https://github.com/aa900031/ginjou.git",
+		"directory": "packages/with-supabase"
 	},
 	"bugs": {
 		"url": "https://github.com/aa900031/ginjou/issues"
@@ -45,6 +47,6 @@
 		"@ginjou/core": "workspace:^",
 		"@ginjou/release-it-config": "workspace:*",
 		"@ginjou/tsconfig": "workspace:*",
-		"@supabase/supabase-js": "^2.46.1"
+		"@supabase/supabase-js": "^2.49.4"
 	}
 }

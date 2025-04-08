@@ -4,9 +4,11 @@
 	"version": "0.1.0-beta.6",
 	"author": "zhong666 <hi@zhong666.me>",
 	"license": "MIT",
+	"homepage": "https://github.com/aa900031/ginjou#readme",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/aa900031/ginjou"
+		"url": "git+https://github.com/aa900031/ginjou.git",
+		"directory": "packages/vue"
 	},
 	"bugs": {
 		"url": "https://github.com/aa900031/ginjou/issues"
@@ -36,7 +38,7 @@
 	},
 	"scripts": {
 		"build": "unbuild",
-		"test": "vitest run",
+		"test": "vitest run --coverage",
 		"dev:test": "vitest",
 		"release": "release-it --ci"
 	},
@@ -58,14 +60,14 @@
 		"@ginjou/core": "workspace:^",
 		"@vueuse/shared": "^10.11.1",
 		"tanstack-query-callbacks": "^0.2.0",
-		"type-fest": "^4.26.1",
+		"type-fest": "^4.39.1",
 		"vue-demi": "latest"
 	},
 	"devDependencies": {
 		"@ginjou/release-it-config": "workspace:*",
 		"@ginjou/tsconfig": "workspace:*",
-		"@tanstack/vue-query": "^5.64.2",
+		"@tanstack/vue-query": "^5.72.0",
 		"@testing-library/vue": "^8.1.0",
-		"vue": "^3.5.12"
+		"vue": "^3.5.13"
 	}
 }

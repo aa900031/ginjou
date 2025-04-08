@@ -1,19 +1,19 @@
-name: Release
+name: Test
 
 on:
   push:
-    tags:
-      - '@ginjou/*@[0-9]+.[0-9]+.[0-9]+*'
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
   cancel-in-progress: true
 
-permissions:
-  contents: write
-
 jobs:
-  publish-npm:
+  unit-test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -24,10 +24,12 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
 
-      - name: Build packages
-        run: pnpm run build:pkgs
+      - name: Run unit test
+        run: pnpm run test
 
-      - name: Publish to npm
-        run: pnpm -r publish --access public --no-git-checks
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          directory: packages
         env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
