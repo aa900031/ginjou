@@ -39,6 +39,20 @@ export default () => defineFetchers({
 						],
 						total: 2,
 					} as any
+				case 'users':
+					return {
+						data: [
+							{
+								id: '1',
+								name: `users-1`,
+							},
+							{
+								id: '2',
+								name: `users-2`,
+							},
+						],
+						total: 2,
+					} as any
 				default:
 					throw new Error('No')
 			}
