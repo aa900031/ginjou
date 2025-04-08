@@ -3,10 +3,14 @@ import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
 	test: {
+		dir: './src',
 		environment: 'happy-dom',
 		setupFiles: [
 			'./test/setup.ts',
 		],
+		coverage: {
+			provider: 'istanbul',
+		},
 	},
 	resolve: {
 		alias: {

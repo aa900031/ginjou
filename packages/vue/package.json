@@ -38,7 +38,7 @@
 	},
 	"scripts": {
 		"build": "unbuild",
-		"test": "vitest run",
+		"test": "vitest run --coverage",
 		"dev:test": "vitest",
 		"release": "release-it --ci"
 	},
