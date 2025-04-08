@@ -20,6 +20,7 @@
 		"@aa900031/eslint-config": "^3.1.0",
 		"@release-it/conventional-changelog": "^9.0.4",
 		"@types/node": "^18.19.86",
+		"@vitest/coverage-istanbul": "^3.1.1",
 		"conventional-changelog-unjs": "^1.0.0",
 		"eslint": "^9.24.0",
 		"happy-dom": "^17.4.4",
