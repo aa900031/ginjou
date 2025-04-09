@@ -5,6 +5,8 @@ const { options } = await useAsyncSelect({
 	valueKey: 'id',
 })
 
+const form = useForm()
+
 const formData = reactive({
 	user: unref(options)?.[0]?.value,
 })
