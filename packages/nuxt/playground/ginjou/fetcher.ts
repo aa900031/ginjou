@@ -10,6 +10,7 @@ export default () => defineFetchers({
 						data: {
 							id,
 							name: `posts-${id}`,
+							user: `${id}`,
 						} as any,
 					}
 				case 'users':
@@ -31,10 +32,12 @@ export default () => defineFetchers({
 							{
 								id: '1',
 								name: `posts-1`,
+								user: `1`,
 							},
 							{
 								id: '2',
 								name: `posts-2`,
+								user: `2`,
 							},
 						],
 						total: 2,
@@ -52,6 +55,19 @@ export default () => defineFetchers({
 							},
 						],
 						total: 2,
+					} as any
+				default:
+					throw new Error('No')
+			}
+		},
+		update: async ({ resource, id, params }) => {
+			switch (resource) {
+				case 'posts':
+					return {
+						data: {
+							id,
+							...params,
+						},
 					} as any
 				default:
 					throw new Error('No')
