@@ -30,15 +30,14 @@
 	"module": "dist/index.mjs",
 	"types": "dist/index.d.ts",
 	"files": [
-		"dist",
-		"plugin.d.ts"
+		"dist"
 	],
 	"publishConfig": {
 		"access": "public"
 	},
 	"scripts": {
 		"build": "unbuild",
-		"test": "vitest run --coverage",
+		"test": "vitest run",
 		"dev:test": "vitest",
 		"release": "release-it --ci"
 	},
