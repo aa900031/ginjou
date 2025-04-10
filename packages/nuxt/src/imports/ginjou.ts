@@ -1,4 +1,4 @@
-import type { addImports } from '@nuxt/kit'
+import type { Import } from '../utils/import'
 
 const composables = [
 	'useAccessContext',
@@ -52,4 +52,4 @@ export default composables.map(
 		name,
 		from: '@ginjou/vue',
 	}),
-) satisfies (Parameters<typeof addImports> extends [infer T] ? T : never)[]
+) satisfies Import[]

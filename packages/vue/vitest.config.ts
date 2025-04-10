@@ -9,7 +9,11 @@ export default defineConfig({
 			'./test/setup.ts',
 		],
 		coverage: {
+			enabled: true,
 			provider: 'istanbul',
+			include: [
+				'./src/**/*',
+			],
 		},
 	},
 	resolve: {

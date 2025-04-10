@@ -1,4 +1,4 @@
-import type { addImports } from '@nuxt/kit'
+import type { Import } from '../utils/import'
 
 const composables = [
 	'useQuery',
@@ -15,4 +15,4 @@ export default composables.map(
 		name,
 		from: '@tanstack/vue-query',
 	}),
-) satisfies (Parameters<typeof addImports> extends [infer T] ? T : never)[]
+) satisfies Import[]
