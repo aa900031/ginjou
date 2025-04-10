@@ -57,7 +57,7 @@
 	"devDependencies": {
 		"@ginjou/release-it-config": "workspace:*",
 		"@ginjou/tsconfig": "workspace:*",
-		"@tanstack/query-core": "^5.72.0",
+		"@tanstack/query-core": "^5.72.2",
 		"@types/lodash": "^4.17.16",
 		"@types/lodash-es": "^4.17.12"
 	}
