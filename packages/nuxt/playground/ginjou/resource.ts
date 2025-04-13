@@ -6,6 +6,7 @@ export default () => defineResourceContext({
 			name: 'posts',
 			show: '/posts/:id',
 			list: '/posts',
+			edit: '/posts/:id/edit',
 		},
 	],
 })

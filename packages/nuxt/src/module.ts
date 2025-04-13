@@ -1,4 +1,5 @@
 import { addImports, addPlugin, createResolver, defineNuxtModule } from '@nuxt/kit'
+import ImportListForAsync from './imports/async'
 import ImportListForGinjou from './imports/ginjou'
 import ImportListForTanstackQuery from './imports/tanstack-query'
 
@@ -30,6 +31,7 @@ export default defineNuxtModule({
 
 		addImports(ImportListForTanstackQuery)
 		addImports(ImportListForGinjou)
+		addImports(ImportListForAsync(resolve))
 		addPlugin(resolve('./runtime/query-hydrate-plugin'))
 
 		if (options.router)
