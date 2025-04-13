@@ -57,7 +57,6 @@
 		"vue-demi": "latest"
 	},
 	"devDependencies": {
-		"@ginjou/release-it-config": "workspace:*",
 		"@ginjou/tsconfig": "workspace:*",
 		"@ginjou/vue": "workspace:^",
 		"vue": "^3.5.13",

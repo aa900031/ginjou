@@ -3,3 +3,9 @@ packages:
   - internals/*
   - stories/*
   - packages/nuxt/playground
+
+onlyBuiltDependencies:
+  - '@parcel/watcher'
+  - esbuild
+  - msw
+  - vue-demi

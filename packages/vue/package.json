@@ -63,7 +63,6 @@
 		"vue-demi": "latest"
 	},
 	"devDependencies": {
-		"@ginjou/release-it-config": "workspace:*",
 		"@ginjou/tsconfig": "workspace:*",
 		"@tanstack/vue-query": "^5.72.0",
 		"@testing-library/vue": "^8.1.0",
