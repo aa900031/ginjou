@@ -22,7 +22,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup
-        uses: ./.github/actions/setup
+        uses: aa900031/github-actions/setup-node@main
 
       - name: Run unit test
         run: pnpm run test
