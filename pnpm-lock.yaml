@@ -78,8 +78,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       tanstack-query-callbacks:
-        specifier: ^0.2.0
-        version: 0.2.0(@tanstack/query-core@5.72.0)(@tanstack/vue-query@5.72.0(@vue/composition-api@1.7.2(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3)))(@vue/composition-api@1.7.2(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3))
+        specifier: ^0.2.1
+        version: 0.2.1(@tanstack/query-core@5.72.0)(@tanstack/vue-query@5.72.0(@vue/composition-api@1.7.2(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3)))(@vue/composition-api@1.7.2(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3))
       type-fest:
         specifier: ^4.39.1
         version: 4.39.1
@@ -146,8 +146,8 @@ importers:
         specifier: ^10.11.1
         version: 10.11.1(@vue/composition-api@1.7.2(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3))
       tanstack-query-callbacks:
-        specifier: ^0.2.0
-        version: 0.2.0(@tanstack/query-core@5.72.0)(@tanstack/vue-query@5.72.0(@vue/composition-api@1.7.2(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3)))(@vue/composition-api@1.7.2(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3))
+        specifier: ^0.2.1
+        version: 0.2.1(@tanstack/query-core@5.72.0)(@tanstack/vue-query@5.72.0(@vue/composition-api@1.7.2(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3)))(@vue/composition-api@1.7.2(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3))
       type-fest:
         specifier: ^4.39.1
         version: 4.39.1
@@ -5928,8 +5928,8 @@ packages:
     resolution: {integrity: sha512-ulAk51I9UVUyJgxlv9M6lFot2WP3e7t8Kz9+IS6D4rVba1tR9kON+Ey69f+1R4Q8cd45Lod6a4IcJIxnzGc/zA==}
     engines: {node: '>=18'}
 
-  tanstack-query-callbacks@0.2.0:
-    resolution: {integrity: sha512-e8MpLSRn/45UZJM6PRtxYNhpIQHWKUpOXjWCrxwZ6hsUGdYkpaCqjE7+6K0bCZwvjY5gvwdV6NBF9bsSMxc/aQ==}
+  tanstack-query-callbacks@0.2.1:
+    resolution: {integrity: sha512-oCnQdJvA0/s1gRlWP66AOtu9z/mniIMOjCq0UulE6mLXlQqM4chxlFc8SiFrCPS3GQZidkwzpaOWUgdvdLcW0w==}
     peerDependencies:
       '@tanstack/query-core': ^4.* || ^5.*
       '@tanstack/react-query': ^4.* || ^5.*
@@ -13257,7 +13257,7 @@ snapshots:
 
   system-architecture@0.1.0: {}
 
-  tanstack-query-callbacks@0.2.0(@tanstack/query-core@5.72.0)(@tanstack/vue-query@5.72.0(@vue/composition-api@1.7.2(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3)))(@vue/composition-api@1.7.2(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3)):
+  tanstack-query-callbacks@0.2.1(@tanstack/query-core@5.72.0)(@tanstack/vue-query@5.72.0(@vue/composition-api@1.7.2(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3)))(@vue/composition-api@1.7.2(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3)):
     dependencies:
       '@tanstack/query-core': 5.72.0
     optionalDependencies:
