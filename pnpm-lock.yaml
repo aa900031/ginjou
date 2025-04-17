@@ -81,8 +81,8 @@ importers:
         specifier: ^0.2.1
         version: 0.2.1(@tanstack/query-core@5.72.0)(@tanstack/vue-query@5.72.0(@vue/composition-api@1.7.2(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3)))(@vue/composition-api@1.7.2(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3))
       type-fest:
-        specifier: ^4.39.1
-        version: 4.39.1
+        specifier: ^4.40.0
+        version: 4.40.0
     devDependencies:
       '@ginjou/tsconfig':
         specifier: workspace:*
@@ -149,8 +149,8 @@ importers:
         specifier: ^0.2.1
         version: 0.2.1(@tanstack/query-core@5.72.0)(@tanstack/vue-query@5.72.0(@vue/composition-api@1.7.2(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3)))(@vue/composition-api@1.7.2(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3))
       type-fest:
-        specifier: ^4.39.1
-        version: 4.39.1
+        specifier: ^4.40.0
+        version: 4.40.0
       vue-demi:
         specifier: latest
         version: 0.14.10(@vue/composition-api@1.7.2(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3))
@@ -246,8 +246,8 @@ importers:
         specifier: ^1.1.0
         version: 1.7.2(vue@3.5.13(typescript@5.8.3))
       type-fest:
-        specifier: ^4.39.1
-        version: 4.39.1
+        specifier: ^4.40.0
+        version: 4.40.0
       vue-demi:
         specifier: latest
         version: 0.14.10(@vue/composition-api@1.7.2(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3))
@@ -6123,8 +6123,8 @@ packages:
     resolution: {integrity: sha512-tLq3bSNx+xSpwvAJnzrK0Ep5CLNWjvFTOp71URMaAEWBfRb9nnJiBoUe0tF8bI4ZFO3omgBR6NvnbzVUT3Ly4g==}
     engines: {node: '>=14.16'}
 
-  type-fest@4.39.1:
-    resolution: {integrity: sha512-uW9qzd66uyHYxwyVBYiwS4Oi0qZyUqwjU+Oevr6ZogYiXt99EOYtwvzMSLw1c3lYo2HzJsep/NB23iEVEgjG/w==}
+  type-fest@4.40.0:
+    resolution: {integrity: sha512-ABHZ2/tS2JkvH1PEjxFDTUWC8dB5OsIGZP4IFLhR293GqT5Y5qB1WwL2kMPYhQW9DVgVD8Hd7I8gjwPIf5GFkw==}
     engines: {node: '>=16'}
 
   type-level-regexp@0.1.17:
@@ -10043,7 +10043,7 @@ snapshots:
 
   dot-prop@9.0.0:
     dependencies:
-      type-fest: 4.39.1
+      type-fest: 4.40.0
 
   dotenv@16.4.7: {}
 
@@ -11819,7 +11819,7 @@ snapshots:
       path-to-regexp: 6.3.0
       picocolors: 1.1.1
       strict-event-emitter: 0.5.1
-      type-fest: 4.39.1
+      type-fest: 4.40.0
       yargs: 17.7.2
     optionalDependencies:
       typescript: 5.8.3
@@ -12299,7 +12299,7 @@ snapshots:
     dependencies:
       '@babel/code-frame': 7.26.2
       index-to-position: 1.0.0
-      type-fest: 4.39.1
+      type-fest: 4.40.0
 
   parse-path@7.0.1:
     dependencies:
@@ -12705,14 +12705,14 @@ snapshots:
     dependencies:
       find-up-simple: 1.0.1
       read-pkg: 9.0.1
-      type-fest: 4.39.1
+      type-fest: 4.40.0
 
   read-pkg@9.0.1:
     dependencies:
       '@types/normalize-package-data': 2.4.4
       normalize-package-data: 6.0.2
       parse-json: 8.2.0
-      type-fest: 4.39.1
+      type-fest: 4.40.0
       unicorn-magic: 0.1.0
 
   readable-stream@2.3.8:
@@ -13416,7 +13416,7 @@ snapshots:
 
   type-fest@3.13.1: {}
 
-  type-fest@4.39.1: {}
+  type-fest@4.40.0: {}
 
   type-level-regexp@0.1.17: {}
 
