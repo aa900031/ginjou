@@ -2,8 +2,8 @@
 import { useAuthenticated, useCheckError, useLogin } from '@ginjou/vue'
 
 const { data: authenticated, isLoading } = useAuthenticated()
-const { mutateAsync: login, isLoading: isLoginLoading } = useLogin()
-const { mutateAsync: checkError, isLoading: isCheckLoading } = useCheckError()
+const { mutateAsync: login, isPending: isLoginLoading } = useLogin()
+const { mutateAsync: checkError, isPending: isCheckLoading } = useCheckError()
 
 async function handleCheckClick() {
 	const error = new Error('Auth')

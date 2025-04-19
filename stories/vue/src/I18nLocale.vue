@@ -15,7 +15,10 @@ const t = useTranslate()
 			'msg' >>> {{ t('msg', { name: 'Mark' }) }}<br>
 		</li>
 	</ul>
-	<select v-model="locale">
+	<select
+		data-testid="locale-selector"
+		v-model="locale"
+	>
 		<option value="en-US">
 			en-US
 		</option>

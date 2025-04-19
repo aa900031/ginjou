@@ -1,3 +1,0 @@
-[build]
-command = "cd ../../ && pnpm build:sb-vue"
-publish = "dist"

@@ -15,6 +15,12 @@ export const Basic: StoryObj<typeof meta> = {
 			auth: true,
 		}),
 	],
+	play: async ({ mount }) => {
+		const canvas = await mount()
+		await canvas.findByText('Permissions: [ "admin" ]', undefined, {
+			timeout: 3000,
+		})
+	},
 }
 
 export default meta
