@@ -15,6 +15,11 @@ export const Basic: StoryObj<typeof meta> = {
 			auth: true,
 		}),
 	],
+	play: async ({ mount }) => {
+		const canvas = await mount()
+
+		await canvas.findByText('Hi!', { exact: false, trim: true })
+	},
 }
 
 export default meta

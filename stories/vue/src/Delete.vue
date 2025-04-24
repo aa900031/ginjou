@@ -58,7 +58,10 @@ async function handleDeleteClick(record: Post) {
 						{{ record.status }}
 					</td>
 					<td>
-						<button @click="handleDeleteClick(record)">
+						<button
+							:data-testid="`delete--${record.id}`"
+							@click="handleDeleteClick(record)"
+						>
 							Delete
 						</button>
 					</td>

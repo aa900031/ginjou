@@ -41,6 +41,7 @@ async function handleDeleteClick() {
 
 		<button
 			:disabled="ids.length === 0"
+			data-testid="delete-selected"
 			@click="handleDeleteClick"
 		>
 			Delete Selected
@@ -64,6 +65,7 @@ async function handleDeleteClick() {
 						<input
 							v-model="ids"
 							type="checkbox"
+							:data-testid="`pick-to-delete--${record.id}`"
 							:value="record.id"
 						>
 					</td>

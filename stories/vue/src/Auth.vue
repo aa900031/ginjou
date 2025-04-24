@@ -3,8 +3,8 @@ import { useAuthenticated, useLogin, useLogout } from '@ginjou/vue'
 
 const { data: authenticated, isLoading } = useAuthenticated()
 
-const { mutateAsync: logout, isLoading: isLogoutLoading } = useLogout()
-const { mutateAsync: login, isLoading: isLoginLoading } = useLogin()
+const { mutateAsync: logout, isPending: isLogoutLoading } = useLogout()
+const { mutateAsync: login, isPending: isLoginLoading } = useLogin()
 
 async function handleLogoutClick() {
 	logout(undefined)
@@ -21,6 +21,7 @@ async function handleLoginClick() {
 	<template v-else-if="authenticated.authenticated === true">
 		Hi! <br>
 		<button
+			data-testid="btn-logout"
 			:disabled="isLogoutLoading"
 			@click="handleLogoutClick"
 		>
@@ -30,6 +31,7 @@ async function handleLoginClick() {
 	<template v-else-if="authenticated.authenticated === false">
 		You are unauthenticated, Please Login first!<br>
 		<button
+			data-testid="btn-login"
 			:disabled="isLoginLoading"
 			@click="handleLoginClick"
 		>
