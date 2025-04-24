@@ -8,8 +8,14 @@ export function createMsw(
 	options?: InitializeOptions,
 ): Loader {
 	return (ctx) => {
-		if (!safeGetWorker())
-			initialize(options, handlers)
+		if (!safeGetWorker()) {
+			initialize({
+				serviceWorker: {
+					url: './mockServiceWorker.js',
+				},
+				...options,
+			}, handlers)
+		}
 		return mswLoader(ctx)
 	}
 }
