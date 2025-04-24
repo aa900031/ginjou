@@ -1,0 +1,33 @@
+{
+	"name": "@ginjou/storybook",
+	"type": "module",
+	"private": true,
+	"author": "zhong666 <hi@zhong666.me>",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/aa900031/ginjou"
+	},
+	"bugs": {
+		"url": "https://github.com/aa900031/ginjou/issues"
+	},
+	"scripts": {
+		"dev": "run-p dev:wait-* && storybook dev -p 6006 --no-open",
+		"dev:wait-vue": "wait-on tcp:6007",
+		"build": "storybook build -o dist",
+		"preview": "sirv ./dist --host -p 7006"
+	},
+	"devDependencies": {
+		"@storybook/addon-essentials": "^8.6.12",
+		"@storybook/react": "^8.6.12",
+		"@storybook/react-vite": "^8.6.12",
+		"@types/react": "^19.0.10",
+		"@types/react-dom": "^19.0.4",
+		"@vitejs/plugin-react": "^4.3.4",
+		"react": "^19.0.0",
+		"react-dom": "^19.0.0",
+		"storybook": "^8.6.12",
+		"vite": "^5.4.17",
+		"wait-on": "^8.0.3"
+	}
+}

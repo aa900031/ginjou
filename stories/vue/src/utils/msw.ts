@@ -12,6 +12,9 @@ export function createMsw(
 		if (!worker) {
 			worker = setupWorker()
 			await worker.start({
+				serviceWorker: {
+					url: import.meta.env.DEV ? undefined : './mockServiceWorker.js',
+				},
 				onUnhandledRequest: handleUnhandledRequest,
 			})
 		}

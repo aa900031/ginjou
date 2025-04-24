@@ -1,5 +1,6 @@
 {
 	"$schema": "https://turbo.build/schema.json",
+	"ui": "tui",
 	"tasks": {
 		"build": {
 			"dependsOn": ["^build"],
@@ -15,21 +16,27 @@
 			]
 		},
 		"dev": {
-			"cache": false
+			"cache": false,
+			"persistent": true
 		},
 		"dev:test": {
-			"cache": false
+			"cache": false,
+			"persistent": true
 		},
 		"release": {
 			"dependsOn": ["^release"],
 			"cache": false
 		},
 		"preview": {
-			"dependsOn": ["build"]
+			"cache": false,
+			"persistent": true
 		},
 		"@ginjou/storybook-vue#build": {
-			"dependsOn": ["^build"],
-			"outputs": ["dist/**"]
+			"dependsOn": [
+				"@ginjou/storybook#build",
+				"^build"
+			],
+			"outputs": ["../root/dist/vue/**"]
 		}
 	}
 }

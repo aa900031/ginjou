@@ -1,0 +1,10 @@
+{
+	"extends": "@ginjou/tsconfig/base.json",
+	"include": [
+		".storybook/preview.ts"
+	],
+	"exclude": [
+		"src/**/*.test.ts",
+		"src/**/*.spec.ts"
+	]
+}
