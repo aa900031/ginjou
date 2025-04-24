@@ -1,4 +1,5 @@
 import type { StorybookConfig } from '@storybook/react-vite'
+import '@storybook/core'
 
 export default {
 	stories: [
@@ -13,22 +14,29 @@ export default {
 		options: {},
 	},
 	refs: (config, { configType }) => {
-		switch (configType) {
-			case 'DEVELOPMENT':
-				return {
-					vue: {
-						title: 'Vue',
-						url: 'http://localhost:6007',
-					},
-				}
-
-			default:
-				return {
-					vue: {
-						title: 'Vue',
-						url: '/vue',
-					},
-				}
+		const urls = getRefsUrl(configType)
+		return {
+			vue: {
+				title: 'Vue',
+				url: urls.vue,
+				expanded: false,
+			},
 		}
 	},
 } satisfies StorybookConfig
+
+function getRefsUrl(
+	type: string | undefined,
+) {
+	switch (type) {
+		case 'DEVELOPMENT':
+			return {
+				vue: 'http://localhost:6007',
+			}
+
+		default:
+			return {
+				vue: '/vue',
+			}
+	}
+}
