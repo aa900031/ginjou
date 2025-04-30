@@ -54,7 +54,7 @@
 		}
 	},
 	"dependencies": {
-		"type-fest": "^4.39.1",
+		"type-fest": "^4.40.1",
 		"vue-demi": "latest"
 	},
 	"devDependencies": {

@@ -81,8 +81,8 @@ importers:
         specifier: ^0.2.1
         version: 0.2.1(@tanstack/query-core@5.74.9)(@tanstack/vue-query@5.74.9(@vue/composition-api@1.7.2(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3)))(@vue/composition-api@1.7.2(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3))
       type-fest:
-        specifier: ^4.39.1
-        version: 4.39.1
+        specifier: ^4.40.1
+        version: 4.40.1
     devDependencies:
       '@ginjou/tsconfig':
         specifier: workspace:*
@@ -106,7 +106,7 @@ importers:
         specifier: workspace:^
         version: link:../with-vue-router
       '@nuxt/kit':
-        specifier: ^3.16.2
+        specifier: ^3.17.1
         version: 3.17.1(magicast@0.3.5)
     devDependencies:
       '@nuxt/module-builder':
@@ -128,7 +128,7 @@ importers:
         specifier: workspace:^
         version: link:..
       nuxt:
-        specifier: ^3.16.2
+        specifier: ^3.17.1
         version: 3.17.1(@netlify/blobs@8.2.0)(@parcel/watcher@2.5.1)(@types/node@18.19.87)(db0@0.3.2)(eslint@9.25.1(jiti@2.4.2))(ioredis@5.6.1)(magicast@0.3.5)(meow@13.2.0)(optionator@0.9.4)(rollup@4.40.1)(terser@5.39.0)(tsx@4.19.3)(typescript@5.8.3)(vite@6.3.4(@types/node@18.19.87)(jiti@2.4.2)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.1))(yaml@2.7.1)
 
   packages/vue:
@@ -149,8 +149,8 @@ importers:
         specifier: ^0.2.1
         version: 0.2.1(@tanstack/query-core@5.74.9)(@tanstack/vue-query@5.74.9(@vue/composition-api@1.7.2(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3)))(@vue/composition-api@1.7.2(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3))
       type-fest:
-        specifier: ^4.39.1
-        version: 4.39.1
+        specifier: ^4.40.1
+        version: 4.40.1
       vue-demi:
         specifier: latest
         version: 0.14.10(@vue/composition-api@1.7.2(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3))
@@ -246,8 +246,8 @@ importers:
         specifier: ^1.1.0
         version: 1.7.2(vue@3.5.13(typescript@5.8.3))
       type-fest:
-        specifier: ^4.39.1
-        version: 4.39.1
+        specifier: ^4.40.1
+        version: 4.40.1
       vue-demi:
         specifier: latest
         version: 0.14.10(@vue/composition-api@1.7.2(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3))
@@ -6951,8 +6951,8 @@ packages:
     resolution: {integrity: sha512-tLq3bSNx+xSpwvAJnzrK0Ep5CLNWjvFTOp71URMaAEWBfRb9nnJiBoUe0tF8bI4ZFO3omgBR6NvnbzVUT3Ly4g==}
     engines: {node: '>=14.16'}
 
-  type-fest@4.39.1:
-    resolution: {integrity: sha512-uW9qzd66uyHYxwyVBYiwS4Oi0qZyUqwjU+Oevr6ZogYiXt99EOYtwvzMSLw1c3lYo2HzJsep/NB23iEVEgjG/w==}
+  type-fest@4.40.1:
+    resolution: {integrity: sha512-9YvLNnORDpI+vghLU/Nf+zSv0kL47KbVJ1o3sKgoTefl6i+zebxbiDQWoe/oWWqPhIgQdRZRT1KA9sCPL810SA==}
     engines: {node: '>=16'}
 
   type-level-regexp@0.1.17:
@@ -11395,7 +11395,7 @@ snapshots:
 
   dot-prop@9.0.0:
     dependencies:
-      type-fest: 4.39.1
+      type-fest: 4.40.1
 
   dotenv@16.4.7: {}
 
@@ -13402,7 +13402,7 @@ snapshots:
       path-to-regexp: 6.3.0
       picocolors: 1.1.1
       strict-event-emitter: 0.5.1
-      type-fest: 4.39.1
+      type-fest: 4.40.1
       yargs: 17.7.2
     optionalDependencies:
       typescript: 5.8.3
@@ -13940,7 +13940,7 @@ snapshots:
     dependencies:
       '@babel/code-frame': 7.26.2
       index-to-position: 1.0.0
-      type-fest: 4.39.1
+      type-fest: 4.40.1
 
   parse-path@7.0.1:
     dependencies:
@@ -14410,14 +14410,14 @@ snapshots:
     dependencies:
       find-up-simple: 1.0.1
       read-pkg: 9.0.1
-      type-fest: 4.39.1
+      type-fest: 4.40.1
 
   read-pkg@9.0.1:
     dependencies:
       '@types/normalize-package-data': 2.4.4
       normalize-package-data: 6.0.2
       parse-json: 8.2.0
-      type-fest: 4.39.1
+      type-fest: 4.40.1
       unicorn-magic: 0.1.0
 
   readable-stream@2.3.8:
@@ -15179,7 +15179,7 @@ snapshots:
 
   type-fest@3.13.1: {}
 
-  type-fest@4.39.1: {}
+  type-fest@4.40.1: {}
 
   type-level-regexp@0.1.17: {}
 
