@@ -41,17 +41,17 @@
 		"@storybook/theming": "^8.6.12",
 		"@storybook/vue3": "^8.6.12",
 		"@storybook/vue3-vite": "^8.6.12",
-		"@tanstack/vue-query": "^5.72.0",
+		"@tanstack/vue-query": "^5.74.9",
 		"@vitejs/plugin-vue": "^5.2.3",
-		"msw": "^2.7.3",
+		"msw": "^2.7.5",
 		"msw-storybook-addon": "2.0.4",
 		"primevue": "^4.3.3",
 		"storybook": "^8.6.12",
 		"storybook-vue3-router": "^5.0.0",
 		"unocss": "^0.65.4",
-		"vite": "^5.4.17",
+		"vite": "^5.4.19",
 		"vue": "^3.5.13",
-		"vue-router": "^4.5.0"
+		"vue-router": "^4.5.1"
 	},
 	"msw": {
 		"workerDirectory": [
