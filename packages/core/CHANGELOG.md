@@ -3,6 +3,37 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.5
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/core@0.1.0-beta.4...${npm.name}@0.1.0-beta.5)
+
+### 🚀 Enhancements
+
+-  **nuxt:** Add async composable functions (#40) ([6978e8f](https://github.com/aa900031/ginjou/commit/6978e8f5fa16fb120f43ee47a6e2ef1911f101b1))
+-  Upgrade tanstack/query to v5 (#38) ([59e6f9f](https://github.com/aa900031/ginjou/commit/59e6f9fb3af7c64c3d31c87083f81c547f81f035))
+
+### 🩹 Fixes
+
+-  **list:** Generate new sorts, filters on updated (#36) ([c30c51d](https://github.com/aa900031/ginjou/commit/c30c51dd14b037aabd0d360909f94fc3a69e8060))
+
+### 🏡 Chore
+
+-  Add publish preview package to pkg.pr.new (#44) ([c88ae16](https://github.com/aa900031/ginjou/commit/c88ae16dc66533d5eeab1f6c0272dcb6056730c5))
+-  **ci:** Test (#45) ([c6341b0](https://github.com/aa900031/ginjou/commit/c6341b05306562f1b88dfd44b7d923670473970f))
+-  **deps:** Update dependency tanstack-query-callbacks to ^0.2.1 (#46) ([2aeef34](https://github.com/aa900031/ginjou/commit/2aeef3439e07775fc707161790e8f943a5f83510))
+-  **deps:** Update npm non-major dependencies (#31) ([385726e](https://github.com/aa900031/ginjou/commit/385726e813a4fcbde1c1911fe65c7e4525d2027e))
+-  **deps:** Update npm non-major dependencies (#48) ([5651153](https://github.com/aa900031/ginjou/commit/56511530ff45567291614cfdf950863ff06ec4ab))
+-  **deps:** Update npm non-major develop dependencies (#43) ([5d560cb](https://github.com/aa900031/ginjou/commit/5d560cb0b68f5a9f917e67c374572e354a5d62d7))
+-  Upgrade major version of dev deps (#41) ([1a74850](https://github.com/aa900031/ginjou/commit/1a7485053e05c7caceb03e989fb1973e166a50c7))
+-  Use @aa900031/releast-it-config ([ef3ad47](https://github.com/aa900031/ginjou/commit/ef3ad47ba35535488f791f41272f2dc087207b29))
+
+
+
+#### ❤️ Contributors
+
+- Renovate[bot] 
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.4
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/core@0.1.0-beta.3...@ginjou/core@0.1.0-beta.4)
