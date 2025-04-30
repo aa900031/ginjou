@@ -24,7 +24,7 @@
 		"eslint": "^9.24.0",
 		"happy-dom": "^17.4.4",
 		"npm-run-all2": "^7.0.2",
-		"release-it": "https://pkg.pr.new/release-it@1ef2e54",
+		"release-it": "^19.0.1",
 		"sirv-cli": "^3.0.1",
 		"turbo": "^2.5.0",
 		"typescript": "^5.8.3",
