@@ -59,7 +59,7 @@
 		"@ginjou/core": "workspace:^",
 		"@vueuse/shared": "^10.11.1",
 		"tanstack-query-callbacks": "^0.2.1",
-		"type-fest": "^4.39.1",
+		"type-fest": "^4.40.1",
 		"vue-demi": "latest"
 	},
 	"devDependencies": {
