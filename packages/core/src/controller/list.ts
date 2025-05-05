@@ -7,10 +7,13 @@ import { FilterOperator } from '../query'
 import { RouterGoType } from '../router'
 import { getSubValue } from '../utils/sub-value'
 
-export type PaginationProp = Simplify<
-	& Partial<Pagination<number>>
+export type PaginationProp<
+	TPageParam,
+> = Simplify<
+	& Partial<Pagination<TPageParam>>
 	& {
 		mode?: 'client' | 'server' | 'off'
+		init?: TPageParam
 	}
 >
 
@@ -39,33 +42,37 @@ export type Props<
 	TData extends BaseRecord,
 	TError,
 	TResultData extends BaseRecord,
+	TPageParam,
 > = Simplify<
 	& Omit<
-		GetList.Props<TData, TError, TResultData, number>,
+		GetList.Props<TData, TError, TResultData, TPageParam>,
 		| 'pagination'
 		| 'sorters'
 		| 'filters'
-		| 'syncRoute'
 	>
 	& {
-		pagination?: PaginationProp
+		pagination?: PaginationProp<TPageParam>
 		sorters?: SortersProp
 		filters?: FiltersProp
 		syncRoute?: boolean
 	}
 >
 
-export interface GetPropCurrentPageProps {
-	prop: PaginationProp | undefined
-	prev?: PaginationProp['current']
+export interface GetPropCurrentPageProps<
+	TPageParam,
+> {
+	prop: PaginationProp<TPageParam> | undefined
+	prev?: PaginationProp<TPageParam>['current']
 }
 
-export function getPropCurrentPage(
+export function getPropCurrentPage<
+	TPageParam,
+>(
 	{
 		prop,
 		prev,
-	}: GetPropCurrentPageProps,
-): PaginationProp['current'] {
+	}: GetPropCurrentPageProps<TPageParam>,
+): PaginationProp<TPageParam>['current'] {
 	return getSubValue({
 		path: 'current',
 		prop,
@@ -74,8 +81,8 @@ export function getPropCurrentPage(
 }
 
 export interface GetPropPerPageProps {
-	prop: PaginationProp | undefined
-	prev?: PaginationProp['perPage']
+	prop: PaginationProp<unknown> | undefined
+	prev?: PaginationProp<unknown>['perPage']
 }
 
 export function getPropPerPage(
@@ -83,7 +90,7 @@ export function getPropPerPage(
 		prop,
 		prev,
 	}: GetPropPerPageProps,
-): PaginationProp['perPage'] {
+): PaginationProp<unknown>['perPage'] {
 	return getSubValue({
 		path: 'perPage',
 		prop,
@@ -92,8 +99,8 @@ export function getPropPerPage(
 }
 
 export interface GetPropPaginationModeProps {
-	prop: PaginationProp | undefined
-	prev?: PaginationProp['mode']
+	prop: PaginationProp<unknown> | undefined
+	prev?: PaginationProp<unknown>['mode']
 }
 
 export function getPropPaginationMode(
@@ -101,9 +108,31 @@ export function getPropPaginationMode(
 		prop,
 		prev,
 	}: GetPropPaginationModeProps,
-): PaginationProp['mode'] {
+): PaginationProp<unknown>['mode'] {
 	return getSubValue({
 		path: 'mode',
+		prop,
+		prev,
+	})
+}
+
+export interface GetPropInitialPageProps<
+	TPageParam,
+> {
+	prop: PaginationProp<TPageParam> | undefined
+	prev?: PaginationProp<TPageParam>['init']
+}
+
+export function getPropInitialPage<
+	TPageParam,
+>(
+	{
+		prop,
+		prev,
+	}: GetPropInitialPageProps<TPageParam>,
+): PaginationProp<TPageParam>['init'] {
+	return getSubValue({
+		path: 'init',
 		prop,
 		prev,
 	})
@@ -237,17 +266,21 @@ export function getPropSortersMode(
 	})
 }
 
-export interface GetResourceCurrentPageProps {
+export interface GetResourceCurrentPageProps<
+	TPageParam,
+> {
 	prop: ResolvedResource | undefined
-	prev?: Pagination['current']
+	prev?: Pagination<TPageParam>['current']
 }
 
-export function getResourceCurrentPage(
+export function getResourceCurrentPage<
+	TPageParam,
+>(
 	{
 		prop,
 		prev,
-	}: GetResourceCurrentPageProps,
-): number | undefined {
+	}: GetResourceCurrentPageProps<TPageParam>,
+): TPageParam | undefined {
 	return getSubValue({
 		path: 'params.pagination.current',
 		prop,
@@ -257,7 +290,7 @@ export function getResourceCurrentPage(
 
 export interface GetResourcePerPageProps {
 	prop: ResolvedResource | undefined
-	prev?: Pagination<number>['perPage']
+	prev?: Pagination<unknown>['perPage']
 }
 
 export function getResourcePerPage(
@@ -309,43 +342,74 @@ export function getResourceSorters(
 	})
 }
 
-export interface GetCurrentPageProps {
-	currentPageFromProp: PaginationProp['current'] | undefined
-	currentPageFromResource: PaginationProp['current'] | undefined
+export interface GetInitialPageProps<
+	TPageParam,
+> {
+	initalPageFromProp: PaginationProp<TPageParam>['init']
+}
+
+export function getInitialPage<
+	TPageParam,
+>(
+	{
+		initalPageFromProp,
+	}: GetInitialPageProps<TPageParam>,
+) {
+	return initalPageFromProp
+		?? 1 as TPageParam
+}
+
+export interface GetCurrentPageProps<
+	TPageParam,
+> {
+	initalPageFromProp: TPageParam | undefined
+	currentPageFromProp: PaginationProp<TPageParam>['current'] | undefined
+	currentPageFromResource: PaginationProp<TPageParam>['current'] | undefined
 	syncRouteFromProp: boolean | undefined
 }
 
-export function getCurrentPage(
+export function getCurrentPage<
+	TPageParam,
+>(
 	{
+		initalPageFromProp,
 		currentPageFromProp,
 		currentPageFromResource,
 		syncRouteFromProp,
-	}: GetCurrentPageProps,
-): Pagination<number>['current'] {
+	}: GetCurrentPageProps<TPageParam>,
+): Pagination<TPageParam>['current'] {
 	if (syncRouteFromProp) {
 		return currentPageFromResource
 			?? currentPageFromProp
-			?? 1
+			?? getInitialPage({
+				initalPageFromProp,
+			})
 	}
 	else {
 		return currentPageFromProp
-			?? 1
+			?? getInitialPage({
+				initalPageFromProp,
+			})
 	}
 }
 
-export interface GetPerPageProps {
-	perPageFromProp: PaginationProp['perPage'] | undefined
-	perPageFromResource: PaginationProp['perPage'] | undefined
+export interface GetPerPageProps<
+	TPageParam,
+> {
+	perPageFromProp: PaginationProp<TPageParam>['perPage'] | undefined
+	perPageFromResource: PaginationProp<TPageParam>['perPage'] | undefined
 	syncRouteFromProp: boolean | undefined
 }
 
-export function getPerPage(
+export function getPerPage<
+	TPageParam,
+>(
 	{
 		perPageFromProp,
 		perPageFromResource,
 		syncRouteFromProp,
-	}: GetPerPageProps,
-): Pagination<number>['perPage'] {
+	}: GetPerPageProps<TPageParam>,
+): Pagination<TPageParam>['perPage'] {
 	if (syncRouteFromProp) {
 		return perPageFromResource
 			?? perPageFromProp
@@ -505,19 +569,23 @@ export function createSetSortersFn(
 	}
 }
 
-export interface GetPaginationForQueryProps {
-	paginationModeFromProp: PaginationProp['mode']
-	currentPage: number
+export interface GetPaginationForQueryProps<
+	TPageParam,
+> {
+	paginationModeFromProp: PaginationProp<TPageParam>['mode']
+	currentPage: TPageParam
 	perPage: number
 }
 
-export function getPaginationForQuery(
+export function getPaginationForQuery<
+	TPageParam,
+>(
 	{
 		paginationModeFromProp,
 		currentPage,
 		perPage,
-	}: GetPaginationForQueryProps,
-): Pagination<number> | undefined {
+	}: GetPaginationForQueryProps<TPageParam>,
+): Pagination<TPageParam> | undefined {
 	switch (paginationModeFromProp) {
 		case undefined:
 		case 'server':
@@ -566,18 +634,20 @@ export function getFiltersForQuery(
 
 export interface GetPageCountProps<
 	TResultData extends BaseRecord,
+	TPageParam,
 > {
 	perPage: number
-	queryData: GetListResult<TResultData, number> | undefined
+	queryData: GetListResult<TResultData, TPageParam> | undefined
 }
 
 export function getPageCount<
 	TResultData extends BaseRecord,
+	TPageParam,
 >(
 	{
 		perPage,
 		queryData,
-	}: GetPageCountProps<TResultData>,
+	}: GetPageCountProps<TResultData, TPageParam>,
 ): number | undefined {
 	if (queryData?.total == null)
 		return
@@ -686,23 +756,25 @@ export function resolveSorters(
 
 export interface GetRecordsProps<
 	TResultData extends BaseRecord,
+	TPageParam,
 > {
-	paginationModeFromProp: PaginationProp['mode']
-	currentPage: number | undefined
+	paginationModeFromProp: PaginationProp<TPageParam>['mode']
+	currentPage: TPageParam | undefined
 	perPage: number | undefined
-	queryData: GetListResult<TResultData, number> | undefined
+	queryData: GetListResult<TResultData, TPageParam> | undefined
 }
 
 export function getRecords<
 	TResultData extends BaseRecord,
+	TPageParam,
 >(
 	{
 		paginationModeFromProp,
 		currentPage,
 		perPage,
 		queryData,
-	}: GetRecordsProps<TResultData>,
-): GetListResult<TResultData, number>['data'] | undefined {
+	}: GetRecordsProps<TResultData, TPageParam>,
+): GetListResult<TResultData, TPageParam>['data'] | undefined {
 	if (
 		paginationModeFromProp !== 'client'
 		|| currentPage == null
@@ -712,23 +784,25 @@ export function getRecords<
 	}
 
 	return queryData?.data.slice(
-		(currentPage - 1) * perPage,
-		currentPage * perPage,
+		(currentPage as unknown as number - 1) * perPage,
+		currentPage as unknown as number * perPage,
 	)
 }
 
 export interface GetTotalProps<
 	TResultData extends BaseRecord,
+	TPageParam,
 > {
-	queryData: GetListResult<TResultData, number> | undefined
+	queryData: GetListResult<TResultData, TPageParam> | undefined
 }
 
 export function getTotal<
 	TResultData extends BaseRecord,
+	TPageParam,
 >(
 	{
 		queryData,
-	}: GetTotalProps<TResultData>,
+	}: GetTotalProps<TResultData, TPageParam>,
 ): number | undefined {
 	return queryData?.total
 }
