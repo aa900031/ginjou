@@ -1,5 +1,5 @@
 export * from './form'
+export * from './infinite-list'
 export * from './list'
 export * from './select'
 export * from './show'
-export * from './infinite-list'
