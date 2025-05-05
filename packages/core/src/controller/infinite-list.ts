@@ -1,7 +1,7 @@
 import type { InfiniteData } from '@tanstack/query-core'
 import type { Simplify } from 'type-fest'
 import type { BaseRecord, GetInfiniteList, GetInfiniteListResult, Pagination } from '../query'
-import type { FiltersProp as _FiltersProp, SortersProp as _SortersProp } from './list'
+import type { FiltersProp, SortersProp } from './list'
 
 export type PaginationProp<
 	TPageParam,
@@ -26,8 +26,8 @@ export type Props<
 	>
 	& {
 		pagination?: PaginationProp<TPageParam>
-		sorters?: _SortersProp
-		filters?: _FiltersProp
+		sorters?: SortersProp
+		filters?: FiltersProp
 		syncRoute?: boolean
 	}
 >
@@ -57,8 +57,8 @@ export interface GetPageCountProps<
 	TResultData extends BaseRecord,
 	TPageParam,
 > {
-	perPage: number
 	queryData: InfiniteData<GetInfiniteListResult<TResultData, TPageParam>> | undefined
+	perPage: number
 }
 
 export function getPageCount<
@@ -66,8 +66,8 @@ export function getPageCount<
 	TPageParam,
 >(
 	{
-		perPage,
 		queryData,
+		perPage,
 	}: GetPageCountProps<TResultData, TPageParam>,
 ): number | undefined {
 	const last = lastPage(queryData)
