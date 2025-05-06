@@ -1,7 +1,10 @@
 import type { InfiniteData } from '@tanstack/query-core'
 import type { Simplify } from 'type-fest'
-import type { BaseRecord, GetInfiniteList, GetInfiniteListResult, Pagination } from '../query'
+import type { BaseRecord, Filters, GetInfiniteList, GetInfiniteListResult, Pagination, Sorters } from '../query'
+import type { RouterGoParams } from '../router'
 import type { FiltersProp, SortersProp } from './list'
+import { isEqual } from 'lodash-unified'
+import { RouterGoType } from '../router'
 
 export type PaginationProp<
 	TPageParam,
@@ -96,6 +99,53 @@ export function getTotal<
 ): number | undefined {
 	const last = lastPage(queryData)
 	return last?.total
+}
+
+export interface ToRouterGoParamsProps {
+	syncRouteFromProp: boolean | undefined
+
+	perPageResource: number | undefined
+	sortersResource: Sorters | undefined
+	filtersResource: Filters | undefined
+
+	perPage: number
+	sorters: Sorters
+	filters: Filters
+}
+
+export function toRouterGoParams(
+	{
+		syncRouteFromProp,
+
+		perPageResource,
+		sortersResource,
+		filtersResource,
+
+		perPage,
+		sorters,
+		filters,
+	}: ToRouterGoParamsProps,
+): RouterGoParams | false {
+	if (!syncRouteFromProp)
+		return false
+
+	if ([
+		[perPageResource, perPage],
+		[sortersResource, sorters],
+		[filtersResource, filters],
+	].every(([a, b]) => isEqual(a, b))) {
+		return false
+	}
+
+	return {
+		type: RouterGoType.Replace,
+		keepQuery: true,
+		query: {
+			perPage,
+			sorters: JSON.stringify(sorters),
+			filters: JSON.stringify(filters),
+		},
+	}
 }
 
 function lastPage<

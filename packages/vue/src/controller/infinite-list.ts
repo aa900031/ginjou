@@ -208,17 +208,15 @@ export function useInfiniteList<
 	watchDebounced(() => ({
 		syncRouteFromProp: unref(props?.syncRoute),
 
-		currentPageResource: unref(currentPageResource),
 		perPageResource: unref(perPageResource),
 		sortersResource: unref(sortersResource),
 		filtersResource: unref(filtersResource),
 
-		currentPage: unref(currentPage),
 		perPage: unref(perPage),
 		sorters: unref(_sorters),
 		filters: unref(_filters),
 	}), (val) => {
-		const params = List.toRouterGoParams(val)
+		const params = InfiniteList.toRouterGoParams(val)
 		if (params)
 			go(params)
 	}, {
@@ -229,8 +227,8 @@ export function useInfiniteList<
 
 	watch(() => ({
 		perPage: unref(perPage),
-		_filters: unref(_filters),
-		_sorters: unref(_sorters),
+		filters: unref(_filters),
+		sorters: unref(_sorters),
 	}), () => {
 		currentPage.value = List.getInitialPage({
 			initalPageFromProp: unref(initalPageProp),
