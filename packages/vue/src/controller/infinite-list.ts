@@ -1,40 +1,42 @@
 import type { BaseRecord, Filters, Sorters } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
 import type { Ref } from 'vue-demi'
-import type { UseGetListContext, UseGetListResult } from '../query'
+import type { UseGetInfiniteListContext, UseGetInfiniteListResult } from '../query'
 import type { UseResourceContext } from '../resource'
 import type { UseGoContext } from '../router'
 import type { ToMaybeRefs } from '../utils/refs'
-import { getFetcherName, getResourceIdentifier, List } from '@ginjou/core'
+import { getFetcherName, getResourceIdentifier, InfiniteList, List } from '@ginjou/core'
 import { watchDebounced } from '@vueuse/shared'
 import { computed, unref, watch } from 'vue-demi'
-import { useGetList } from '../query'
+import { useGetInfiniteList } from '../query'
 import { useResource } from '../resource'
 import { useGo } from '../router'
 import { refFallback } from '../utils/ref-fallback'
 import { refSub } from '../utils/ref-sub'
 
-export type UseListProps<
+export type UseInfiniteListProps<
 	TData extends BaseRecord,
 	TError,
 	TResultData extends BaseRecord,
+	TPageParam,
 > = ToMaybeRefs<
-	List.Props<TData, TError, TResultData, number>
+	InfiniteList.Props<TData, TError, TResultData, TPageParam>
 >
 
-export type UseListContext = Simplify<
-	& UseGetListContext
+export type UseInfiniteListContext = Simplify<
+	& UseGetInfiniteListContext
 	& UseResourceContext
 	& UseGoContext
 >
 
-export type UseListResult<
+export type UseInfiniteListResult<
 	TError,
 	TResultData extends BaseRecord,
+	TPageParam,
 > = Simplify<
-	& UseGetListResult<TError, TResultData, number>
+	& UseGetInfiniteListResult<TError, TResultData, TPageParam>
 	& {
-		currentPage: Ref<number>
+		currentPage: Ref<TPageParam>
 		perPage: Ref<number>
 		sorters: Ref<Sorters>
 		setSorters: List.SetSortersFn
@@ -46,32 +48,29 @@ export type UseListResult<
 	}
 >
 
-export function useList<
+export function useInfiniteList<
 	TData extends BaseRecord = BaseRecord,
 	TError = unknown,
 	TResultData extends BaseRecord = TData,
+	TPageParam = number,
 >(
-	props?: UseListProps<TData, TError, TResultData>,
-	context?: UseListContext,
-): UseListResult<TError, TResultData> {
+	props?: UseInfiniteListProps<TData, TError, TResultData, TPageParam>,
+	context?: UseInfiniteListContext,
+): UseInfiniteListResult<TError, TResultData, TPageParam> {
 	const go = useGo(context)
 	const resource = useResource({ name: props?.resource }, context)
 
-	const initalPageProp = refSub<number, any>(
+	const initalPageProp = refSub<TPageParam, any>(
 		props?.pagination,
 		List.getPropInitialPage,
 	)
-	const currentPageProp = refSub<number, any>(
+	const currentPageProp = refSub<TPageParam, any>(
 		props?.pagination,
 		List.getPropCurrentPage,
 	)
 	const perPageProp = refSub(
 		props?.pagination,
 		List.getPropPerPage,
-	)
-	const paginationModeProp = refSub(
-		props?.pagination,
-		List.getPropPaginationMode,
 	)
 	const filtersProp = refSub(
 		props?.filters,
@@ -102,7 +101,7 @@ export function useList<
 		List.getPropSortersMode,
 	)
 
-	const currentPageResource = refSub<number, any>(
+	const currentPageResource = refSub<TPageParam, any>(
 		resource,
 		List.getResourceCurrentPage,
 	)
@@ -128,7 +127,7 @@ export function useList<
 		fetcherNameFromProp: unref(props?.fetcherName),
 	}))
 
-	const currentPage = refFallback<number, any>(
+	const currentPage = refFallback<TPageParam, List.GetCurrentPageProps<TPageParam>>(
 		() => ({
 			initalPageFromProp: unref(initalPageProp),
 			currentPageFromProp: unref(currentPageProp),
@@ -175,8 +174,7 @@ export function useList<
 		update: value => _sorters.value = value,
 	})
 
-	const paginationForQuery = computed(() => List.getPaginationForQuery({
-		paginationModeFromProp: unref(paginationModeProp),
+	const paginationForQuery = computed(() => InfiniteList.getPaginationForQuery({
 		currentPage: unref(currentPage),
 		perPage: unref(perPage),
 	}))
@@ -189,7 +187,7 @@ export function useList<
 		filters: unref(_filters),
 	}))
 
-	const listResult = useGetList<TData, TError, TResultData>({
+	const listResult = useGetInfiniteList<TData, TError, TResultData, TPageParam>({
 		...props,
 		resource: resourceName,
 		fetcherName,
@@ -198,36 +196,27 @@ export function useList<
 		filters: filtersForQuery,
 	}, context)
 
-	const pageCount = computed(() => List.getPageCount({
+	const pageCount = computed(() => InfiniteList.getPageCount({
 		queryData: unref(listResult.data),
 		perPage: unref(perPage),
 	}))
 
-	const records = computed(() => List.getRecords({
-		paginationModeFromProp: unref(paginationModeProp),
-		currentPage: unref(currentPage),
-		perPage: unref(perPage),
-		queryData: unref(listResult.data),
-	}))
-
-	const total = computed(() => List.getTotal({
+	const total = computed(() => InfiniteList.getTotal({
 		queryData: unref(listResult.data),
 	}))
 
 	watchDebounced(() => ({
 		syncRouteFromProp: unref(props?.syncRoute),
 
-		currentPageResource: unref(currentPageResource),
 		perPageResource: unref(perPageResource),
 		sortersResource: unref(sortersResource),
 		filtersResource: unref(filtersResource),
 
-		currentPage: unref(currentPage),
 		perPage: unref(perPage),
 		sorters: unref(_sorters),
 		filters: unref(_filters),
 	}), (val) => {
-		const params = List.toRouterGoParams(val)
+		const params = InfiniteList.toRouterGoParams(val)
 		if (params)
 			go(params)
 	}, {
@@ -238,8 +227,8 @@ export function useList<
 
 	watch(() => ({
 		perPage: unref(perPage),
-		_filters: unref(_filters),
-		_sorters: unref(_sorters),
+		filters: unref(_filters),
+		sorters: unref(_sorters),
 	}), () => {
 		currentPage.value = List.getInitialPage({
 			initalPageFromProp: unref(initalPageProp),
@@ -263,8 +252,6 @@ export function useList<
 			set: val => setFilters(val, List.SetFilterBehavior.Replace),
 		}),
 		setFilters,
-
-		records,
 		total,
 		pageCount,
 	}

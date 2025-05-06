@@ -21,6 +21,7 @@ const composables = [
 	'useGetOne',
 	'useGo',
 	'useI18nContext',
+	'useInfiniteList',
 	'useList',
 	'useLocale',
 	'useLocation',

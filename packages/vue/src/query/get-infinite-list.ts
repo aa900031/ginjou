@@ -1,6 +1,7 @@
 import type { BaseRecord, GetInfiniteListResult } from '@ginjou/core'
 import type { InfiniteData, UseInfiniteQueryReturnType } from '@tanstack/vue-query'
 import type { Simplify } from 'type-fest'
+import type { Ref } from 'vue-demi'
 import type { UseCheckErrorContext } from '../auth'
 import type { UseTranslateContext } from '../i18n'
 import type { UseNotifyContext } from '../notification'
@@ -44,9 +45,12 @@ export type UseGetInfiniteListResult<
 	TPageParam,
 > = Simplify<
 	& UseInfiniteQueryReturnType<
-		InfiniteData<GetInfiniteListResult<TResultData, TPageParam>>,
+		InfiniteData<GetInfiniteListResult<TResultData, TPageParam>, TPageParam>,
 		TError
 	>
+	& {
+		records: Ref<TResultData[][] | undefined>
+	}
 >
 
 export function useGetInfiniteList<
@@ -100,9 +104,7 @@ export function useGetInfiniteList<
 		emitParent: (...args) => unref(props.queryOptions)?.onError?.(...args),
 	})
 
-	const query = useInfiniteQuery<GetInfiniteListResult<TData, TPageParam>, TError, InfiniteData<GetInfiniteListResult<TResultData, TPageParam>>, any, TPageParam>(
-		// eslint-disable-next-line ts/ban-ts-comment
-		// @ts-expect-error
+	const query = useInfiniteQuery<GetInfiniteListResult<TData, TPageParam>, TError, InfiniteData<GetInfiniteListResult<TResultData, TPageParam>, TPageParam>, any, TPageParam>(
 		computed(() => ({
 			initialPageParam: GetInfiniteList.getInitialPageParam({
 				props: unref(queryProps),
@@ -118,7 +120,11 @@ export function useGetInfiniteList<
 		queryClient,
 	)
 
-	useQueryCallbacks<InfiniteData<GetInfiniteListResult<TResultData, TPageParam>>, TError>({
+	const records = computed(() => GetInfiniteList.getRecords({
+		data: unref(query.data),
+	}))
+
+	useQueryCallbacks<InfiniteData<GetInfiniteListResult<TResultData, TPageParam>, TPageParam>, TError>({
 		queryKey,
 		onSuccess: handleSuccess,
 		onError: handleError,
@@ -145,5 +151,8 @@ export function useGetInfiniteList<
 		enabled: isEnabled,
 	}, context)
 
-	return query
+	return {
+		...query,
+		records,
+	}
 }

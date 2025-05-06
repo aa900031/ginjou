@@ -35,6 +35,10 @@ const composables = [
 		from: './runtime/composables/select',
 		name: 'useAsyncSelect',
 	},
+	{
+		from: './runtime/composables/infinite-list',
+		name: 'useAsyncInfiniteList',
+	},
 ] as const
 
 export default function (
