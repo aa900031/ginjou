@@ -41,7 +41,7 @@
 		"@storybook/theming": "^8.6.12",
 		"@storybook/vue3": "^8.6.12",
 		"@storybook/vue3-vite": "^8.6.12",
-		"@tanstack/vue-query": "^5.74.9",
+		"@tanstack/vue-query": "^5.75.1",
 		"@vitejs/plugin-vue": "^5.2.3",
 		"msw": "^2.7.5",
 		"msw-storybook-addon": "2.0.4",
