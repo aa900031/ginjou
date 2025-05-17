@@ -1,4 +1,4 @@
-import type { InfiniteData, InfiniteQueryObserverOptions, QueryClient, QueryFunctionContext, QueryKey } from '@tanstack/query-core'
+import type { InfiniteData, InfiniteQueryObserverOptions, PlaceholderDataFunction, QueryClient, QueryFunctionContext, QueryKey } from '@tanstack/query-core'
 import type { QueryCallbacks } from 'tanstack-query-callbacks'
 import type { SetOptional, SetRequired, Simplify } from 'type-fest'
 import type { CheckError } from '../auth'
@@ -292,6 +292,16 @@ export function getRecords<
 	}: GetRecordsProps<TResultData, TPageParam>,
 ): TResultData[][] | undefined {
 	return data?.pages.map(page => page.data)
+}
+
+export function createPlacholerDataFn<
+	TData extends BaseRecord,
+	TError,
+	TResultData extends BaseRecord,
+>(): PlaceholderDataFunction<GetInfiniteListResult<TData>, TError, GetInfiniteListResult<TResultData>> {
+	return function placeholderDataFn(previousData) {
+		return previousData
+	}
 }
 
 function resolvePagination<

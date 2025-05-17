@@ -103,6 +103,7 @@ export function useGetInfiniteList<
 		getErrorNotify: () => unref(props.errorNotify),
 		emitParent: (...args) => unref(props.queryOptions)?.onError?.(...args),
 	})
+	const placeholderData = GetInfiniteList.createPlacholerDataFn<TData, TError, TResultData>()
 
 	const query = useInfiniteQuery<GetInfiniteListResult<TData, TPageParam>, TError, InfiniteData<GetInfiniteListResult<TResultData, TPageParam>, TPageParam>, any, TPageParam>(
 		computed(() => ({
@@ -116,6 +117,7 @@ export function useGetInfiniteList<
 			queryKey,
 			queryFn,
 			enabled: isEnabled,
+			placeholderData,
 		})),
 		queryClient,
 	)
