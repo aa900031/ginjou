@@ -245,6 +245,11 @@ export function useList<
 		sortersResource: unref(sortersResource),
 		filtersResource: unref(filtersResource),
 
+		currentPageLocation: unref(currentPageLocation),
+		perPageLocation: unref(perPageLocation),
+		filtersLocation: unref(filtersLocation),
+		sortersLocation: unref(sortersLocation),
+
 		currentPage: unref(currentPage),
 		perPage: unref(perPage),
 		sorters: unref(_sorters),

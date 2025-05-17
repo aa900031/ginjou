@@ -358,7 +358,7 @@ export function getLocationCurrentPage<
 	if (syncRouteFromProp !== true)
 		return
 
-	const current = location?.query?.current
+	const current = location?.query?.current;
 	if (typeof current !== 'string')
 		return
 
@@ -765,6 +765,11 @@ export interface ToRouterGoParamsProps<
 	sortersResource: Sorters | undefined
 	filtersResource: Filters | undefined
 
+	currentPageLocation: TPageParam | undefined
+	perPageLocation: number | undefined
+	sortersLocation: Sorters | undefined
+	filtersLocation: Filters | undefined
+
 	currentPage: TPageParam
 	perPage: number
 	sorters: Sorters
@@ -782,6 +787,11 @@ export function toRouterGoParams<
 		sortersResource,
 		filtersResource,
 
+		currentPageLocation,
+		perPageLocation,
+		filtersLocation,
+		sortersLocation,
+
 		currentPage,
 		perPage,
 		sorters,
@@ -792,10 +802,10 @@ export function toRouterGoParams<
 		return false
 
 	if ([
-		[currentPageResource, currentPage],
-		[perPageResource, perPage],
-		[sortersResource, sorters],
-		[filtersResource, filters],
+		[currentPageResource ?? currentPageLocation, currentPage],
+		[perPageResource ?? perPageLocation, perPage],
+		[sortersResource ?? filtersLocation, sorters],
+		[filtersResource ?? sortersLocation, filters],
 	].every(([a, b]) => isEqual(a, b))) {
 		return false
 	}
