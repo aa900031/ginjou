@@ -26,7 +26,7 @@ export type QueryOptions<
 			InfiniteQueryObserverOptions<
 				GetInfiniteListResult<TData, TPageParam>,
 				TError,
-				InfiniteData<GetInfiniteListResult<TResultData, TPageParam>>,
+				InfiniteData<GetInfiniteListResult<TResultData, TPageParam>, TPageParam>,
 				GetInfiniteListResult<TData, TPageParam>,
 				QueryKey,
 				TPageParam
@@ -37,7 +37,7 @@ export type QueryOptions<
 		| 'enabled'
 	>
 	& QueryCallbacks<
-		InfiniteData<GetInfiniteListResult<TResultData, TPageParam>>,
+		InfiniteData<GetInfiniteListResult<TResultData, TPageParam>, TPageParam>,
 		TError
 	>
 	& {
@@ -274,6 +274,24 @@ export function createErrorHandler<
 			},
 		)
 	}
+}
+
+export interface GetRecordsProps<
+	TResultData extends BaseRecord,
+	TPageParam,
+> {
+	data: InfiniteData<GetInfiniteListResult<TResultData, TPageParam>, TPageParam> | undefined
+}
+
+export function getRecords<
+	TResultData extends BaseRecord,
+	TPageParam,
+>(
+	{
+		data,
+	}: GetRecordsProps<TResultData, TPageParam>,
+): TResultData[][] | undefined {
+	return data?.pages.map(page => page.data)
 }
 
 function resolvePagination<
