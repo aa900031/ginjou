@@ -1,4 +1,4 @@
-import type { QueryKey, QueryObserverOptions } from '@tanstack/query-core'
+import type { PlaceholderDataFunction, QueryKey, QueryObserverOptions } from '@tanstack/query-core'
 import type { QueryCallbacks } from 'tanstack-query-callbacks'
 import type { SetOptional, Simplify } from 'type-fest'
 import type { CheckError } from '../auth'
@@ -234,5 +234,15 @@ export function getSubscribeParams(
 		id: queryProps.id,
 		meta: queryProps.meta,
 		...realtimeOptions.params,
+	}
+}
+
+export function createPlacholerDataFn<
+	TData extends BaseRecord,
+	TError,
+	TResultData extends BaseRecord,
+>(): PlaceholderDataFunction<GetOneResult<TData>, TError, GetOneResult<TResultData>> {
+	return function placeholderDataFn(previousData) {
+		return previousData
 	}
 }
