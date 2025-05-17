@@ -3,14 +3,14 @@ import type { Simplify } from 'type-fest'
 import type { Ref } from 'vue-demi'
 import type { UseGetInfiniteListContext, UseGetInfiniteListResult } from '../query'
 import type { UseResourceContext } from '../resource'
-import type { UseGoContext } from '../router'
+import type { UseGoContext, UseLocationContext } from '../router'
 import type { ToMaybeRefs } from '../utils/refs'
 import { getFetcherName, getResourceIdentifier, InfiniteList, List } from '@ginjou/core'
 import { watchDebounced } from '@vueuse/shared'
 import { computed, unref, watch } from 'vue-demi'
 import { useGetInfiniteList } from '../query'
 import { useResource } from '../resource'
-import { useGo } from '../router'
+import { useGo, useLocation } from '../router'
 import { refFallback } from '../utils/ref-fallback'
 import { refSub } from '../utils/ref-sub'
 
@@ -27,6 +27,7 @@ export type UseInfiniteListContext = Simplify<
 	& UseGetInfiniteListContext
 	& UseResourceContext
 	& UseGoContext
+	& UseLocationContext
 >
 
 export type UseInfiniteListResult<
@@ -59,6 +60,7 @@ export function useInfiniteList<
 ): UseInfiniteListResult<TError, TResultData, TPageParam> {
 	const go = useGo(context)
 	const resource = useResource({ name: props?.resource }, context)
+	const location = useLocation(context)
 
 	const initalPageProp = refSub<TPageParam, any>(
 		props?.pagination,
@@ -118,6 +120,23 @@ export function useInfiniteList<
 		List.getResourceSorters,
 	)
 
+	const currentPageLocation = computed<TPageParam | undefined>(() => List.getLocationCurrentPage({
+		location: unref(location),
+		syncRouteFromProp: unref(props?.syncRoute),
+	}))
+	const perPageLocation = computed(() => List.getLocationPerPage({
+		location: unref(location),
+		syncRouteFromProp: unref(props?.syncRoute),
+	}))
+	const filtersLocation = computed(() => List.getLocationFilters({
+		location: unref(location),
+		syncRouteFromProp: unref(props?.syncRoute),
+	}))
+	const sortersLocation = computed(() => List.getLocationSorters({
+		location: unref(location),
+		syncRouteFromProp: unref(props?.syncRoute),
+	}))
+
 	const resourceName = computed(() => getResourceIdentifier({
 		resource: unref(resource),
 		resourceFromProp: unref(props?.resource),
@@ -132,6 +151,7 @@ export function useInfiniteList<
 			initalPageFromProp: unref(initalPageProp),
 			currentPageFromProp: unref(currentPageProp),
 			currentPageFromResource: unref(currentPageResource),
+			currentPageFromLocation: unref(currentPageLocation),
 			syncRouteFromProp: unref(props?.syncRoute),
 		}),
 		List.getCurrentPage,
@@ -140,6 +160,7 @@ export function useInfiniteList<
 		() => ({
 			perPageFromProp: unref(perPageProp),
 			perPageFromResource: unref(perPageResource),
+			perPageFromLocation: unref(perPageLocation),
 			syncRouteFromProp: unref(props?.syncRoute),
 		}),
 		List.getPerPage,
@@ -147,6 +168,7 @@ export function useInfiniteList<
 	const _filters = refFallback(
 		() => ({
 			filtersFromResource: unref(filtersResource),
+			filtersFromLocation: unref(filtersLocation),
 			filtersFromProp: unref(filtersProp),
 			filtersPermanentFromProp: unref(filtersPermanentProp),
 			syncRouteFromProp: unref(props?.syncRoute),
@@ -162,6 +184,7 @@ export function useInfiniteList<
 	const _sorters = refFallback(
 		() => ({
 			sortersFromResource: unref(sortersResource),
+			sortersFromLocation: unref(sortersLocation),
 			sortersFromProp: unref(sortersProp),
 			sortersPermanentFromProp: unref(sortersPermanentProp),
 			syncRouteFromProp: unref(props?.syncRoute),

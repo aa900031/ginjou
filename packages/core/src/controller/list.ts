@@ -1,7 +1,7 @@
 import type { Simplify, ValueOf } from 'type-fest'
 import type { BaseRecord, Filter, Filters, GetList, GetListResult, Pagination, Sort, Sorters } from '../query'
 import type { ResolvedResource } from '../resource'
-import type { RouterGoParams } from '../router'
+import type { RouterGoParams, RouterLocation } from '../router'
 import { isEqual, unionWith } from 'lodash-unified'
 import { FilterOperator } from '../query'
 import { RouterGoType } from '../router'
@@ -342,6 +342,94 @@ export function getResourceSorters(
 	})
 }
 
+export interface GetLocationCurrentPageProps {
+	location: RouterLocation | undefined
+	syncRouteFromProp: boolean | undefined
+}
+
+export function getLocationCurrentPage<
+	TPageParam,
+>(
+	{
+		location,
+		syncRouteFromProp,
+	}: GetLocationCurrentPageProps,
+): TPageParam | undefined {
+	if (syncRouteFromProp !== true)
+		return
+
+	const current = location?.query?.current
+	if (typeof current !== 'string')
+		return
+
+	return Number.isNaN(current)
+		? current as TPageParam
+		: +current as TPageParam
+}
+
+export interface GetLocationPerPageProps {
+	location: RouterLocation | undefined
+	syncRouteFromProp: boolean | undefined
+}
+
+export function getLocationPerPage(
+	{
+		location,
+		syncRouteFromProp,
+	}: GetLocationPerPageProps,
+): number | undefined {
+	if (syncRouteFromProp !== true)
+		return
+
+	const perPage = location?.query?.perPage
+	if (typeof perPage !== 'string' || Number.isNaN(+perPage))
+		return
+
+	return +perPage
+}
+
+export interface GetLocationFiltersProps {
+	location: RouterLocation | undefined
+	syncRouteFromProp: boolean | undefined
+}
+
+export function getLocationFilters(
+	{
+		location,
+		syncRouteFromProp,
+	}: GetLocationFiltersProps,
+): Filters | undefined {
+	if (syncRouteFromProp !== true)
+		return
+
+	const filters = location?.query?.filters
+	if (typeof filters !== 'string')
+		return
+
+	return JSON.parse(filters)
+}
+
+export interface GetLocationSortersProps {
+	location: RouterLocation | undefined
+	syncRouteFromProp: boolean | undefined
+}
+
+export function getLocationSorters(
+	{
+		location,
+		syncRouteFromProp,
+	}: GetLocationSortersProps,
+): Sorters | undefined {
+	if (syncRouteFromProp !== true)
+		return
+
+	const sorters = location?.query?.sorters
+	if (typeof sorters !== 'string')
+		return
+
+	return JSON.parse(sorters)
+}
+
 export interface GetInitialPageProps<
 	TPageParam,
 > {
@@ -365,6 +453,7 @@ export interface GetCurrentPageProps<
 	initalPageFromProp: TPageParam | undefined
 	currentPageFromProp: PaginationProp<TPageParam>['current'] | undefined
 	currentPageFromResource: PaginationProp<TPageParam>['current'] | undefined
+	currentPageFromLocation: PaginationProp<TPageParam>['current'] | undefined
 	syncRouteFromProp: boolean | undefined
 }
 
@@ -375,11 +464,13 @@ export function getCurrentPage<
 		initalPageFromProp,
 		currentPageFromProp,
 		currentPageFromResource,
+		currentPageFromLocation,
 		syncRouteFromProp,
 	}: GetCurrentPageProps<TPageParam>,
 ): Pagination<TPageParam>['current'] {
 	if (syncRouteFromProp) {
 		return currentPageFromResource
+			?? currentPageFromLocation
 			?? currentPageFromProp
 			?? getInitialPage({
 				initalPageFromProp,
@@ -398,6 +489,7 @@ export interface GetPerPageProps<
 > {
 	perPageFromProp: PaginationProp<TPageParam>['perPage'] | undefined
 	perPageFromResource: PaginationProp<TPageParam>['perPage'] | undefined
+	perPageFromLocation: PaginationProp<TPageParam>['perPage'] | undefined
 	syncRouteFromProp: boolean | undefined
 }
 
@@ -407,11 +499,13 @@ export function getPerPage<
 	{
 		perPageFromProp,
 		perPageFromResource,
+		perPageFromLocation,
 		syncRouteFromProp,
 	}: GetPerPageProps<TPageParam>,
 ): Pagination<TPageParam>['perPage'] {
 	if (syncRouteFromProp) {
 		return perPageFromResource
+			?? perPageFromLocation
 			?? perPageFromProp
 			?? 10
 	}
@@ -423,6 +517,7 @@ export function getPerPage<
 
 export interface GetFiltersProps {
 	filtersFromResource: Filters | undefined
+	filtersFromLocation: Filters | undefined
 	filtersFromProp: Filters | undefined
 	filtersPermanentFromProp: FiltersOptions['permanent'] | undefined
 	syncRouteFromProp: boolean | undefined
@@ -433,13 +528,14 @@ const DEFAULT_FILTERS: Filters = []
 export function getFilters(
 	{
 		filtersFromResource,
+		filtersFromLocation,
 		filtersFromProp,
 		filtersPermanentFromProp,
 		syncRouteFromProp,
 	}: GetFiltersProps,
 ): Filters {
 	const value = syncRouteFromProp
-		? filtersFromResource ?? filtersFromProp
+		? filtersFromResource ?? filtersFromLocation ?? filtersFromProp
 		: filtersFromProp
 
 	return resolveFilters(
@@ -512,6 +608,7 @@ export function createSetFiltersFn(
 
 export interface GetSortersProps {
 	sortersFromResource: Sorters | undefined
+	sortersFromLocation: Sorters | undefined
 	sortersFromProp: Sorters | undefined
 	sortersPermanentFromProp: SortersOptions['permanent']
 	syncRouteFromProp: boolean | undefined
@@ -522,13 +619,14 @@ const DEFAULT_SORTERS: Sorters = []
 export function getSorters(
 	{
 		sortersFromResource,
+		sortersFromLocation,
 		sortersFromProp,
 		sortersPermanentFromProp,
 		syncRouteFromProp,
 	}: GetSortersProps,
 ): Sorters {
 	const initial = syncRouteFromProp
-		? sortersFromResource ?? sortersFromProp
+		? sortersFromResource ?? sortersFromLocation ?? sortersFromProp
 		: sortersFromProp
 
 	return resolveSorters(
