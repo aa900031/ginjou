@@ -2,7 +2,7 @@ import type { RouterLocation } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
 import type { Ref } from 'vue-demi'
 import type { UseRouterContextFromProps } from './context'
-import { ref } from 'vue-demi'
+import { shallowRef } from 'vue-demi'
 import { useRouterContext } from './context'
 
 export type UseLocationContext = Simplify<
@@ -23,7 +23,7 @@ export function useLocation<
 ): UseLocationResult<TMeta> {
 	const router = useRouterContext<unknown, TMeta>(context)
 
-	const result = ref(router?.getLocation()) as Ref<RouterLocation<TMeta> | undefined>
+	const result = shallowRef(router?.getLocation()) as Ref<RouterLocation<TMeta> | undefined>
 	router?.onChangeLocation((location) => {
 		result.value = location
 	})

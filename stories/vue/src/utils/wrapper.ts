@@ -59,7 +59,7 @@ export function createWrapper(
 						defineFetchers((typeof value === 'function' ? value() : value) as any)
 						break
 					case 'resources':
-						defineResourceContext({
+						value && defineResourceContext({
 							resources: value as any,
 						})
 						break
