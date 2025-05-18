@@ -43,4 +43,5 @@ export const Pagination: StoryObj<typeof meta> = {
 		]),
 	],
 }
+
 export default meta

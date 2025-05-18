@@ -3,14 +3,14 @@ import type { Simplify } from 'type-fest'
 import type { Ref } from 'vue-demi'
 import type { UseGetListContext, UseGetListResult } from '../query'
 import type { UseResourceContext } from '../resource'
-import type { UseGoContext } from '../router'
+import type { UseGoContext, UseLocationContext } from '../router'
 import type { ToMaybeRefs } from '../utils/refs'
 import { getFetcherName, getResourceIdentifier, List } from '@ginjou/core'
 import { watchDebounced } from '@vueuse/shared'
 import { computed, unref, watch } from 'vue-demi'
 import { useGetList } from '../query'
 import { useResource } from '../resource'
-import { useGo } from '../router'
+import { useGo, useLocation } from '../router'
 import { refFallback } from '../utils/ref-fallback'
 import { refSub } from '../utils/ref-sub'
 
@@ -26,6 +26,7 @@ export type UseListContext = Simplify<
 	& UseGetListContext
 	& UseResourceContext
 	& UseGoContext
+	& UseLocationContext
 >
 
 export type UseListResult<
@@ -56,6 +57,7 @@ export function useList<
 ): UseListResult<TError, TResultData> {
 	const go = useGo(context)
 	const resource = useResource({ name: props?.resource }, context)
+	const location = useLocation(context)
 
 	const initalPageProp = refSub<number, any>(
 		props?.pagination,
@@ -102,22 +104,22 @@ export function useList<
 		List.getPropSortersMode,
 	)
 
-	const currentPageResource = refSub<number, any>(
-		resource,
-		List.getResourceCurrentPage,
-	)
-	const perPageResource = refSub(
-		resource,
-		List.getResourcePerPage,
-	)
-	const filtersResource = refSub(
-		resource,
-		List.getResourceFilters,
-	)
-	const sortersResource = refSub(
-		resource,
-		List.getResourceSorters,
-	)
+	const currentPageLocation = computed<number | undefined>(() => List.getLocationCurrentPage({
+		location: unref(location),
+		syncRouteFromProp: unref(props?.syncRoute),
+	}))
+	const perPageLocation = computed(() => List.getLocationPerPage({
+		location: unref(location),
+		syncRouteFromProp: unref(props?.syncRoute),
+	}))
+	const filtersLocation = computed(() => List.getLocationFilters({
+		location: unref(location),
+		syncRouteFromProp: unref(props?.syncRoute),
+	}))
+	const sortersLocation = computed(() => List.getLocationSorters({
+		location: unref(location),
+		syncRouteFromProp: unref(props?.syncRoute),
+	}))
 
 	const resourceName = computed(() => getResourceIdentifier({
 		resource: unref(resource),
@@ -132,7 +134,7 @@ export function useList<
 		() => ({
 			initalPageFromProp: unref(initalPageProp),
 			currentPageFromProp: unref(currentPageProp),
-			currentPageFromResource: unref(currentPageResource),
+			currentPageFromLocation: unref(currentPageLocation),
 			syncRouteFromProp: unref(props?.syncRoute),
 		}),
 		List.getCurrentPage,
@@ -140,14 +142,14 @@ export function useList<
 	const perPage = refFallback(
 		() => ({
 			perPageFromProp: unref(perPageProp),
-			perPageFromResource: unref(perPageResource),
+			perPageFromLocation: unref(perPageLocation),
 			syncRouteFromProp: unref(props?.syncRoute),
 		}),
 		List.getPerPage,
 	)
 	const _filters = refFallback(
 		() => ({
-			filtersFromResource: unref(filtersResource),
+			filtersFromLocation: unref(filtersLocation),
 			filtersFromProp: unref(filtersProp),
 			filtersPermanentFromProp: unref(filtersPermanentProp),
 			syncRouteFromProp: unref(props?.syncRoute),
@@ -162,7 +164,7 @@ export function useList<
 	})
 	const _sorters = refFallback(
 		() => ({
-			sortersFromResource: unref(sortersResource),
+			sortersFromLocation: unref(sortersLocation),
 			sortersFromProp: unref(sortersProp),
 			sortersPermanentFromProp: unref(sortersPermanentProp),
 			syncRouteFromProp: unref(props?.syncRoute),
@@ -217,10 +219,10 @@ export function useList<
 	watchDebounced(() => ({
 		syncRouteFromProp: unref(props?.syncRoute),
 
-		currentPageResource: unref(currentPageResource),
-		perPageResource: unref(perPageResource),
-		sortersResource: unref(sortersResource),
-		filtersResource: unref(filtersResource),
+		currentPageLocation: unref(currentPageLocation),
+		perPageLocation: unref(perPageLocation),
+		filtersLocation: unref(filtersLocation),
+		sortersLocation: unref(sortersLocation),
 
 		currentPage: unref(currentPage),
 		perPage: unref(perPage),

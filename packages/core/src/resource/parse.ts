@@ -1,80 +1,39 @@
-import type { Simplify } from 'type-fest'
-import type { Filters, Pagination, RecordKey, Sorters } from '../query'
+import type { RecordKey } from '../query'
 import type { ResourceActionTypeValues, ResourceDefinition } from '../resource'
 import type { RouterLocation } from '../router'
 import { omit } from 'lodash-unified'
 import { parse as parseRegexparam } from 'regexparam'
 import { ResourceActionType } from './action'
 
-export type ResourceParseParams<
-	TParams extends Record<string, any> = Record<string, any>,
-
-	TPageParam = number,
-> = Simplify<
-	& TParams
-	& {
-		filters?: Filters
-		sorters?: Sorters
-		pagination?: Partial<Pagination<TPageParam>>
-	}
->
-
-export interface ResourceParseListResult<
-	TParams extends Record<string, any> = Record<string, any>,
-
-	TPageParam = number,
-> {
+export interface ResourceParseListResult {
 	action: typeof ResourceActionType.List
-	params?: ResourceParseParams<TParams, TPageParam>
 }
 
-export interface ResourceParseShowResult<
-	TParams extends Record<string, any> = Record<string, any>,
-
-	TPageParam = number,
-> {
+export interface ResourceParseShowResult {
 	action: typeof ResourceActionType.Show
 	id: RecordKey
-	params?: ResourceParseParams<TParams, TPageParam>
 }
 
-export interface ResourceParseEditResult<
-	TParams extends Record<string, any> = Record<string, any>,
-
-	TPageParam = number,
-> {
+export interface ResourceParseEditResult {
 	action: typeof ResourceActionType.Edit
 	id: RecordKey
-	params?: ResourceParseParams<TParams, TPageParam>
 }
 
-export interface ResourceParseCreateResult<
-	TParams extends Record<string, any> = Record<string, any>,
-
-	TPageParam = number,
-> {
+export interface ResourceParseCreateResult {
 	action: typeof ResourceActionType.Create
-	params?: ResourceParseParams<TParams, TPageParam>
 }
 
-export type ResourceParseResult<
-	TParams extends Record<string, any> = Record<string, any>,
-
-	TPageParam = number,
-> =
-	| ResourceParseListResult<TParams, TPageParam>
-	| ResourceParseShowResult<TParams, TPageParam>
-	| ResourceParseCreateResult<TParams, TPageParam>
-	| ResourceParseEditResult<TParams, TPageParam>
+export type ResourceParseResult =
+	| ResourceParseListResult
+	| ResourceParseShowResult
+	| ResourceParseCreateResult
+	| ResourceParseEditResult
 
 export type ResourceParseFn<
-	TParams extends Record<string, any> = Record<string, any>,
-
 	TLocationMeta = unknown,
-	TPageParam = number,
 > = (
 	location: RouterLocation<TLocationMeta>,
-) => ResourceParseResult<TParams, TPageParam> | undefined
+) => ResourceParseResult | undefined
 
 export function parseResource<
 	TLocationMeta = unknown,
@@ -126,14 +85,11 @@ function parseFromRegExp(
 	if (!matched)
 		return
 
-	const params = parseParams(location)
-
 	switch (action) {
 		case ResourceActionType.List:
 		case ResourceActionType.Create:
 			return {
 				action,
-				params,
 			}
 		case ResourceActionType.Edit:
 		case ResourceActionType.Show: {
@@ -148,31 +104,10 @@ function parseFromRegExp(
 			return {
 				action,
 				id,
-				params,
 			}
 		}
 		default:
 			throw new Error('Nooo')
-	}
-}
-
-function parseParams(
-	location: RouterLocation,
-): ResourceParseParams {
-	const { params, query } = location
-	const { current, perPage, filters, sorters } = query ?? {}
-	const parsedCurrent = typeof current === 'string' ? Number.isNaN(+current) ? current : +current : undefined
-	const parsedPerPage = typeof perPage === 'string' && !Number.isNaN(+perPage) ? +perPage : undefined
-	const parsedFilters = typeof filters === 'string' ? JSON.parse(filters) : undefined
-	const parsedSorters = typeof sorters === 'string' ? JSON.parse(sorters) : undefined
-
-	return {
-		...params,
-		pagination: parsedCurrent != null || parsedPerPage != null
-			? { current: parsedCurrent as any, perPage: parsedPerPage }
-			: undefined,
-		filters: parsedFilters,
-		sorters: parsedSorters,
 	}
 }
 
