@@ -56,12 +56,16 @@ function handleMoreClick() {
 						</td>
 					</tr>
 				</template>
-				<button
-					:disabled="!hasNextPage"
-					@click="handleMoreClick"
-				>
-					More
-				</button>
+				<tr>
+					<td>
+						<button
+							:disabled="!hasNextPage"
+							@click="handleMoreClick"
+						>
+							More
+						</button>
+					</td>
+				</tr>
 			</tbody>
 		</table>
 		<div class="flex items-baseline space-x-4">
