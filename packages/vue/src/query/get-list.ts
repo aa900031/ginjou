@@ -100,6 +100,7 @@ export function useGetList<
 		getErrorNotify: () => unref(props.errorNotify),
 		emitParent: (...args) => unref(props.queryOptions)?.onError?.(...args),
 	})
+	const placeholderData = GetList.createPlacholerDataFn<TData, TError, TResultData>()
 
 	const query = useQuery<GetListResult<TData, TPageParam>, TError, GetListResult<TResultData, TPageParam>>(
 		computed(() => ({
@@ -108,6 +109,7 @@ export function useGetList<
 			queryKey,
 			queryFn,
 			enabled: isEnabled,
+			placeholderData,
 		})),
 		queryClient,
 	)
