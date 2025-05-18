@@ -37,6 +37,37 @@ export type FiltersProp =
 	| Filters
 	| FiltersOptions
 
+export interface SyncRouteOptions {
+	currentPage?:
+		| boolean
+		| {
+			field?: string
+		}
+	perPage?:
+		| boolean
+		| {
+			field?: string
+		}
+	filters?:
+		| boolean
+		| {
+			field?: string
+			parse?: (value: string) => Filters
+			stringify?: (value: Filters) => string
+		}
+	sorters?:
+		| boolean
+		| {
+			field?: string
+			parse?: (value: string) => Sorters
+			stringify?: (value: Sorters) => string
+		}
+}
+
+export type SyncRouteProp =
+	| boolean
+	| SyncRouteOptions
+
 export type Props<
 	TData extends BaseRecord,
 	TError,
@@ -53,7 +84,7 @@ export type Props<
 		pagination?: PaginationProp<TPageParam>
 		sorters?: SortersProp
 		filters?: FiltersProp
-		syncRoute?: boolean
+		syncRoute?: SyncRouteProp
 	}
 >
 
@@ -265,9 +296,76 @@ export function getPropSortersMode(
 	})
 }
 
+export function checkNeedSyncRoute(
+	syncRoute: SyncRouteProp | undefined,
+): syncRoute is true | SyncRouteOptions {
+	if (syncRoute === false || syncRoute == null)
+		return false
+	return true
+}
+
+const DEFAULT_QUERY_FIELD = {
+	currentPage: 'current',
+	perPage: 'perPage',
+	filters: 'filters',
+	sorters: 'sorters',
+} as const
+
+export function resolveQueryField(
+	type: keyof SyncRouteOptions,
+	syncRoute: true | SyncRouteOptions,
+): string | undefined {
+	if (syncRoute === true || syncRoute[type] === undefined || syncRoute[type] === true)
+		return DEFAULT_QUERY_FIELD[type]
+	if (syncRoute[type] === false)
+		return undefined
+
+	return syncRoute[type].field ?? DEFAULT_QUERY_FIELD[type]
+}
+
+export function parseQueryValue<
+	TType extends 'filters' | 'sorters',
+>(
+	type: TType,
+	syncRoute: true | SyncRouteOptions,
+	value: string,
+): (
+		TType extends 'filters'
+			? Filters
+			: TType extends 'sorters'
+				? Sorters
+				: never
+	) | undefined {
+	if (syncRoute === true || syncRoute[type] === undefined || syncRoute[type] === true)
+		return JSON.parse(value)
+	if (syncRoute[type] === false)
+		return undefined
+	return (syncRoute[type].parse ?? JSON.parse)(value)
+}
+
+export function stringifyQueryValue<
+	TType extends 'filters' | 'sorters',
+>(
+	type: TType,
+	syncRoute: true | SyncRouteOptions,
+	value: (
+		TType extends 'filters'
+			? Filters
+			: TType extends 'sorters'
+				? Sorters
+				: never
+	),
+): string | undefined {
+	if (syncRoute === true || syncRoute[type] === undefined || syncRoute[type] === true)
+		return JSON.stringify(value)
+	if (syncRoute[type] === false)
+		return undefined
+	return (syncRoute[type].stringify ?? JSON.stringify)(value)
+}
+
 export interface GetLocationCurrentPageProps {
 	location: RouterLocation | undefined
-	syncRouteFromProp: boolean | undefined
+	syncRouteFromProp: SyncRouteProp | undefined
 }
 
 export function getLocationCurrentPage<
@@ -278,10 +376,14 @@ export function getLocationCurrentPage<
 		syncRouteFromProp,
 	}: GetLocationCurrentPageProps,
 ): TPageParam | undefined {
-	if (syncRouteFromProp !== true)
+	if (!checkNeedSyncRoute(syncRouteFromProp))
 		return
 
-	const current = location?.query?.current;
+	const field = resolveQueryField('currentPage', syncRouteFromProp)
+	if (field == null)
+		return
+
+	const current = location?.query?.[field]
 	if (typeof current !== 'string')
 		return
 
@@ -292,7 +394,7 @@ export function getLocationCurrentPage<
 
 export interface GetLocationPerPageProps {
 	location: RouterLocation | undefined
-	syncRouteFromProp: boolean | undefined
+	syncRouteFromProp: SyncRouteProp | undefined
 }
 
 export function getLocationPerPage(
@@ -301,10 +403,14 @@ export function getLocationPerPage(
 		syncRouteFromProp,
 	}: GetLocationPerPageProps,
 ): number | undefined {
-	if (syncRouteFromProp !== true)
+	if (!checkNeedSyncRoute(syncRouteFromProp))
 		return
 
-	const perPage = location?.query?.perPage
+	const field = resolveQueryField('perPage', syncRouteFromProp)
+	if (field == null)
+		return
+
+	const perPage = location?.query?.[field]
 	if (typeof perPage !== 'string' || Number.isNaN(+perPage))
 		return
 
@@ -313,7 +419,7 @@ export function getLocationPerPage(
 
 export interface GetLocationFiltersProps {
 	location: RouterLocation | undefined
-	syncRouteFromProp: boolean | undefined
+	syncRouteFromProp: SyncRouteProp | undefined
 }
 
 export function getLocationFilters(
@@ -322,19 +428,27 @@ export function getLocationFilters(
 		syncRouteFromProp,
 	}: GetLocationFiltersProps,
 ): Filters | undefined {
-	if (syncRouteFromProp !== true)
+	if (!checkNeedSyncRoute(syncRouteFromProp))
 		return
 
-	const filters = location?.query?.filters
+	const field = resolveQueryField('filters', syncRouteFromProp)
+	if (field == null)
+		return
+
+	const filters = location?.query?.[field]
 	if (typeof filters !== 'string')
 		return
 
-	return JSON.parse(filters)
+	const parsed = parseQueryValue('filters', syncRouteFromProp, filters)
+	if (parsed === undefined)
+		return
+
+	return parsed
 }
 
 export interface GetLocationSortersProps {
 	location: RouterLocation | undefined
-	syncRouteFromProp: boolean | undefined
+	syncRouteFromProp: SyncRouteProp | undefined
 }
 
 export function getLocationSorters(
@@ -343,14 +457,22 @@ export function getLocationSorters(
 		syncRouteFromProp,
 	}: GetLocationSortersProps,
 ): Sorters | undefined {
-	if (syncRouteFromProp !== true)
+	if (!checkNeedSyncRoute(syncRouteFromProp))
 		return
 
-	const sorters = location?.query?.sorters
+	const field = resolveQueryField('sorters', syncRouteFromProp)
+	if (field == null)
+		return
+
+	const sorters = location?.query?.[field]
 	if (typeof sorters !== 'string')
 		return
 
-	return JSON.parse(sorters)
+	const parsed = parseQueryValue('sorters', syncRouteFromProp, sorters)
+	if (parsed === undefined)
+		return
+
+	return parsed
 }
 
 export interface GetInitialPageProps<
@@ -376,7 +498,7 @@ export interface GetCurrentPageProps<
 	initalPageFromProp: TPageParam | undefined
 	currentPageFromProp: PaginationProp<TPageParam>['current'] | undefined
 	currentPageFromLocation: PaginationProp<TPageParam>['current'] | undefined
-	syncRouteFromProp: boolean | undefined
+	syncRouteFromProp: SyncRouteProp | undefined
 }
 
 export function getCurrentPage<
@@ -409,7 +531,7 @@ export interface GetPerPageProps<
 > {
 	perPageFromProp: PaginationProp<TPageParam>['perPage'] | undefined
 	perPageFromLocation: PaginationProp<TPageParam>['perPage'] | undefined
-	syncRouteFromProp: boolean | undefined
+	syncRouteFromProp: SyncRouteProp | undefined
 }
 
 export function getPerPage<
@@ -436,7 +558,7 @@ export interface GetFiltersProps {
 	filtersFromLocation: Filters | undefined
 	filtersFromProp: Filters | undefined
 	filtersPermanentFromProp: FiltersOptions['permanent'] | undefined
-	syncRouteFromProp: boolean | undefined
+	syncRouteFromProp: SyncRouteProp | undefined
 }
 
 const DEFAULT_FILTERS: Filters = []
@@ -525,7 +647,7 @@ export interface GetSortersProps {
 	sortersFromLocation: Sorters | undefined
 	sortersFromProp: Sorters | undefined
 	sortersPermanentFromProp: SortersOptions['permanent']
-	syncRouteFromProp: boolean | undefined
+	syncRouteFromProp: SyncRouteProp | undefined
 }
 
 const DEFAULT_SORTERS: Sorters = []
@@ -671,7 +793,7 @@ export function getPageCount<
 export interface ToRouterGoParamsProps<
 	TPageParam,
 > {
-	syncRouteFromProp: boolean | undefined
+	syncRouteFromProp: SyncRouteProp | undefined
 
 	currentPageLocation: TPageParam | undefined
 	perPageLocation: number | undefined
@@ -701,7 +823,7 @@ export function toRouterGoParams<
 		filters,
 	}: ToRouterGoParamsProps<TPageParam>,
 ): RouterGoParams | false {
-	if (!syncRouteFromProp)
+	if (!checkNeedSyncRoute(syncRouteFromProp))
 		return false
 
 	if ([
@@ -716,12 +838,24 @@ export function toRouterGoParams<
 	return {
 		type: RouterGoType.Replace,
 		keepQuery: true,
-		query: {
-			current: JSON.stringify(currentPage),
-			perPage,
-			sorters: JSON.stringify(sorters),
-			filters: JSON.stringify(filters),
-		},
+		query: Object.fromEntries([
+			[
+				resolveQueryField('currentPage', syncRouteFromProp),
+				JSON.stringify(currentPage),
+			],
+			[
+				resolveQueryField('perPage', syncRouteFromProp),
+				perPage,
+			],
+			[
+				resolveQueryField('sorters', syncRouteFromProp),
+				stringifyQueryValue('sorters', syncRouteFromProp, sorters),
+			],
+			[
+				resolveQueryField('filters', syncRouteFromProp),
+				stringifyQueryValue('filters', syncRouteFromProp, filters),
+			],
+		].filter(item => item[0] != null && item[1] != null)),
 	}
 }
 

@@ -10,7 +10,25 @@ const {
 	records,
 	sorters,
 } = useList<Post>({
-	syncRoute: true,
+	syncRoute: {
+		currentPage: false,
+		perPage: false,
+		filters: false,
+		sorters: {
+			field: 'sorter',
+			parse: (str) => {
+				const raw = JSON.parse(str) as [string, string][]
+				return raw.map(item => ({
+					field: item[0],
+					order: item[1] as any,
+				}))
+			},
+			stringify: (value) => {
+				const raw = value.map(item => [item.field, item.order])
+				return JSON.stringify(raw)
+			},
+		},
+	},
 })
 
 const formData = reactive<{
