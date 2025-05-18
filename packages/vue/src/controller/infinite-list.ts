@@ -235,6 +235,10 @@ export function useInfiniteList<
 		sortersResource: unref(sortersResource),
 		filtersResource: unref(filtersResource),
 
+		perPageLocation: unref(perPageLocation),
+		filtersLocation: unref(filtersLocation),
+		sortersLocation: unref(sortersLocation),
+
 		perPage: unref(perPage),
 		sorters: unref(_sorters),
 		filters: unref(_filters),

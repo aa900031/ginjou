@@ -108,6 +108,10 @@ export interface ToRouterGoParamsProps {
 	sortersResource: Sorters | undefined
 	filtersResource: Filters | undefined
 
+	perPageLocation: number | undefined
+	sortersLocation: Sorters | undefined
+	filtersLocation: Filters | undefined
+
 	perPage: number
 	sorters: Sorters
 	filters: Filters
@@ -121,6 +125,10 @@ export function toRouterGoParams(
 		sortersResource,
 		filtersResource,
 
+		perPageLocation,
+		filtersLocation,
+		sortersLocation,
+
 		perPage,
 		sorters,
 		filters,
@@ -130,9 +138,9 @@ export function toRouterGoParams(
 		return false
 
 	if ([
-		[perPageResource, perPage],
-		[sortersResource, sorters],
-		[filtersResource, filters],
+		[perPageResource ?? perPageLocation, perPage],
+		[sortersResource ?? filtersLocation, sorters],
+		[filtersResource ?? sortersLocation, filters],
 	].every(([a, b]) => isEqual(a, b))) {
 		return false
 	}

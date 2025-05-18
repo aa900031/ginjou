@@ -102,7 +102,7 @@ export const Sorters: StoryObj<typeof meta> = {
 }
 
 export const PaginationWithoutResource: StoryObj<typeof meta> = {
-	name: 'Pagination witout resource',
+	name: 'Pagination w/o Resource',
 	render: () => () => h(RouterView),
 	loaders: [createMsw(toHandlers(db, 'posts', 'https://rest-api.local'))],
 	decorators: [
