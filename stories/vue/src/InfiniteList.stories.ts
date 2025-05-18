@@ -6,7 +6,6 @@ import { RouterView } from 'vue-router'
 import MOCK_POSTS from '../data/mock-posts.json'
 import { MockModel } from './api/posts'
 import InfiniteListPagination from './InfiniteListPagination.vue'
-import InfiniteListPaginationWithoutResource from './InfiniteListPaginationWithoutResource.vue'
 import { createMsw } from './utils/msw'
 import { toHandlers } from './utils/msw-data'
 import { createWrapper } from './utils/wrapper'
@@ -40,27 +39,6 @@ export const Pagination: StoryObj<typeof meta> = {
 			{
 				path: '/posts',
 				component: InfiniteListPagination,
-			},
-		]),
-	],
-}
-
-export const PaginationWithoutResource: StoryObj<typeof meta> = {
-	name: 'Pagination w/o Resource',
-	render: () => () => h(RouterView),
-	loaders: [createMsw(toHandlers(db, 'posts', 'https://rest-api.local'))],
-	decorators: [
-		createWrapper({
-			router: true,
-		}),
-		vueRouter([
-			{
-				path: '/',
-				redirect: '/posts',
-			},
-			{
-				path: '/posts',
-				component: InfiniteListPaginationWithoutResource,
 			},
 		]),
 	],

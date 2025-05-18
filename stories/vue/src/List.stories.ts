@@ -7,7 +7,6 @@ import MOCK_POSTS from '../data/mock-posts.json'
 import { MockModel } from './api/posts'
 import ListFilters from './ListFilters.vue'
 import ListPagination from './ListPagination.vue'
-import ListPaginationWithoutResource from './ListPaginationWithoutResource.vue';
 import ListSorters from './ListSorters.vue'
 import { createMsw } from './utils/msw'
 import { toHandlers } from './utils/msw-data'
@@ -96,27 +95,6 @@ export const Sorters: StoryObj<typeof meta> = {
 			{
 				path: '/posts',
 				component: ListSorters,
-			},
-		]),
-	],
-}
-
-export const PaginationWithoutResource: StoryObj<typeof meta> = {
-	name: 'Pagination w/o Resource',
-	render: () => () => h(RouterView),
-	loaders: [createMsw(toHandlers(db, 'posts', 'https://rest-api.local'))],
-	decorators: [
-		createWrapper({
-			router: true,
-		}),
-		vueRouter([
-			{
-				path: '/',
-				redirect: '/posts',
-			},
-			{
-				path: '/posts',
-				component: ListPaginationWithoutResource,
 			},
 		]),
 	],
