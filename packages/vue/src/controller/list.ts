@@ -104,23 +104,6 @@ export function useList<
 		List.getPropSortersMode,
 	)
 
-	const currentPageResource = refSub<number, any>(
-		resource,
-		List.getResourceCurrentPage,
-	)
-	const perPageResource = refSub(
-		resource,
-		List.getResourcePerPage,
-	)
-	const filtersResource = refSub(
-		resource,
-		List.getResourceFilters,
-	)
-	const sortersResource = refSub(
-		resource,
-		List.getResourceSorters,
-	)
-
 	const currentPageLocation = computed<number | undefined>(() => List.getLocationCurrentPage({
 		location: unref(location),
 		syncRouteFromProp: unref(props?.syncRoute),
@@ -151,7 +134,6 @@ export function useList<
 		() => ({
 			initalPageFromProp: unref(initalPageProp),
 			currentPageFromProp: unref(currentPageProp),
-			currentPageFromResource: unref(currentPageResource),
 			currentPageFromLocation: unref(currentPageLocation),
 			syncRouteFromProp: unref(props?.syncRoute),
 		}),
@@ -160,7 +142,6 @@ export function useList<
 	const perPage = refFallback(
 		() => ({
 			perPageFromProp: unref(perPageProp),
-			perPageFromResource: unref(perPageResource),
 			perPageFromLocation: unref(perPageLocation),
 			syncRouteFromProp: unref(props?.syncRoute),
 		}),
@@ -168,7 +149,6 @@ export function useList<
 	)
 	const _filters = refFallback(
 		() => ({
-			filtersFromResource: unref(filtersResource),
 			filtersFromLocation: unref(filtersLocation),
 			filtersFromProp: unref(filtersProp),
 			filtersPermanentFromProp: unref(filtersPermanentProp),
@@ -184,7 +164,6 @@ export function useList<
 	})
 	const _sorters = refFallback(
 		() => ({
-			sortersFromResource: unref(sortersResource),
 			sortersFromLocation: unref(sortersLocation),
 			sortersFromProp: unref(sortersProp),
 			sortersPermanentFromProp: unref(sortersPermanentProp),
@@ -239,11 +218,6 @@ export function useList<
 
 	watchDebounced(() => ({
 		syncRouteFromProp: unref(props?.syncRoute),
-
-		currentPageResource: unref(currentPageResource),
-		perPageResource: unref(perPageResource),
-		sortersResource: unref(sortersResource),
-		filtersResource: unref(filtersResource),
 
 		currentPageLocation: unref(currentPageLocation),
 		perPageLocation: unref(perPageLocation),

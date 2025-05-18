@@ -104,10 +104,6 @@ export function getTotal<
 export interface ToRouterGoParamsProps {
 	syncRouteFromProp: boolean | undefined
 
-	perPageResource: number | undefined
-	sortersResource: Sorters | undefined
-	filtersResource: Filters | undefined
-
 	perPageLocation: number | undefined
 	sortersLocation: Sorters | undefined
 	filtersLocation: Filters | undefined
@@ -120,10 +116,6 @@ export interface ToRouterGoParamsProps {
 export function toRouterGoParams(
 	{
 		syncRouteFromProp,
-
-		perPageResource,
-		sortersResource,
-		filtersResource,
 
 		perPageLocation,
 		filtersLocation,
@@ -138,9 +130,9 @@ export function toRouterGoParams(
 		return false
 
 	if ([
-		[perPageResource ?? perPageLocation, perPage],
-		[sortersResource ?? filtersLocation, sorters],
-		[filtersResource ?? sortersLocation, filters],
+		[perPageLocation, perPage],
+		[filtersLocation, sorters],
+		[sortersLocation, filters],
 	].every(([a, b]) => isEqual(a, b))) {
 		return false
 	}

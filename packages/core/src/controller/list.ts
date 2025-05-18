@@ -1,6 +1,5 @@
 import type { Simplify, ValueOf } from 'type-fest'
 import type { BaseRecord, Filter, Filters, GetList, GetListResult, Pagination, Sort, Sorters } from '../query'
-import type { ResolvedResource } from '../resource'
 import type { RouterGoParams, RouterLocation } from '../router'
 import { isEqual, unionWith } from 'lodash-unified'
 import { FilterOperator } from '../query'
@@ -266,82 +265,6 @@ export function getPropSortersMode(
 	})
 }
 
-export interface GetResourceCurrentPageProps<
-	TPageParam,
-> {
-	prop: ResolvedResource | undefined
-	prev?: Pagination<TPageParam>['current']
-}
-
-export function getResourceCurrentPage<
-	TPageParam,
->(
-	{
-		prop,
-		prev,
-	}: GetResourceCurrentPageProps<TPageParam>,
-): TPageParam | undefined {
-	return getSubValue({
-		path: 'params.pagination.current',
-		prop,
-		prev,
-	})
-}
-
-export interface GetResourcePerPageProps {
-	prop: ResolvedResource | undefined
-	prev?: Pagination<unknown>['perPage']
-}
-
-export function getResourcePerPage(
-	{
-		prop,
-		prev,
-	}: GetResourcePerPageProps,
-): number | undefined {
-	return getSubValue({
-		path: 'params.pagination.perPage',
-		prop,
-		prev,
-	})
-}
-
-export interface GetResourceFiltersProps {
-	prop: ResolvedResource | undefined
-	prev?: Filters
-}
-
-export function getResourceFilters(
-	{
-		prop,
-		prev,
-	}: GetResourceFiltersProps,
-): Filters | undefined {
-	return getSubValue({
-		path: 'params.filters',
-		prop,
-		prev,
-	})
-}
-
-export interface GetResourceSortersProps {
-	prop: ResolvedResource | undefined
-	prev?: Sorters
-}
-
-export function getResourceSorters(
-	{
-		prop,
-		prev,
-	}: GetResourceSortersProps,
-): Sorters | undefined {
-	return getSubValue({
-		path: 'params.sorters',
-		prop,
-		prev,
-	})
-}
-
 export interface GetLocationCurrentPageProps {
 	location: RouterLocation | undefined
 	syncRouteFromProp: boolean | undefined
@@ -452,7 +375,6 @@ export interface GetCurrentPageProps<
 > {
 	initalPageFromProp: TPageParam | undefined
 	currentPageFromProp: PaginationProp<TPageParam>['current'] | undefined
-	currentPageFromResource: PaginationProp<TPageParam>['current'] | undefined
 	currentPageFromLocation: PaginationProp<TPageParam>['current'] | undefined
 	syncRouteFromProp: boolean | undefined
 }
@@ -463,14 +385,12 @@ export function getCurrentPage<
 	{
 		initalPageFromProp,
 		currentPageFromProp,
-		currentPageFromResource,
 		currentPageFromLocation,
 		syncRouteFromProp,
 	}: GetCurrentPageProps<TPageParam>,
 ): Pagination<TPageParam>['current'] {
 	if (syncRouteFromProp) {
-		return currentPageFromResource
-			?? currentPageFromLocation
+		return currentPageFromLocation
 			?? currentPageFromProp
 			?? getInitialPage({
 				initalPageFromProp,
@@ -488,7 +408,6 @@ export interface GetPerPageProps<
 	TPageParam,
 > {
 	perPageFromProp: PaginationProp<TPageParam>['perPage'] | undefined
-	perPageFromResource: PaginationProp<TPageParam>['perPage'] | undefined
 	perPageFromLocation: PaginationProp<TPageParam>['perPage'] | undefined
 	syncRouteFromProp: boolean | undefined
 }
@@ -498,14 +417,12 @@ export function getPerPage<
 >(
 	{
 		perPageFromProp,
-		perPageFromResource,
 		perPageFromLocation,
 		syncRouteFromProp,
 	}: GetPerPageProps<TPageParam>,
 ): Pagination<TPageParam>['perPage'] {
 	if (syncRouteFromProp) {
-		return perPageFromResource
-			?? perPageFromLocation
+		return perPageFromLocation
 			?? perPageFromProp
 			?? 10
 	}
@@ -516,7 +433,6 @@ export function getPerPage<
 }
 
 export interface GetFiltersProps {
-	filtersFromResource: Filters | undefined
 	filtersFromLocation: Filters | undefined
 	filtersFromProp: Filters | undefined
 	filtersPermanentFromProp: FiltersOptions['permanent'] | undefined
@@ -527,7 +443,6 @@ const DEFAULT_FILTERS: Filters = []
 
 export function getFilters(
 	{
-		filtersFromResource,
 		filtersFromLocation,
 		filtersFromProp,
 		filtersPermanentFromProp,
@@ -535,7 +450,7 @@ export function getFilters(
 	}: GetFiltersProps,
 ): Filters {
 	const value = syncRouteFromProp
-		? filtersFromResource ?? filtersFromLocation ?? filtersFromProp
+		? filtersFromLocation ?? filtersFromProp
 		: filtersFromProp
 
 	return resolveFilters(
@@ -607,7 +522,6 @@ export function createSetFiltersFn(
 }
 
 export interface GetSortersProps {
-	sortersFromResource: Sorters | undefined
 	sortersFromLocation: Sorters | undefined
 	sortersFromProp: Sorters | undefined
 	sortersPermanentFromProp: SortersOptions['permanent']
@@ -618,7 +532,6 @@ const DEFAULT_SORTERS: Sorters = []
 
 export function getSorters(
 	{
-		sortersFromResource,
 		sortersFromLocation,
 		sortersFromProp,
 		sortersPermanentFromProp,
@@ -626,7 +539,7 @@ export function getSorters(
 	}: GetSortersProps,
 ): Sorters {
 	const initial = syncRouteFromProp
-		? sortersFromResource ?? sortersFromLocation ?? sortersFromProp
+		? sortersFromLocation ?? sortersFromProp
 		: sortersFromProp
 
 	return resolveSorters(
@@ -760,11 +673,6 @@ export interface ToRouterGoParamsProps<
 > {
 	syncRouteFromProp: boolean | undefined
 
-	currentPageResource: TPageParam | undefined
-	perPageResource: number | undefined
-	sortersResource: Sorters | undefined
-	filtersResource: Filters | undefined
-
 	currentPageLocation: TPageParam | undefined
 	perPageLocation: number | undefined
 	sortersLocation: Sorters | undefined
@@ -782,11 +690,6 @@ export function toRouterGoParams<
 	{
 		syncRouteFromProp,
 
-		currentPageResource,
-		perPageResource,
-		sortersResource,
-		filtersResource,
-
 		currentPageLocation,
 		perPageLocation,
 		filtersLocation,
@@ -802,10 +705,10 @@ export function toRouterGoParams<
 		return false
 
 	if ([
-		[currentPageResource ?? currentPageLocation, currentPage],
-		[perPageResource ?? perPageLocation, perPage],
-		[sortersResource ?? filtersLocation, sorters],
-		[filtersResource ?? sortersLocation, filters],
+		[currentPageLocation, currentPage],
+		[perPageLocation, perPage],
+		[filtersLocation, sorters],
+		[sortersLocation, filters],
 	].every(([a, b]) => isEqual(a, b))) {
 		return false
 	}

@@ -103,23 +103,6 @@ export function useInfiniteList<
 		List.getPropSortersMode,
 	)
 
-	const currentPageResource = refSub<TPageParam, any>(
-		resource,
-		List.getResourceCurrentPage,
-	)
-	const perPageResource = refSub(
-		resource,
-		List.getResourcePerPage,
-	)
-	const filtersResource = refSub(
-		resource,
-		List.getResourceFilters,
-	)
-	const sortersResource = refSub(
-		resource,
-		List.getResourceSorters,
-	)
-
 	const currentPageLocation = computed<TPageParam | undefined>(() => List.getLocationCurrentPage({
 		location: unref(location),
 		syncRouteFromProp: unref(props?.syncRoute),
@@ -150,7 +133,6 @@ export function useInfiniteList<
 		() => ({
 			initalPageFromProp: unref(initalPageProp),
 			currentPageFromProp: unref(currentPageProp),
-			currentPageFromResource: unref(currentPageResource),
 			currentPageFromLocation: unref(currentPageLocation),
 			syncRouteFromProp: unref(props?.syncRoute),
 		}),
@@ -159,7 +141,6 @@ export function useInfiniteList<
 	const perPage = refFallback(
 		() => ({
 			perPageFromProp: unref(perPageProp),
-			perPageFromResource: unref(perPageResource),
 			perPageFromLocation: unref(perPageLocation),
 			syncRouteFromProp: unref(props?.syncRoute),
 		}),
@@ -167,7 +148,6 @@ export function useInfiniteList<
 	)
 	const _filters = refFallback(
 		() => ({
-			filtersFromResource: unref(filtersResource),
 			filtersFromLocation: unref(filtersLocation),
 			filtersFromProp: unref(filtersProp),
 			filtersPermanentFromProp: unref(filtersPermanentProp),
@@ -183,7 +163,6 @@ export function useInfiniteList<
 	})
 	const _sorters = refFallback(
 		() => ({
-			sortersFromResource: unref(sortersResource),
 			sortersFromLocation: unref(sortersLocation),
 			sortersFromProp: unref(sortersProp),
 			sortersPermanentFromProp: unref(sortersPermanentProp),
@@ -230,10 +209,6 @@ export function useInfiniteList<
 
 	watchDebounced(() => ({
 		syncRouteFromProp: unref(props?.syncRoute),
-
-		perPageResource: unref(perPageResource),
-		sortersResource: unref(sortersResource),
-		filtersResource: unref(filtersResource),
 
 		perPageLocation: unref(perPageLocation),
 		filtersLocation: unref(filtersLocation),
