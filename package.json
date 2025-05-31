@@ -19,17 +19,17 @@
 	"devDependencies": {
 		"@aa900031/eslint-config": "^3.1.0",
 		"@aa900031/release-it-config": "^0.1.0",
-		"@types/node": "^18.19.87",
-		"@vitest/coverage-istanbul": "^3.1.2",
-		"eslint": "^9.25.1",
-		"happy-dom": "^17.4.4",
+		"@types/node": "^18.19.103",
+		"@vitest/coverage-istanbul": "^3.1.4",
+		"eslint": "^9.27.0",
+		"happy-dom": "^17.4.7",
 		"npm-run-all2": "^7.0.2",
-		"release-it": "^19.0.1",
+		"release-it": "^19.0.2",
 		"sirv-cli": "^3.0.1",
-		"turbo": "^2.5.2",
+		"turbo": "^2.5.3",
 		"typescript": "^5.8.3",
 		"unbuild": "^3.5.0",
-		"vitest": "^3.1.2"
+		"vitest": "^3.1.4"
 	},
 	"resolutions": {
 		"@tanstack/vue-query>vue-demi": "latest"
