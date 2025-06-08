@@ -13,7 +13,32 @@ permissions:
   contents: write
 
 jobs:
+  verify-latest-tag:
+    runs-on: ubuntu-latest
+    outputs:
+      is_latest: ${{ steps.verify.outputs.is_latest }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify Latest Tag
+        run: |
+          CURRENT_TAG=${GITHUB_REF#refs/tags/}
+          LATEST_TAG=$(git tag --sort=-creatordate | head -n 1)
+
+          echo "Current tag: $CURRENT_TAG"
+          echo "Latest tag: $LATEST_TAG"
+
+          if [ "$CURRENT_TAG" = "$LATEST_TAG" ]; then
+            echo "is_latest=true" >> $GITHUB_OUTPUT
+          else
+            echo "is_latest=false" >> $GITHUB_OUTPUT
+          fi
   publish-npm:
+    needs: verify-latest-tag
+    if: needs.verify-latest-tag.outputs.is_latest == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
