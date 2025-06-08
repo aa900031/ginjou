@@ -48,7 +48,7 @@ export function createModifyListItemUpdaterFn<
 				.filter(id => id != null)
 				.map(String)
 
-			const data = previous.data.map((record: TData) => {
+			const data = previous.data?.map((record: TData) => {
 				if (record.id != null && ids.includes(record.id.toString())) {
 					return {
 						...record,
@@ -56,7 +56,7 @@ export function createModifyListItemUpdaterFn<
 					} as unknown as TData
 				}
 				return record
-			})
+			}) ?? []
 
 			return {
 				...previous,
@@ -71,7 +71,7 @@ export function createModifyListItemUpdaterFn<
 
 		const id = idOrIds.toString()
 
-		const data = previous.data.map((record: TData) => {
+		const data = previous.data?.map((record: TData) => {
 			if (record.id?.toString() === id) {
 				return {
 					id: idOrIds,
@@ -80,7 +80,7 @@ export function createModifyListItemUpdaterFn<
 				} as unknown as TData
 			}
 			return record
-		})
+		}) ?? []
 
 		return {
 			...previous,
@@ -106,7 +106,7 @@ export function createModifyManyUpdaterFn<
 			const ids = idOrIds
 				.filter(id => id != null)
 				.map(String)
-			const data = previous.data.map((record: TData) => {
+			const data = previous.data?.map((record: TData) => {
 				if (record.id != null && ids.includes(record.id.toString())) {
 					return {
 						...record,
@@ -114,7 +114,7 @@ export function createModifyManyUpdaterFn<
 					} as unknown as TData
 				}
 				return record
-			})
+			}) ?? []
 
 			return {
 				...previous,
@@ -128,7 +128,7 @@ export function createModifyManyUpdaterFn<
 			return
 
 		const id = idOrIds.toString()
-		const data = previous.data.map((record: TData) => {
+		const data = previous.data?.map((record: TData) => {
 			if (record.id?.toString() === id) {
 				return {
 					id: idOrIds,
@@ -137,7 +137,7 @@ export function createModifyManyUpdaterFn<
 				} as unknown as TData
 			}
 			return record
-		})
+		}) ?? []
 
 		return {
 			...previous,
@@ -183,10 +183,10 @@ export function createRemoveListItemUpdaterFn<
 			const ids = idOrIds
 				.filter(id => id != null)
 				.map(String)
-			const data = previous.data.filter(
+			const data = previous.data?.filter(
 				item =>
 					(item.id != null) && !ids.includes(item.id.toString()),
-			)
+			) ?? []
 
 			return {
 				...previous,
@@ -201,9 +201,9 @@ export function createRemoveListItemUpdaterFn<
 			return
 
 		const id = idOrIds.toString()
-		const data = previous.data.filter(
+		const data = previous.data?.filter(
 			record => record.id?.toString() !== id,
-		)
+		) ?? []
 
 		return {
 			data,
@@ -227,10 +227,10 @@ export function createRemoveManyUpdaterFn<
 			const ids = idOrIds
 				.filter(id => id != null)
 				.map(String)
-			const data = previous.data.filter(
+			const data = previous.data?.filter(
 				item =>
 					(item.id != null) && !ids.includes(item.id.toString()),
-			)
+			) ?? []
 
 			return {
 				...previous,
@@ -244,9 +244,9 @@ export function createRemoveManyUpdaterFn<
 			return
 
 		const id = idOrIds.toString()
-		const data = previous.data.filter(
+		const data = previous.data?.filter(
 			record => record.id?.toString() !== id,
-		)
+		) ?? []
 
 		return {
 			...previous,
