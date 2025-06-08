@@ -50,9 +50,9 @@ export type UseCreateResult<
 >
 
 export function useCreate<
-	TData extends BaseRecord,
-	TError,
-	TParams,
+	TData extends BaseRecord = BaseRecord,
+	TParams = TData,
+	TError = unknown,
 >(
 	props?: UseCreateProps<TData, TError, TParams>,
 	context?: UseCreateContext,

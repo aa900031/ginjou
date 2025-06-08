@@ -50,9 +50,9 @@ export type UseUpdateResult<
 >
 
 export function useUpdate<
-	TData extends BaseRecord,
-	TError,
-	TParams,
+	TData extends BaseRecord = BaseRecord,
+	TParams = TData,
+	TError = unknown,
 >(
 	props?: UseUpdateProps<TData, TError, TParams>,
 	context?: UseUpdateContext,
