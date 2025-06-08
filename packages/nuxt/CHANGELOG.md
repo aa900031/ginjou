@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.4
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/nuxt@0.1.0-beta.3...${npm.name}@0.1.0-beta.4)
+
+### 🚀 Enhancements
+
+-  Infinite list (#53) ([f7e9c99](https://github.com/aa900031/ginjou/commit/f7e9c99da1c89e86ae3ce1745443f320769c28f6))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.3
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/nuxt@0.1.0-beta.2...${npm.name}@0.1.0-beta.3)
