@@ -1,5 +1,5 @@
-export * from './access'
 export * from './auth'
+export * from './authz'
 export * from './controller'
 export * from './i18n'
 export * from './notification'

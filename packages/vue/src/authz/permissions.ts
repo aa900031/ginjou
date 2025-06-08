@@ -2,12 +2,12 @@ import type { UseQueryReturnType } from '@tanstack/vue-query'
 import type { Simplify } from 'type-fest'
 import type { UseQueryClientContextProps } from '../query'
 import type { ToMaybeRefs } from '../utils/refs'
-import type { UseAuthContextFromProps } from './auth'
+import type { UseAuthzContextFromProps } from './authz'
 import { Permissions } from '@ginjou/core'
 import { useQuery } from '@tanstack/vue-query'
 import { computed, unref } from 'vue-demi'
 import { useQueryClientContext } from '../query'
-import { useAuthContext } from './auth'
+import { useAuthzContext } from './authz'
 
 export type UsePermissionsProps<
 	TData,
@@ -18,7 +18,7 @@ export type UsePermissionsProps<
 >
 
 export type UserPermissionsContext = Simplify<
-	& UseAuthContextFromProps
+	& UseAuthzContextFromProps
 	& UseQueryClientContextProps
 >
 
@@ -38,7 +38,7 @@ export function usePermissions<
 	props?: UsePermissionsProps<TData, TParams, TError>,
 	context?: UserPermissionsContext,
 ): UsePermissionsResult<TData, TError> {
-	const auth = useAuthContext(context)
+	const authz = useAuthzContext(context)
 	const queryClient = useQueryClientContext(context)
 	function getParams(): TParams | undefined {
 		return unref(props?.params)
@@ -46,11 +46,11 @@ export function usePermissions<
 
 	const queryKey = computed(() => Permissions.createQueryKey<TParams>(getParams()))
 	const queryFn = Permissions.createQueryFn<TData, TParams>({
-		auth,
+		authz,
 		getParams,
 	})
 	const isEnabled = computed(() => Permissions.getQueryEnabled({
-		auth,
+		authz,
 		enabled: unref(props?.queryOptions)?.enabled,
 	}))
 

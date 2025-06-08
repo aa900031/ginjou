@@ -1,7 +1,7 @@
 import type { QueryFunction, QueryKey, QueryObserverOptions } from '@tanstack/query-core'
 import type { Simplify } from 'type-fest'
 import type { EnabledGetter } from '../utils/query'
-import type { Auth } from './auth'
+import type { Authz } from './authz'
 import { resolveEnabled } from '../utils/query'
 
 export type QueryOptions<
@@ -45,7 +45,7 @@ export function createQueryKey<
 export interface CreateQueryFnProps<
 	TParams,
 > {
-	auth: Auth | undefined
+	authz: Authz | undefined
 	getParams: () => TParams | undefined
 }
 
@@ -54,12 +54,12 @@ export function createQueryFn<
 	TParams,
 >(
 	{
-		auth,
+		authz,
 		getParams,
 	}: CreateQueryFnProps<TParams>,
 ): QueryFunction<TData> {
 	return async function queryFn() {
-		const { getPermissions } = auth ?? {}
+		const { getPermissions } = authz ?? {}
 		if (typeof getPermissions !== 'function')
 			throw new Error('No')
 
@@ -71,18 +71,18 @@ export function createQueryFn<
 }
 
 export interface GetQueryEnabledProps {
-	auth: Auth | undefined
+	authz: Authz | undefined
 	enabled: QueryOptions<unknown, unknown>['enabled']
 }
 
 export function getQueryEnabled(
 	{
-		auth,
+		authz,
 		enabled,
 	}: GetQueryEnabledProps,
 ): boolean {
 	return resolveEnabled(
 		enabled,
-		typeof auth?.getPermissions === 'function',
+		typeof authz?.getPermissions === 'function',
 	)
 }
