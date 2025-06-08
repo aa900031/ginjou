@@ -2,9 +2,10 @@ import type { InfiniteData } from '@tanstack/query-core'
 import type { Simplify } from 'type-fest'
 import type { BaseRecord, Filters, GetInfiniteList, GetInfiniteListResult, Pagination, Sorters } from '../query'
 import type { RouterGoParams } from '../router'
-import type { FiltersProp, SortersProp } from './list'
+import type { FiltersProp, SortersProp, SyncRouteProp } from './list'
 import { isEqual } from 'lodash-unified'
 import { RouterGoType } from '../router'
+import { checkNeedSyncRoute, resolveQueryField, stringifyQueryValue } from './list'
 
 export type PaginationProp<
 	TPageParam,
@@ -31,7 +32,7 @@ export type Props<
 		pagination?: PaginationProp<TPageParam>
 		sorters?: SortersProp
 		filters?: FiltersProp
-		syncRoute?: boolean
+		syncRoute?: SyncRouteProp
 	}
 >
 
@@ -102,7 +103,7 @@ export function getTotal<
 }
 
 export interface ToRouterGoParamsProps {
-	syncRouteFromProp: boolean | undefined
+	syncRouteFromProp: SyncRouteProp | undefined
 
 	perPageLocation: number | undefined
 	sortersLocation: Sorters | undefined
@@ -126,7 +127,7 @@ export function toRouterGoParams(
 		filters,
 	}: ToRouterGoParamsProps,
 ): RouterGoParams | false {
-	if (!syncRouteFromProp)
+	if (!checkNeedSyncRoute(syncRouteFromProp))
 		return false
 
 	if ([
@@ -140,11 +141,20 @@ export function toRouterGoParams(
 	return {
 		type: RouterGoType.Replace,
 		keepQuery: true,
-		query: {
-			perPage,
-			sorters: JSON.stringify(sorters),
-			filters: JSON.stringify(filters),
-		},
+		query: Object.fromEntries([
+			[
+				resolveQueryField('perPage', syncRouteFromProp),
+				perPage,
+			],
+			[
+				resolveQueryField('sorters', syncRouteFromProp),
+				stringifyQueryValue('sorters', syncRouteFromProp, sorters),
+			],
+			[
+				resolveQueryField('filters', syncRouteFromProp),
+				stringifyQueryValue('filters', syncRouteFromProp, filters),
+			],
+		].filter(item => item[0] != null && item[1] != null)),
 	}
 }
 
