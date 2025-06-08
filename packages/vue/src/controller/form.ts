@@ -102,13 +102,13 @@ export function useForm<
 		}),
 	}, context)
 
-	const mutationCreateResult = useCreate<TMutationData, TMutationError, TMutationParams>({
+	const mutationCreateResult = useCreate<TMutationData, TMutationParams, TMutationError>({
 		// eslint-disable-next-line ts/ban-ts-comment
 		// @ts-expect-error
 		mutationOptions: props?.mutationOptions,
 	}, context)
 
-	const mutationUpdateResult = useUpdate<TMutationData, TMutationError, TMutationParams>({
+	const mutationUpdateResult = useUpdate<TMutationData, TMutationParams, TMutationError>({
 		// eslint-disable-next-line ts/ban-ts-comment
 		// @ts-expect-error
 		mutationOptions: props?.mutationOptions,

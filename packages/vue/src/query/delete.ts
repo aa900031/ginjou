@@ -50,9 +50,9 @@ export type UseDeleteResult<
 >
 
 export function useDelete<
-	TData extends BaseRecord,
-	TError,
-	TParams,
+	TData extends BaseRecord = BaseRecord,
+	TParams = TData,
+	TError = unknown,
 >(
 	props?: UseDeleteProps<TData, TError, TParams>,
 	context?: UseDeleteContext,
