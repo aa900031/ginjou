@@ -31,7 +31,7 @@ export type Props<
 >
 
 export interface CreateQueryKeyProps {
-	params: AccessCanParams
+	params?: AccessCanParams
 }
 
 export function createQueryKey(
@@ -40,12 +40,13 @@ export function createQueryKey(
 	}: CreateQueryKeyProps,
 ): QueryKey {
 	return [
+		'authz',
 		'access',
-		params.resource,
-		params.action,
-		params.params,
-		params.meta,
-	]
+		params?.resource,
+		params?.action,
+		params?.params,
+		params?.meta,
+	].filter(item => item != null)
 }
 
 export interface CreateQueryFnProps {

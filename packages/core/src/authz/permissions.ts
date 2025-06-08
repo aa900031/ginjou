@@ -36,7 +36,7 @@ export function createQueryKey<
 	params?: TParams,
 ): QueryKey {
 	return [
-		'auth',
+		'authz',
 		'permissions',
 		params,
 	].filter(Boolean)
