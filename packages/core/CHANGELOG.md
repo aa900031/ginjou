@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.6
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/core@0.1.0-beta.5...${npm.name}@0.1.0-beta.6)
+
+### 🚀 Enhancements
+
+-  Add placeholder data func (#55) ([7b3bef5](https://github.com/aa900031/ginjou/commit/7b3bef5865bffdee0c883e673c3e3c9fe15ee6e0))
+-  Infinite list (#53) ([f7e9c99](https://github.com/aa900031/ginjou/commit/f7e9c99da1c89e86ae3ce1745443f320769c28f6))
+-  Sync route with options (#57) ([2bddbf9](https://github.com/aa900031/ginjou/commit/2bddbf9a3aea1ca9b39e409821ee364e6e38bc1d))
+
+### 💅 Refactors
+
+-  Authz (#59) ([bdb9ee3](https://github.com/aa900031/ginjou/commit/bdb9ee39a978cf35a0aa85f78e54811f1a31493f))
+-  Decoupling router parse in resource (#56) ([aa5648f](https://github.com/aa900031/ginjou/commit/aa5648f970b4bcd5e9613ca56408f78db70949c0))
+-  Form, update, create TParams generic type (#58) ([b144d3f](https://github.com/aa900031/ginjou/commit/b144d3f0d338c0ad7d900c20ac656bd29887a578))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.5
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/core@0.1.0-beta.4...${npm.name}@0.1.0-beta.5)
