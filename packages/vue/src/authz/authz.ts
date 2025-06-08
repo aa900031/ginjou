@@ -5,7 +5,7 @@ import { inject, provide } from 'vue-demi'
 
 const KEY: InjectionKey<Authz> = Symbol('@ginjou/authz')
 
-export function defineAuthz<
+export function defineAuthzContext<
 	T extends Authz,
 >(
 	value: T,

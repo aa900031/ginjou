@@ -3,7 +3,7 @@ import type { Decorator } from '@storybook/vue3'
 import type { QueryClient } from '@tanstack/vue-query'
 import type { ToastMessageOptions } from 'primevue/toast'
 import { NotificationType } from '@ginjou/core'
-import { defineAuthContext, defineFetchers, defineI18nContext, defineNotificationContext, defineQueryClientContext, defineResourceContext, defineRouterContext } from '@ginjou/vue'
+import { defineAuthContext, defineAuthzContext, defineFetchers, defineI18nContext, defineNotificationContext, defineQueryClientContext, defineResourceContext, defineRouterContext } from '@ginjou/vue'
 import { createFetcher } from '@ginjou/with-rest-api'
 import { createRouterBinding } from '@ginjou/with-vue-router'
 import { delay } from 'msw'
@@ -76,6 +76,9 @@ export function createWrapper(
 						break
 					case 'auth':
 						value && defineAuthContext((typeof value === 'function' ? value() : value) as any)
+						break
+					case 'authz':
+						value && defineAuthzContext((typeof value === 'function' ? value() : value) as any)
 						break
 					case 'i18n':
 						value && defineI18nContext((typeof value === 'function' ? value() : value) as any)
