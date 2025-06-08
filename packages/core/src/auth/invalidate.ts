@@ -1,7 +1,8 @@
 import type { QueryClient } from '@tanstack/query-core'
+import { createQueryKey as createCanAccessQueryKey } from '../authz/can'
+import { createQueryKey as createPermissionsQueryKey } from '../authz/permissions'
 import { createQueryKey as createCheckQueryKey } from './check'
 import { createQueryKey as createIdentityQueryKey } from './identity'
-import { createQueryKey as createPermissionsQueryKey } from './permissions'
 
 export async function triggerInvalidateAll(
 	queryClient: QueryClient,
@@ -11,6 +12,7 @@ export async function triggerInvalidateAll(
 			createCheckQueryKey(),
 			createIdentityQueryKey(),
 			createPermissionsQueryKey(),
+			createCanAccessQueryKey({}),
 		].map(key => queryClient.invalidateQueries(
 			{
 				queryKey: key,

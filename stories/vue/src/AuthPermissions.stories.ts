@@ -13,6 +13,7 @@ export const Basic: StoryObj<typeof meta> = {
 	decorators: [
 		createWrapper({
 			auth: true,
+			authz: true,
 		}),
 	],
 	play: async ({ mount }) => {

@@ -1,4 +1,4 @@
-import type { Auth, Fetchers, I18n, Notification, ResourceDefinition } from '@ginjou/core'
+import type { Auth, Authz, Fetchers, I18n, Notification, ResourceDefinition } from '@ginjou/core'
 import type { Decorator } from '@storybook/vue3'
 import type { QueryClient } from '@tanstack/vue-query'
 import type { ToastMessageOptions } from 'primevue/toast'
@@ -16,6 +16,7 @@ export type CreateWrapperProps =
 		fetchers?: Fetchers
 		resources?: ResourceDefinition[]
 		auth?: Auth | boolean
+		authz?: Authz | boolean
 		i18n?: I18n | boolean
 		queryClient?: QueryClient
 		notification?: Notification | boolean
@@ -33,6 +34,11 @@ export function createWrapper(
 			: props?.auth === false
 				? undefined
 				: props?.auth,
+		authz: props?.authz === true
+			? createAuthz
+			: props?.authz === false
+				? undefined
+				: props?.authz,
 		i18n: props?.i18n === true
 			? createI18n
 			: props?.i18n === false
@@ -149,6 +155,11 @@ function createAuth(): Auth {
 				return null
 			}
 		},
+	}
+}
+
+function createAuthz() {
+	return {
 		getPermissions: async () => {
 			if ((window as any).__AUTH)
 				return ['admin']
