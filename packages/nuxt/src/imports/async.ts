@@ -39,6 +39,24 @@ const composables = [
 		from: './runtime/composables/infinite-list',
 		name: 'useAsyncInfiniteList',
 	},
+	// Auth
+	{
+		from: './runtime/composables/authenticated',
+		name: 'useAsyncAuthenticated',
+	},
+	{
+		from: './runtime/composables/identity',
+		name: 'useAsyncGetIdentity',
+	},
+	// Authz
+	{
+		from: './runtime/composables/permissions',
+		name: 'useAsyncPermissions',
+	},
+	{
+		from: './runtime/composables/can',
+		name: 'useAsyncCanAccess',
+	},
 ] as const
 
 export default function (
