@@ -25,9 +25,8 @@ export type UserPermissionsContext = Simplify<
 export type UsePermissionsResult<
 	TData,
 	TError,
-> = UseQueryReturnType<
-	TData,
-	TError
+> = Simplify<
+	& UseQueryReturnType<TData, TError>
 >
 
 export function usePermissions<
@@ -45,7 +44,7 @@ export function usePermissions<
 	}
 
 	const queryKey = computed(() => Permissions.createQueryKey<TParams>(getParams()))
-	const queryFn = Permissions.createQueryFn<TData, TParams>({
+	const queryFn = Permissions.createQueryFn<TData, TParams, TError>({
 		authz,
 		getParams,
 	})
