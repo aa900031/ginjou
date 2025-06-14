@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.9
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/vue@0.1.0-beta.8...${npm.name}@0.1.0-beta.9)
+
+### 🚀 Enhancements
+
+-  **nuxt:** Add async auth functions (#60) ([ed1372f](https://github.com/aa900031/ginjou/commit/ed1372f4a5768c74745ea823727d86a61c93c999))
+
+### 🏡 Chore
+
+-  **deps:** Update npm non-major dependencies (#54) ([9d06e29](https://github.com/aa900031/ginjou/commit/9d06e29ebd08c12ada24efdbd681e7e4383d349c))
+-  **deps:** Update npm non-major develop dependencies (#52) ([03c9d93](https://github.com/aa900031/ginjou/commit/03c9d9339466b0dfebd18e61275c65ab19fefbdf))
+
+
+
+#### ❤️ Contributors
+
+- Renovate[bot] 
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.8
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/vue@0.1.0-beta.7...${npm.name}@0.1.0-beta.8)
