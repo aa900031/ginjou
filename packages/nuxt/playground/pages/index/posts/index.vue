@@ -1,5 +1,16 @@
 <script setup lang="ts">
+const { mutate: login } = useLogin()
+const { mutate: logout } = useLogout()
 const { records } = await useAsyncList()
+const { data: authenticated } = await useAsyncAuthenticated()
+const isAuth = toRef(() => !!unref(authenticated)?.authenticated)
+
+function handleLogout() {
+	return logout({})
+}
+function handleLogin() {
+	return login({})
+}
 </script>
 
 <template>
@@ -13,4 +24,16 @@ const { records } = await useAsyncList()
 			</NuxtLink>
 		</li>
 	</ul>
+	<button
+		v-if="isAuth"
+		@click="handleLogout"
+	>
+		Logout
+	</button>
+	<button
+		v-else
+		@click="handleLogin"
+	>
+		Login
+	</button>
 </template>

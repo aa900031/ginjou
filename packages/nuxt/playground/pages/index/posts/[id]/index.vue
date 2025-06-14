@@ -1,5 +1,11 @@
 <script setup lang="ts">
 const { record } = await useAsyncShow()
+const { data: authenticated } = await useAsyncAuthenticated()
+if (!unref(authenticated)?.authenticated) {
+	throw createError({
+		status: 401,
+	})
+}
 </script>
 
 <template>
