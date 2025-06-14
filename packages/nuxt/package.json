@@ -47,7 +47,7 @@
 	"dependencies": {
 		"@ginjou/vue": "workspace:^",
 		"@ginjou/with-vue-router": "workspace:^",
-		"@nuxt/kit": "^3.17.1"
+		"@nuxt/kit": "^3.17.5"
 	},
 	"devDependencies": {
 		"@nuxt/module-builder": "^1.0.1",
