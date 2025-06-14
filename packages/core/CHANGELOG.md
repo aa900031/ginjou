@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.7
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/core@0.1.0-beta.6...${npm.name}@0.1.0-beta.7)
+
+### 🚀 Enhancements
+
+-  **nuxt:** Add async auth functions (#60) ([ed1372f](https://github.com/aa900031/ginjou/commit/ed1372f4a5768c74745ea823727d86a61c93c999))
+
+### 🩹 Fixes
+
+-  **core:** Incorrect update infinite list cache data (#61) ([94c2825](https://github.com/aa900031/ginjou/commit/94c282548123e771454c954ee5863240c188a389))
+
+### 🏡 Chore
+
+-  **deps:** Update npm non-major dependencies (#54) ([9d06e29](https://github.com/aa900031/ginjou/commit/9d06e29ebd08c12ada24efdbd681e7e4383d349c))
+-  **deps:** Update npm non-major develop dependencies (#52) ([03c9d93](https://github.com/aa900031/ginjou/commit/03c9d9339466b0dfebd18e61275c65ab19fefbdf))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+- Renovate[bot]
+
 ## v0.1.0-beta.6
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/core@0.1.0-beta.5...${npm.name}@0.1.0-beta.6)
