@@ -1,6 +1,8 @@
+import type { InfiniteData } from '@tanstack/query-core'
 import type { SetRequired, ValueOf } from 'type-fest'
 import type { BaseRecord, GetListResult, GetManyResult, GetOneResult, RecordKey } from './fetcher'
 import type { UpdaterFn } from './types'
+import { checkTargetRecord, isInfiniteData, mergeTargetRecord } from './helper'
 
 export const MutationMode = {
 	Pessimistic: 'pessimistic',
@@ -36,55 +38,41 @@ export function createModifyListItemUpdaterFn<
 >(
 	idOrIds: RecordKey | RecordKey[],
 	params: TParams,
-): UpdaterFn<GetListResult<TData>> {
+): UpdaterFn<GetListResult<TData> | InfiniteData<GetListResult<TData>>> {
 	// TODO: optimisticUpdateMap
 
-	if (Array.isArray(idOrIds)) {
-		return function modifyListUpdater(previous) {
-			if (!previous)
-				return
-
-			const ids = idOrIds
+	const ids = Array.isArray(idOrIds)
+		? idOrIds
 				.filter(id => id != null)
 				.map(String)
-
-			const data = previous.data?.map((record: TData) => {
-				if (record.id != null && ids.includes(record.id.toString())) {
-					return {
-						...record,
-						...params,
-					} as unknown as TData
-				}
-				return record
-			}) ?? []
-
-			return {
-				...previous,
-				data,
-			}
-		}
-	}
+		: [idOrIds]
 
 	return function modifyListUpdater(previous) {
 		if (!previous)
 			return
 
-		const id = idOrIds.toString()
+		if (isInfiniteData(previous)) {
+			const pages = previous.pages.map(page => ({
+				...page,
+				data: page.data?.map(record =>
+					mergeTargetRecord(record, ids, params),
+				) ?? [],
+			}))
 
-		const data = previous.data?.map((record: TData) => {
-			if (record.id?.toString() === id) {
-				return {
-					id: idOrIds,
-					...record,
-					...params,
-				} as unknown as TData
+			return {
+				...previous,
+				pages,
 			}
-			return record
-		}) ?? []
+		}
+		else {
+			const data = previous.data?.map(record =>
+				mergeTargetRecord(record, ids, params),
+			) ?? []
 
-		return {
-			...previous,
-			data,
+			return {
+				...previous,
+				data,
+			}
 		}
 	}
 }
@@ -172,42 +160,41 @@ export function createRemoveListItemUpdaterFn<
 	TData extends BaseRecord,
 >(
 	idOrIds: RecordKey | RecordKey[],
-): UpdaterFn<GetListResult<TData>> {
+): UpdaterFn<GetListResult<TData> | InfiniteData<GetListResult<TData>>> {
 	// TODO: optimisticUpdateMap
 
-	if (Array.isArray(idOrIds)) {
-		return function removeListItemUpdater(previous) {
-			if (!previous)
-				return
-
-			const ids = idOrIds
+	const ids = Array.isArray(idOrIds)
+		? idOrIds
 				.filter(id => id != null)
 				.map(String)
-			const data = previous.data?.filter(
-				item =>
-					(item.id != null) && !ids.includes(item.id.toString()),
-			) ?? []
-
-			return {
-				...previous,
-				data,
-				total: previous.total - ids.length,
-			}
-		}
-	}
+		: [idOrIds]
 
 	return function removeListItemUpdater(previous) {
 		if (!previous)
 			return
 
-		const id = idOrIds.toString()
-		const data = previous.data?.filter(
-			record => record.id?.toString() !== id,
-		) ?? []
-
-		return {
-			data,
-			total: previous.total - 1,
+		if (isInfiniteData(previous)) {
+			const pages = previous.pages.map(page => ({
+				...page,
+				data: page.data?.filter(item =>
+					checkTargetRecord(item, ids),
+				) ?? [],
+				total: page.total - ids.length,
+			}))
+			return {
+				...previous,
+				pages,
+			}
+		}
+		else {
+			const data = previous.data?.filter(item =>
+				checkTargetRecord(item, ids),
+			) ?? []
+			return {
+				...previous,
+				data,
+				total: previous.total - ids.length,
+			}
 		}
 	}
 }
