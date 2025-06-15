@@ -20,8 +20,8 @@
 		"@aa900031/eslint-config": "^3.1.0",
 		"@aa900031/release-it-config": "^0.1.0",
 		"@types/node": "^18.19.111",
-		"@vitest/coverage-istanbul": "^3.2.2",
-		"eslint": "^9.28.0",
+		"@vitest/coverage-istanbul": "^3.2.3",
+		"eslint": "^9.29.0",
 		"happy-dom": "^17.6.3",
 		"npm-run-all2": "^7.0.2",
 		"release-it": "^19.0.3",
@@ -29,7 +29,7 @@
 		"turbo": "^2.5.4",
 		"typescript": "^5.8.3",
 		"unbuild": "^3.5.0",
-		"vitest": "^3.2.2"
+		"vitest": "^3.2.3"
 	},
 	"resolutions": {
 		"@tanstack/vue-query>vue-demi": "latest"
