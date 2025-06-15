@@ -125,13 +125,15 @@ export function createQueryKey<
 
 	return [
 		...createBaseQueryKey({ props }),
-		{
-			pagination,
-			sorters,
-			filters,
-			meta,
-		},
-	]
+		[pagination, sorters, filters, meta].every(item => item == null)
+			? undefined
+			: {
+					pagination,
+					sorters,
+					filters,
+					meta,
+				},
+	].filter(Boolean)
 }
 
 export interface CreateQueryFnProps<
