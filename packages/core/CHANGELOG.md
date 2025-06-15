@@ -2,6 +2,7 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## v0.1.0-beta.9
 
 ## v0.1.0-beta.8
 
@@ -91,7 +92,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 #### ❤️ Contributors
 
-- Renovate[bot] 
+- Renovate[bot]
 - Zhong666 <aa900031@gmail.com>
 
 ## v0.1.0-beta.4
