@@ -21,10 +21,10 @@ importers:
         specifier: ^18.19.111
         version: 18.19.111
       '@vitest/coverage-istanbul':
-        specifier: ^3.2.2
+        specifier: ^3.2.3
         version: 3.2.3(vitest@3.2.3(@types/debug@4.1.12)(@types/node@18.19.111)(happy-dom@17.6.3)(msw@2.10.2(@types/node@18.19.111)(typescript@5.8.3))(terser@5.39.0))
       eslint:
-        specifier: ^9.28.0
+        specifier: ^9.29.0
         version: 9.29.0(jiti@2.4.2)
       happy-dom:
         specifier: ^17.6.3
@@ -48,7 +48,7 @@ importers:
         specifier: ^3.5.0
         version: 3.5.0(typescript@5.8.3)(vue-sfc-transformer@0.1.14(@vue/compiler-core@3.5.16)(esbuild@0.25.5)(vue@3.5.16(typescript@5.8.3)))(vue@3.5.16(typescript@5.8.3))
       vitest:
-        specifier: ^3.2.2
+        specifier: ^3.2.3
         version: 3.2.3(@types/debug@4.1.12)(@types/node@18.19.111)(happy-dom@17.6.3)(msw@2.10.2(@types/node@18.19.111)(typescript@5.8.3))(terser@5.39.0)
 
   internals/tsconfig:
@@ -88,7 +88,7 @@ importers:
         specifier: workspace:*
         version: link:../../internals/tsconfig
       '@tanstack/query-core':
-        specifier: ^5.80.6
+        specifier: ^5.80.7
         version: 5.80.7
       '@types/lodash':
         specifier: ^4.17.17
@@ -159,7 +159,7 @@ importers:
         specifier: workspace:*
         version: link:../../internals/tsconfig
       '@tanstack/vue-query':
-        specifier: ^5.80.6
+        specifier: ^5.80.7
         version: 5.80.7(@vue/composition-api@1.7.2(vue@3.5.16(typescript@5.8.3)))(vue@3.5.16(typescript@5.8.3))
       '@testing-library/vue':
         specifier: ^8.1.0
@@ -277,13 +277,13 @@ importers:
         specifier: ^8.6.14
         version: 8.6.14(@storybook/test@8.6.14(storybook@8.6.14))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(rollup@4.43.0)(storybook@8.6.14)(typescript@5.8.3)(vite@5.4.19(@types/node@18.19.111)(terser@5.39.0))
       '@types/react':
-        specifier: ^19.1.6
+        specifier: ^19.1.8
         version: 19.1.8
       '@types/react-dom':
         specifier: ^19.1.6
         version: 19.1.6(@types/react@19.1.8)
       '@vitejs/plugin-react':
-        specifier: ^4.5.1
+        specifier: ^4.5.2
         version: 4.5.2(vite@5.4.19(@types/node@18.19.111)(terser@5.39.0))
       react:
         specifier: ^19.1.0
@@ -358,13 +358,13 @@ importers:
         specifier: ^8.6.14
         version: 8.6.14(storybook@8.6.14)(vite@5.4.19(@types/node@18.19.111)(terser@5.39.0))(vue@3.5.16(typescript@5.8.3))
       '@tanstack/vue-query':
-        specifier: ^5.80.6
+        specifier: ^5.80.7
         version: 5.80.7(@vue/composition-api@1.7.2(vue@3.5.16(typescript@5.8.3)))(vue@3.5.16(typescript@5.8.3))
       '@vitejs/plugin-vue':
         specifier: ^5.2.4
         version: 5.2.4(vite@5.4.19(@types/node@18.19.111)(terser@5.39.0))(vue@3.5.16(typescript@5.8.3))
       msw:
-        specifier: ^2.10.1
+        specifier: ^2.10.2
         version: 2.10.2(@types/node@18.19.111)(typescript@5.8.3)
       msw-storybook-addon:
         specifier: 2.0.5
