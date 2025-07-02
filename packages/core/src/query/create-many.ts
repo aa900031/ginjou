@@ -49,6 +49,15 @@ export type MutationOptions<
 	MutationProps<TData, TError, TParams>
 >
 
+export type MutationOptionsFromProps<
+	TData extends BaseRecord,
+	TError,
+	TParams,
+> = Omit<
+	MutationOptions<TData, TError, TParams>,
+	| 'mutationFn'
+>
+
 export interface CreateMutationFnProps {
 	fetchers: Fetchers
 }
@@ -71,11 +80,15 @@ export function createMutationFn<
 		return result
 	}
 }
-export interface CreateSuccessHandlerProps {
+export interface CreateSuccessHandlerProps<
+	TData extends BaseRecord,
+	TParams,
+> {
 	notify: NotifyFn
 	translate: TranslateFn<unknown>
 	publish: Publish.EmitFn<PublishPayload>
 	queryClient: QueryClient
+	onSuccess: MutationOptions<TData, unknown, TParams>['onSuccess']
 }
 
 export function createSuccessHandler<
@@ -87,9 +100,10 @@ export function createSuccessHandler<
 		translate,
 		publish,
 		queryClient,
-	}: CreateSuccessHandlerProps,
+		onSuccess: onSuccessFromProp,
+	}: CreateSuccessHandlerProps<TData, TParams>,
 ): NonNullable<MutationOptions<TData, unknown, TParams>['onSuccess']> {
-	return async function onSuccess(data, props) {
+	return async function onSuccess(data, props, context) {
 		const resolvedProps = resolveMutationProps(props)
 
 		notify(
@@ -109,26 +123,33 @@ export function createSuccessHandler<
 		)
 
 		// TODO: logs
-		// TODO: onSuccess
+
+		await onSuccessFromProp?.(data, resolvedProps, context)
 	}
 }
 
-export interface CreateErrorHandlerProps {
+export interface CreateErrorHandlerProps<
+	TError,
+	TParams,
+> {
 	notify: NotifyFn
-	translate: TranslateFn<unknown>
-	checkError: CheckError.MutationFn<unknown>
+	translate: TranslateFn<TParams>
+	checkError: CheckError.MutationFn<TError>
+	onError: MutationOptions<any, TError, TParams>['onError']
 }
 
 export function createErrorHandler<
 	TError,
+	TParams,
 >(
 	{
 		notify,
 		translate,
 		checkError,
-	}: CreateErrorHandlerProps,
+		onError: onErrorFromProp,
+	}: CreateErrorHandlerProps<TError, TParams>,
 ): NonNullable<MutationOptions<any, TError, any>['onError']> {
-	return async function onError(error, props) {
+	return async function onError(error, props, context) {
 		await checkError(error)
 
 		const resolvedProps = resolveMutationProps(props)
@@ -142,6 +163,8 @@ export function createErrorHandler<
 				type: NotificationType.Error,
 			},
 		)
+
+		await onErrorFromProp?.(error, resolvedProps, context)
 	}
 }
 

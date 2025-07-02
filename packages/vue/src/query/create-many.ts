@@ -24,7 +24,7 @@ export interface UseCreateManyProps<
 	TParams,
 > {
 	mutationOptions?: MaybeRef<
-		| CreateMany.MutationOptions<TData, TError, TParams>
+		| CreateMany.MutationOptionsFromProps<TData, TError, TParams>
 		| undefined
 	>
 }
@@ -74,11 +74,13 @@ export function useCreateMany<
 			translate,
 			publish,
 			queryClient,
+			onSuccess: unref(props?.mutationOptions)?.onSuccess,
 		}),
-		onError: CreateMany.createErrorHandler<TError>({
+		onError: CreateMany.createErrorHandler<TError, TParams>({
 			notify,
 			translate,
 			checkError,
+			onError: unref(props?.mutationOptions)?.onError,
 		}),
 		queryClient,
 	})))
