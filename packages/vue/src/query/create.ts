@@ -74,11 +74,13 @@ export function useCreate<
 			translate,
 			publish,
 			queryClient,
+			onSuccess: unref(props?.mutationOptions)?.onSuccess,
 		}),
-		onError: Create.createErrorHandler<TError>({
+		onError: Create.createErrorHandler<TError, TParams>({
 			notify,
 			translate,
 			checkError,
+			onError: unref(props?.mutationOptions)?.onError,
 		}),
 		queryClient,
 	})))
