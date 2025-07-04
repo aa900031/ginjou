@@ -1,11 +1,11 @@
 import type { BaseRecord, CreateResult } from '@ginjou/core'
 import type { UseMutationReturnType } from '@tanstack/vue-query'
-import type { MaybeRef } from '@vueuse/shared'
 import type { Simplify } from 'type-fest'
 import type { UseCheckErrorContext } from '../auth'
 import type { UseTranslateContext } from '../i18n'
 import type { UseNotifyContext } from '../notification'
 import type { UsePublishContext } from '../realtime'
+import type { ToMaybeRefs } from '../utils/refs'
 import type { UseFetcherContextFromProps } from './fetchers'
 import type { UseQueryClientContextProps } from './query-client'
 import { Create } from '@ginjou/core'
@@ -17,17 +17,15 @@ import { useNotify } from '../notification'
 import { usePublish } from '../realtime'
 import { useFetchersContext } from './fetchers'
 import { useQueryClientContext } from './query-client'
+import { unrefs } from '../utils/unrefs'
 
-export interface UseCreateProps<
+export type UseCreateProps<
 	TData extends BaseRecord,
 	TError,
 	TParams,
-> {
-	mutationOptions?: MaybeRef<
-		| Create.MutationOptionsFromProps<TData, TError, TParams>
-		| undefined
-	>
-}
+> = ToMaybeRefs<
+	Create.Props<TData, TError, TParams>
+>
 
 export type UseCreateContext = Simplify<
 	& UseFetcherContextFromProps
@@ -66,24 +64,45 @@ export function useCreate<
 
 	const mutation = useMutation<CreateResult<TData>, TError, Create.MutationProps<TData, TError, TParams>, any>(computed(() => ({
 		...unref(props?.mutationOptions) as any, // TODO:
-		mutationFn: Create.createMutationFn<TData, TParams>({
+		mutationFn: Create.createMutationFn<TData, TError, TParams>({
 			fetchers,
+			getProps,
 		}),
-		onSuccess: Create.createSuccessHandler<TData, TParams>({
+		onSuccess: Create.createSuccessHandler({
 			notify,
 			translate,
 			publish,
-			queryClient,
+			getProps,
 			onSuccess: unref(props?.mutationOptions)?.onSuccess,
+			queryClient,
 		}),
-		onError: Create.createErrorHandler<TError, TParams>({
+		onError: Create.createErrorHandler({
 			notify,
 			translate,
 			checkError,
+			getProps,
 			onError: unref(props?.mutationOptions)?.onError,
 		}),
 		queryClient,
 	})))
 
-	return mutation
+	const mutate = Create.createMutateFn({
+		originFn: mutation.mutate,
+	})
+
+	const mutateAsync = Create.createMutateAsyncFn({
+		originFn: mutation.mutateAsync,
+	})
+
+	return {
+		...mutation,
+		mutate,
+		mutateAsync,
+	}
+
+	function getProps() {
+		return props
+			? unrefs(props) as any // TODO:
+			: undefined
+	}
 }

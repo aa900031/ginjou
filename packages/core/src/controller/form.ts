@@ -1,6 +1,6 @@
 import type { SetOptional, SetRequired } from 'type-fest'
 import type { BaseRecord, CreateResult, GetOneResult, Meta, UpdateResult } from '../query'
-import type { MutateFn as CreateMutateFn, MutationOptionsFromProps as CreateMutationOptionsFromProps, MutationProps as CreateMutationProps } from '../query/create'
+import type { MutateAsyncFn as CreateMutateFn, MutationOptionsFromProps as CreateMutationOptionsFromProps, MutationProps as CreateMutationProps } from '../query/create'
 import type { QueryOptions as GetOneQueryOptions } from '../query/get-one'
 import type { MutateFn as UpdateMutateFn, MutationOptionsFromProps as UpdateMutationOptionsFromProps, MutationProps as UpdateMutationProps } from '../query/update'
 import type { ResolvedResource, ResourceActionForForm, ResourceActionTypeValues } from '../resource'

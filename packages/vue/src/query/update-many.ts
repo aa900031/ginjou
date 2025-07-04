@@ -17,17 +17,16 @@ import { useNotify } from '../notification'
 import { usePublish } from '../realtime'
 import { useFetchersContext } from './fetchers'
 import { useQueryClientContext } from './query-client'
+import { unrefs } from '../utils/unrefs'
+import { ToMaybeRefs } from '../utils/refs'
 
-export interface UseUpdateManyProps<
+export type UseUpdateManyProps<
 	TData extends BaseRecord,
 	TError,
 	TParams,
-> {
-	mutationOptions?: MaybeRef<
-		| UpdateMany.MutationOptionsFromProps<TData, TError, TParams>
-		| undefined
-	>
-}
+> = ToMaybeRefs<
+	UpdateMany.Props<TData, TError, TParams>
+>
 
 export type UseUpdateManyContext = Simplify<
 	& UseFetcherContextFromProps
@@ -66,37 +65,60 @@ export function useUpdateMany<
 
 	const mutation = useMutation<UpdateManyResult<TData>, TError, UpdateMany.MutationProps<TData, TError, TParams>, UpdateMany.MutationContext<TData>>(computed(() => ({
 		...unref(props?.mutationOptions) as any, // TODO:
-		mutationFn: UpdateMany.createMutationFn<TData, TParams>({
+		mutationFn: UpdateMany.createMutationFn({
 			fetchers,
 			notify,
 			translate,
+			getProps,
 		}),
-		onMutate: UpdateMany.createMutateHandler<TData, TParams>({
+		onMutate: UpdateMany.createMutateHandler({
 			queryClient,
 			notify,
 			translate,
+			getProps,
 			onMutate: unref(props?.mutationOptions)?.onMutate,
 		}),
 		onSettled: UpdateMany.createSettledHandler<TData, TError, TParams>({
 			queryClient,
+			getProps,
 			onSettled: unref(props?.mutationOptions)?.onSettled,
 		}),
-		onSuccess: UpdateMany.createSuccessHandler<TData, TParams>({
+		onSuccess: UpdateMany.createSuccessHandler({
 			queryClient,
 			notify,
 			translate,
 			publish,
+			getProps,
 			onSuccess: unref(props?.mutationOptions)?.onSuccess,
 		}),
-		onError: UpdateMany.createErrorHandler<TError, TParams>({
+		onError: UpdateMany.createErrorHandler({
 			queryClient,
 			notify,
 			translate,
 			checkError,
+			getProps,
 			onError: unref(props?.mutationOptions)?.onError,
 		}),
 		queryClient,
 	})))
 
-	return mutation
+	const mutate = UpdateMany.createMutateFn({
+		originFn: mutation.mutate,
+	})
+
+	const mutateAsync = UpdateMany.createMutateAsyncFn({
+		originFn: mutation.mutateAsync,
+	})
+
+	return {
+		...mutation,
+		mutate,
+		mutateAsync,
+	}
+
+	function getProps() {
+		return props
+			? unrefs(props) as any // TODO:
+			: undefined
+	}
 }

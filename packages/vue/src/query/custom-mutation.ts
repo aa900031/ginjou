@@ -1,6 +1,5 @@
 import type { BaseRecord, CustomResult } from '@ginjou/core'
 import type { UseMutationReturnType } from '@tanstack/vue-query'
-import type { MaybeRef } from '@vueuse/shared'
 import type { Simplify } from 'type-fest'
 import type { UseCheckErrorContext } from '../auth'
 import type { UseTranslateContext } from '../i18n'
@@ -17,18 +16,17 @@ import { useNotify } from '../notification'
 import { usePublish } from '../realtime'
 import { useFetchersContext } from './fetchers'
 import { useQueryClientContext } from './query-client'
+import { unrefs } from '../utils/unrefs'
+import { ToMaybeRefs } from '../utils/refs'
 
-export interface UseCustomMutationProps<
+export type UseCustomMutationProps<
 	TData extends BaseRecord,
 	TError,
 	TQuery,
 	TPayload,
-> {
-	mutationOptions?: MaybeRef<
-		| CustomMutation.MutationOptionsFromProps<TData, TError, TQuery, TPayload>
-		| undefined
-	>
-}
+> = ToMaybeRefs<
+	CustomMutation.Props<TData, TError, TQuery, TPayload>
+>
 
 export type UseCustomMutationContext = Simplify<
 	& UseFetcherContextFromProps
@@ -69,22 +67,43 @@ export function useCustomMutation<
 
 	const mutation = useMutation<CustomResult<TData>, TError, CustomMutation.MutationProps<TData, TError, TQuery, TPayload>, any>(computed(() => ({
 		...unref(props?.mutationOptions) as any, // TODO:
-		mutationFn: CustomMutation.createMutationFn<TData, TQuery, TPayload>({
+		mutationFn: CustomMutation.createMutationFn({
 			fetchers,
+			getProps,
 		}),
-		onSuccess: CustomMutation.createSuccessHandler<TData, TQuery, TPayload>({
+		onSuccess: CustomMutation.createSuccessHandler({
 			notify,
 			publish,
+			getProps,
 			onSuccess: unref(props?.mutationOptions)?.onSuccess,
 		}),
-		onError: CustomMutation.createErrorHandler<TError, TQuery, TPayload>({
+		onError: CustomMutation.createErrorHandler({
 			notify,
 			translate,
 			checkError,
+			getProps,
 			onError: unref(props?.mutationOptions)?.onError,
 		}),
 		queryClient,
 	})))
 
-	return mutation
+	const mutate = CustomMutation.createMutateFn({
+		originFn: mutation.mutate,
+	})
+
+	const mutateAsync = CustomMutation.createMutateAsyncFn({
+		originFn: mutation.mutateAsync,
+	})
+
+	return {
+		...mutation,
+		mutate,
+		mutateAsync,
+	}
+
+	function getProps() {
+		return props
+			? unrefs(props) as any // TODO:
+			: undefined
+	}
 }

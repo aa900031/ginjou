@@ -17,17 +17,16 @@ import { useNotify } from '../notification'
 import { usePublish } from '../realtime'
 import { useFetchersContext } from './fetchers'
 import { useQueryClientContext } from './query-client'
+import { unrefs } from '../utils/unrefs'
+import { ToMaybeRefs } from '../utils/refs'
 
-export interface UseUpdateProps<
+export type UseUpdateProps<
 	TData extends BaseRecord,
 	TError,
 	TParams,
-> {
-	mutationOptions?: MaybeRef<
-		| Update.MutationOptionsFromProps<TData, TError, TParams>
-		| undefined
-	>
-}
+> = ToMaybeRefs<
+	Update.Props<TData, TError, TParams>
+>
 
 export type UseUpdateContext = Simplify<
 	& UseFetcherContextFromProps
@@ -66,37 +65,60 @@ export function useUpdate<
 
 	const mutation = useMutation<UpdateResult<TData>, TError, Update.MutationProps<TData, TError, TParams>, Update.MutationContext<TData>>(computed(() => ({
 		...unref(props?.mutationOptions) as any, // TODO:
-		mutationFn: Update.createMutationFn<TData, TParams>({
+		mutationFn: Update.createMutationFn({
 			fetchers,
 			notify,
 			translate,
+			getProps,
 		}),
-		onMutate: Update.createMutateHandler<TData, TParams>({
+		onMutate: Update.createMutateHandler({
 			queryClient,
 			notify,
 			translate,
+			getProps,
 			onMutate: unref(props?.mutationOptions)?.onMutate,
 		}),
-		onSettled: Update.createSettledHandler<TData, TError, TParams>({
+		onSettled: Update.createSettledHandler({
 			queryClient,
+			getProps,
 			onSettled: unref(props?.mutationOptions)?.onSettled,
 		}),
-		onSuccess: Update.createSuccessHandler<TData, TParams>({
+		onSuccess: Update.createSuccessHandler({
 			queryClient,
 			notify,
 			translate,
 			publish,
+			getProps,
 			onSuccess: unref(props?.mutationOptions)?.onSuccess,
 		}),
-		onError: Update.createErrorHandler<TError, TParams>({
+		onError: Update.createErrorHandler({
 			queryClient,
 			notify,
 			translate,
 			checkError,
+			getProps,
 			onError: unref(props?.mutationOptions)?.onError,
 		}),
 		queryClient,
 	})))
 
-	return mutation
+	const mutate = Update.createMutateFn({
+		originFn: mutation.mutate,
+	})
+
+	const mutateAsync = Update.createMutateAsyncFn({
+		originFn: mutation.mutateAsync,
+	})
+
+	return {
+		...mutation,
+		mutate,
+		mutateAsync,
+	}
+
+	function getProps() {
+		return props
+			? unrefs(props) as any // TODO:
+			: undefined
+	}
 }

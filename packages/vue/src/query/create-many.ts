@@ -1,6 +1,5 @@
 import type { BaseRecord, CreateManyResult } from '@ginjou/core'
 import type { UseMutationReturnType } from '@tanstack/vue-query'
-import type { MaybeRef } from '@vueuse/shared'
 import type { Simplify } from 'type-fest'
 import type { UseCheckErrorContext } from '../auth'
 import type { UseTranslateContext } from '../i18n'
@@ -17,17 +16,16 @@ import { useNotify } from '../notification'
 import { usePublish } from '../realtime'
 import { useFetchersContext } from './fetchers'
 import { useQueryClientContext } from './query-client'
+import { unrefs } from '../utils/unrefs'
+import { ToMaybeRefs } from '../utils/refs'
 
-export interface UseCreateManyProps<
+export type UseCreateManyProps<
 	TData extends BaseRecord,
 	TError,
 	TParams,
-> {
-	mutationOptions?: MaybeRef<
-		| CreateMany.MutationOptionsFromProps<TData, TError, TParams>
-		| undefined
-	>
-}
+> = ToMaybeRefs<
+	CreateMany.Props<TData, TError, TParams>
+>
 
 export type UseCreateManyContext = Simplify<
 	& UseFetcherContextFromProps
@@ -66,24 +64,45 @@ export function useCreateMany<
 
 	const mutation = useMutation<CreateManyResult<TData>, TError, CreateMany.MutationProps<TData, TError, TParams>, any>(computed(() => ({
 		...unref(props?.mutationOptions) as any, // TODO:
-		mutationFn: CreateMany.createMutationFn<TData, TParams>({
+		mutationFn: CreateMany.createMutationFn({
 			fetchers,
+			getProps,
 		}),
-		onSuccess: CreateMany.createSuccessHandler<TData, TParams>({
+		onSuccess: CreateMany.createSuccessHandler({
 			notify,
 			translate,
 			publish,
 			queryClient,
+			getProps,
 			onSuccess: unref(props?.mutationOptions)?.onSuccess,
 		}),
-		onError: CreateMany.createErrorHandler<TError, TParams>({
+		onError: CreateMany.createErrorHandler({
 			notify,
 			translate,
 			checkError,
+			getProps,
 			onError: unref(props?.mutationOptions)?.onError,
 		}),
 		queryClient,
 	})))
 
-	return mutation
+	const mutate = CreateMany.createMutateFn({
+		originFn: mutation.mutate,
+	})
+
+	const mutateAsync = CreateMany.createMutateAsyncFn({
+		originFn: mutation.mutateAsync,
+	})
+
+	return {
+		...mutation,
+		mutate,
+		mutateAsync,
+	}
+
+	function getProps() {
+		return props
+			? unrefs(props) as any
+			: undefined
+	}
 }

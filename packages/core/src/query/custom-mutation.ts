@@ -11,6 +11,7 @@ import { NotificationType } from '../notification'
 import { getErrorMessage } from '../utils/error'
 import { getFetcher, resolveFetcherProps } from './fetchers'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
+import { OptionalMutateAsyncFunction, OptionalMutateSyncFunction, OriginMutateAsyncFunction, OriginMutateSyncFunction } from './types'
 
 export type MutationProps<
 	TData extends BaseRecord,
@@ -18,7 +19,7 @@ export type MutationProps<
 	TQuery,
 	TPayload,
 > = Simplify<
-	& CustomProps<TQuery, TPayload>
+	& Partial<CustomProps<TQuery, TPayload>>
 	& FetcherProps
 	& NotifyProps<CustomResult<TData>, CustomProps<TQuery, TPayload>, TError>
 	& {
@@ -40,6 +41,7 @@ export type ResolvedMutationProps<
 	TPayload,
 > = Simplify<
 	& MutationProps<TData, TError, TQuery, TPayload>
+	& CustomProps<TQuery, TPayload>
 	& ResolvedFetcherProps
 >
 
@@ -64,21 +66,63 @@ export type MutationOptionsFromProps<
 	| 'mutationFn'
 >
 
-export interface CreateMutationFnProps {
+export type Props<
+	TData extends BaseRecord,
+	TError,
+	TQuery,
+	TPayload,
+> = Simplify<
+	& MutationProps<TData, TError, TQuery, TPayload>
+	& {
+		mutationOptions?: MutationOptionsFromProps<TData, TError, TQuery, TPayload>
+	}
+>
+
+export type MutateFn<
+	TData extends BaseRecord,
+	TError,
+	TQuery,
+	TPayload,
+> = OptionalMutateSyncFunction<
+	CustomResult<TData>,
+	TError,
+	MutationProps<TData, TError, TQuery, TPayload>
+>
+
+export type MutateAsyncFn<
+	TData extends BaseRecord,
+	TError,
+	TQuery,
+	TPayload,
+> = OptionalMutateAsyncFunction<
+	CustomResult<TData>,
+	TError,
+	MutationProps<TData, TError, TQuery, TPayload>
+>
+
+export interface CreateMutationFnProps<
+	TData extends BaseRecord,
+	TError,
+	TQuery,
+	TPayload,
+> {
 	fetchers: Fetchers
+	getProps: () => Props<TData, TError, TQuery, TPayload> | undefined,
 }
 
 export function createMutationFn<
 	TData extends BaseRecord,
+	TError,
 	TQuery,
 	TPayload,
 >(
 	{
 		fetchers,
-	}: CreateMutationFnProps,
-): NonNullable<MutationOptions<TData, unknown, TQuery, TPayload>['mutationFn']> {
+		getProps,
+	}: CreateMutationFnProps<TData, TError, TQuery, TPayload>,
+): NonNullable<MutationOptions<TData, TError, TQuery, TPayload>['mutationFn']> {
 	return async function mutationFn(props) {
-		const resolvedProps = resolveMutationProps(props)
+		const resolvedProps = resolveMutationProps(getProps(), props)
 		const fetcher = getFetcher(resolvedProps, fetchers)
 		if (typeof fetcher.custom !== 'function')
 			throw new Error('Not implemented custom on data provider')
@@ -91,36 +135,40 @@ export function createMutationFn<
 
 export interface CreateSuccessHandlerProps<
 	TData extends BaseRecord,
+	TError,
 	TQuery,
 	TPayload,
 > {
 	notify: NotifyFn
 	publish: Publish.EmitFn<TPayload>
-	onSuccess: MutationOptions<TData, any, TQuery, TPayload>['onSuccess']
+	getProps: () => Props<TData, TError, TQuery, TPayload> | undefined,
+	onSuccess: MutationOptions<TData, TError, TQuery, TPayload>['onSuccess']
 }
 
 export function createSuccessHandler<
 	TData extends BaseRecord,
+	TError,
 	TQuery,
 	TPayload,
 >(
 	{
 		notify,
 		publish,
+		getProps,
 		onSuccess: onSuccessFromProp,
-	}: CreateSuccessHandlerProps<TData, TQuery, TPayload>,
-): NonNullable<MutationOptions<TData, unknown, TQuery, TPayload>['onSuccess']> {
-	return async function onSuccess(data, variables, context) {
-		const resolvedProps = resolveMutationProps(variables)
+	}: CreateSuccessHandlerProps<TData, TError, TQuery, TPayload>,
+): NonNullable<MutationOptions<TData, TError, TQuery, TPayload>['onSuccess']> {
+	return async function onSuccess(data, props, context) {
+		const resolvedProps = resolveMutationProps(getProps(), props)
 
 		notify(
 			resolveSuccessNotifyParams(resolvedProps.successNotify, data, resolvedProps),
 		)
 
-		if (variables.publish) {
-			const event = typeof variables.publish === 'function'
-				? variables.publish(resolvedProps, data)
-				: variables.publish
+		if (props.publish) {
+			const event = typeof props.publish === 'function'
+				? props.publish(resolvedProps, data)
+				: props.publish
 
 			publish(event)
 		}
@@ -130,6 +178,7 @@ export function createSuccessHandler<
 }
 
 export interface CreateErrorHandlerProps<
+	TData extends BaseRecord,
 	TError,
 	TQuery,
 	TPayload,
@@ -137,10 +186,12 @@ export interface CreateErrorHandlerProps<
 	notify: NotifyFn
 	translate: TranslateFn<unknown>
 	checkError: CheckError.MutationFn<unknown>
-	onError: MutationOptions<any, TError, TQuery, TPayload>['onError']
+	getProps: () => Props<TData, TError, TQuery, TPayload> | undefined
+	onError: MutationOptions<TData, TError, TQuery, TPayload>['onError']
 }
 
 export function createErrorHandler<
+	TData extends BaseRecord,
 	TError,
 	TQuery,
 	TPayload,
@@ -149,13 +200,14 @@ export function createErrorHandler<
 		notify,
 		translate,
 		checkError,
+		getProps,
 		onError: onErrorFromProp,
-	}: CreateErrorHandlerProps<TError, TQuery, TPayload>,
-): NonNullable<MutationOptions<any, TError, TQuery, TPayload>['onError']> {
-	return async function onError(error, variables, context) {
+	}: CreateErrorHandlerProps<TData, TError, TQuery, TPayload>,
+): NonNullable<MutationOptions<TData, TError, TQuery, TPayload>['onError']> {
+	return async function onError(error, props, context) {
 		await checkError(error)
 
-		const resolvedProps = resolveMutationProps(variables)
+		const resolvedProps = resolveMutationProps(getProps(), props)
 
 		notify(
 			resolveErrorNotifyParams(resolvedProps.errorNotify, error, resolvedProps),
@@ -171,20 +223,95 @@ export function createErrorHandler<
 	}
 }
 
-const cacheResolvedProps = new WeakMap<MutationProps<any, any, any, any>, ResolvedMutationProps<any, any, any, any>>()
+export interface CreateMutateFnProps<
+	TData extends BaseRecord,
+	TError,
+	TQuery,
+	TPayload,
+> {
+	originFn: OriginMutateSyncFunction<
+		CustomResult<TData>,
+		TError,
+		MutationProps<TData, TError, TQuery, TPayload>
+	>
+}
 
-function resolveMutationProps(
-	props: MutationProps<any, any, any, any>,
-): ResolvedMutationProps<any, any, any, any> {
-	const cached = cacheResolvedProps.get(props)
-	if (cached)
-		return cached
+export function createMutateFn<
+	TData extends BaseRecord,
+	TError,
+	TQuery,
+	TPayload,
+>(
+	{
+		originFn,
+	}: CreateMutateFnProps<TData, TError, TQuery, TPayload>,
+): MutateFn<TData, TError, TQuery, TPayload> {
+	return function mutateFn(variables, options) {
+		return originFn(variables || ({} as any), options)
+	}
+}
 
-	const result: ResolvedMutationProps<any, any, any, any> = {
+export interface CreateMutateAsyncFnProps<
+	TData extends BaseRecord,
+	TError,
+	TQuery,
+	TPayload,
+> {
+	originFn: OriginMutateAsyncFunction<
+		CustomResult<TData>,
+		TError,
+		MutationProps<TData, TError, TQuery, TPayload>
+	>
+}
+
+export function createMutateAsyncFn<
+	TData extends BaseRecord,
+	TError,
+	TQuery,
+	TPayload,
+>(
+	{
+		originFn,
+	}: CreateMutateAsyncFnProps<TData, TError, TQuery, TPayload>,
+): MutateAsyncFn<TData, TError, TQuery, TPayload> {
+	return function mutateAsyncFn(variables, options) {
+		return originFn(variables || ({} as any), options)
+	}
+}
+
+function resolveMutationProps<
+	TData extends BaseRecord,
+	TError,
+	TQuery,
+	TPayload,
+>(
+	propsFromProps: Props<TData, TError, TQuery, TPayload> | undefined,
+	propsFromFn: MutationProps<TData, TError, TQuery, TPayload>,
+): ResolvedMutationProps<TData, TError, TQuery, TPayload> {
+	const props = resolveProps(propsFromProps, propsFromFn)
+	const result: ResolvedMutationProps<TData, TError, TQuery, TPayload> = {
 		...props,
 		...resolveFetcherProps(props),
 	}
-	cacheResolvedProps.set(props, result)
 
 	return result
+}
+
+function resolveProps<
+	TData extends BaseRecord,
+	TError,
+	TQuery,
+	TPayload,
+>(
+	propsFromProps: Props<TData, TError, TQuery, TPayload> | undefined,
+	propsFromFn: MutationProps<TData, TError, TQuery, TPayload>,
+): MutationProps<TData, TError, TQuery, TPayload> & CustomProps<TQuery, TPayload> {
+	const props = {
+		...propsFromProps,
+		...propsFromFn,
+	}
+	if (props.url == null || props.method == null)
+		throw new Error('No') // TODO:
+
+	return props as any
 }

@@ -17,17 +17,16 @@ import { useNotify } from '../notification'
 import { usePublish } from '../realtime'
 import { useFetchersContext } from './fetchers'
 import { useQueryClientContext } from './query-client'
+import { unrefs } from '../utils/unrefs'
+import { ToMaybeRefs } from '../utils/refs'
 
-export interface UseDeleteProps<
+export type UseDeleteProps<
 	TData extends BaseRecord,
 	TError,
 	TParams,
-> {
-	mutationOptions?: MaybeRef<
-		| Delete.MutationOptionsFromProps<TData, TError, TParams>
-		| undefined
-	>
-}
+> = ToMaybeRefs<
+	Delete.Props<TData, TError, TParams>
+>
 
 export type UseDeleteContext = Simplify<
 	& UseFetcherContextFromProps
@@ -66,37 +65,60 @@ export function useDelete<
 
 	const mutation = useMutation<DeleteOneResult<TData>, TError, Delete.MutationProps<TData, TError, TParams>, Delete.MutationContext<TData>>(computed(() => ({
 		...unref(props?.mutationOptions) as any, // TODO:
-		mutationFn: Delete.createMutationFn<TData, TParams>({
+		mutationFn: Delete.createMutationFn({
 			fetchers,
 			notify,
 			translate,
+			getProps,
 		}),
-		onMutate: Delete.createMutateHandler<TData, TParams>({
+		onMutate: Delete.createMutateHandler({
 			queryClient,
 			notify,
 			translate,
+			getProps,
 			onMutate: unref(props?.mutationOptions)?.onMutate,
 		}),
 		onSettled: Delete.createSettledHandler<TData, TError, TParams>({
 			queryClient,
+			getProps,
 			onSettled: unref(props?.mutationOptions)?.onSettled,
 		}),
-		onSuccess: Delete.createSuccessHandler<TData, TParams>({
+		onSuccess: Delete.createSuccessHandler({
 			queryClient,
 			notify,
 			translate,
 			publish,
+			getProps,
 			onSuccess: unref(props?.mutationOptions)?.onSuccess,
 		}),
-		onError: Delete.createErrorHandler<TError, TParams>({
+		onError: Delete.createErrorHandler({
 			queryClient,
 			notify,
 			translate,
 			checkError,
+			getProps,
 			onError: unref(props?.mutationOptions)?.onError,
 		}),
 		queryClient,
 	})))
 
-	return mutation
+	const mutate = Delete.createMutateFn({
+		originFn: mutation.mutate,
+	})
+
+	const mutateAsync = Delete.createMutateAsyncFn({
+		originFn: mutation.mutateAsync,
+	})
+
+	return {
+		...mutation,
+		mutate,
+		mutateAsync,
+	}
+
+	function getProps() {
+		return props
+			? unrefs(props) as any // TODO:
+			: undefined
+	}
 }

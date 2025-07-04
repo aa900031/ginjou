@@ -17,13 +17,14 @@ import { fakeMany } from './helper'
 import { InvalidateTarget, resolveInvalidateProps, triggerInvalidates } from './invalidate'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
 import { createPublishMeta, createPublishPayloadByMany } from './publish'
+import { OptionalMutateAsyncFunction, OptionalMutateSyncFunction, OriginMutateAsyncFunction, OriginMutateSyncFunction } from './types'
 
 export type MutationProps<
 	TData extends BaseRecord,
 	TError,
 	TParams,
 > = Simplify<
-	& CreateManyProps<TParams>
+	& Partial<CreateManyProps<TParams>>
 	& FetcherProps
 	& InvalidatesProps
 	& NotifyProps<CreateManyResult<TData>, CreateManyProps<TParams>, TError>
@@ -35,6 +36,7 @@ export type ResolvedMutationProps<
 	TParams,
 > = Simplify<
 	& MutationProps<TData, TError, TParams>
+	& CreateManyProps<TParams>
 	& ResolvedFetcherProps
 	& ResolvedInvalidatesProps
 >
@@ -58,20 +60,59 @@ export type MutationOptionsFromProps<
 	| 'mutationFn'
 >
 
-export interface CreateMutationFnProps {
+export type Props<
+	TData extends BaseRecord,
+	TError,
+	TParams,
+> = Simplify<
+	& MutationProps<TData, TError, TParams>
+	& {
+		mutationOptions?: MutationOptionsFromProps<TData, TError, TParams>
+	}
+>
+
+export type MutateFn<
+	TData extends BaseRecord,
+	TError,
+	TParams,
+> = OptionalMutateSyncFunction<
+	CreateManyResult<TData>,
+	TError,
+	MutationProps<TData, TError, TParams>
+>
+
+export type MutateAsyncFn<
+	TData extends BaseRecord,
+	TError,
+	TParams,
+> = OptionalMutateAsyncFunction<
+	CreateManyResult<TData>,
+	TError,
+	MutationProps<TData, TError, TParams>
+>
+
+export interface CreateMutationFnProps<
+	TData extends BaseRecord,
+	TError,
+	TParams,
+> {
 	fetchers: Fetchers
+	getProps: () => Props<TData, TError, TParams> | undefined
 }
 
 export function createMutationFn<
 	TData extends BaseRecord,
+	TError,
 	TParams,
 >(
 	{
 		fetchers,
-	}: CreateMutationFnProps,
-): NonNullable<MutationOptions<TData, unknown, TParams>['mutationFn']> {
+		getProps,
+	}: CreateMutationFnProps<TData, TError, TParams>,
+): NonNullable<MutationOptions<TData, TError, TParams>['mutationFn']> {
 	return async function mutationFn(props) {
-		const resolveProps = resolveMutationProps(props)
+		const resolveProps = resolveMutationProps(getProps(), props)
+
 		const fetcher = getFetcher(resolveProps, fetchers)
 		const result = typeof fetcher.createMany === 'function'
 			? await fetcher.createMany<TData, TParams>(resolveProps)
@@ -80,19 +121,23 @@ export function createMutationFn<
 		return result
 	}
 }
+
 export interface CreateSuccessHandlerProps<
 	TData extends BaseRecord,
+	TError,
 	TParams,
 > {
 	notify: NotifyFn
 	translate: TranslateFn<unknown>
 	publish: Publish.EmitFn<PublishPayload>
 	queryClient: QueryClient
-	onSuccess: MutationOptions<TData, unknown, TParams>['onSuccess']
+	getProps: () => Props<TData, TError, TParams> | undefined
+	onSuccess: MutationOptions<TData, TError, TParams>['onSuccess']
 }
 
 export function createSuccessHandler<
 	TData extends BaseRecord,
+	TError,
 	TParams,
 >(
 	{
@@ -100,11 +145,12 @@ export function createSuccessHandler<
 		translate,
 		publish,
 		queryClient,
+		getProps,
 		onSuccess: onSuccessFromProp,
-	}: CreateSuccessHandlerProps<TData, TParams>,
-): NonNullable<MutationOptions<TData, unknown, TParams>['onSuccess']> {
+	}: CreateSuccessHandlerProps<TData, TError, TParams>,
+): NonNullable<MutationOptions<TData, TError, TParams>['onSuccess']> {
 	return async function onSuccess(data, props, context) {
-		const resolvedProps = resolveMutationProps(props)
+		const resolvedProps = resolveMutationProps(getProps(), props)
 
 		notify(
 			resolveSuccessNotifyParams(resolvedProps.successNotify, data, resolvedProps),
@@ -129,16 +175,19 @@ export function createSuccessHandler<
 }
 
 export interface CreateErrorHandlerProps<
+	TData extends BaseRecord,
 	TError,
 	TParams,
 > {
 	notify: NotifyFn
-	translate: TranslateFn<TParams>
+	translate: TranslateFn<unknown>
 	checkError: CheckError.MutationFn<TError>
-	onError: MutationOptions<any, TError, TParams>['onError']
+	getProps: () => Props<TData, TError, TParams> | undefined
+	onError: MutationOptions<TData, TError, TParams>['onError']
 }
 
 export function createErrorHandler<
+	TData extends BaseRecord,
 	TError,
 	TParams,
 >(
@@ -146,13 +195,14 @@ export function createErrorHandler<
 		notify,
 		translate,
 		checkError,
+		getProps,
 		onError: onErrorFromProp,
-	}: CreateErrorHandlerProps<TError, TParams>,
-): NonNullable<MutationOptions<any, TError, any>['onError']> {
+	}: CreateErrorHandlerProps<TData, TError, TParams>,
+): NonNullable<MutationOptions<TData, TError, TParams>['onError']> {
 	return async function onError(error, props, context) {
 		await checkError(error)
 
-		const resolvedProps = resolveMutationProps(props)
+		const resolvedProps = resolveMutationProps(getProps(), props)
 
 		notify(
 			resolveErrorNotifyParams(resolvedProps.errorNotify, error, resolvedProps),
@@ -165,6 +215,58 @@ export function createErrorHandler<
 		)
 
 		await onErrorFromProp?.(error, resolvedProps, context)
+	}
+}
+
+export interface CreateMutateFnProps<
+	TData extends BaseRecord,
+	TError,
+	TParams,
+> {
+	originFn: OriginMutateSyncFunction<
+		CreateManyResult<TData>,
+		TError,
+		MutationProps<TData, TError, TParams>
+	>
+}
+
+export function createMutateFn<
+	TData extends BaseRecord,
+	TError,
+	TParams,
+>(
+	{
+		originFn,
+	}: CreateMutateFnProps<TData, TError, TParams>,
+): MutateFn<TData, TError, TParams> {
+	return function mutateFn(variables, options) {
+		return originFn(variables || ({} as any), options)
+	}
+}
+
+export interface CreateMutateAsyncFnProps<
+	TData extends BaseRecord,
+	TError,
+	TParams,
+> {
+	originFn: OriginMutateAsyncFunction<
+		CreateManyResult<TData>,
+		TError,
+		MutationProps<TData, TError, TParams>
+	>
+}
+
+export function createMutateAsyncFn<
+	TData extends BaseRecord,
+	TError,
+	TParams,
+>(
+	{
+		originFn,
+	}: CreateMutateAsyncFnProps<TData, TError, TParams>,
+): MutateAsyncFn<TData, TError, TParams> {
+	return function mutateAsyncFn(variables, options) {
+		return originFn(variables || ({} as any), options)
 	}
 }
 
@@ -188,21 +290,38 @@ const DEFAULT_INVALIDATES: InvalidateTargetType[] = [
 	InvalidateTarget.Many,
 ]
 
-const cacheResolvedProps = new WeakMap<MutationProps<any, any, any>, ResolvedMutationProps<any, any, any>>()
-
-function resolveMutationProps(
-	props: MutationProps<any, any, any>,
-): ResolvedMutationProps<any, any, any> {
-	const cached = cacheResolvedProps.get(props)
-	if (cached)
-		return cached
-
-	const result: ResolvedMutationProps<any, any, any> = {
+function resolveMutationProps<
+	TData extends BaseRecord,
+	TError,
+	TParams,
+>(
+	propsFromProps: Props<TData, TError, TParams> | undefined,
+	propsFromFn: MutationProps<TData, TError, TParams>,
+): ResolvedMutationProps<TData, TError, TParams> {
+	const props = resolveProps(propsFromProps, propsFromFn)
+	const result: ResolvedMutationProps<TData, TError, TParams> = {
 		...props,
 		...resolveFetcherProps(props),
 		...resolveInvalidateProps(props, DEFAULT_INVALIDATES),
 	}
-	cacheResolvedProps.set(props, result)
 
 	return result
+}
+
+function resolveProps<
+	TData extends BaseRecord,
+	TError,
+	TParams,
+>(
+	propsFromProps: Props<TData, TError, TParams> | undefined,
+	propsFromFn: MutationProps<TData, TError, TParams>,
+): MutationProps<TData, TError, TParams> & CreateManyProps<TParams> {
+	const props = {
+		...propsFromProps,
+		...propsFromFn,
+	}
+	if (props.resource == null || props.params == null)
+		throw new Error('No') // TODO:
+
+	return props as any
 }
