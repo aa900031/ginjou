@@ -9,6 +9,7 @@ import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { InvalidatesProps, InvalidateTargetType, ResolvedInvalidatesProps } from './invalidate'
 import type { NotifyProps } from './notify'
 import type { PublishPayload } from './publish'
+import type { OptionalMutateAsyncFunction, OptionalMutateSyncFunction, OriginMutateAsyncFunction, OriginMutateSyncFunction } from './types'
 import { NotificationType } from '../notification'
 import { RealtimeAction } from '../realtime/event'
 import { getErrorMessage } from '../utils/error'
@@ -17,7 +18,6 @@ import { fakeMany } from './helper'
 import { InvalidateTarget, resolveInvalidateProps, triggerInvalidates } from './invalidate'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
 import { createPublishMeta, createPublishPayloadByMany } from './publish'
-import { OptionalMutateAsyncFunction, OptionalMutateSyncFunction, OriginMutateAsyncFunction, OriginMutateSyncFunction } from './types'
 
 export type MutationProps<
 	TData extends BaseRecord,
@@ -36,9 +36,9 @@ export type ResolvedMutationProps<
 	TParams,
 > = Simplify<
 	& OverrideProperties<
-			MutationProps<TData, TError, TParams>,
-			CreateManyProps<TParams>
-		>
+		MutationProps<TData, TError, TParams>,
+		CreateManyProps<TParams>
+	>
 	& ResolvedFetcherProps
 	& ResolvedInvalidatesProps
 >
@@ -183,7 +183,7 @@ export interface CreateErrorHandlerProps<
 > {
 	notify: NotifyFn
 	translate: TranslateFn<unknown>
-	checkError: CheckError.MutationFn<TError>
+	checkError: CheckError.MutationAsyncFn<TError>
 	getProps: () => Props<TData, TError, TParams> | undefined
 	onError: MutationOptions<TData, TError, TParams>['onError']
 }

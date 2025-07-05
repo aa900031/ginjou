@@ -44,9 +44,9 @@ export type ResolvedMutationProps<
 	TParams,
 > = Simplify<
 	& OverrideProperties<
-			MutationProps<TData, TError, TParams>,
-			UpdateManyProps<TParams>
-		>
+		MutationProps<TData, TError, TParams>,
+		UpdateManyProps<TParams>
+	>
 	& ResolvedFetcherProps
 	& ResolvedInvalidatesProps
 	& ResolvedMutationModeProps
@@ -119,7 +119,7 @@ export interface CreateMutationFnProps<
 	fetchers: Fetchers
 	notify: NotifyFn
 	translate: TranslateFn<unknown>
-	getProps: () => Props<TData, TError, TParams> | undefined,
+	getProps: () => Props<TData, TError, TParams> | undefined
 }
 
 export function createMutationFn<
@@ -249,7 +249,7 @@ export interface CreateSettledHandlerProps<
 	TParams,
 > {
 	queryClient: QueryClient
-	getProps: () => Props<TData, TError, TParams> | undefined,
+	getProps: () => Props<TData, TError, TParams> | undefined
 	onSettled: MutationOptions<TData, TError, TParams>['onSettled']
 }
 
@@ -287,7 +287,7 @@ export interface CreateSuccessHandlerProps<
 	translate: TranslateFn<unknown>
 	publish: Publish.EmitFn<PublishPayload>
 	queryClient: QueryClient
-	getProps: () => Props<TData, TError, TParams> | undefined,
+	getProps: () => Props<TData, TError, TParams> | undefined
 	onSuccess: MutationOptions<TData, TError, TParams>['onSuccess']
 }
 
@@ -340,8 +340,8 @@ export interface CreateErrorHandlerProps<
 	queryClient: QueryClient
 	notify: NotifyFn
 	translate: TranslateFn<unknown>
-	checkError: CheckError.MutationFn<TError>
-	getProps: () => Props<TData, TError, TParams> | undefined,
+	checkError: CheckError.MutationAsyncFn<TError>
+	getProps: () => Props<TData, TError, TParams> | undefined
 	onError: MutationOptions<TData, TError, TParams>['onError']
 }
 

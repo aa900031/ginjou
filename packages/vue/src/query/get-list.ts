@@ -64,7 +64,7 @@ export function useGetList<
 	const realtimeOptions = useRealtimeOptions(toRef(() => unref(props.realtime)), context)
 	const notify = useNotify(context)
 	const translate = useTranslate(context)
-	const { mutateAsync: checkError } = useCheckError(context)
+	const { mutateAsync: checkError } = useCheckError(undefined, context)
 
 	const queryProps = computed(() => GetList.resolveQueryProps<TPageParam>({
 		fetcherName: unref(props.fetcherName),

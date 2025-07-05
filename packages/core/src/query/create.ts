@@ -35,9 +35,9 @@ export type ResolvedMutationProps<
 	TParams,
 > = Simplify<
 	& OverrideProperties<
-			MutationProps<TData, TError, TParams>,
-			CreateProps<TParams>
-		>
+		MutationProps<TData, TError, TParams>,
+		CreateProps<TParams>
+	>
 	& ResolvedFetcherProps
 	& ResolvedInvalidatesProps
 >
@@ -148,7 +148,7 @@ export function createSuccessHandler<
 	}: CreateSuccessHandlerProps<TData, TError, TParams>,
 ): NonNullable<MutationOptions<TData, TError, TParams>['onSuccess']> {
 	return async function onSuccess(data, props, context) {
-		const resolvedProps = resolveMutationProps(getProps() , props)
+		const resolvedProps = resolveMutationProps(getProps(), props)
 
 		notify(
 			resolveSuccessNotifyParams(resolvedProps.successNotify, data, resolvedProps),
@@ -179,7 +179,7 @@ export interface CreateErrorHandlerProps<
 > {
 	notify: NotifyFn
 	translate: TranslateFn<unknown>
-	checkError: CheckError.MutationFn<TError>
+	checkError: CheckError.MutationAsyncFn<TError>
 	getProps: () => Props<TData, TError, TParams> | undefined
 	onError: MutationOptions<TData, TError, TParams>['onError']
 }

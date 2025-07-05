@@ -5,6 +5,7 @@ import type { UseCheckErrorContext } from '../auth'
 import type { UseTranslateContext } from '../i18n'
 import type { UseNotifyContext } from '../notification'
 import type { UsePublishContext } from '../realtime'
+import type { ToMaybeRefs } from '../utils/refs'
 import type { UseFetcherContextFromProps } from './fetchers'
 import type { UseQueryClientContextProps } from './query-client'
 import { DeleteMany } from '@ginjou/core'
@@ -14,10 +15,9 @@ import { useCheckError } from '../auth'
 import { useTranslate } from '../i18n'
 import { useNotify } from '../notification'
 import { usePublish } from '../realtime'
+import { unrefs } from '../utils/unrefs'
 import { useFetchersContext } from './fetchers'
 import { useQueryClientContext } from './query-client'
-import { unrefs } from '../utils/unrefs'
-import { ToMaybeRefs } from '../utils/refs'
 
 export type UseDeleteManyProps<
 	TData extends BaseRecord,
@@ -52,7 +52,7 @@ export type UseDeleteManyResult<
 		mutateAsync: DeleteMany.MutateAsyncFn<TData, TError, TParams>
 	}
 >
-[]
+
 export function useDeleteMany<
 	TData extends BaseRecord,
 	TError,
@@ -66,7 +66,7 @@ export function useDeleteMany<
 	const notify = useNotify(context)
 	const translate = useTranslate(context)
 	const publish = usePublish(context)
-	const { mutateAsync: checkError } = useCheckError(context)
+	const { mutateAsync: checkError } = useCheckError(undefined, context)
 
 	const mutation = useMutation<DeleteManyResult<TData>, TError, DeleteMany.MutationProps<TData, TError, TParams>, DeleteMany.MutationContext<TData>>(computed(() => ({
 		...unref(props?.mutationOptions) as any, // TODO:

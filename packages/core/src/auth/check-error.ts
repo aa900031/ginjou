@@ -13,6 +13,21 @@ export type MutationOptions<
 	TParams
 >
 
+export type MutationOptionsFromProps<
+	TParams,
+	TError,
+> = Omit<
+	MutationOptions<TParams, TError>,
+	| 'mutationFn'
+>
+
+export interface Props<
+	TParams,
+	TError,
+> {
+	mutationOptions?: MutationOptionsFromProps<TParams, TError>
+}
+
 export function createMutationKey(): MutationKey {
 	return [
 		'auth',
@@ -24,7 +39,7 @@ export interface CreateMutationFnProps {
 	auth: Auth | undefined
 }
 
-export type MutationFn<
+export type MutationAsyncFn<
 	TParams,
 > = MutationFunction<
 	AuthCheckErrorResult,
@@ -64,15 +79,17 @@ export function createSuccessHandler<
 	}: CreateSuccessHandlerProps,
 ): NonNullable<MutationOptions<TParams, TError>['onSuccess']> {
 	return async function onSuccess(data) {
-		const { logout: shouldLogout, ...rest } = data
+		const { logout: shouldLogout, redirectTo } = data
 		if (shouldLogout) {
-			await logout(rest)
+			await logout({
+				redirectTo,
+			})
 			return
 		}
 
-		if (rest.redirectTo) {
+		if (redirectTo) {
 			go({
-				to: rest.redirectTo,
+				to: redirectTo,
 				type: RouterGoType.Replace,
 			})
 		}

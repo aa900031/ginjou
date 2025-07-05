@@ -236,7 +236,7 @@ export interface CreateErrorHandlerProps<
 	translate: TranslateFn<unknown>
 	getProps: () => ResolvedQueryProps
 	getErrorNotify: () => NotifyProps<GetManyResult<any>, ResolvedQueryProps, TError>['errorNotify']
-	checkError: CheckError.MutationFn<unknown>
+	checkError: CheckError.MutationAsyncFn<unknown>
 	emitParent: NonNullable<QueryOptions<any, TError, any>['onError']>
 }
 

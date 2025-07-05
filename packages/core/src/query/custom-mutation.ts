@@ -7,11 +7,11 @@ import type { Publish } from '../realtime'
 import type { BaseRecord, CustomProps, CustomResult } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { NotifyProps } from './notify'
+import type { OptionalMutateAsyncFunction, OptionalMutateSyncFunction, OriginMutateAsyncFunction, OriginMutateSyncFunction } from './types'
 import { NotificationType } from '../notification'
 import { getErrorMessage } from '../utils/error'
 import { getFetcher, resolveFetcherProps } from './fetchers'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
-import { OptionalMutateAsyncFunction, OptionalMutateSyncFunction, OriginMutateAsyncFunction, OriginMutateSyncFunction } from './types'
 
 export type MutationProps<
 	TData extends BaseRecord,
@@ -41,9 +41,9 @@ export type ResolvedMutationProps<
 	TPayload,
 > = Simplify<
 	& OverrideProperties<
-			MutationProps<TData, TError, TQuery, TPayload>,
-			CustomProps<TQuery, TPayload>
-		>
+		MutationProps<TData, TError, TQuery, TPayload>,
+		CustomProps<TQuery, TPayload>
+	>
 	& ResolvedFetcherProps
 >
 
@@ -109,7 +109,7 @@ export interface CreateMutationFnProps<
 	TPayload,
 > {
 	fetchers: Fetchers
-	getProps: () => Props<TData, TError, TQuery, TPayload> | undefined,
+	getProps: () => Props<TData, TError, TQuery, TPayload> | undefined
 }
 
 export function createMutationFn<
@@ -143,7 +143,7 @@ export interface CreateSuccessHandlerProps<
 > {
 	notify: NotifyFn
 	publish: Publish.EmitFn<TPayload>
-	getProps: () => Props<TData, TError, TQuery, TPayload> | undefined,
+	getProps: () => Props<TData, TError, TQuery, TPayload> | undefined
 	onSuccess: MutationOptions<TData, TError, TQuery, TPayload>['onSuccess']
 }
 
@@ -187,7 +187,7 @@ export interface CreateErrorHandlerProps<
 > {
 	notify: NotifyFn
 	translate: TranslateFn<unknown>
-	checkError: CheckError.MutationFn<unknown>
+	checkError: CheckError.MutationAsyncFn<unknown>
 	getProps: () => Props<TData, TError, TQuery, TPayload> | undefined
 	onError: MutationOptions<TData, TError, TQuery, TPayload>['onError']
 }

@@ -15,9 +15,9 @@ import { useCheckError } from '../auth'
 import { useTranslate } from '../i18n'
 import { useNotify } from '../notification'
 import { usePublish } from '../realtime'
+import { unrefs } from '../utils/unrefs'
 import { useFetchersContext } from './fetchers'
 import { useQueryClientContext } from './query-client'
-import { unrefs } from '../utils/unrefs'
 
 export type UseCreateProps<
 	TData extends BaseRecord,
@@ -66,7 +66,7 @@ export function useCreate<
 	const notify = useNotify(context)
 	const translate = useTranslate(context)
 	const publish = usePublish(context)
-	const { mutateAsync: checkError } = useCheckError(context)
+	const { mutateAsync: checkError } = useCheckError(undefined, context)
 
 	const mutation = useMutation<CreateResult<TData>, TError, Create.MutationProps<TData, TError, TParams>, any>(computed(() => ({
 		...unref(props?.mutationOptions) as any, // TODO:

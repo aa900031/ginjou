@@ -5,6 +5,7 @@ import type { UseCheckErrorContext } from '../auth'
 import type { UseTranslateContext } from '../i18n'
 import type { UseNotifyContext } from '../notification'
 import type { UsePublishContext } from '../realtime'
+import type { ToMaybeRefs } from '../utils/refs'
 import type { UseFetcherContextFromProps } from './fetchers'
 import type { UseQueryClientContextProps } from './query-client'
 import { CustomMutation } from '@ginjou/core'
@@ -14,10 +15,9 @@ import { useCheckError } from '../auth'
 import { useTranslate } from '../i18n'
 import { useNotify } from '../notification'
 import { usePublish } from '../realtime'
+import { unrefs } from '../utils/unrefs'
 import { useFetchersContext } from './fetchers'
 import { useQueryClientContext } from './query-client'
-import { unrefs } from '../utils/unrefs'
-import { ToMaybeRefs } from '../utils/refs'
 
 export type UseCustomMutationProps<
 	TData extends BaseRecord,
@@ -69,7 +69,7 @@ export function useCustomMutation<
 	const notify = useNotify(context)
 	const translate = useTranslate(context)
 	const publish = usePublish(context)
-	const { mutateAsync: checkError } = useCheckError(context)
+	const { mutateAsync: checkError } = useCheckError(undefined, context)
 
 	const mutation = useMutation<CustomResult<TData>, TError, CustomMutation.MutationProps<TData, TError, TQuery, TPayload>, any>(computed(() => ({
 		...unref(props?.mutationOptions) as any, // TODO:

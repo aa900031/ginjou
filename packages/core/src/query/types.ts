@@ -1,5 +1,5 @@
 import type { MutateFunction, MutateOptions, QueryKey } from '@tanstack/query-core'
-import { SetReturnType } from 'type-fest'
+import type { SetReturnType } from 'type-fest'
 
 export type QueryPair<TData> = [QueryKey, TData | undefined]
 

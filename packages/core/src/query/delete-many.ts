@@ -44,9 +44,9 @@ export type ResolvedMutationProps<
 	TParams,
 > = Simplify<
 	& OverrideProperties<
-			MutationProps<TData, TError, TParams>,
-			DeleteManyProps<TParams>
-		>
+		MutationProps<TData, TError, TParams>,
+		DeleteManyProps<TParams>
+	>
 	& ResolvedFetcherProps
 	& ResolvedInvalidatesProps
 	& ResolvedMutationModeProps
@@ -119,7 +119,7 @@ export interface CreateMutationFnProps<
 	fetchers: Fetchers
 	notify: NotifyFn
 	translate: TranslateFn<unknown>
-	getProps: () => Props<TData, TError, TParams> | undefined,
+	getProps: () => Props<TData, TError, TParams> | undefined
 }
 
 export function createMutationFn<
@@ -343,7 +343,7 @@ export interface CreateErrorHandlerProps<
 	queryClient: QueryClient
 	notify: NotifyFn
 	translate: TranslateFn<unknown>
-	checkError: CheckError.MutationFn<TError>
+	checkError: CheckError.MutationAsyncFn<TError>
 	getProps: () => Props<TData, TError, TParams> | undefined
 	onError: MutationOptions<TData, TError, TParams>['onError']
 }
