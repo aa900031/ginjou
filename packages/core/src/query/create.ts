@@ -10,6 +10,7 @@ import type { InvalidatesProps, InvalidateTargetType, ResolvedInvalidatesProps }
 import type { NotifyProps } from './notify'
 import type { PublishPayload } from './publish'
 import type { OptionalMutateAsyncFunction, OptionalMutateSyncFunction, OriginMutateAsyncFunction, OriginMutateSyncFunction } from './types'
+import { assert } from 'node:console'
 import { NotificationType } from '../notification'
 import { RealtimeAction } from '../realtime/event'
 import { getErrorMessage } from '../utils/error'
@@ -313,13 +314,18 @@ function resolveProps<
 >(
 	propsFromProps: Props<TData, TError, TParams> | undefined,
 	propsFromFn: MutationProps<TData, TError, TParams>,
-): MutationProps<TData, TError, TParams> & CreateProps<TParams> {
+): OverrideProperties<MutationProps<TData, TError, TParams>, CreateProps<TParams>> {
 	const props = {
 		...propsFromProps,
 		...propsFromFn,
 	}
-	if (props.resource == null || props.params == null)
+	const { resource, params } = props
+	if (resource == null || params == null)
 		throw new Error('No') // TODO:
 
-	return props as any
+	return {
+		...props,
+		resource,
+		params,
+	}
 }

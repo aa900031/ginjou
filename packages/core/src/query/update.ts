@@ -483,15 +483,21 @@ function resolveProps<
 >(
 	propsFromProps: Props<TData, TError, TParams> | undefined,
 	propsFromFn: MutationProps<TData, TError, TParams>,
-): MutationProps<TData, TError, TParams> & UpdateProps<TParams> {
+): OverrideProperties<MutationProps<TData, TError, TParams>, UpdateProps<TParams>> {
 	const props = {
 		...propsFromProps,
 		...propsFromFn,
 	}
-	if (props.resource == null || props.id == null || props.params == null)
+	const { resource, id, params } = props
+	if (resource == null || id == null || params == null)
 		throw new Error('No') // TODO:
 
-	return props as any
+	return {
+		...props,
+		resource,
+		id,
+		params,
+	}
 }
 
 function updateCache<

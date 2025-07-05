@@ -307,13 +307,18 @@ function resolveProps<
 >(
 	propsFromProps: Props<TData, TError, TQuery, TPayload> | undefined,
 	propsFromFn: MutationProps<TData, TError, TQuery, TPayload>,
-): MutationProps<TData, TError, TQuery, TPayload> & CustomProps<TQuery, TPayload> {
+): OverrideProperties<MutationProps<TData, TError, TQuery, TPayload>, CustomProps<TQuery, TPayload>> {
 	const props = {
 		...propsFromProps,
 		...propsFromFn,
 	}
-	if (props.url == null || props.method == null)
+	const { url, method } = props
+	if (url == null || method == null)
 		throw new Error('No') // TODO:
 
-	return props as any
+	return {
+		...props,
+		url,
+		method,
+	}
 }
