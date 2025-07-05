@@ -25,12 +25,17 @@ export type UseLoginContext = Simplify<
 export type UseLoginResult<
 	TParams,
 	TError,
-> = UseMutationReturnType<
-	AuthLoginResult,
-	TError,
-	TParams,
-	unknown
->
+> =
+	& UseMutationReturnType<
+		AuthLoginResult,
+		TError,
+		TParams,
+		unknown
+	>
+	& {
+		mutate: Login.MutateFn<TParams, TError>
+		mutateAsync: Login.MutateAsyncFn<TParams, TError>
+	}
 
 export function useLogin<
 	TParams = unknown,
@@ -44,7 +49,7 @@ export function useLogin<
 	const notify = useNotify(context)
 	const translate = useTranslate(context)
 
-	return useMutation<AuthLoginResult, TError, TParams>({
+	const mutation = useMutation<AuthLoginResult, TError, TParams>({
 		mutationKey: Login.createMutationKey(),
 		mutationFn: Login.createMutationFn<TParams>({
 			auth,
@@ -58,4 +63,18 @@ export function useLogin<
 			translate,
 		}),
 	}, queryClient)
+
+	const mutate = Login.createMutateFn({
+		originFn: mutation.mutate,
+	})
+
+	const mutateAsync = Login.createMutateAsyncFn({
+		originFn: mutation.mutateAsync,
+	})
+
+	return {
+		...mutation,
+		mutate,
+		mutateAsync,
+	}
 }

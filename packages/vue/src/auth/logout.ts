@@ -25,12 +25,17 @@ export type UseLogoutContext = Simplify<
 export type UseLogoutResult<
 	TParams,
 	TError,
-> = UseMutationReturnType<
-	AuthLogoutResult,
-	TError,
-	TParams,
-	unknown
->
+> =
+	& UseMutationReturnType<
+		AuthLogoutResult,
+		TError,
+		TParams,
+		unknown
+	>
+	& {
+		mutate: Logout.MutateFn<TParams, TError>
+		mutateAsync: Logout.MutateAsyncFn<TParams, TError>
+	}
 
 export function useLogout<
 	TParams = unknown,
@@ -44,7 +49,7 @@ export function useLogout<
 	const notify = useNotify(context)
 	const translate = useTranslate(context)
 
-	return useMutation<AuthLogoutResult, TError, TParams>({
+	const mutation = useMutation<AuthLogoutResult, TError, TParams>({
 		mutationKey: Logout.createMutationKey(),
 		mutationFn: Logout.createMutationFn<TParams>({
 			auth,
@@ -58,4 +63,18 @@ export function useLogout<
 			translate,
 		}),
 	}, queryClient)
+
+	const mutate = Logout.createMutateFn({
+		originFn: mutation.mutate,
+	})
+
+	const mutateAsync = Logout.createMutateAsyncFn({
+		originFn: mutation.mutateAsync,
+	})
+
+	return {
+		...mutation,
+		mutate,
+		mutateAsync,
+	}
 }

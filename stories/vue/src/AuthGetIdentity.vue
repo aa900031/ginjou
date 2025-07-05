@@ -4,7 +4,7 @@ import { useGetIdentity, useLogin } from '@ginjou/vue'
 const { mutateAsync: login } = useLogin()
 const { data: identity, isLoading } = useGetIdentity<{ username: string }>()
 
-login({})
+login()
 </script>
 
 <template>

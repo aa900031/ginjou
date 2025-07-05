@@ -1,4 +1,4 @@
-import type { MutateFunction, MutationFunction, MutationKey, MutationOptions, QueryClient } from '@tanstack/query-core'
+import type { MutationFunction, MutationKey, MutationOptions, QueryClient } from '@tanstack/query-core'
 import type { TranslateFn } from '../i18n'
 import type { NotifyFn } from '../notification'
 import type { RouterGoFn } from '../router'
@@ -7,11 +7,21 @@ import { NotificationType } from '../notification'
 import { RouterGoType } from '../router'
 import { getErrorMessage } from '../utils/error'
 import { triggerInvalidateAll } from './invalidate'
+import { OptionalMutateAsyncFunction, OptionalMutateSyncFunction, OriginMutateAsyncFunction, OriginMutateSyncFunction } from '../query/types'
 
-export type LoginMutateFn<
+export type MutateFn<
 	TParams,
 	TError,
-> = MutateFunction<
+> = OptionalMutateSyncFunction<
+	AuthLoginResult,
+	TError,
+	TParams
+>
+
+export type MutateAsyncFn<
+	TParams,
+	TError,
+> = OptionalMutateAsyncFunction<
 	AuthLoginResult,
 	TError,
 	TParams
@@ -96,5 +106,53 @@ export function createErrorHandler<
 			description: getErrorMessage(error),
 			type: NotificationType.Error,
 		})
+	}
+}
+
+export interface CreateMutateFnProps<
+	TError,
+	TParams,
+> {
+	originFn: OriginMutateSyncFunction<
+		AuthLoginResult,
+		TError,
+		TParams
+	>
+}
+
+export function createMutateFn<
+	TError,
+	TParams,
+>(
+	{
+		originFn,
+	}: CreateMutateFnProps<TError, TParams>,
+): MutateFn<TParams, TError> {
+	return function mutateFn(variables, options) {
+		return originFn(variables || ({} as any), options)
+	}
+}
+
+export interface CreateMutateAsyncFnProps<
+	TError,
+	TParams,
+> {
+	originFn: OriginMutateAsyncFunction<
+		AuthLoginResult,
+		TError,
+		TParams
+	>
+}
+
+export function createMutateAsyncFn<
+	TError,
+	TParams,
+>(
+	{
+		originFn,
+	}: CreateMutateAsyncFnProps<TError, TParams>,
+): MutateAsyncFn<TParams, TError> {
+	return function mutateAsyncFn(variables, options) {
+		return originFn(variables || ({} as any), options)
 	}
 }

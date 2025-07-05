@@ -7,10 +7,10 @@ const { mutateAsync: logout, isPending: isLogoutLoading } = useLogout()
 const { mutateAsync: login, isPending: isLoginLoading } = useLogin()
 
 async function handleLogoutClick() {
-	logout(undefined)
+	logout()
 }
 async function handleLoginClick() {
-	login(undefined)
+	login()
 }
 </script>
 

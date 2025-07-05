@@ -1,7 +1,7 @@
 import type { MutationFunction, MutationKey, MutationObserverOptions } from '@tanstack/query-core'
 import type { RouterGoFn } from '../router'
 import type { Auth, AuthCheckErrorResult } from './auth'
-import type { LogoutMutateFn } from './logout'
+import type { MutateAsyncFn } from './logout'
 import { RouterGoType } from '../router'
 
 export type MutationOptions<
@@ -50,7 +50,7 @@ export function createMutationFn<
 }
 
 export interface CreateSuccessHandlerProps {
-	logout: LogoutMutateFn<unknown, unknown>
+	logout: MutateAsyncFn<unknown, unknown>
 	go: RouterGoFn
 }
 
