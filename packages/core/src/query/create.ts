@@ -10,7 +10,6 @@ import type { InvalidatesProps, InvalidateTargetType, ResolvedInvalidatesProps }
 import type { NotifyProps } from './notify'
 import type { PublishPayload } from './publish'
 import type { OptionalMutateAsyncFunction, OptionalMutateSyncFunction, OriginMutateAsyncFunction, OriginMutateSyncFunction } from './types'
-import { assert } from 'node:console'
 import { NotificationType } from '../notification'
 import { RealtimeAction } from '../realtime/event'
 import { getErrorMessage } from '../utils/error'
