@@ -1,6 +1,5 @@
 import type { BaseRecord, UpdateManyResult } from '@ginjou/core'
 import type { UseMutationReturnType } from '@tanstack/vue-query'
-import type { MaybeRef } from '@vueuse/shared'
 import type { Simplify } from 'type-fest'
 import type { UseCheckErrorContext } from '../auth'
 import type { UseTranslateContext } from '../i18n'
@@ -41,12 +40,17 @@ export type UseUpdateManyResult<
 	TData extends BaseRecord,
 	TError,
 	TParams,
-> = UseMutationReturnType<
-	UpdateManyResult<TData>,
-	TError,
-	UpdateMany.MutationProps<TData, TError, TParams>,
-	UpdateMany.MutationContext<TData>
->
+> =
+	& UseMutationReturnType<
+		UpdateManyResult<TData>,
+		TError,
+		UpdateMany.MutationProps<TData, TError, TParams>,
+		UpdateMany.MutationContext<TData>
+	>
+	& {
+		mutate: UpdateMany.MutateFn<TData, TError, TParams>
+		mutateAsync: UpdateMany.MutateAsyncFn<TData, TError, TParams>
+	}
 
 export function useUpdateMany<
 	TData extends BaseRecord,

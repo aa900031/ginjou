@@ -1,6 +1,5 @@
 import type { BaseRecord, DeleteManyResult } from '@ginjou/core'
 import type { UseMutationReturnType } from '@tanstack/vue-query'
-import type { MaybeRef } from '@vueuse/shared'
 import type { Simplify } from 'type-fest'
 import type { UseCheckErrorContext } from '../auth'
 import type { UseTranslateContext } from '../i18n'
@@ -41,12 +40,17 @@ export type UseDeleteManyResult<
 	TData extends BaseRecord,
 	TError,
 	TParams,
-> = UseMutationReturnType<
-	DeleteManyResult<TData>,
-	TError,
-	DeleteMany.MutationProps<TData, TError, TParams>,
-	DeleteMany.MutationContext<TData>
->
+> =
+	& UseMutationReturnType<
+		DeleteManyResult<TData>,
+		TError,
+		DeleteMany.MutationProps<TData, TError, TParams>,
+		DeleteMany.MutationContext<TData>
+	>
+	& {
+		mutate: DeleteMany.MutateFn<TData, TError, TParams>
+		mutateAsync: DeleteMany.MutateAsyncFn<TData, TError, TParams>
+	}
 
 export function useDeleteMany<
 	TData extends BaseRecord,

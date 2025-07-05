@@ -42,12 +42,17 @@ export type UseCustomMutationResult<
 	TError,
 	TQuery,
 	TPayload,
-> = UseMutationReturnType<
-	CustomResult<TData>,
-	TError,
-	CustomMutation.MutationProps<TData, TError, TQuery, TPayload>,
-	unknown
->
+> =
+	& UseMutationReturnType<
+		CustomResult<TData>,
+		TError,
+		CustomMutation.MutationProps<TData, TError, TQuery, TPayload>,
+		unknown
+	>
+	& {
+		mutate: CustomMutation.MutateFn<TData, TError, TQuery, TPayload>
+		mutateAsync: CustomMutation.MutateAsyncFn<TData, TError, TQuery, TPayload>
+	}
 
 export function useCustomMutation<
 	TData extends BaseRecord,

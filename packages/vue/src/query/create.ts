@@ -40,12 +40,17 @@ export type UseCreateResult<
 	TData extends BaseRecord,
 	TError,
 	TParams,
-> = UseMutationReturnType<
-	CreateResult<TData>,
-	TError,
-	Create.MutationProps<TData, TError, TParams>,
-	any
->
+> =
+	& UseMutationReturnType<
+		CreateResult<TData>,
+		TError,
+		Create.MutationProps<TData, TError, TParams>,
+		any
+	>
+	& {
+		mutate: Create.MutateFn<TData, TError, TParams>
+		mutateAsync: Create.MutateAsyncFn<TData, TError, TParams>
+	}
 
 export function useCreate<
 	TData extends BaseRecord = BaseRecord,
