@@ -27,7 +27,6 @@ export type QueryOptions<
 				GetInfiniteListResult<TData, TPageParam>,
 				TError,
 				InfiniteData<GetInfiniteListResult<TResultData, TPageParam>, TPageParam>,
-				GetInfiniteListResult<TData, TPageParam>,
 				QueryKey,
 				TPageParam
 			>,
