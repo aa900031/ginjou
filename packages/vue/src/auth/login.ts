@@ -1,6 +1,6 @@
 import type { AuthLoginResult } from '@ginjou/core'
 import type { UseMutationReturnType } from '@tanstack/vue-query'
-import type { Simplify } from 'type-fest'
+import type { OverrideProperties, Simplify } from 'type-fest'
 import type { UseTranslateContext } from '../i18n'
 import type { UseNotifyContext } from '../notification'
 import type { UseQueryClientContextProps } from '../query/query-client'
@@ -25,17 +25,18 @@ export type UseLoginContext = Simplify<
 export type UseLoginResult<
 	TParams,
 	TError,
-> =
-	& UseMutationReturnType<
+> = OverrideProperties<
+	UseMutationReturnType<
 		AuthLoginResult,
 		TError,
 		TParams,
 		unknown
-	>
-	& {
+	>,
+	{
 		mutate: Login.MutateFn<TParams, TError>
 		mutateAsync: Login.MutateAsyncFn<TParams, TError>
 	}
+>
 
 export function useLogin<
 	TParams = unknown,

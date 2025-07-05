@@ -1,6 +1,6 @@
 import type { BaseRecord, DeleteOneResult } from '@ginjou/core'
 import type { UseMutationReturnType } from '@tanstack/vue-query'
-import type { Simplify } from 'type-fest'
+import type { OverrideProperties, Simplify } from 'type-fest'
 import type { UseCheckErrorContext } from '../auth'
 import type { UseTranslateContext } from '../i18n'
 import type { UseNotifyContext } from '../notification'
@@ -40,17 +40,18 @@ export type UseDeleteResult<
 	TData extends BaseRecord,
 	TError,
 	TParams,
-> =
-	& UseMutationReturnType<
+> = OverrideProperties<
+	UseMutationReturnType<
 		DeleteOneResult<TData>,
 		TError,
 		Delete.MutationProps<TData, TError, TParams>,
 		Delete.MutationContext<TData>
-	>
-	& {
+	>,
+	{
 		mutate: Delete.MutateFn<TData, TError, TParams>
 		mutateAsync: Delete.MutateAsyncFn<TData, TError, TParams>
 	}
+>
 
 export function useDelete<
 	TData extends BaseRecord = BaseRecord,

@@ -1,5 +1,5 @@
 import type { MutationObserverOptions } from '@tanstack/query-core'
-import type { Simplify } from 'type-fest'
+import type { OverrideProperties, Simplify } from 'type-fest'
 import type { CheckError } from '../auth'
 import type { TranslateFn } from '../i18n'
 import type { NotifyFn } from '../notification'
@@ -40,8 +40,10 @@ export type ResolvedMutationProps<
 	TQuery,
 	TPayload,
 > = Simplify<
-	& MutationProps<TData, TError, TQuery, TPayload>
-	& CustomProps<TQuery, TPayload>
+	& OverrideProperties<
+			MutationProps<TData, TError, TQuery, TPayload>,
+			CustomProps<TQuery, TPayload>
+		>
 	& ResolvedFetcherProps
 >
 

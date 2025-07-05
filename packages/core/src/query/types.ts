@@ -1,4 +1,5 @@
 import type { MutateFunction, MutateOptions, QueryKey } from '@tanstack/query-core'
+import { SetReturnType } from 'type-fest'
 
 export type QueryPair<TData> = [QueryKey, TData | undefined]
 
@@ -9,18 +10,17 @@ export type OriginMutateSyncFunction<
 	TError = unknown,
 	TVariables = void,
 	TContext = unknown,
-> = (
-	...args: Parameters<MutateFunction<TData, TError, TVariables, TContext>>
-) => void
+> = SetReturnType<
+	MutateFunction<TData, TError, TVariables, TContext>,
+	void
+>
 
 export type OriginMutateAsyncFunction<
 	TData = unknown,
 	TError = unknown,
 	TVariables = void,
 	TContext = unknown,
-> = (
-	...args: Parameters<MutateFunction<TData, TError, TVariables, TContext>>
-) => Promise<TData>
+> = MutateFunction<TData, TError, TVariables, TContext>
 
 export type OptionalMutateSyncFunction<
 	TData = unknown,

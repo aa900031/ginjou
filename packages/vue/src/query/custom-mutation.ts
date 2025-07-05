@@ -1,6 +1,6 @@
 import type { BaseRecord, CustomResult } from '@ginjou/core'
 import type { UseMutationReturnType } from '@tanstack/vue-query'
-import type { Simplify } from 'type-fest'
+import type { OverrideProperties, Simplify } from 'type-fest'
 import type { UseCheckErrorContext } from '../auth'
 import type { UseTranslateContext } from '../i18n'
 import type { UseNotifyContext } from '../notification'
@@ -42,17 +42,18 @@ export type UseCustomMutationResult<
 	TError,
 	TQuery,
 	TPayload,
-> =
-	& UseMutationReturnType<
+> = OverrideProperties<
+	UseMutationReturnType<
 		CustomResult<TData>,
 		TError,
 		CustomMutation.MutationProps<TData, TError, TQuery, TPayload>,
 		unknown
-	>
-	& {
+	>,
+	{
 		mutate: CustomMutation.MutateFn<TData, TError, TQuery, TPayload>
 		mutateAsync: CustomMutation.MutateAsyncFn<TData, TError, TQuery, TPayload>
 	}
+>
 
 export function useCustomMutation<
 	TData extends BaseRecord,

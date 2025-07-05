@@ -1,6 +1,6 @@
 import type { BaseRecord, UpdateResult } from '@ginjou/core'
 import type { UseMutationReturnType } from '@tanstack/vue-query'
-import type { Simplify } from 'type-fest'
+import type { OverrideProperties, Simplify } from 'type-fest'
 import type { UseCheckErrorContext } from '../auth'
 import type { UseTranslateContext } from '../i18n'
 import type { UseNotifyContext } from '../notification'
@@ -40,17 +40,18 @@ export type UseUpdateResult<
 	TData extends BaseRecord,
 	TError,
 	TParams,
-> =
-	& UseMutationReturnType<
+> = OverrideProperties<
+	UseMutationReturnType<
 		UpdateResult<TData>,
 		TError,
 		Update.MutationProps<TData, TError, TParams>,
 		Update.MutationContext<TData>
-	>
-	& {
+	>,
+	{
 		mutate: Update.MutateFn<TData, TError, TParams>
 		mutateAsync: Update.MutateAsyncFn<TData, TError, TParams>
 	}
+>
 
 export function useUpdate<
 	TData extends BaseRecord = BaseRecord,
