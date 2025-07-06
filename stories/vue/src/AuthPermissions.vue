@@ -4,7 +4,7 @@ import { useLogin, usePermissions } from '@ginjou/vue'
 const { mutateAsync: login } = useLogin()
 const { data: permissions, isLoading } = usePermissions()
 
-login({})
+login()
 </script>
 
 <template>

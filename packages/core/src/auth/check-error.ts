@@ -1,7 +1,7 @@
 import type { MutationFunction, MutationKey, MutationObserverOptions } from '@tanstack/query-core'
 import type { RouterGoFn } from '../router'
 import type { Auth, AuthCheckErrorResult } from './auth'
-import type { LogoutMutateFn } from './logout'
+import type { MutateAsyncFn } from './logout'
 import { RouterGoType } from '../router'
 
 export type MutationOptions<
@@ -12,6 +12,21 @@ export type MutationOptions<
 	TError,
 	TParams
 >
+
+export type MutationOptionsFromProps<
+	TParams,
+	TError,
+> = Omit<
+	MutationOptions<TParams, TError>,
+	| 'mutationFn'
+>
+
+export interface Props<
+	TParams,
+	TError,
+> {
+	mutationOptions?: MutationOptionsFromProps<TParams, TError>
+}
 
 export function createMutationKey(): MutationKey {
 	return [
@@ -24,7 +39,7 @@ export interface CreateMutationFnProps {
 	auth: Auth | undefined
 }
 
-export type MutationFn<
+export type MutationAsyncFn<
 	TParams,
 > = MutationFunction<
 	AuthCheckErrorResult,
@@ -50,7 +65,7 @@ export function createMutationFn<
 }
 
 export interface CreateSuccessHandlerProps {
-	logout: LogoutMutateFn<unknown, unknown>
+	logout: MutateAsyncFn<unknown, unknown>
 	go: RouterGoFn
 }
 
@@ -64,15 +79,17 @@ export function createSuccessHandler<
 	}: CreateSuccessHandlerProps,
 ): NonNullable<MutationOptions<TParams, TError>['onSuccess']> {
 	return async function onSuccess(data) {
-		const { logout: shouldLogout, ...rest } = data
+		const { logout: shouldLogout, redirectTo } = data
 		if (shouldLogout) {
-			await logout(rest)
+			await logout({
+				redirectTo,
+			})
 			return
 		}
 
-		if (rest.redirectTo) {
+		if (redirectTo) {
 			go({
-				to: rest.redirectTo,
+				to: redirectTo,
 				type: RouterGoType.Replace,
 			})
 		}

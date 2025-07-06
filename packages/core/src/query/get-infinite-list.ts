@@ -27,7 +27,6 @@ export type QueryOptions<
 				GetInfiniteListResult<TData, TPageParam>,
 				TError,
 				InfiniteData<GetInfiniteListResult<TResultData, TPageParam>, TPageParam>,
-				GetInfiniteListResult<TData, TPageParam>,
 				QueryKey,
 				TPageParam
 			>,
@@ -239,7 +238,7 @@ export interface CreateErrorHandlerProps<
 	translate: TranslateFn<unknown>
 	getProps: () => ResolvedQueryProps<TPageParam>
 	getErrorNotify: () => NotifyProps<any, ResolvedQueryProps<TPageParam>, TError>['errorNotify']
-	checkError: CheckError.MutationFn<unknown>
+	checkError: CheckError.MutationAsyncFn<unknown>
 	emitParent: NonNullable<QueryOptions<any, TError, any, TPageParam>['onError']>
 }
 

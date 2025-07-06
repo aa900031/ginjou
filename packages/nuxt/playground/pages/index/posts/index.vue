@@ -6,10 +6,10 @@ const { data: authenticated } = await useAsyncAuthenticated()
 const isAuth = toRef(() => !!unref(authenticated)?.authenticated)
 
 function handleLogout() {
-	return logout({})
+	return logout()
 }
 function handleLogin() {
-	return login({})
+	return login()
 }
 </script>
 
@@ -17,7 +17,7 @@ function handleLogin() {
 	<ul>
 		<li
 			v-for="record in records"
-			:key="record.id"
+			:key="record.id!"
 		>
 			<NuxtLink :to="`/posts/${record.id}`">
 				{{ record.name }}

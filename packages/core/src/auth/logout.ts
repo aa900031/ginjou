@@ -1,6 +1,7 @@
-import type { MutateFunction, MutationFunction, MutationKey, MutationOptions, QueryClient } from '@tanstack/query-core'
+import type { MutationKey, MutationObserverOptions, QueryClient } from '@tanstack/query-core'
 import type { TranslateFn } from '../i18n'
 import type { NotifyFn } from '../notification'
+import type { OptionalMutateAsyncFunction, OptionalMutateSyncFunction, OriginMutateAsyncFunction, OriginMutateSyncFunction } from '../query/types'
 import type { RouterGoFn } from '../router'
 import type { Auth, AuthLogoutResult } from './auth'
 import { NotificationType } from '../notification'
@@ -8,14 +9,47 @@ import { RouterGoType } from '../router'
 import { getErrorMessage } from '../utils/error'
 import { triggerInvalidateAll } from './invalidate'
 
-export type LogoutMutateFn<
+export type MutationOptions<
 	TParams,
 	TError,
-> = MutateFunction<
+> = MutationObserverOptions<
 	AuthLogoutResult,
 	TError,
 	TParams
 >
+
+export type MutationOptionsFromProps<
+	TParams,
+	TError,
+> = Omit<
+	MutationOptions<TParams, TError>,
+	| 'mutationFn'
+>
+
+export type MutateFn<
+	TParams,
+	TError,
+> = OptionalMutateSyncFunction<
+	AuthLogoutResult,
+	TError,
+	TParams
+>
+
+export type MutateAsyncFn<
+	TParams,
+	TError,
+> = OptionalMutateAsyncFunction<
+	AuthLogoutResult,
+	TError,
+	TParams
+>
+
+export interface Props<
+	TParams,
+	TError,
+> {
+	mutationOptions?: MutationOptionsFromProps<TParams, TError>
+}
 
 export function createMutationKey(): MutationKey {
 	return [
@@ -30,11 +64,12 @@ export interface CreateMutationFnProps {
 
 export function createMutationFn<
 	TParams,
+	TError,
 >(
 	{
 		auth,
 	}: CreateMutationFnProps,
-): MutationFunction<AuthLogoutResult, TParams> {
+): NonNullable<MutationOptions<TParams, TError>['mutationFn']> {
 	return async function mutationFn(params) {
 		const { logout } = auth ?? {}
 		if (typeof logout !== 'function')
@@ -51,13 +86,14 @@ export interface CreateSuccessHandlerProps {
 }
 
 export function createSuccessHandler<
-	TParams = unknown,
+	TParams,
+	TError,
 >(
 	{
 		queryClient,
 		go,
 	}: CreateSuccessHandlerProps,
-): NonNullable<MutationOptions<AuthLogoutResult, unknown, TParams>['onSuccess']> {
+): NonNullable<MutationOptions<TParams, TError>['onSuccess']> {
 	return async function onSuccess(data) {
 		const redirectTo
 			= typeof data === 'string'
@@ -86,7 +122,7 @@ export function createErrorHandler<
 		notify,
 		translate,
 	}: CreateErrorHandlerProps,
-): NonNullable<MutationOptions<AuthLogoutResult, TError, TParams>['onError']> {
+): NonNullable<MutationOptions<TParams, TError>['onError']> {
 	return function onError(
 		error,
 	) {
@@ -96,5 +132,53 @@ export function createErrorHandler<
 			description: getErrorMessage(error),
 			type: NotificationType.Error,
 		})
+	}
+}
+
+export interface CreateMutateFnProps<
+	TError,
+	TParams,
+> {
+	originFn: OriginMutateSyncFunction<
+		AuthLogoutResult,
+		TError,
+		TParams
+	>
+}
+
+export function createMutateFn<
+	TError,
+	TParams,
+>(
+	{
+		originFn,
+	}: CreateMutateFnProps<TError, TParams>,
+): MutateFn<TParams, TError> {
+	return function mutateFn(variables, options) {
+		return originFn(variables || ({} as any), options)
+	}
+}
+
+export interface CreateMutateAsyncFnProps<
+	TError,
+	TParams,
+> {
+	originFn: OriginMutateAsyncFunction<
+		AuthLogoutResult,
+		TError,
+		TParams
+	>
+}
+
+export function createMutateAsyncFn<
+	TError,
+	TParams,
+>(
+	{
+		originFn,
+	}: CreateMutateAsyncFnProps<TError, TParams>,
+): MutateAsyncFn<TParams, TError> {
+	return function mutateAsyncFn(variables, options) {
+		return originFn(variables || ({} as any), options)
 	}
 }

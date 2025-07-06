@@ -12,10 +12,10 @@ async function handleCheckClick() {
 }
 
 async function handleLoginClick() {
-	login({})
+	login()
 }
 
-login({})
+login()
 </script>
 
 <template>
