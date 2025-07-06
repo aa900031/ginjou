@@ -14,6 +14,7 @@ import { useTranslate } from '../i18n'
 import { useNotify } from '../notification'
 import { useQueryClientContext } from '../query/query-client'
 import { useGo } from '../router'
+import { unrefs } from '../utils/unrefs'
 import { useAuthContext } from './auth'
 
 export type UseLoginProps<
@@ -68,10 +69,12 @@ export function useLogin<
 		onSuccess: Login.createSuccessHandler({
 			queryClient,
 			go,
+			getProps,
 		}),
 		onError: Login.createErrorHandler({
 			notify,
 			translate,
+			go,
 		}),
 		...unref(props?.mutationOptions),
 	})), queryClient)
@@ -88,5 +91,11 @@ export function useLogin<
 		...mutation,
 		mutate,
 		mutateAsync,
+	}
+
+	function getProps() {
+		return props
+			? unrefs(props) as any // TODO:
+			: undefined
 	}
 }

@@ -2,11 +2,12 @@ import type { MutationKey, MutationObserverOptions, QueryClient } from '@tanstac
 import type { TranslateFn } from '../i18n'
 import type { NotifyFn } from '../notification'
 import type { OptionalMutateAsyncFunction, OptionalMutateSyncFunction, OriginMutateAsyncFunction, OriginMutateSyncFunction } from '../query/types'
-import type { RouterGoFn } from '../router'
-import type { Auth, AuthLoginResult } from './auth'
+import type { RouterGoFn, RouterGoParams } from '../router'
+import type { Auth, AuthCommonObjectResult, AuthLoginResult } from './auth'
 import { NotificationType } from '../notification'
 import { RouterGoType } from '../router'
 import { getErrorMessage } from '../utils/error'
+import { getRedirectToByObject, resolveIgnoreInvalidate, resolveRedirectTo } from './helper'
 import { triggerInvalidateAll } from './invalidate'
 
 export type MutationOptions<
@@ -48,6 +49,8 @@ export interface Props<
 	TParams,
 	TError,
 > {
+	redirectTo?: AuthCommonObjectResult['redirectTo']
+	ignoreInvalidate?: boolean
 	mutationOptions?: MutationOptionsFromProps<TParams, TError>
 }
 
@@ -80,9 +83,18 @@ export function createMutationFn<
 	}
 }
 
-export interface CreateSuccessHandlerProps {
+export interface CreateSuccessHandlerProps<
+	TParams,
+	TError,
+> {
 	queryClient: QueryClient
 	go: RouterGoFn
+	getProps: () => Props<TParams, TError> | undefined
+}
+
+const DEFAULT_REDIRECT_TO: RouterGoParams = {
+	to: '/',
+	type: RouterGoType.Replace,
 }
 
 export function createSuccessHandler<
@@ -90,28 +102,28 @@ export function createSuccessHandler<
 	TError,
 >(
 	{
-		go,
 		queryClient,
-	}: CreateSuccessHandlerProps,
+		go,
+		getProps,
+	}: CreateSuccessHandlerProps<TParams, TError>,
 ): NonNullable<MutationOptions<TParams, TError>['onSuccess']> {
-	return async function onSuccess(data) {
-		const redirectTo
-			= typeof data === 'string'
-				? data
-				: typeof data === 'boolean' && data === false
-					? false
-					: '/'
+	return async function onSuccess(data, propsFromFn) {
+		const propsFromProps = getProps()
+		const redirectTo = resolveRedirectTo(data, propsFromFn, propsFromProps) ?? DEFAULT_REDIRECT_TO
+		const ignoreInvalidate = resolveIgnoreInvalidate(data, propsFromFn, propsFromProps) ?? false
 
-		await triggerInvalidateAll(queryClient)
+		if (!ignoreInvalidate)
+			await triggerInvalidateAll(queryClient)
 
 		if (redirectTo !== false)
-			go({ to: redirectTo, type: RouterGoType.Replace })
+			go(redirectTo)
 	}
 }
 
 export interface CreateErrorHandlerProps {
 	notify: NotifyFn
 	translate: TranslateFn<unknown>
+	go: RouterGoFn
 }
 
 export function createErrorHandler<
@@ -121,17 +133,23 @@ export function createErrorHandler<
 	{
 		notify,
 		translate,
+		go,
 	}: CreateErrorHandlerProps,
-): NonNullable<MutationOptions<TError, TParams>['onError']> {
+): NonNullable<MutationOptions<TParams, TError>['onError']> {
 	return function onError(
 		error,
 	) {
+		const redirectTo = getRedirectToByObject(error as any)
+
 		notify({
 			key: 'login-error',
 			message: translate('auth.login-error'),
 			description: getErrorMessage(error),
 			type: NotificationType.Error,
 		})
+
+		if (redirectTo != null && redirectTo !== false)
+			go(redirectTo)
 	}
 }
 

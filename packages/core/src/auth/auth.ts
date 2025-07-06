@@ -1,16 +1,32 @@
-export type AuthLoginResult = void | false | string | object
+import type { RouterGoParams } from '../router'
 
-export type AuthLogoutResult = void | false | string
+export interface AuthCommonObjectResult {
+	redirectTo?:
+		| false
+		| string
+		| RouterGoParams
+	ignoreInvalidate?: boolean
+}
+
+export type AuthCommonResult =
+	| void
+	| false // prevent redirect
+	| string // redirect to path
+	| AuthCommonObjectResult
+
+export type AuthLoginResult = AuthCommonResult
+
+export type AuthLogoutResult = AuthCommonResult
 
 export interface AuthCheckResult {
 	authenticated: boolean
-	redirectTo?: string
-	logout?: boolean
-	error?: Error | unknown
 }
 
 export interface AuthCheckErrorResult {
-	redirectTo?: string
+	redirectTo?:
+		| false
+		| string
+		| RouterGoParams
 	logout?: boolean
 	error?: Error | unknown
 }
