@@ -9,7 +9,7 @@ import type { ToMaybeRefs } from '../utils/refs'
 import type { UseAuthContextFromProps } from './auth'
 import { Logout } from '@ginjou/core'
 import { useMutation } from '@tanstack/vue-query'
-import { unref } from 'vue-demi'
+import { computed, unref } from 'vue-demi'
 import { useTranslate } from '../i18n'
 import { useNotify } from '../notification'
 import { useQueryClientContext } from '../query/query-client'
@@ -61,7 +61,8 @@ export function useLogout<
 	const notify = useNotify(context)
 	const translate = useTranslate(context)
 
-	const mutation = useMutation<AuthLogoutResult, TError, TParams>({
+	const mutation = useMutation<AuthLogoutResult, TError, TParams>(computed(() => ({
+		...unref(props?.mutationOptions),
 		mutationKey: Logout.createMutationKey(),
 		mutationFn: Logout.createMutationFn({
 			auth,
@@ -70,14 +71,15 @@ export function useLogout<
 			queryClient,
 			go,
 			getProps,
+			onSuccess: unref(props?.mutationOptions)?.onSuccess,
 		}),
 		onError: Logout.createErrorHandler({
 			notify,
 			translate,
 			go,
+			onError: unref(props?.mutationOptions)?.onError,
 		}),
-		...unref(props?.mutationOptions),
-	}, queryClient)
+	})), queryClient)
 
 	const mutate = Logout.createMutateFn({
 		originFn: mutation.mutate,

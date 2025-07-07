@@ -90,6 +90,7 @@ export interface CreateSuccessHandlerProps<
 	queryClient: QueryClient
 	go: RouterGoFn
 	getProps: () => Props<TParams, TError> | undefined
+	onSuccess: MutationOptions<TParams, TError>['onSuccess']
 }
 
 const DEFAULT_REDIRECT_TO: RouterGoParams = {
@@ -105,9 +106,10 @@ export function createSuccessHandler<
 		queryClient,
 		go,
 		getProps,
+		onSuccess: onSuccessFromProp,
 	}: CreateSuccessHandlerProps<TParams, TError>,
 ): NonNullable<MutationOptions<TParams, TError>['onSuccess']> {
-	return async function onSuccess(data, propsFromFn) {
+	return async function onSuccess(data, propsFromFn, context) {
 		const propsFromProps = getProps()
 		const redirectTo = resolveRedirectTo(data, propsFromFn, propsFromProps) ?? DEFAULT_REDIRECT_TO
 		const ignoreInvalidate = resolveIgnoreInvalidate(data, propsFromFn, propsFromProps) ?? false
@@ -117,13 +119,19 @@ export function createSuccessHandler<
 
 		if (redirectTo !== false)
 			go(redirectTo)
+
+		await onSuccessFromProp?.(data, propsFromFn, context)
 	}
 }
 
-export interface CreateErrorHandlerProps {
+export interface CreateErrorHandlerProps<
+	TParams,
+	TError,
+> {
 	notify: NotifyFn
 	translate: TranslateFn<unknown>
 	go: RouterGoFn
+	onError: MutationOptions<TParams, TError>['onError']
 }
 
 export function createErrorHandler<
@@ -134,10 +142,13 @@ export function createErrorHandler<
 		notify,
 		translate,
 		go,
-	}: CreateErrorHandlerProps,
+		onError: onErrorFromProp,
+	}: CreateErrorHandlerProps<TParams, TError>,
 ): NonNullable<MutationOptions<TParams, TError>['onError']> {
-	return function onError(
+	return async function onError(
 		error,
+		variables,
+		context,
 	) {
 		const redirectTo = getRedirectToByObject(error as any)
 
@@ -150,6 +161,8 @@ export function createErrorHandler<
 
 		if (redirectTo != null && redirectTo !== false)
 			go(redirectTo)
+
+		await onErrorFromProp?.(error, variables, context)
 	}
 }
 

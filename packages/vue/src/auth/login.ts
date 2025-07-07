@@ -62,6 +62,7 @@ export function useLogin<
 	const translate = useTranslate(context)
 
 	const mutation = useMutation<AuthLoginResult, TError, TParams>(computed(() => ({
+		...unref(props?.mutationOptions),
 		mutationKey: Login.createMutationKey(),
 		mutationFn: Login.createMutationFn({
 			auth,
@@ -70,13 +71,14 @@ export function useLogin<
 			queryClient,
 			go,
 			getProps,
+			onSuccess: unref(props?.mutationOptions)?.onSuccess,
 		}),
 		onError: Login.createErrorHandler({
 			notify,
 			translate,
 			go,
+			onError: unref(props?.mutationOptions)?.onError,
 		}),
-		...unref(props?.mutationOptions),
 	})), queryClient)
 
 	const mutate = Login.createMutateFn({
