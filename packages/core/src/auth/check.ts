@@ -68,7 +68,7 @@ export function createQueryFn<
 		getParams,
 	}: CreateQueryFnProps<TParams>,
 ): NonNullable<QueryOptions<TError>['queryFn']> {
-	return async function checkQueryFn() {
+	return async function queryFn() {
 		const { check } = auth ?? {}
 		if (typeof check !== 'function')
 			throw new Error('No')
@@ -103,6 +103,7 @@ export interface CreateErrorHandlerProps<
 > {
 	go: RouterGoFn
 	getRedirectTo: () => Props<TParams, TError>['redirectTo']
+	emitParent: NonNullable<QueryOptions<TError>['onError']>
 }
 
 export function createErrorHandler<
@@ -112,9 +113,12 @@ export function createErrorHandler<
 	{
 		go,
 		getRedirectTo,
+		emitParent,
 	}: CreateErrorHandlerProps<TParams, TError>,
 ): NonNullable<QueryOptions<TError>['onError']> {
 	return function onError(error) {
+		emitParent(error)
+
 		const redirectTo = getRedirectToByObject(error as any)
 			?? getRedirectToByObject({ redirectTo: getRedirectTo() })
 

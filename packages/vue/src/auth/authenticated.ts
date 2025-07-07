@@ -42,10 +42,10 @@ export function useAuthenticated<
 	const queryClient = useQueryClientContext(context)
 	const go = useGo(context)
 
-	const queryKey = computed(() => CheckAuth.createQueryKey(
+	const queryKey = computed(() => CheckAuth.createQueryKey<TParams>(
 		getParams(),
 	))
-	const queryFn = CheckAuth.createQueryFn({
+	const queryFn = CheckAuth.createQueryFn<TParams, TError>({
 		auth,
 		getParams,
 	})
@@ -53,9 +53,10 @@ export function useAuthenticated<
 		enabled: unref(props?.queryOptions)?.enabled,
 		auth,
 	}))
-	const onError = CheckAuth.createErrorHandler({
+	const onError = CheckAuth.createErrorHandler<TParams, TError>({
 		go,
 		getRedirectTo,
+		emitParent: (...args) => unref(props?.queryOptions)?.onError?.(...args),
 	})
 
 	return useQuery<AuthCheckResult, TError>(

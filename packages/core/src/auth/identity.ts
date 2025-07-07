@@ -56,7 +56,7 @@ export function createQueryFn<
 		getParams,
 	}: CreateQueryFnProps<TParams>,
 ): QueryFunction<TData> {
-	return async function getIdentityQueryFn() {
+	return async function queryFn() {
 		const { getIdentity } = auth ?? {}
 		if (typeof getIdentity !== 'function')
 			throw new Error('No')
