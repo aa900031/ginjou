@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.6
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/nuxt@0.1.0-beta.5...${npm.name}@0.1.0-beta.6)
+
+### 🚀 Enhancements
+
+-  Mutation with partial props (#66) ([62ce35f](https://github.com/aa900031/ginjou/commit/62ce35fae92f460ffc86f6f747198fc337b6edd6))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.5
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/nuxt@0.1.0-beta.4...${npm.name}@0.1.0-beta.5)
