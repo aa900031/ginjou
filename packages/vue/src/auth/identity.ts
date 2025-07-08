@@ -41,10 +41,6 @@ export function useGetIdentity<
 	const auth = useAuthContext(context)
 	const queryClient = useQueryClientContext(context)
 
-	function getParams(): TParams | undefined {
-		return unref(props?.params)
-	}
-
 	const queryKey = computed(() => Identity.createQueryKey<TParams>(getParams()))
 	const queryFn = Identity.createQueryFn<TData, TParams>({
 		auth,
@@ -65,4 +61,8 @@ export function useGetIdentity<
 		})),
 		queryClient,
 	)
+
+	function getParams(): TParams | undefined {
+		return unref(props?.params)
+	}
 }

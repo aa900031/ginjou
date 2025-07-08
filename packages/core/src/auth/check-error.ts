@@ -2,7 +2,7 @@ import type { MutationFunction, MutationKey, MutationObserverOptions } from '@ta
 import type { RouterGoFn } from '../router'
 import type { Auth, AuthCheckErrorResult } from './auth'
 import type { MutateAsyncFn } from './logout'
-import { RouterGoType } from '../router'
+import { getRedirectToByObject } from './helper'
 
 export type MutationOptions<
 	TParams,
@@ -64,9 +64,13 @@ export function createMutationFn<
 	}
 }
 
-export interface CreateSuccessHandlerProps {
+export interface CreateSuccessHandlerProps<
+	TParams,
+	TError,
+> {
 	logout: MutateAsyncFn<unknown, unknown>
 	go: RouterGoFn
+	onSuccess: MutationOptions<TParams, TError>['onSuccess']
 }
 
 export function createSuccessHandler<
@@ -76,10 +80,12 @@ export function createSuccessHandler<
 	{
 		logout,
 		go,
-	}: CreateSuccessHandlerProps,
+		onSuccess: onSuccessFromProp,
+	}: CreateSuccessHandlerProps<TParams, TError>,
 ): NonNullable<MutationOptions<TParams, TError>['onSuccess']> {
-	return async function onSuccess(data) {
-		const { logout: shouldLogout, redirectTo } = data
+	return async function onSuccess(data, propsFromFn, context) {
+		const redirectTo = getRedirectToByObject(data)
+		const { logout: shouldLogout } = data
 		if (shouldLogout) {
 			await logout({
 				redirectTo,
@@ -87,11 +93,9 @@ export function createSuccessHandler<
 			return
 		}
 
-		if (redirectTo) {
-			go({
-				to: redirectTo,
-				type: RouterGoType.Replace,
-			})
-		}
+		if (redirectTo != null && redirectTo !== false)
+			go(redirectTo)
+
+		await onSuccessFromProp?.(data, propsFromFn, context)
 	}
 }

@@ -14,6 +14,7 @@ import { useTranslate } from '../i18n'
 import { useNotify } from '../notification'
 import { useQueryClientContext } from '../query/query-client'
 import { useGo } from '../router'
+import { unrefs } from '../utils/unrefs'
 import { useAuthContext } from './auth'
 
 export type UseLoginProps<
@@ -61,6 +62,7 @@ export function useLogin<
 	const translate = useTranslate(context)
 
 	const mutation = useMutation<AuthLoginResult, TError, TParams>(computed(() => ({
+		...unref(props?.mutationOptions),
 		mutationKey: Login.createMutationKey(),
 		mutationFn: Login.createMutationFn({
 			auth,
@@ -68,12 +70,15 @@ export function useLogin<
 		onSuccess: Login.createSuccessHandler({
 			queryClient,
 			go,
+			getProps,
+			onSuccess: unref(props?.mutationOptions)?.onSuccess,
 		}),
 		onError: Login.createErrorHandler({
 			notify,
 			translate,
+			go,
+			onError: unref(props?.mutationOptions)?.onError,
 		}),
-		...unref(props?.mutationOptions),
 	})), queryClient)
 
 	const mutate = Login.createMutateFn({
@@ -88,5 +93,11 @@ export function useLogin<
 		...mutation,
 		mutate,
 		mutateAsync,
+	}
+
+	function getProps() {
+		return props
+			? unrefs(props) as any // TODO:
+			: undefined
 	}
 }
