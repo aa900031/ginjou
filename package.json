@@ -2,7 +2,7 @@
 	"name": "@ginjou/monorepo",
 	"type": "module",
 	"private": true,
-	"packageManager": "pnpm@10.8.0",
+	"packageManager": "pnpm@10.12.4",
 	"author": "zhong666 <hi@zhong666.me>",
 	"license": "MIT",
 	"scripts": {
