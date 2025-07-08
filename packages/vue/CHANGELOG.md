@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.10
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/vue@0.1.0-beta.9...${npm.name}@0.1.0-beta.10)
+
+### 🚀 Enhancements
+
+-  Mutation with partial props (#66) ([62ce35f](https://github.com/aa900031/ginjou/commit/62ce35fae92f460ffc86f6f747198fc337b6edd6))
+-  UseCreate, useCreateMany with hooks (#65) ([69c6ab1](https://github.com/aa900031/ginjou/commit/69c6ab14c43bac6cfdad6773f28f195547d4c8ea))
+
+### 💅 Refactors
+
+-  Auth redirect to (#67) ([a371c71](https://github.com/aa900031/ginjou/commit/a371c718ea471a5c5e891c5d708bceb60ab1ebb0))
+
+### 🏡 Chore
+
+-  **deps:** Update npm non-major develop dependencies (#63) ([94be3aa](https://github.com/aa900031/ginjou/commit/94be3aa58e50e317c8928ec69d68ea33a06446a8))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+- Renovate[bot]
+
 ## v0.1.0-beta.9
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/vue@0.1.0-beta.8...${npm.name}@0.1.0-beta.9)
