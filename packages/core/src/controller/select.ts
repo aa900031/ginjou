@@ -34,22 +34,12 @@ export interface GetOptionsProps<
 	valueKey: string | undefined
 }
 
-export interface OptionItem {
+export interface OptionItem<
+	TResultData extends BaseRecord,
+> {
 	label: any
 	value: any
-}
-
-function toOptionItem<
-	TResultData,
->(
-	data: TResultData,
-	labelKey: string,
-	valueKey: string,
-): OptionItem {
-	return {
-		label: get(data, labelKey),
-		value: get(data, valueKey),
-	}
+	data: TResultData
 }
 
 export function getOptions<
@@ -58,12 +48,12 @@ export function getOptions<
 	{
 		listData,
 		manyData,
-		labelKey,
-		valueKey,
+		labelKey = 'title',
+		valueKey = 'id',
 	}: GetOptionsProps<TResultData>,
-): OptionItem[] {
-	const listOptions = listData?.data.map(item => toOptionItem(item, labelKey ?? 'title', valueKey ?? 'id'))
-	const valueOptions = manyData?.data.map(item => toOptionItem(item, labelKey ?? 'title', valueKey ?? 'id'))
+): OptionItem<TResultData>[] {
+	const listOptions = listData?.data.map(item => toOptionItem(item, labelKey, valueKey))
+	const valueOptions = manyData?.data.map(item => toOptionItem(item, labelKey, valueKey))
 
 	return unionBy(listOptions, valueOptions, 'value')
 }
@@ -198,5 +188,19 @@ export function getPagination<
 	return {
 		current: currentPage,
 		perPage,
+	}
+}
+
+function toOptionItem<
+	TResultData extends BaseRecord,
+>(
+	data: TResultData,
+	labelKey: string,
+	valueKey: string,
+): OptionItem<TResultData> {
+	return {
+		label: get(data, labelKey),
+		value: get(data, valueKey),
+		data,
 	}
 }

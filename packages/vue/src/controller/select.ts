@@ -32,7 +32,7 @@ export type UseSelectResult<
 > = Simplify<
 	& UseGetListResult<TError, TResultData, TPageParam> // TODO: merge GetManyResult
 	& {
-		options: ComputedRef<Select.OptionItem[] | undefined>
+		options: ComputedRef<Select.OptionItem<TResultData>[] | undefined>
 		search: Ref<string | undefined> // TODO: TSearchValue from generic
 		currentPage: Ref<TPageParam | undefined>
 		perPage: Ref<number | undefined>
