@@ -55,8 +55,8 @@ export type UseCreateManyResult<
 
 export function useCreateMany<
 	TData extends BaseRecord,
-	TError,
-	TParams,
+	TParams = TData,
+	TError = unknown,
 >(
 	props?: UseCreateManyProps<TData, TError, TParams>,
 	context?: UseCreateManyContext,
