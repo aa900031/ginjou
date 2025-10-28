@@ -46,8 +46,6 @@
 	},
 	"dependencies": {
 		"es-toolkit": "^1.41.0",
-		"klona": "^2.0.6",
-		"mitt": "^3.0.1",
 		"regexparam": "^3.0.0",
 		"tanstack-query-callbacks": "^0.2.1",
 		"type-fest": "^4.41.0"

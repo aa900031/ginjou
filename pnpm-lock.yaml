@@ -62,12 +62,6 @@ importers:
       es-toolkit:
         specifier: ^1.41.0
         version: 1.41.0
-      klona:
-        specifier: ^2.0.6
-        version: 2.0.6
-      mitt:
-        specifier: ^3.0.1
-        version: 3.0.1
       regexparam:
         specifier: ^3.0.0
         version: 3.0.0
