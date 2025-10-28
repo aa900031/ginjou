@@ -55,8 +55,8 @@ export type UseUpdateManyResult<
 
 export function useUpdateMany<
 	TData extends BaseRecord,
-	TError,
-	TParams,
+	TParams = TData,
+	TError = unknown,
 >(
 	props?: UseUpdateManyProps<TData, TError, TParams>,
 	context?: UseUpdateManyContext,

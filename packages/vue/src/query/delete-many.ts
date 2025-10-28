@@ -55,8 +55,8 @@ export type UseDeleteManyResult<
 
 export function useDeleteMany<
 	TData extends BaseRecord,
-	TError,
-	TParams,
+	TParams = TData,
+	TError = unknown,
 >(
 	props?: UseDeleteManyProps<TData, TError, TParams>,
 	context?: UseDeleteManyContext,
