@@ -3,7 +3,7 @@ import type { Simplify } from 'type-fest'
 import type { BaseRecord, Filters, GetInfiniteList, GetInfiniteListResult, Pagination, Sorters } from '../query'
 import type { RouterGoParams } from '../router'
 import type { FiltersProp, SortersProp, SyncRouteProp } from './list'
-import { isEqual } from 'lodash-unified'
+import { isEqual } from 'es-toolkit'
 import { RouterGoType } from '../router'
 import { checkNeedSyncRoute, resolveQueryField, stringifyQueryValue } from './list'
 

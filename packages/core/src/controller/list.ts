@@ -1,7 +1,7 @@
 import type { Simplify, ValueOf } from 'type-fest'
 import type { BaseRecord, Filter, Filters, GetList, GetListResult, Pagination, Sort, Sorters } from '../query'
 import type { RouterGoParams, RouterLocation } from '../router'
-import { isEqual, unionWith } from 'lodash-unified'
+import { isEqual, unionWith } from 'es-toolkit'
 import { FilterOperator } from '../query'
 import { RouterGoType } from '../router'
 import { getSubValue } from '../utils/sub-value'
@@ -888,8 +888,8 @@ export function resolveSorters(
 		return
 
 	const result = unionWith(
-		permanent,
-		value,
+		permanent ?? [],
+		value ?? [],
 		compareSort,
 	).filter(filterSort)
 
@@ -1008,9 +1008,12 @@ export function resolveFilters(
 	isMerge?: boolean,
 ): Filters | undefined {
 	const result = unionWith(
-		permanent,
-		value,
-		isMerge ? prev : undefined,
+		unionWith(
+			permanent ?? [],
+			value ?? [],
+			compareFilter,
+		),
+		isMerge ? prev ?? [] : [],
 		compareFilter,
 	).filter(filterFilter)
 
