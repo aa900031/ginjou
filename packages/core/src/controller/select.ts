@@ -1,6 +1,7 @@
 import type { Simplify } from 'type-fest'
 import type { BaseRecord, Filters, GetList, GetListResult, GetMany, GetManyResult, Pagination } from '../query'
-import { get, unionBy } from 'lodash-unified'
+import { unionBy } from 'es-toolkit'
+import { get } from 'es-toolkit/compat'
 import { FilterOperator } from '../query'
 import { getSubValue } from '../utils/sub-value'
 import { resolveFilters } from './list'
@@ -55,7 +56,7 @@ export function getOptions<
 	const listOptions = listData?.data.map(item => toOptionItem(item, labelKey, valueKey))
 	const valueOptions = manyData?.data.map(item => toOptionItem(item, labelKey, valueKey))
 
-	return unionBy(listOptions, valueOptions, 'value')
+	return unionBy(listOptions ?? [], valueOptions ?? [], item => item.value)
 }
 
 export type SearchToFiltersFn<

@@ -1,4 +1,5 @@
-import { get, isEqual } from 'lodash-unified'
+import { isEqual } from 'es-toolkit'
+import { get } from 'es-toolkit/compat'
 
 export function getSubValue<
 	TProp,

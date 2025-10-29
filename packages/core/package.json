@@ -45,19 +45,13 @@
 		"@tanstack/query-core": "^5.*.*"
 	},
 	"dependencies": {
-		"klona": "^2.0.6",
-		"lodash": "^4.17.21",
-		"lodash-es": "^4.17.21",
-		"lodash-unified": "^1.0.3",
-		"mitt": "^3.0.1",
+		"es-toolkit": "^1.41.0",
 		"regexparam": "^3.0.0",
 		"tanstack-query-callbacks": "^0.2.1",
 		"type-fest": "^4.41.0"
 	},
 	"devDependencies": {
 		"@ginjou/tsconfig": "workspace:*",
-		"@tanstack/query-core": "^5.80.7",
-		"@types/lodash": "^4.17.17",
-		"@types/lodash-es": "^4.17.12"
+		"@tanstack/query-core": "^5.80.7"
 	}
 }
