@@ -1,6 +1,6 @@
-import { defineFetchers } from '@ginjou/vue'
+import { defineFetchersContext } from '@ginjou/vue'
 
-export default () => defineFetchers({
+export default () => defineFetchersContext({
 	default: {
 		getOne: async ({ resource, id }) => {
 			switch (resource) {
