@@ -1,9 +1,9 @@
-export * as Create from './create'
+export * as CreateOne from './create'
 export * as CreateMany from './create-many'
 export * as Custom from './custom'
 export * as CustomMutation from './custom-mutation'
 
-export * as Delete from './delete'
+export * as DeleteOne from './delete'
 
 export * as DeleteMany from './delete-many'
 export * from './fetcher'
@@ -43,5 +43,5 @@ export {
 	getSubscribeChannel,
 } from './realtime'
 
-export * as Update from './update'
+export * as UpdateOne from './update'
 export * as UpdateMany from './update-many'

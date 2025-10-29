@@ -118,7 +118,7 @@ export interface CreateResult<
 	data: TData
 }
 
-export type CreateFn = <
+export type CreateOneFn = <
 	TData extends BaseRecord = BaseRecord,
 	TParams = Record<string, any>,
 >(props: CreateProps<TParams>
@@ -235,7 +235,7 @@ export interface UpdateProps<
 	meta?: Meta
 }
 
-export type UpdateFn = <
+export type UpdateOneFn = <
 	TData extends BaseRecord = BaseRecord,
 	TParams = Record<string, any>,
 >(props: UpdateProps<TParams>
@@ -335,14 +335,14 @@ export type GetListFn = <
 ) => Promise<GetListResult<TData, TPageParam>>
 
 export interface Fetcher {
-	getList: GetListFn
+	getList?: GetListFn
 	getMany?: GetManyFn
-	getOne: GetOneFn
-	create: CreateFn
+	getOne?: GetOneFn
+	createOne?: CreateOneFn
 	createMany?: CreateManyFn
-	update: UpdateFn
+	updateOne?: UpdateOneFn
 	updateMany?: UpdateManyFn
-	deleteOne: DeleteOneFn
+	deleteOne?: DeleteOneFn
 	deleteMany?: DeleteManyFn
 	custom?: CustomFn
 }

@@ -8,7 +8,7 @@ import type { UsePublishContext } from '../realtime'
 import type { ToMaybeRefs } from '../utils/refs'
 import type { UseFetcherContextFromProps } from './fetchers'
 import type { UseQueryClientContextProps } from './query-client'
-import { Update } from '@ginjou/core'
+import { UpdateOne } from '@ginjou/core'
 import { useMutation } from '@tanstack/vue-query'
 import { computed, unref } from 'vue-demi'
 import { useCheckError } from '../auth'
@@ -19,15 +19,15 @@ import { unrefs } from '../utils/unrefs'
 import { useFetchersContext } from './fetchers'
 import { useQueryClientContext } from './query-client'
 
-export type UseUpdateProps<
+export type UseUpdateOneProps<
 	TData extends BaseRecord,
 	TError,
 	TParams,
 > = ToMaybeRefs<
-	Update.Props<TData, TError, TParams>
+	UpdateOne.Props<TData, TError, TParams>
 >
 
-export type UseUpdateContext = Simplify<
+export type UseUpdateOneContext = Simplify<
 	& UseFetcherContextFromProps
 	& UseQueryClientContextProps
 	& UseNotifyContext
@@ -36,7 +36,7 @@ export type UseUpdateContext = Simplify<
 	& UsePublishContext
 >
 
-export type UseUpdateResult<
+export type UseUpdateOneResult<
 	TData extends BaseRecord,
 	TError,
 	TParams,
@@ -44,23 +44,23 @@ export type UseUpdateResult<
 	UseMutationReturnType<
 		UpdateResult<TData>,
 		TError,
-		Update.MutationProps<TData, TError, TParams>,
-		Update.MutationContext<TData>
+		UpdateOne.MutationProps<TData, TError, TParams>,
+		UpdateOne.MutationContext<TData>
 	>,
 	{
-		mutate: Update.MutateFn<TData, TError, TParams>
-		mutateAsync: Update.MutateAsyncFn<TData, TError, TParams>
+		mutate: UpdateOne.MutateFn<TData, TError, TParams>
+		mutateAsync: UpdateOne.MutateAsyncFn<TData, TError, TParams>
 	}
 >
 
-export function useUpdate<
+export function useUpdateOne<
 	TData extends BaseRecord = BaseRecord,
 	TParams = TData,
 	TError = unknown,
 >(
-	props?: UseUpdateProps<TData, TError, TParams>,
-	context?: UseUpdateContext,
-): UseUpdateResult<TData, TError, TParams> {
+	props?: UseUpdateOneProps<TData, TError, TParams>,
+	context?: UseUpdateOneContext,
+): UseUpdateOneResult<TData, TError, TParams> {
 	const queryClient = useQueryClientContext(context)
 	const fetchers = useFetchersContext({ ...context, strict: true })
 	const notify = useNotify(context)
@@ -68,27 +68,27 @@ export function useUpdate<
 	const publish = usePublish(context)
 	const { mutateAsync: checkError } = useCheckError(undefined, context)
 
-	const mutation = useMutation<UpdateResult<TData>, TError, Update.MutationProps<TData, TError, TParams>, Update.MutationContext<TData>>(computed(() => ({
+	const mutation = useMutation<UpdateResult<TData>, TError, UpdateOne.MutationProps<TData, TError, TParams>, UpdateOne.MutationContext<TData>>(computed(() => ({
 		...unref(props?.mutationOptions) as any, // TODO:
-		mutationFn: Update.createMutationFn({
+		mutationFn: UpdateOne.createMutationFn({
 			fetchers,
 			notify,
 			translate,
 			getProps,
 		}),
-		onMutate: Update.createMutateHandler({
+		onMutate: UpdateOne.createMutateHandler({
 			queryClient,
 			notify,
 			translate,
 			getProps,
 			onMutate: unref(props?.mutationOptions)?.onMutate,
 		}),
-		onSettled: Update.createSettledHandler({
+		onSettled: UpdateOne.createSettledHandler({
 			queryClient,
 			getProps,
 			onSettled: unref(props?.mutationOptions)?.onSettled,
 		}),
-		onSuccess: Update.createSuccessHandler({
+		onSuccess: UpdateOne.createSuccessHandler({
 			queryClient,
 			notify,
 			translate,
@@ -96,7 +96,7 @@ export function useUpdate<
 			getProps,
 			onSuccess: unref(props?.mutationOptions)?.onSuccess,
 		}),
-		onError: Update.createErrorHandler({
+		onError: UpdateOne.createErrorHandler({
 			queryClient,
 			notify,
 			translate,
@@ -107,11 +107,11 @@ export function useUpdate<
 		queryClient,
 	})))
 
-	const mutate = Update.createMutateFn({
+	const mutate = UpdateOne.createMutateFn({
 		originFn: mutation.mutate,
 	})
 
-	const mutateAsync = Update.createMutateAsyncFn({
+	const mutateAsync = UpdateOne.createMutateAsyncFn({
 		originFn: mutation.mutateAsync,
 	})
 

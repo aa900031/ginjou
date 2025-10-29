@@ -138,9 +138,17 @@ export function createMutationFn<
 		const resolvedProps = resolveMutationProps(getProps(), props)
 
 		const fetcher = getFetcher(resolvedProps, fetchers)
-		const mutateFn = () => typeof fetcher.updateMany === 'function'
-			? fetcher.updateMany<TData, TParams>(resolvedProps)
-			: fakeMany(resolvedProps.ids.map(id => fetcher.update<TData, TParams>({ ...resolvedProps, id })))
+		if (typeof fetcher.updateMany !== 'function' && typeof fetcher.updateOne !== 'function')
+			throw new Error('No')
+
+		const mutateFn = () => {
+			if (typeof fetcher.updateMany === 'function')
+				return fetcher.updateMany<TData, TParams>(resolvedProps)
+			if (typeof fetcher.updateOne === 'function')
+				return fakeMany(resolvedProps.ids.map(id => fetcher.updateOne!<TData, TParams>({ ...resolvedProps, id })))
+
+			throw new Error('No')
+		}
 
 		switch (resolvedProps.mutationMode) {
 			case MutationMode.Undoable: {

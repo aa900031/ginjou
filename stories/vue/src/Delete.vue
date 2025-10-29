@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { MutationModeValues } from '@ginjou/core'
 import type { Post } from './api/posts'
-import { useDelete, useList } from '@ginjou/vue'
+import { useDeleteOne, useList } from '@ginjou/vue'
 import { useRoute } from 'vue-router'
 
 const props = defineProps<{
@@ -15,7 +15,7 @@ const {
 } = useList<Post>({
 	syncRoute: false,
 })
-const { mutateAsync: del } = useDelete()
+const { mutateAsync: del } = useDeleteOne()
 
 async function handleDeleteClick(record: Post) {
 	await del({

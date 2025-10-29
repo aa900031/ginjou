@@ -3,16 +3,16 @@ import { describe, expect, it, vi } from 'vitest'
 import { unref } from 'vue-demi'
 import { MockFetchers, queryClient } from '../../test/mock-fetcher'
 import { mountTestApp } from '../../test/mount'
-import { useUpdate } from './update'
+import { useUpdateOne } from './update'
 
-describe('useUpdate', () => {
+describe('useUpdateOne', () => {
 	describe('publish', () => {
 		it('should call realtime.publish', async () => {
 			const publish = vi.fn()
 			const subscribe = vi.fn()
 
 			const { result } = mountTestApp(
-				() => useUpdate(),
+				() => useUpdateOne(),
 				{
 					queryClient,
 					fetchers: MockFetchers,
@@ -60,18 +60,18 @@ describe('useUpdate', () => {
 
 		it('should not call realtime.publish when mutation have exception', async () => {
 			const publish = vi.fn()
-			const update = vi.fn(() => {
+			const updateOne = vi.fn(() => {
 				throw new Error('No')
 			})
 
 			const { result } = mountTestApp(
-				() => useUpdate(),
+				() => useUpdateOne(),
 				{
 					queryClient,
 					fetchers: {
 						default: {
 							...MockFetchers.default,
-							update,
+							updateOne,
 						},
 					},
 					realtime: {
@@ -104,7 +104,7 @@ describe('useUpdate', () => {
 
 			expect(unref(result.isError)).toBeTruthy()
 			expect(publish).not.toBeCalled()
-			expect(update).toBeCalled()
+			expect(updateOne).toBeCalled()
 		})
 	})
 })

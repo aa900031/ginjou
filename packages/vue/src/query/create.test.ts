@@ -4,13 +4,13 @@ import { unref } from 'vue-demi'
 import { MockFetchers, queryClient } from '../../test/mock-fetcher'
 import { MockRealtimes, publishFn } from '../../test/mock-realtime'
 import { mountTestApp } from '../../test/mount'
-import { useCreate } from './create'
+import { useCreateOne } from './create'
 
-describe('useCreate', () => {
+describe('useCreateOne', () => {
 	describe('publish', () => {
 		it('should call realtime.publish', async () => {
 			const { result } = mountTestApp(
-				() => useCreate(),
+				() => useCreateOne(),
 				{
 					queryClient,
 					fetchers: MockFetchers,
@@ -53,18 +53,18 @@ describe('useCreate', () => {
 		})
 
 		it('should not call realtime.publish when mutation have exception', async () => {
-			const create = vi.fn(() => {
+			const createOne = vi.fn(() => {
 				throw new Error('No')
 			})
 
 			const { result } = mountTestApp(
-				() => useCreate(),
+				() => useCreateOne(),
 				{
 					queryClient,
 					fetchers: {
 						default: {
 							...MockFetchers.default,
-							create,
+							createOne,
 						},
 					},
 					realtime: MockRealtimes,
@@ -93,7 +93,7 @@ describe('useCreate', () => {
 
 			expect(unref(result.isError)).toBeTruthy()
 			expect(publishFn).not.toBeCalled()
-			expect(create).toBeCalled()
+			expect(createOne).toBeCalled()
 		})
 	})
 })

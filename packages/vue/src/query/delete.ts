@@ -8,7 +8,7 @@ import type { UsePublishContext } from '../realtime'
 import type { ToMaybeRefs } from '../utils/refs'
 import type { UseFetcherContextFromProps } from './fetchers'
 import type { UseQueryClientContextProps } from './query-client'
-import { Delete } from '@ginjou/core'
+import { DeleteOne } from '@ginjou/core'
 import { useMutation } from '@tanstack/vue-query'
 import { computed, unref } from 'vue-demi'
 import { useCheckError } from '../auth'
@@ -19,15 +19,15 @@ import { unrefs } from '../utils/unrefs'
 import { useFetchersContext } from './fetchers'
 import { useQueryClientContext } from './query-client'
 
-export type UseDeleteProps<
+export type UseDeleteOneProps<
 	TData extends BaseRecord,
 	TError,
 	TParams,
 > = ToMaybeRefs<
-	Delete.Props<TData, TError, TParams>
+	DeleteOne.Props<TData, TError, TParams>
 >
 
-export type UseDeleteContext = Simplify<
+export type UseDeleteOneContext = Simplify<
 	& UseFetcherContextFromProps
 	& UseQueryClientContextProps
 	& UseNotifyContext
@@ -36,7 +36,7 @@ export type UseDeleteContext = Simplify<
 	& UsePublishContext
 >
 
-export type UseDeleteResult<
+export type UseDeleteOneResult<
 	TData extends BaseRecord,
 	TError,
 	TParams,
@@ -44,23 +44,23 @@ export type UseDeleteResult<
 	UseMutationReturnType<
 		DeleteOneResult<TData>,
 		TError,
-		Delete.MutationProps<TData, TError, TParams>,
-		Delete.MutationContext<TData>
+		DeleteOne.MutationProps<TData, TError, TParams>,
+		DeleteOne.MutationContext<TData>
 	>,
 	{
-		mutate: Delete.MutateFn<TData, TError, TParams>
-		mutateAsync: Delete.MutateAsyncFn<TData, TError, TParams>
+		mutate: DeleteOne.MutateFn<TData, TError, TParams>
+		mutateAsync: DeleteOne.MutateAsyncFn<TData, TError, TParams>
 	}
 >
 
-export function useDelete<
+export function useDeleteOne<
 	TData extends BaseRecord = BaseRecord,
 	TParams = TData,
 	TError = unknown,
 >(
-	props?: UseDeleteProps<TData, TError, TParams>,
-	context?: UseDeleteContext,
-): UseDeleteResult<TData, TError, TParams> {
+	props?: UseDeleteOneProps<TData, TError, TParams>,
+	context?: UseDeleteOneContext,
+): UseDeleteOneResult<TData, TError, TParams> {
 	const queryClient = useQueryClientContext(context)
 	const fetchers = useFetchersContext({ ...context, strict: true })
 	const notify = useNotify(context)
@@ -68,27 +68,27 @@ export function useDelete<
 	const publish = usePublish(context)
 	const { mutateAsync: checkError } = useCheckError(undefined, context)
 
-	const mutation = useMutation<DeleteOneResult<TData>, TError, Delete.MutationProps<TData, TError, TParams>, Delete.MutationContext<TData>>(computed(() => ({
+	const mutation = useMutation<DeleteOneResult<TData>, TError, DeleteOne.MutationProps<TData, TError, TParams>, DeleteOne.MutationContext<TData>>(computed(() => ({
 		...unref(props?.mutationOptions) as any, // TODO:
-		mutationFn: Delete.createMutationFn({
+		mutationFn: DeleteOne.createMutationFn({
 			fetchers,
 			notify,
 			translate,
 			getProps,
 		}),
-		onMutate: Delete.createMutateHandler({
+		onMutate: DeleteOne.createMutateHandler({
 			queryClient,
 			notify,
 			translate,
 			getProps,
 			onMutate: unref(props?.mutationOptions)?.onMutate,
 		}),
-		onSettled: Delete.createSettledHandler<TData, TError, TParams>({
+		onSettled: DeleteOne.createSettledHandler<TData, TError, TParams>({
 			queryClient,
 			getProps,
 			onSettled: unref(props?.mutationOptions)?.onSettled,
 		}),
-		onSuccess: Delete.createSuccessHandler({
+		onSuccess: DeleteOne.createSuccessHandler({
 			queryClient,
 			notify,
 			translate,
@@ -96,7 +96,7 @@ export function useDelete<
 			getProps,
 			onSuccess: unref(props?.mutationOptions)?.onSuccess,
 		}),
-		onError: Delete.createErrorHandler({
+		onError: DeleteOne.createErrorHandler({
 			queryClient,
 			notify,
 			translate,
@@ -107,11 +107,11 @@ export function useDelete<
 		queryClient,
 	})))
 
-	const mutate = Delete.createMutateFn({
+	const mutate = DeleteOne.createMutateFn({
 		originFn: mutation.mutate,
 	})
 
-	const mutateAsync = Delete.createMutateAsyncFn({
+	const mutateAsync = DeleteOne.createMutateAsyncFn({
 		originFn: mutation.mutateAsync,
 	})
 

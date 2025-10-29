@@ -6,11 +6,11 @@ const composables = [
 	'useAuthenticated',
 	'useBack',
 	'useCheckError',
-	'useCreate',
+	'useCreateOne',
 	'useCreateMany',
 	'useCustom',
 	'useCustomMutation',
-	'useDelete',
+	'useDeleteOne',
 	'useDeleteMany',
 	'useFetchersContext',
 	'useForm',
@@ -44,7 +44,7 @@ const composables = [
 	'useShow',
 	'useSubscribe',
 	'useTranslate',
-	'useUpdate',
+	'useUpdateOne',
 	'useUpdateMany',
 ]
 

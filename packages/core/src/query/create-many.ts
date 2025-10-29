@@ -116,11 +116,12 @@ export function createMutationFn<
 		const resolveProps = resolveMutationProps(getProps(), props)
 
 		const fetcher = getFetcher(resolveProps, fetchers)
-		const result = typeof fetcher.createMany === 'function'
-			? await fetcher.createMany<TData, TParams>(resolveProps)
-			: await fakeMany(resolveProps.params.map(val => fetcher.create<TData, TParams>({ ...resolveProps, params: val })))
+		if (typeof fetcher.createMany === 'function')
+			return await fetcher.createMany<TData, TParams>(resolveProps)
+		if (typeof fetcher.createOne === 'function')
+			return await fakeMany(resolveProps.params.map(val => fetcher.createOne!<TData, TParams>({ ...resolveProps, params: val })))
 
-		return result
+		throw new Error('No')
 	}
 }
 
