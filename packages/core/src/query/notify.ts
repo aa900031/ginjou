@@ -24,7 +24,7 @@ export type CreateSuccessNotifyParamsFn<
 	TProps,
 > = (
 	data: TData,
-	props: TProps
+	props: TProps,
 ) => NotifyParamsResult
 
 export type CreateErrorNotifyParamsFn<
@@ -32,7 +32,7 @@ export type CreateErrorNotifyParamsFn<
 	TProps,
 > = (
 	error: TError,
-	props: TProps
+	props: TProps,
 ) => NotifyParamsResult
 
 export function resolveSuccessNotifyParams<

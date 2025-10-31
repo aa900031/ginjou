@@ -10,8 +10,8 @@ import { useRealtimeContext } from './context'
 
 export type UseRealtimeProps<
 	TPayload,
-> =
-	| ToMaybeRefs<
+>
+	= | ToMaybeRefs<
 		RealtimeOption.Props<TPayload>
 	>
 	| MaybeRef<
@@ -24,8 +24,8 @@ export type UseRealtimeOptionsContext = Simplify<
 
 export type UseRealtimeOptionsResult<
 	TPayload,
-> =
-	Ref<ResolvedRealtimeOptions<TPayload>>
+>
+	= Ref<ResolvedRealtimeOptions<TPayload>>
 
 export function useRealtimeOptions<
 	TPayload,

@@ -68,7 +68,7 @@ export type SearchToFiltersFn<
 export type SetSearchFn<
 	TSearchValue,
 > = (
-	value: TSearchValue | undefined
+	value: TSearchValue | undefined,
 ) => void
 
 export interface GetListFiltersProps<

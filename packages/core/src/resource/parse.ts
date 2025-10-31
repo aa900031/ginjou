@@ -23,11 +23,11 @@ export interface ResourceParseCreateResult {
 	action: typeof ResourceActionType.Create
 }
 
-export type ResourceParseResult =
-	| ResourceParseListResult
-	| ResourceParseShowResult
-	| ResourceParseCreateResult
-	| ResourceParseEditResult
+export type ResourceParseResult
+	= | ResourceParseListResult
+		| ResourceParseShowResult
+		| ResourceParseCreateResult
+		| ResourceParseEditResult
 
 export type ResourceParseFn<
 	TLocationMeta = unknown,

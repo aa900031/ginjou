@@ -6,13 +6,13 @@ export interface CreateAuthProps {
 	client: SupabaseClient
 }
 
-export type LoginParams =
-	| LoginWithPasswordParams
-	| LoginWithOAuthParams
-	| LoginWithIdTokenParams
-	| LoginWithOtpParams
-	| LoginWithSSOParams
-	| LoginWithOtpTokenParams
+export type LoginParams
+	= | LoginWithPasswordParams
+		| LoginWithOAuthParams
+		| LoginWithIdTokenParams
+		| LoginWithOtpParams
+		| LoginWithSSOParams
+		| LoginWithOtpTokenParams
 
 export interface LoginWithPasswordParams {
 	type: 'password'

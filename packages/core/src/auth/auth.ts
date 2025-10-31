@@ -8,11 +8,11 @@ export interface AuthCommonObjectResult {
 	ignoreInvalidate?: boolean
 }
 
-export type AuthCommonResult =
-	| void
-	| false // prevent redirect
-	| string // redirect to path
-	| AuthCommonObjectResult
+export type AuthCommonResult
+	= | void
+		| false // prevent redirect
+		| string // redirect to path
+		| AuthCommonObjectResult
 
 export type AuthLoginResult = AuthCommonResult
 

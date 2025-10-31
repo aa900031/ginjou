@@ -13,7 +13,7 @@ export function createAggregrateFn<
 	fn: TFn,
 	resolveArgs: (
 		allArgs: TArgs[],
-		allResolves: PromiseResolvePair<TResult>[]
+		allResolves: PromiseResolvePair<TResult>[],
 	) => ResolveArgsResult<TArgs, TResult>,
 ): TFn {
 	let time: ReturnType<typeof setTimeout> | undefined

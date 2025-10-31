@@ -3,9 +3,9 @@ import { getCurrentInstance, onServerPrefetch } from 'vue'
 
 export type AsyncResult<
 	T extends Record<string, unknown>,
-> =
-	& T
-	& Promise<T>
+>
+	= & T
+		& Promise<T>
 
 export function withAsync<
 	T extends Record<string, unknown>,

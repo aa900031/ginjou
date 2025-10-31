@@ -22,9 +22,9 @@ export interface ProgressNotificationParams extends Omit<NormalNotificationParam
 	onCancel: () => void
 }
 
-export type OpenNotificationParams =
-	| NormalNotificationParams
-	| ProgressNotificationParams
+export type OpenNotificationParams
+	= | NormalNotificationParams
+		| ProgressNotificationParams
 
 export type NotificationOpenFn = (params: OpenNotificationParams) => void
 

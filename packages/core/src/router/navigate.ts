@@ -16,14 +16,14 @@ export interface NavigateToResourceWithIdProps {
 	params?: Record<string, any>
 }
 
-export type NavigateToProps =
-	| NavigateToResourceProps
-	| NavigateToResourceWithIdProps
-	| RouterGoParams
-	| false
+export type NavigateToProps
+	= | NavigateToResourceProps
+		| NavigateToResourceWithIdProps
+		| RouterGoParams
+		| false
 
 export type NavigateToFn = (
-	props: NavigateToProps
+	props: NavigateToProps,
 ) => void
 
 export interface CreateNavigateToProps {

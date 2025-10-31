@@ -2,8 +2,8 @@ import type { LiteralUnion } from 'type-fest'
 import type { RecordKey } from '../query'
 import type { ResourceActionTypeValues } from '../resource'
 
-export type GetPermissionsFn =
-	(params?: any) => Promise<unknown>
+export type GetPermissionsFn
+	= (params?: any) => Promise<unknown>
 
 export interface AccessCanParams {
 	action: LiteralUnion<ResourceActionTypeValues, string>
