@@ -59,7 +59,7 @@
 	"devDependencies": {
 		"@ginjou/tsconfig": "workspace:*",
 		"@ginjou/vue": "workspace:^",
-		"vue": "^3.5.16",
-		"vue-i18n": "^9.14.4"
+		"vue": "^3.5.22",
+		"vue-i18n": "^9.14.5"
 	}
 }
