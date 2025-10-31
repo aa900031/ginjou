@@ -33,6 +33,8 @@ const formData = reactive({
 			</select>
 		</div>
 		<br>
-		<button type="submit">Submit</button>
+		<button type="submit">
+			Submit
+		</button>
 	</form>
 </template>
