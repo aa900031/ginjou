@@ -7,6 +7,10 @@ export interface Post {
 	status: string
 }
 
+export type PostFormData = Omit<Post, 'id'>
+
+export type PostRawFormData = Partial<PostFormData>
+
 export const MockModel = {
 	posts: {
 		id: primaryKey(faker.string.uuid),

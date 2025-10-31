@@ -4,8 +4,8 @@ import { vueRouter } from 'storybook-vue3-router'
 import { userEvent, waitFor } from 'storybook/test'
 import MOCK_POSTS from '../data/mock-posts.json'
 import { MockModel } from './api/posts'
-import Delete from './Delete.vue'
 import DeleteMany from './DeleteMany.vue'
+import DeleteOne from './DeleteOne.vue'
 import { createMsw } from './utils/msw'
 import { toHandlers } from './utils/msw-data'
 import { args as MutationModeArgs, argTypes as MutationModeArgTypes } from './utils/sb-args/mutation-mode'
@@ -43,7 +43,7 @@ export const Basic: StoryObj<typeof meta> = {
 			},
 			{
 				path: '/posts',
-				component: Delete,
+				component: DeleteOne,
 			},
 		]),
 	],

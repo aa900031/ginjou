@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Post } from './api/posts'
+import type { Post, PostFormData, PostRawFormData } from './api/posts'
 import { useForm } from '@ginjou/vue'
 import { reactive, shallowRef, toRef } from 'vue'
 import { useRoute } from 'vue-router'
@@ -9,16 +9,16 @@ const props = defineProps<{
 }>()
 
 const route = useRoute()
-const form = useForm<Post, Partial<Post>>({
+const form = useForm<Post, PostFormData>({
 	redirect: toRef(props, 'redirect'),
 })
-const formData = reactive({
+const formData = reactive<PostRawFormData>({
 	title: 'Test001',
 	status: 'draft',
 })
 const result = shallowRef<Post>()
 async function handleSubmit() {
-	const resp = await form.save(formData)
+	const resp = await form.save(formData as PostFormData)
 	result.value = resp.data
 }
 </script>
