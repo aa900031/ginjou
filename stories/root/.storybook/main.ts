@@ -1,5 +1,4 @@
 import type { StorybookConfig } from '@storybook/react-vite'
-import '@storybook/core'
 
 export default {
 	stories: [
@@ -7,7 +6,7 @@ export default {
 		'../src/**/*.stories.@(js|jsx|ts|tsx)',
 	],
 	addons: [
-		'@storybook/addon-essentials',
+		'@storybook/addon-docs',
 	],
 	framework: {
 		name: '@storybook/react-vite',

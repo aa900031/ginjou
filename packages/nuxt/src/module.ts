@@ -20,13 +20,13 @@ export default defineNuxtModule({
 
 		nuxt.hook('vite:extend', ({ config }) => {
 			config.optimizeDeps ??= {}
-			config.optimizeDeps.exclude ??= []
-			config.optimizeDeps.exclude.push(...[
+			config.optimizeDeps.include ??= []
+			config.optimizeDeps.include.push(
 				'@ginjou/core',
 				'@ginjou/vue',
 				'@ginjou/with-vue-router',
 				'@ginjou/with-vue-i18n',
-			])
+			)
 		})
 
 		addImports(ImportListForTanstackQuery)

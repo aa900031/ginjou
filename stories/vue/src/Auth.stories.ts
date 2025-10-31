@@ -1,5 +1,5 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
-import { userEvent, waitFor } from '@storybook/test'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
+import { userEvent, waitFor } from 'storybook/test'
 import { h } from 'vue'
 import Auth from './Auth.vue'
 import { createWrapper } from './utils/wrapper'

@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import { factory } from '@mswjs/data'
 import { h } from 'vue'
 import MOCK_POSTS from '../data/mock-posts.json'
