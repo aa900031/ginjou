@@ -1,13 +1,13 @@
 import type { BaseRecord } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
 import type { Ref } from 'vue-demi'
-import type { UseCreateContext, UseCreateResult, UseGetOneContext, UseGetOneResult, UseUpdateContext, UseUpdateResult } from '../query'
+import type { UseCreateOneContext, UseCreateOneResult, UseGetOneContext, UseGetOneResult, UseUpdateOneContext, UseUpdateOneResult } from '../query'
 import type { UseResourceContext } from '../resource'
 import type { UseGoContext } from '../router'
 import type { ToMaybeRefs } from '../utils/refs'
 import { Form } from '@ginjou/core'
 import { computed, unref } from 'vue-demi'
-import { useCreate, useGetOne, useUpdate } from '../query'
+import { useCreateOne, useGetOne, useUpdateOne } from '../query'
 import { useResource } from '../resource'
 import { useNavigateTo } from '../router'
 import { unrefs } from '../utils/unrefs'
@@ -26,8 +26,8 @@ export type UseFormProps<
 export type UseFormContext = Simplify<
 	& UseResourceContext
 	& UseGetOneContext
-	& UseCreateContext
-	& UseUpdateContext
+	& UseCreateOneContext
+	& UseUpdateOneContext
 	& UseGoContext
 >
 
@@ -40,8 +40,8 @@ export type UseFormResult<
 > = Simplify<
 	& {
 		query: UseGetOneResult<TQueryError, TQueryResultData>
-		create: UseCreateResult<TMutationData, TMutationError, TMutationParams>
-		update: UseUpdateResult<TMutationData, TMutationError, TMutationParams>
+		create: UseCreateOneResult<TMutationData, TMutationError, TMutationParams>
+		update: UseUpdateOneResult<TMutationData, TMutationError, TMutationParams>
 		record: Ref<TQueryResultData | undefined>
 		isLoading: Ref<boolean>
 		save: Form.SaveFn<TMutationParams, TMutationData>
@@ -102,13 +102,13 @@ export function useForm<
 		}),
 	}, context)
 
-	const mutationCreateResult = useCreate<TMutationData, TMutationParams, TMutationError>({
+	const mutationCreateResult = useCreateOne<TMutationData, TMutationParams, TMutationError>({
 		// eslint-disable-next-line ts/ban-ts-comment
 		// @ts-expect-error
 		mutationOptions: props?.mutationOptions,
 	}, context)
 
-	const mutationUpdateResult = useUpdate<TMutationData, TMutationParams, TMutationError>({
+	const mutationUpdateResult = useUpdateOne<TMutationData, TMutationParams, TMutationError>({
 		// eslint-disable-next-line ts/ban-ts-comment
 		// @ts-expect-error
 		mutationOptions: props?.mutationOptions,

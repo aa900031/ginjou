@@ -5,7 +5,7 @@ import { inject, provide } from 'vue-demi'
 
 const KEY: InjectionKey<Fetchers> = Symbol('@ginjou/fetchers')
 
-export function defineFetchers<
+export function defineFetchersContext<
 	T extends Fetchers,
 >(
 	value: T,

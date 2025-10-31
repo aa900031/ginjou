@@ -4,13 +4,13 @@ import { unref } from 'vue-demi'
 import { MockFetchers, queryClient } from '../../test/mock-fetcher'
 import { MockRealtimes, publishFn } from '../../test/mock-realtime'
 import { mountTestApp } from '../../test/mount'
-import { useDelete } from './delete'
+import { useDeleteOne } from './delete'
 
-describe('useDelete', () => {
+describe('useDeleteOne', () => {
 	describe('publish', () => {
 		it('should call realtime.publish', async () => {
 			const { result } = mountTestApp(
-				() => useDelete(),
+				() => useDeleteOne(),
 				{
 					queryClient,
 					fetchers: MockFetchers,
@@ -47,7 +47,7 @@ describe('useDelete', () => {
 			})
 
 			const { result } = mountTestApp(
-				() => useDelete(),
+				() => useDeleteOne(),
 				{
 					queryClient,
 					fetchers: {
