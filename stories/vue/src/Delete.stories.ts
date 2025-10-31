@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import { factory } from '@mswjs/data'
-import { userEvent, waitFor } from 'storybook/test'
 import { vueRouter } from 'storybook-vue3-router'
+import { userEvent, waitFor } from 'storybook/test'
 import MOCK_POSTS from '../data/mock-posts.json'
 import { MockModel } from './api/posts'
 import Delete from './Delete.vue'

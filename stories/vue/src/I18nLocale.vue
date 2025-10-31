@@ -16,8 +16,8 @@ const t = useTranslate()
 		</li>
 	</ul>
 	<select
-		data-testid="locale-selector"
 		v-model="locale"
+		data-testid="locale-selector"
 	>
 		<option value="en-US">
 			en-US

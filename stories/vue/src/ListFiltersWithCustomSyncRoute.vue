@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import type { Filter } from '@ginjou/core'
 import type { Post } from './api/posts'
-import { Filter, FilterOperator } from '@ginjou/core'
+import { FilterOperator } from '@ginjou/core'
 import { useList } from '@ginjou/vue'
 import { reactive, unref, watch } from 'vue'
 import { useRoute } from 'vue-router'
@@ -23,7 +24,7 @@ const {
 					if (item.length === 2) {
 						return {
 							operator: item[0] as any,
-							value: item[1].map(sub => resolve(sub))
+							value: item[1].map(sub => resolve(sub)),
 						}
 					}
 					return {
