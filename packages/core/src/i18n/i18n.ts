@@ -11,11 +11,11 @@ export type I18nSetLocaleFn<
 	TOptions = unknown,
 > = (
 	locale: string,
-	options?: TOptions
+	options?: TOptions,
 ) => void | Promise<void>
 
 export type I18nOnLocaleChangeFn = (
-	handler: (locale: string) => void
+	handler: (locale: string) => void,
 ) => () => void
 
 export interface I18n<

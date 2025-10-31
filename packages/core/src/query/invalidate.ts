@@ -118,12 +118,12 @@ export type TriggerInvalidateOneProps = Simplify<
 	)
 >
 
-export type TriggerInvalidateProps =
-	| TriggerInvalidateAllProps
-	| TriggerInvalidateResourceProps
-	| TriggerInvalidateListProps
-	| TriggerInvalidateManyProps
-	| TriggerInvalidateOneProps
+export type TriggerInvalidateProps
+	= | TriggerInvalidateAllProps
+		| TriggerInvalidateResourceProps
+		| TriggerInvalidateListProps
+		| TriggerInvalidateManyProps
+		| TriggerInvalidateOneProps
 
 export async function triggerInvalidate(
 	props: TriggerInvalidateAllProps,

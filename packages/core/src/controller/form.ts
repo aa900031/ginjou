@@ -11,10 +11,10 @@ import { resolveEnabled } from '../utils/query'
 
 export type RedirectTo<
 	TResultData,
-> =
-	| ResourceActionTypeValues
-	| NavigateToProps
-	| (
+>
+	= | ResourceActionTypeValues
+		| NavigateToProps
+		| (
 		(data: TResultData) =>
 			| ResourceActionTypeValues
 			| NavigateToProps
@@ -73,9 +73,9 @@ export type Props<
 	TQueryResultData extends BaseRecord,
 	TMutationData extends BaseRecord,
 	TMutationError,
-> =
-	| CreateProps<TMutationParams, TMutationData, TMutationError>
-	| UpdateProps<TQueryData, TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError>
+>
+	= | CreateProps<TMutationParams, TMutationData, TMutationError>
+		| UpdateProps<TQueryData, TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError>
 
 export type ResolvedCreateProps<
 	TMutationParams,
@@ -108,9 +108,9 @@ export type ResolvedProps<
 	TQueryResultData extends BaseRecord,
 	TMutationData extends BaseRecord,
 	TMutationError,
-> =
-	| ResolvedCreateProps<TMutationParams, TMutationData, TMutationError>
-	| ResolvedUpdateProps<TQueryData, TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError>
+>
+	= | ResolvedCreateProps<TMutationParams, TMutationData, TMutationError>
+		| ResolvedUpdateProps<TQueryData, TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError>
 
 export interface ResolvePropsParams<
 	TQueryData extends BaseRecord,
@@ -219,9 +219,9 @@ export function getIsPending(
 export type SaveFn<
 	TMutationParams,
 	TMutationData extends BaseRecord,
-> =
-	| ((params: TMutationParams) => Promise<CreateResult<TMutationData>>)
-	| ((params: TMutationParams) => Promise<UpdateResult<TMutationData>>)
+>
+	= | ((params: TMutationParams) => Promise<CreateResult<TMutationData>>)
+		| ((params: TMutationParams) => Promise<UpdateResult<TMutationData>>)
 
 export interface CreateSaveFnParams<
 	TQueryData extends BaseRecord,

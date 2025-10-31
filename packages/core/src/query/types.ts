@@ -29,7 +29,7 @@ export type OptionalMutateSyncFunction<
 	TContext = unknown,
 > = (
 	variables?: TVariables,
-	options?: MutateOptions<TData, TError, TVariables, TContext>
+	options?: MutateOptions<TData, TError, TVariables, TContext>,
 ) => void
 
 export type OptionalMutateAsyncFunction<
@@ -39,5 +39,5 @@ export type OptionalMutateAsyncFunction<
 	TContext = unknown,
 > = (
 	variables?: TVariables,
-	options?: MutateOptions<TData, TError, TVariables, TContext>
+	options?: MutateOptions<TData, TError, TVariables, TContext>,
 ) => Promise<TData>
