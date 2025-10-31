@@ -1,8 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
+import { userEvent } from 'storybook/test'
 import { h } from 'vue'
 import I18nLocale from './I18nLocale.vue'
 import { createWrapper } from './utils/wrapper'
-import { userEvent } from '@storybook/test'
 
 const meta: Meta = {
 	title: 'I18n/Locale',
