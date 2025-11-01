@@ -1,3 +1,5 @@
+/* eslint-disable perfectionist/sort-imports */
+import 'uno.css'
 import type { Preview } from '@storybook/vue3-vite'
 import { AbortDefer } from '@ginjou/core'
 import Aura from '@primevue/themes/aura'
@@ -5,7 +7,6 @@ import { setup as setupVue } from '@storybook/vue3-vite'
 import { mswLoader as MswLoader, initialize as setupMsw } from 'msw-storybook-addon'
 import PrimeVue from 'primevue/config'
 import ToastService from 'primevue/toastservice'
-import 'uno.css'
 
 setupMsw({
 	onUnhandledRequest: 'bypass',
