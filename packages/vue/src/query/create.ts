@@ -8,7 +8,7 @@ import type { UsePublishContext } from '../realtime'
 import type { ToMaybeRefs } from '../utils/refs'
 import type { UseFetcherContextFromProps } from './fetchers'
 import type { UseQueryClientContextProps } from './query-client'
-import { Create } from '@ginjou/core'
+import { CreateOne } from '@ginjou/core'
 import { useMutation } from '@tanstack/vue-query'
 import { computed, unref } from 'vue-demi'
 import { useCheckError } from '../auth'
@@ -19,15 +19,15 @@ import { unrefs } from '../utils/unrefs'
 import { useFetchersContext } from './fetchers'
 import { useQueryClientContext } from './query-client'
 
-export type UseCreateProps<
+export type UseCreateOneProps<
 	TData extends BaseRecord,
 	TError,
 	TParams,
 > = ToMaybeRefs<
-	Create.Props<TData, TError, TParams>
+	CreateOne.Props<TData, TError, TParams>
 >
 
-export type UseCreateContext = Simplify<
+export type UseCreateOneContext = Simplify<
 	& UseFetcherContextFromProps
 	& UseQueryClientContextProps
 	& UseNotifyContext
@@ -36,7 +36,7 @@ export type UseCreateContext = Simplify<
 	& UsePublishContext
 >
 
-export type UseCreateResult<
+export type UseCreateOneResult<
 	TData extends BaseRecord,
 	TError,
 	TParams,
@@ -44,23 +44,23 @@ export type UseCreateResult<
 	UseMutationReturnType<
 		CreateResult<TData>,
 		TError,
-		Create.MutationProps<TData, TError, TParams>,
+		CreateOne.MutationProps<TData, TError, TParams>,
 		any
 	>,
 	{
-		mutate: Create.MutateFn<TData, TError, TParams>
-		mutateAsync: Create.MutateAsyncFn<TData, TError, TParams>
+		mutate: CreateOne.MutateFn<TData, TError, TParams>
+		mutateAsync: CreateOne.MutateAsyncFn<TData, TError, TParams>
 	}
 >
 
-export function useCreate<
+export function useCreateOne<
 	TData extends BaseRecord = BaseRecord,
 	TParams = TData,
 	TError = unknown,
 >(
-	props?: UseCreateProps<TData, TError, TParams>,
-	context?: UseCreateContext,
-): UseCreateResult<TData, TError, TParams> {
+	props?: UseCreateOneProps<TData, TError, TParams>,
+	context?: UseCreateOneContext,
+): UseCreateOneResult<TData, TError, TParams> {
 	const queryClient = useQueryClientContext(context)
 	const fetchers = useFetchersContext({ ...context, strict: true })
 	const notify = useNotify(context)
@@ -68,13 +68,13 @@ export function useCreate<
 	const publish = usePublish(context)
 	const { mutateAsync: checkError } = useCheckError(undefined, context)
 
-	const mutation = useMutation<CreateResult<TData>, TError, Create.MutationProps<TData, TError, TParams>, any>(computed(() => ({
+	const mutation = useMutation<CreateResult<TData>, TError, CreateOne.MutationProps<TData, TError, TParams>, any>(computed(() => ({
 		...unref(props?.mutationOptions) as any, // TODO:
-		mutationFn: Create.createMutationFn<TData, TError, TParams>({
+		mutationFn: CreateOne.createMutationFn<TData, TError, TParams>({
 			fetchers,
 			getProps,
 		}),
-		onSuccess: Create.createSuccessHandler({
+		onSuccess: CreateOne.createSuccessHandler({
 			notify,
 			translate,
 			publish,
@@ -82,7 +82,7 @@ export function useCreate<
 			onSuccess: unref(props?.mutationOptions)?.onSuccess,
 			queryClient,
 		}),
-		onError: Create.createErrorHandler({
+		onError: CreateOne.createErrorHandler({
 			notify,
 			translate,
 			checkError,
@@ -92,11 +92,11 @@ export function useCreate<
 		queryClient,
 	})))
 
-	const mutate = Create.createMutateFn({
+	const mutate = CreateOne.createMutateFn({
 		originFn: mutation.mutate,
 	})
 
-	const mutateAsync = Create.createMutateAsyncFn({
+	const mutateAsync = CreateOne.createMutateAsyncFn({
 		originFn: mutation.mutateAsync,
 	})
 

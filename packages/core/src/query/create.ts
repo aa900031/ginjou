@@ -115,7 +115,10 @@ export function createMutationFn<
 		const resolvedProps = resolveMutationProps(getProps(), props)
 
 		const fetcher = getFetcher(resolvedProps, fetchers)
-		const result = await fetcher.create<TData, TParams>(resolvedProps)
+		if (typeof fetcher.createOne !== 'function')
+			throw new Error('No')
+
+		const result = await fetcher.createOne<TData, TParams>(resolvedProps)
 		return result
 	}
 }

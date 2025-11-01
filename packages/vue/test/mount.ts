@@ -4,7 +4,7 @@ import type { RenderResult } from '@testing-library/vue'
 import type { Component, DefineComponent } from 'vue'
 import { render } from '@testing-library/vue'
 import { defineComponent, h } from 'vue'
-import { defineFetchers, defineQueryClientContext } from '../src/query'
+import { defineFetchersContext, defineQueryClientContext } from '../src/query'
 import { defineRealtimeContext } from '../src/realtime'
 
 export function mountSetup<
@@ -44,7 +44,7 @@ export function mountTestApp<
 		Comp => ({
 			components: Comp,
 			setup: () => {
-				contexts?.fetchers && defineFetchers(contexts.fetchers)
+				contexts?.fetchers && defineFetchersContext(contexts.fetchers)
 				contexts?.realtime && defineRealtimeContext(contexts.realtime)
 				contexts?.queryClient && defineQueryClientContext(contexts.queryClient)
 

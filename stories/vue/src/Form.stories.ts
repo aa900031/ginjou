@@ -1,11 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import { factory } from '@mswjs/data'
 import { vueRouter } from 'storybook-vue3-router'
 import MOCK_POSTS from '../data/mock-posts.json'
 import { MockModel } from './api/posts'
 import FormCreate from './FormCreate.vue'
 import FormEdit from './FormEdit.vue'
-import { createMsw } from './utils/msw'
 import { toHandlers } from './utils/msw-data'
 import { args as MutationModeArgs, argTypes as MutationModeArgTypes } from './utils/sb-args/mutation-mode'
 import { argTypes as RedirectArgTypes } from './utils/sb-args/redirect'
@@ -23,7 +22,11 @@ MOCK_POSTS.forEach(db.posts.create)
 export const Create: StoryObj<typeof meta> = {
 	name: 'Create',
 	render: renderRouteView,
-	loaders: [createMsw(toHandlers(db, 'posts', 'https://rest-api.local'))],
+	parameters: {
+		msw: {
+			handlers: toHandlers(db, 'posts', 'https://rest-api.local'),
+		},
+	},
 	decorators: [
 		createWrapper({
 			resources: [
@@ -69,7 +72,11 @@ export const Create: StoryObj<typeof meta> = {
 export const Edit: StoryObj<typeof meta> = {
 	name: 'Edit',
 	render: renderRouteView,
-	loaders: [createMsw(toHandlers(db, 'posts', 'https://rest-api.local'))],
+	parameters: {
+		msw: {
+			handlers: toHandlers(db, 'posts', 'https://rest-api.local'),
+		},
+	},
 	decorators: [
 		createWrapper({
 			resources: [

@@ -34,14 +34,14 @@ export const MockPosts = [
 
 export const MockFetchers = {
 	default: {
-		create: () => Promise.resolve({ data: MockPosts[0] }),
+		createOne: () => Promise.resolve({ data: MockPosts[0] }),
 		createMany: () => Promise.resolve({ data: MockPosts }),
 		deleteOne: () => Promise.resolve({ data: MockPosts[0] }),
 		deleteMany: () => Promise.resolve({ data: [] }),
 		getList: () => Promise.resolve({ data: MockPosts, total: 2 }),
 		getMany: () => Promise.resolve({ data: [...MockPosts] }),
 		getOne: () => Promise.resolve({ data: MockPosts[0] }),
-		update: () => Promise.resolve({ data: MockPosts[0] }),
+		updateOne: () => Promise.resolve({ data: MockPosts[0] }),
 		updateMany: () => Promise.resolve({ data: [] }),
 		custom: () => Promise.resolve({ data: MockPosts[0] }),
 	},

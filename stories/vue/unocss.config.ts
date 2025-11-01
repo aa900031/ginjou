@@ -2,15 +2,15 @@ import type { UserConfig } from 'unocss'
 import {
 	defineConfig,
 	presetIcons,
+	presetMini,
 	presetTypography,
-	presetUno,
 	transformerDirectives,
 	transformerVariantGroup,
 } from 'unocss'
 
 export default defineConfig({
 	presets: [
-		presetUno(),
+		presetMini(),
 		presetIcons(),
 		presetTypography(),
 	],

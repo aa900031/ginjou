@@ -72,7 +72,7 @@ export function createFetcher(
 				data: response._data,
 			}
 		},
-		create: async ({ resource, params, meta }) => {
+		createOne: async ({ resource, params, meta }) => {
 			const response = await client.raw(`${resource}`, {
 				baseURL: `${url}`,
 				method: meta?.method as any ?? 'POST',
@@ -84,7 +84,7 @@ export function createFetcher(
 				data: response._data,
 			}
 		},
-		update: async ({ resource, id, params, meta }) => {
+		updateOne: async ({ resource, id, params, meta }) => {
 			const response = await client.raw(`${resource}/${id}`, {
 				baseURL: `${url}`,
 				method: meta?.method as any ?? 'PUT',

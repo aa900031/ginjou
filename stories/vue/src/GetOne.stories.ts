@@ -1,16 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import { factory } from '@mswjs/data'
-import { vueRouter } from 'storybook-vue3-router'
 import { h } from 'vue'
-import { RouterView } from 'vue-router'
 import MOCK_POSTS from '../data/mock-posts.json'
 import { MockModel } from './api/posts'
-import ShowBasic from './ShowBasic.vue'
+import GetOne from './GetOne.vue'
 import { toHandlers } from './utils/msw-data'
 import { createWrapper } from './utils/wrapper'
 
 const meta: Meta = {
-	title: 'Controllers/Show',
+	title: 'Query/GetOne',
 }
 
 const db = factory(MockModel)
@@ -18,7 +16,6 @@ MOCK_POSTS.forEach(db.posts.create)
 
 export const Basic: StoryObj<typeof meta> = {
 	name: 'Basic',
-	render: () => () => h(RouterView),
 	parameters: {
 		msw: {
 			handlers: toHandlers(db, 'posts', 'https://rest-api.local'),
@@ -26,25 +23,10 @@ export const Basic: StoryObj<typeof meta> = {
 	},
 	decorators: [
 		createWrapper({
-			resources: [
-				{
-					name: 'posts',
-					show: '/posts/:id',
-				},
-			],
-			router: true,
+			notification: true,
 		}),
-		vueRouter([
-			{
-				path: '/',
-				redirect: '/posts/6c6d3a48-8eef-4c96-a1ba-156bdfd3d389',
-			},
-			{
-				path: '/posts/:id',
-				component: ShowBasic,
-			},
-		]),
 	],
+	render: () => () => h(GetOne),
 }
 
 export default meta
