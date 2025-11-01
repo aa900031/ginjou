@@ -9,6 +9,9 @@ import 'uno.css'
 
 setupMsw({
 	onUnhandledRequest: 'bypass',
+	serviceWorker: {
+		url: './mockServiceWorker.js',
+	},
 })
 
 setupVue((app) => {
