@@ -6,7 +6,6 @@ import MOCK_POSTS from '../data/mock-posts.json'
 import { MockModel } from './api/posts'
 import DeleteMany from './DeleteMany.vue'
 import DeleteOne from './DeleteOne.vue'
-import { createMsw } from './utils/msw'
 import { toHandlers } from './utils/msw-data'
 import { args as MutationModeArgs, argTypes as MutationModeArgTypes } from './utils/sb-args/mutation-mode'
 import { renderRouteView } from './utils/sb-renders/route-view'
@@ -22,9 +21,11 @@ MOCK_POSTS.forEach(db.posts.create)
 export const Basic: StoryObj<typeof meta> = {
 	name: 'Basic',
 	render: renderRouteView,
-	loaders: [
-		createMsw(toHandlers(db, 'posts', 'https://rest-api.local')),
-	],
+	parameters: {
+		msw: {
+			handlers: toHandlers(db, 'posts', 'https://rest-api.local'),
+		},
+	},
 	decorators: [
 		createWrapper({
 			resources: [
@@ -69,9 +70,11 @@ export const Basic: StoryObj<typeof meta> = {
 export const Many: StoryObj<typeof meta> = {
 	name: 'Many',
 	render: renderRouteView,
-	loaders: [
-		createMsw(toHandlers(db, 'posts', 'https://rest-api.local')),
-	],
+	parameters: {
+		msw: {
+			handlers: toHandlers(db, 'posts', 'https://rest-api.local'),
+		},
+	},
 	decorators: [
 		createWrapper({
 			resources: [

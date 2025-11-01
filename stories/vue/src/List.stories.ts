@@ -10,7 +10,7 @@ import ListFiltersWithCustomSyncRoute from './ListFiltersWithCustomSyncRoute.vue
 import ListPagination from './ListPagination.vue'
 import ListSorters from './ListSorters.vue'
 import ListSortersWithCustomSyncRoute from './ListSortersWithCustomSyncRoute.vue'
-import { createMsw } from './utils/msw'
+
 import { toHandlers } from './utils/msw-data'
 import { createWrapper } from './utils/wrapper'
 
@@ -24,7 +24,11 @@ MOCK_POSTS.forEach(db.posts.create)
 export const Pagination: StoryObj<typeof meta> = {
 	name: 'Pagination',
 	render: () => () => h(RouterView),
-	loaders: [createMsw(toHandlers(db, 'posts', 'https://rest-api.local'))],
+	parameters: {
+		msw: {
+			handlers: toHandlers(db, 'posts', 'https://rest-api.local'),
+		},
+	},
 	decorators: [
 		createWrapper({
 			resources: [
@@ -51,7 +55,11 @@ export const Pagination: StoryObj<typeof meta> = {
 export const Filters: StoryObj<typeof meta> = {
 	name: 'Filters',
 	render: () => () => h(RouterView),
-	loaders: [createMsw(toHandlers(db, 'posts', 'https://rest-api.local'))],
+	parameters: {
+		msw: {
+			handlers: toHandlers(db, 'posts', 'https://rest-api.local'),
+		},
+	},
 	decorators: [
 		createWrapper({
 			resources: [
@@ -78,7 +86,11 @@ export const Filters: StoryObj<typeof meta> = {
 export const FiltersWithCustomSyncRoute: StoryObj<typeof meta> = {
 	name: 'Filters w/ custom sync route',
 	render: () => () => h(RouterView),
-	loaders: [createMsw(toHandlers(db, 'posts', 'https://rest-api.local'))],
+	parameters: {
+		msw: {
+			handlers: toHandlers(db, 'posts', 'https://rest-api.local'),
+		},
+	},
 	decorators: [
 		createWrapper({
 			resources: [
@@ -105,7 +117,11 @@ export const FiltersWithCustomSyncRoute: StoryObj<typeof meta> = {
 export const Sorters: StoryObj<typeof meta> = {
 	name: 'Sorters',
 	render: () => () => h(RouterView),
-	loaders: [createMsw(toHandlers(db, 'posts', 'https://rest-api.local'))],
+	parameters: {
+		msw: {
+			handlers: toHandlers(db, 'posts', 'https://rest-api.local'),
+		},
+	},
 	decorators: [
 		createWrapper({
 			resources: [
@@ -132,7 +148,11 @@ export const Sorters: StoryObj<typeof meta> = {
 export const SortersWithCustomSyncRoute: StoryObj<typeof meta> = {
 	name: 'Sorters w/ custom sync route',
 	render: () => () => h(RouterView),
-	loaders: [createMsw(toHandlers(db, 'posts', 'https://rest-api.local'))],
+	parameters: {
+		msw: {
+			handlers: toHandlers(db, 'posts', 'https://rest-api.local'),
+		},
+	},
 	decorators: [
 		createWrapper({
 			resources: [
