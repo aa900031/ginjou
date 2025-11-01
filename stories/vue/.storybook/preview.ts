@@ -1,12 +1,21 @@
+/* eslint-disable perfectionist/sort-imports */
+import 'uno.css'
 import type { Preview } from '@storybook/vue3-vite'
 import { AbortDefer } from '@ginjou/core'
 import Aura from '@primevue/themes/aura'
-import { setup } from '@storybook/vue3-vite'
+import { setup as setupVue } from '@storybook/vue3-vite'
+import { mswLoader as MswLoader, initialize as setupMsw } from 'msw-storybook-addon'
 import PrimeVue from 'primevue/config'
 import ToastService from 'primevue/toastservice'
-import 'uno.css'
 
-setup((app) => {
+setupMsw({
+	onUnhandledRequest: 'bypass',
+	serviceWorker: {
+		url: './mockServiceWorker.js',
+	},
+})
+
+setupVue((app) => {
 	app.use(PrimeVue, {
 		theme: {
 			preset: Aura,
@@ -15,7 +24,7 @@ setup((app) => {
 	app.use(ToastService)
 })
 
-setup((app) => {
+setupVue((app) => {
 	const _originErrorHandler = app.config.errorHandler
 
 	app.config.errorHandler = (err, instance, info) => {
@@ -28,6 +37,9 @@ setup((app) => {
 })
 
 export default {
+	loaders: [
+		MswLoader,
+	],
 	parameters: {
 		controls: {
 			matchers: {

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { MutationModeValues } from '@ginjou/core'
-import type { Post } from './api/posts'
+import type { Post, PostFormData, PostRawFormData } from './api/posts'
 import { useForm } from '@ginjou/vue'
 import { reactive, toRef, watch } from 'vue'
 import { useRoute } from 'vue-router'
@@ -11,12 +11,12 @@ const props = defineProps<{
 }>()
 
 const route = useRoute()
-const form = useForm<Post, Partial<Post>>({
+const form = useForm<Post, PostFormData>({
 	action: 'edit',
 	mutationMode: toRef(props, 'mutationMode'),
 	redirect: toRef(props, 'redirect'),
 })
-const formData = reactive<Partial<Post>>({})
+const formData = reactive<PostRawFormData>({})
 const result = form.record
 
 watch(form.record, (val) => {
@@ -24,7 +24,7 @@ watch(form.record, (val) => {
 }, { immediate: true, deep: true })
 
 async function handleSubmit() {
-	await form.save(formData)
+	await form.save(formData as PostFormData)
 }
 </script>
 
