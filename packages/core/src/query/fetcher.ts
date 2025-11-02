@@ -99,10 +99,10 @@ export interface CursorBi<
 
 export type Cursor<
 	TPageParam = number,
-> =
-	| CursorOnlyNext<TPageParam>
-	| CursorOnlyPrev<TPageParam>
-	| CursorBi<TPageParam>
+>
+	= | CursorOnlyNext<TPageParam>
+		| CursorOnlyPrev<TPageParam>
+		| CursorBi<TPageParam>
 
 export interface CreateProps<
 	TParams = Record<string, any>,
@@ -121,7 +121,7 @@ export interface CreateResult<
 export type CreateOneFn = <
 	TData extends BaseRecord = BaseRecord,
 	TParams = Record<string, any>,
->(props: CreateProps<TParams>
+>(props: CreateProps<TParams>,
 ) => Promise<CreateResult<TData>>
 
 export interface CreateManyProps<
@@ -141,7 +141,7 @@ export interface CreateManyResult<
 export type CreateManyFn = <
 	TData extends BaseRecord = BaseRecord,
 	TParams = Record<string, any>,
->(props: CreateManyProps<TParams>
+>(props: CreateManyProps<TParams>,
 ) => Promise<CreateManyResult<TData>>
 
 export interface DeleteManyProps<
@@ -162,7 +162,7 @@ export interface DeleteManyResult<
 export type DeleteManyFn = <
 	TData extends BaseRecord = BaseRecord,
 	TParams = Record<string, any>,
->(props: DeleteManyProps<TParams>
+>(props: DeleteManyProps<TParams>,
 ) => Promise<DeleteManyResult<TData>>
 
 export interface DeleteOneProps<
@@ -183,7 +183,7 @@ export interface DeleteOneResult<
 export type DeleteOneFn = <
 	TData extends BaseRecord = BaseRecord,
 	TParams = Record<string, any>,
->(props: DeleteOneProps<TParams>
+>(props: DeleteOneProps<TParams>,
 ) => Promise<DeleteOneResult<TData>>
 
 export interface CustomProps<
@@ -217,7 +217,7 @@ export type CustomFn = <
 	TData extends BaseRecord = BaseRecord,
 	TQuery = unknown,
 	TPayload = unknown,
->(props: CustomProps<TQuery, TPayload>
+>(props: CustomProps<TQuery, TPayload>,
 ) => Promise<CustomResult<TData>>
 
 export interface UpdateResult<
@@ -238,7 +238,7 @@ export interface UpdateProps<
 export type UpdateOneFn = <
 	TData extends BaseRecord = BaseRecord,
 	TParams = Record<string, any>,
->(props: UpdateProps<TParams>
+>(props: UpdateProps<TParams>,
 ) => Promise<UpdateResult<TData>>
 
 export interface UpdateManyProps<
@@ -259,7 +259,7 @@ export interface UpdateManyResult<
 export type UpdateManyFn = <
 	TData extends BaseRecord = BaseRecord,
 	TParams = Record<string, any>,
->(props: UpdateManyProps<TParams>
+>(props: UpdateManyProps<TParams>,
 ) => Promise<UpdateManyResult<TData>>
 
 export interface GetOneProps {
@@ -276,7 +276,7 @@ export interface GetOneResult<
 
 export type GetOneFn = <
 	TData extends BaseRecord = BaseRecord,
->(props: GetOneProps
+>(props: GetOneProps,
 ) => Promise<GetOneResult<TData>>
 
 export interface GetManyProps {
@@ -293,7 +293,7 @@ export interface GetManyResult<
 
 export type GetManyFn = <
 	TData extends BaseRecord = BaseRecord,
->(props: GetManyProps
+>(props: GetManyProps,
 ) => Promise<GetManyResult<TData>>
 
 export interface GetListProps<
@@ -324,14 +324,14 @@ export interface GetInfiniteListResult<
 export type GetListResult<
 	TData extends BaseRecord = BaseRecord,
 	TPageParam = number,
-> =
-	| BaseGetListResult<TData>
-	| GetInfiniteListResult<TData, TPageParam>
+>
+	= | BaseGetListResult<TData>
+		| GetInfiniteListResult<TData, TPageParam>
 
 export type GetListFn = <
 	TData extends BaseRecord = BaseRecord,
 	TPageParam = number,
->(props: GetListProps<TPageParam>
+>(props: GetListProps<TPageParam>,
 ) => Promise<GetListResult<TData, TPageParam>>
 
 export interface Fetcher {

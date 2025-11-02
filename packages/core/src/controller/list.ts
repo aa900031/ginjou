@@ -22,9 +22,9 @@ export interface SortersOptions {
 	mode?: 'server' | 'off'
 }
 
-export type SortersProp =
-	| Sorters
-	| SortersOptions
+export type SortersProp
+	= | Sorters
+		| SortersOptions
 
 export interface FiltersOptions {
 	value?: Filters
@@ -33,9 +33,9 @@ export interface FiltersOptions {
 	mode?: 'server' | 'off'
 }
 
-export type FiltersProp =
-	| Filters
-	| FiltersOptions
+export type FiltersProp
+	= | Filters
+		| FiltersOptions
 
 export interface SyncRouteOptions {
 	currentPage?:
@@ -64,9 +64,9 @@ export interface SyncRouteOptions {
 		}
 }
 
-export type SyncRouteProp =
-	| boolean
-	| SyncRouteOptions
+export type SyncRouteProp
+	= | boolean
+		| SyncRouteOptions
 
 export type Props<
 	TData extends BaseRecord,
@@ -597,7 +597,7 @@ export type SetFilterBehaviorType = ValueOf<typeof SetFilterBehavior>
 
 export type SetFiltersFn = (
 	value: Filters | ((prev: Filters | undefined) => Filters),
-	behavior?: SetFilterBehaviorType
+	behavior?: SetFilterBehaviorType,
 ) => void
 
 export function createSetFiltersFn(

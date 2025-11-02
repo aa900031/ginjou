@@ -14,7 +14,7 @@ export type EmitEvent<
 >
 
 export type EmitFn<TPayload> = (
-	event: EmitEvent<TPayload>
+	event: EmitEvent<TPayload>,
 ) => void
 
 export function createEmitFn<

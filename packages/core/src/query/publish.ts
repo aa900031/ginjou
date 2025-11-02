@@ -38,11 +38,11 @@ export function createPublishPayloadByMany(
 	}
 }
 
-export type PublishMeta =
-	& Record<string, any>
-	& {
-		fetcherName: string
-	}
+export type PublishMeta
+	= & Record<string, any>
+		& {
+			fetcherName: string
+		}
 
 export function createPublishMeta(
 	props: {
