@@ -3,6 +3,34 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.11
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/vue@0.1.0-beta.10...${npm.name}@0.1.0-beta.11)
+
+### 🚀 Enhancements
+
+-  Query many generic types (#71) ([f9dd302](https://github.com/aa900031/ginjou/commit/f9dd302c32ef236f866c3c82872bf0de7219cf60))
+-  Select options with source data (#70) ([a8be073](https://github.com/aa900031/ginjou/commit/a8be0737a80885df20422016bc6f8c97c2b59571))
+
+### 💅 Refactors
+
+-  ⚠️ Rename fetcher method name (#73) ([832d8f1](https://github.com/aa900031/ginjou/commit/832d8f1022e8c32e09100510e025e1e617f9caf6))
+
+### 🏡 Chore
+
+-  **deps:** Update npm non-major dependencies (#68) ([fff485c](https://github.com/aa900031/ginjou/commit/fff485c38c07ff86502df1af2e948005e38b1ca6))
+-  **deps:** Update npm non-major develop dependencies (#64) ([4b169fd](https://github.com/aa900031/ginjou/commit/4b169fdfd7d8df834abc3137e87c82a030282d7d))
+
+
+### ⚠️ Breaking Changes
+
+-  rename fetcher method name (#73) ([832d8f1](https://github.com/aa900031/ginjou/commit/832d8f1022e8c32e09100510e025e1e617f9caf6))
+
+#### ❤️ Contributors
+
+- Renovate[bot] 
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.10
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/vue@0.1.0-beta.9...${npm.name}@0.1.0-beta.10)
