@@ -31,21 +31,21 @@
 		"@ginjou/with-vue-i18n": "workspace:*",
 		"@ginjou/with-vue-router": "workspace:*",
 		"@mswjs/data": "^0.16.2",
-		"@primevue/themes": "^4.3.5",
+		"@primevue/themes": "^4.4.1",
 		"@storybook/addon-docs": "^10.0.2",
 		"@storybook/addon-links": "^10.0.2",
 		"@storybook/vue3-vite": "^10.0.2",
-		"@tanstack/vue-query": "^5.80.7",
+		"@tanstack/vue-query": "^5.90.5",
 		"@vitejs/plugin-vue": "^6.0.1",
 		"msw": "^2.11.6",
 		"msw-storybook-addon": "2.0.6",
-		"primevue": "^4.3.5",
+		"primevue": "^4.4.1",
 		"storybook": "^10.0.2",
 		"storybook-vue3-router": "^6.0.2",
 		"unocss": "^66.5.4",
 		"vite": "^7.1.12",
-		"vue": "^3.5.16",
-		"vue-router": "^4.5.1"
+		"vue": "^3.5.22",
+		"vue-router": "^4.6.3"
 	},
 	"msw": {
 		"workerDirectory": [
