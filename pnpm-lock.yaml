@@ -88,7 +88,7 @@ importers:
         specifier: workspace:^
         version: link:../with-vue-router
       '@nuxt/kit':
-        specifier: ^3.17.5
+        specifier: ^3.19.3
         version: 3.20.0(magicast@0.5.1)
     devDependencies:
       '@nuxt/module-builder':
@@ -110,14 +110,14 @@ importers:
         specifier: workspace:^
         version: link:..
       nuxt:
-        specifier: ^3.17.5
+        specifier: ^3.19.3
         version: 3.20.0(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@18.19.130)(@vue/compiler-sfc@3.5.22)(db0@0.3.4)(eslint@9.39.0(jiti@2.6.1))(ioredis@5.8.2)(magicast@0.3.5)(meow@13.2.0)(optionator@0.9.4)(rollup@4.52.5)(terser@5.39.0)(tsx@4.19.3)(typescript@5.9.3)(vite@7.1.12(@types/node@18.19.130)(jiti@2.6.1)(terser@5.39.0)(tsx@4.19.3)(yaml@2.8.1))(yaml@2.8.1)
 
   packages/vue:
     dependencies:
       '@bouzu/vue-helper':
-        specifier: ^0.0.2
-        version: 0.0.2(@vue/composition-api@1.7.2(vue@3.5.22(typescript@5.9.3)))(vue@3.5.22(typescript@5.9.3))
+        specifier: ^0.1.0
+        version: 0.1.0(@vue/composition-api@1.7.2(vue@3.5.22(typescript@5.9.3)))(vue@3.5.22(typescript@5.9.3))
       '@ginjou/core':
         specifier: workspace:^
         version: link:../core
@@ -574,11 +574,11 @@ packages:
     resolution: {integrity: sha512-qQ5m48eI/MFLQ5PxQj4PFaprjyCTLI37ElWMmNs0K8Lk3dVeOdNpB3ks8jc7yM5CDmVC73eMVk/trk3fgmrUpA==}
     engines: {node: '>=6.9.0'}
 
-  '@bouzu/shared@0.0.2':
-    resolution: {integrity: sha512-uGxQXAhAPDZ2PEoKb2rw35oCKPX9eS12ccLIFgans+vrCT9qfumXgvzHGZGU5gt5lXTT4+dOwnDYDI0w7X5YDw==}
+  '@bouzu/shared@0.1.0':
+    resolution: {integrity: sha512-w/m23SBLaDu6/gm++uEhxbUA6mbEFtS/JN6g/6XDFTItrvVsXMFBLubrMKEvdgGv8DdnNvy/CVAqKsJopH0GKA==}
 
-  '@bouzu/vue-helper@0.0.2':
-    resolution: {integrity: sha512-2j1VxGTzinQA+6fdzJtpnnOg1OZ4aAIyUSvveXzlIu+QwVBPdvYbSt2flI4oyAO4v6KoWmru8rh0Jp/3G7rNqg==}
+  '@bouzu/vue-helper@0.1.0':
+    resolution: {integrity: sha512-O3dsMr9bbSABg2yLagFi/oM3k8KaUtz8e1X0C58ak2BRJ5bv90A7qr9dfTCaFjzOAxOVWwRJJzVxWIi8oL+2Jg==}
     peerDependencies:
       '@vue/composition-api': ^1.0.0
       vue: ^2.6.12 || ^3.2.0
@@ -8042,13 +8042,14 @@ snapshots:
       '@babel/helper-string-parser': 7.27.1
       '@babel/helper-validator-identifier': 7.28.5
 
-  '@bouzu/shared@0.0.2':
+  '@bouzu/shared@0.1.0':
     dependencies:
       type-fest: 3.13.1
 
-  '@bouzu/vue-helper@0.0.2(@vue/composition-api@1.7.2(vue@3.5.22(typescript@5.9.3)))(vue@3.5.22(typescript@5.9.3))':
+  '@bouzu/vue-helper@0.1.0(@vue/composition-api@1.7.2(vue@3.5.22(typescript@5.9.3)))(vue@3.5.22(typescript@5.9.3))':
     dependencies:
-      '@bouzu/shared': 0.0.2
+      '@bouzu/shared': 0.1.0
+      '@vueuse/shared': 10.11.1(@vue/composition-api@1.7.2(vue@3.5.22(typescript@5.9.3)))(vue@3.5.22(typescript@5.9.3))
       vue-demi: 0.14.10(@vue/composition-api@1.7.2(vue@3.5.22(typescript@5.9.3)))(vue@3.5.22(typescript@5.9.3))
     optionalDependencies:
       '@vue/composition-api': 1.7.2(vue@3.5.22(typescript@5.9.3))
