@@ -3,6 +3,33 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.11
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/core@0.1.0-beta.10...${npm.name}@0.1.0-beta.11)
+
+### 🚀 Enhancements
+
+-  Select options with source data (#70) ([a8be073](https://github.com/aa900031/ginjou/commit/a8be0737a80885df20422016bc6f8c97c2b59571))
+
+### 💅 Refactors
+
+-  ⚠️ Rename fetcher method name (#73) ([832d8f1](https://github.com/aa900031/ginjou/commit/832d8f1022e8c32e09100510e025e1e617f9caf6))
+-  Move to es-toolkit (#72) ([7da813a](https://github.com/aa900031/ginjou/commit/7da813aecb771bd8561c63f6b3512e6e02c1f82c))
+
+### 🏡 Chore
+
+-  **deps:** Update npm non-major develop dependencies (#64) ([4b169fd](https://github.com/aa900031/ginjou/commit/4b169fdfd7d8df834abc3137e87c82a030282d7d))
+
+
+### ⚠️ Breaking Changes
+
+-  rename fetcher method name (#73) ([832d8f1](https://github.com/aa900031/ginjou/commit/832d8f1022e8c32e09100510e025e1e617f9caf6))
+
+#### ❤️ Contributors
+
+- Renovate[bot] 
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.10
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/core@0.1.0-beta.9...${npm.name}@0.1.0-beta.10)
