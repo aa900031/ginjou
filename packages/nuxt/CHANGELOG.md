@@ -3,6 +3,34 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.7
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/nuxt@0.1.0-beta.6...${npm.name}@0.1.0-beta.7)
+
+### 🩹 Fixes
+
+-  **nuxt:** Include packages in vite.optimizeDeps (#77) ([b3fd727](https://github.com/aa900031/ginjou/commit/b3fd727c54bf446a49080b243a713c623cbf5b2c))
+
+### 💅 Refactors
+
+-  ⚠️ Rename fetcher method name (#73) ([832d8f1](https://github.com/aa900031/ginjou/commit/832d8f1022e8c32e09100510e025e1e617f9caf6))
+
+### 🏡 Chore
+
+-  Add autofix (#76) ([21aa8cb](https://github.com/aa900031/ginjou/commit/21aa8cb575891a238cc083f221d325e54c98876a))
+-  **deps:** Update npm non-major dependencies (#68) ([fff485c](https://github.com/aa900031/ginjou/commit/fff485c38c07ff86502df1af2e948005e38b1ca6))
+-  **deps:** Update npm non-major develop dependencies (#64) ([4b169fd](https://github.com/aa900031/ginjou/commit/4b169fdfd7d8df834abc3137e87c82a030282d7d))
+
+
+### ⚠️ Breaking Changes
+
+-  rename fetcher method name (#73) ([832d8f1](https://github.com/aa900031/ginjou/commit/832d8f1022e8c32e09100510e025e1e617f9caf6))
+
+#### ❤️ Contributors
+
+- Renovate[bot] 
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.6
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/nuxt@0.1.0-beta.5...${npm.name}@0.1.0-beta.6)
