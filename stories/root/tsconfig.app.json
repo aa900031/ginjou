@@ -1,7 +1,11 @@
 {
 	"extends": "@ginjou/tsconfig/base.json",
+	"compilerOptions": {
+		"jsx": "preserve"
+	},
 	"include": [
-		".storybook/preview.ts"
+		".storybook/preview.ts",
+		".storybook/components/*.tsx"
 	],
 	"exclude": [
 		"src/**/*.test.ts",
