@@ -21,7 +21,7 @@ pnpm add @ginjou/vue @tanstack/vue-query
 
 **2. Usage**
 
-```vue
+```html
 <script setup lang="ts">
 import { defineFetchersContext, defineQueryClient, useList } from '@ginjou/vue'
 
@@ -47,7 +47,7 @@ defineFetchersContext({
 </template>
 ```
 
-```vue
+```html
 <!-- PostList.vue -->
 <script setup lang="ts">
 import { useList } from '@ginjou/vue'
