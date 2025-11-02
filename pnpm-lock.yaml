@@ -574,8 +574,8 @@ packages:
     resolution: {integrity: sha512-qQ5m48eI/MFLQ5PxQj4PFaprjyCTLI37ElWMmNs0K8Lk3dVeOdNpB3ks8jc7yM5CDmVC73eMVk/trk3fgmrUpA==}
     engines: {node: '>=6.9.0'}
 
-  '@bouzu/shared@0.1.0':
-    resolution: {integrity: sha512-w/m23SBLaDu6/gm++uEhxbUA6mbEFtS/JN6g/6XDFTItrvVsXMFBLubrMKEvdgGv8DdnNvy/CVAqKsJopH0GKA==}
+  '@bouzu/shared@0.1.1':
+    resolution: {integrity: sha512-KqRFd0eWXyl3oSQmSSSBLpVnNCrkiiH6Bgj/iyOZh+cy7p1QxbttjL+E3nhWN2hF0WMXixsGL2E8ipzNOcLNqA==}
 
   '@bouzu/vue-helper@0.1.0':
     resolution: {integrity: sha512-O3dsMr9bbSABg2yLagFi/oM3k8KaUtz8e1X0C58ak2BRJ5bv90A7qr9dfTCaFjzOAxOVWwRJJzVxWIi8oL+2Jg==}
@@ -8042,13 +8042,13 @@ snapshots:
       '@babel/helper-string-parser': 7.27.1
       '@babel/helper-validator-identifier': 7.28.5
 
-  '@bouzu/shared@0.1.0':
+  '@bouzu/shared@0.1.1':
     dependencies:
       type-fest: 3.13.1
 
   '@bouzu/vue-helper@0.1.0(@vue/composition-api@1.7.2(vue@3.5.22(typescript@5.9.3)))(vue@3.5.22(typescript@5.9.3))':
     dependencies:
-      '@bouzu/shared': 0.1.0
+      '@bouzu/shared': 0.1.1
       '@vueuse/shared': 10.11.1(@vue/composition-api@1.7.2(vue@3.5.22(typescript@5.9.3)))(vue@3.5.22(typescript@5.9.3))
       vue-demi: 0.14.10(@vue/composition-api@1.7.2(vue@3.5.22(typescript@5.9.3)))(vue@3.5.22(typescript@5.9.3))
     optionalDependencies:
