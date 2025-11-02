@@ -55,7 +55,7 @@
 		}
 	},
 	"dependencies": {
-		"@bouzu/vue-helper": "^0.0.2",
+		"@bouzu/vue-helper": "^0.1.0",
 		"@ginjou/core": "workspace:^",
 		"@vueuse/shared": "^10.11.1",
 		"tanstack-query-callbacks": "^0.2.1",
