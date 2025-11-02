@@ -5,8 +5,8 @@ export default {
 	parameters: {
 		docs: {
 			components: {
-				code: Code
-			}
-		}
-	}
+				code: Code,
+			},
+		},
+	},
 } satisfies Preview
