@@ -8,9 +8,9 @@ export interface CreateAuthProps<
 	client: TClient
 }
 
-export type LoginParams =
-	| LoginWithPasswordParams
-	| LoginWithSSOParams
+export type LoginParams
+	= | LoginWithPasswordParams
+		| LoginWithSSOParams
 
 export interface LoginWithPasswordParams {
 	type: 'password'

@@ -10,8 +10,8 @@ import { delay } from 'msw'
 import Toast from 'primevue/toast'
 import { useToast } from 'primevue/usetoast'
 
-export type CreateWrapperProps =
-	& {
+export type CreateWrapperProps
+	= & {
 		router?: boolean
 		fetchers?: Fetchers
 		resources?: ResourceDefinition[]

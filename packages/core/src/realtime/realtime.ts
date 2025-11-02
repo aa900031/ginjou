@@ -37,7 +37,7 @@ export interface SubscribeManyParams {
 export type SubscribeCallbackFn<
 	TPayload,
 > = (
-	event: RealtimeEvent<TPayload>
+	event: RealtimeEvent<TPayload>,
 ) => void
 
 export interface SubscribeProps<
@@ -62,8 +62,8 @@ export type SubscribeFn = <
 
 export type UnsubscribeKey = string
 
-export type UnsubscribeProps =
-	| UnsubscribeKey
+export type UnsubscribeProps
+	= | UnsubscribeKey
 
 export type UnsubscribeFn = (
 	props: UnsubscribeProps,
@@ -72,7 +72,7 @@ export type UnsubscribeFn = (
 export type PublishFn = <
 	TPayload,
 >(
-	event: RealtimeEvent<TPayload>
+	event: RealtimeEvent<TPayload>,
 ) => void
 
 export interface RealtimeOptions<
