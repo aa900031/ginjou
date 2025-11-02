@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.4
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/with-rest-api@0.1.0-beta.3...${npm.name}@0.1.0-beta.4)
+
+### 📖 Documentation
+
+-  **storybook/vue:** Add query composables (#78) ([031dd68](https://github.com/aa900031/ginjou/commit/031dd68131c5f2d2c7e218d6e7dbcdf8eae3c4ec))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.3
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/with-rest-api@0.1.0-beta.2...${npm.name}@0.1.0-beta.3)
