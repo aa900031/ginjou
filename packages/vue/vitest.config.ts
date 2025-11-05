@@ -11,9 +11,6 @@ export default defineConfig({
 		coverage: {
 			enabled: true,
 			provider: 'istanbul',
-			include: [
-				'./src/**/*',
-			],
 		},
 	},
 	resolve: {
