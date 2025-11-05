@@ -1,6 +1,6 @@
 # Ginjou
 
-[![coverage][coverage-src]][coverage-href]
+[![coverage][coverage-src]](coverage-href)
 ![coderabbit][coderabbit-src]
 
 Ginjou is a headless, framework-agnostic, progressive  library for building admin panels, dashboards, and other data-intensive applications. It is inspired by [refine](https://github.com/refinedev/refine) and [react-admin](https://github.com/marmelab/react-admin)
