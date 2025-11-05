@@ -48,5 +48,6 @@ jobs:
       - name: Run benchmark test
         uses: CodSpeedHQ/action@v4
         with:
+          mode: instrumentation
           run: pnpm vitest bench --run
           token: ${{ secrets.CODSPEED_TOKEN }}
