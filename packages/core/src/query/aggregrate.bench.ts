@@ -17,11 +17,14 @@ describe('createAggregrateFn', () => {
 
 	beforeEach(() => fn.mockClear())
 
-	bench('with aggregation', async () => {
+	bench('aggregation 1~3', async () => {
+		await Promise.all(
+			Array.from({ length: 3 }).map((item, index) => aggregrateFn(index + 1)),
+		)
+	})
+	bench('aggregation 1~10', async () => {
 		await Promise.all([
-			aggregrateFn(1),
-			aggregrateFn(2),
-			aggregrateFn(3),
+			Array.from({ length: 10 }).map((item, index) => aggregrateFn(index + 1)),
 		])
 	})
 })
