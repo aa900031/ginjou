@@ -1,4 +1,4 @@
-import type { QueryKey, QueryObserverOptions } from '@tanstack/query-core'
+import type { QueryFunction, QueryKey, QueryObserverOptions } from '@tanstack/query-core'
 import type { QueryCallbacks } from 'tanstack-query-callbacks'
 import type { Simplify } from 'type-fest'
 import type { RouterGoFn, RouterGoParams } from '../router'
@@ -61,13 +61,12 @@ export interface CreateQueryFnProps<
 
 export function createQueryFn<
 	TParams,
-	TError,
 >(
 	{
 		auth,
 		getParams,
 	}: CreateQueryFnProps<TParams>,
-): NonNullable<QueryOptions<TError>['queryFn']> {
+): QueryFunction<AuthCheckResult> {
 	return async function queryFn() {
 		const { check } = auth ?? {}
 		if (typeof check !== 'function')

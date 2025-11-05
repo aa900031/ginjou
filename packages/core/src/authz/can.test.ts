@@ -37,8 +37,8 @@ describe('createQueryFn', () => {
 			resource: 'article',
 			action: 'create',
 		}
-		const queryFn = createQueryFn<any>({ authz, getParams: () => params })
-		await queryFn()
+		const queryFn = createQueryFn({ authz, getParams: () => params })
+		await queryFn({} as any)
 		expect(authz.access).toHaveBeenCalledWith(params)
 	})
 
@@ -49,7 +49,7 @@ describe('createQueryFn', () => {
 			action: 'create',
 		}
 		const queryFn = createQueryFn({ authz, getParams: () => params })
-		const result = await queryFn()
+		const result = await queryFn({} as any)
 		expect(result).toEqual({ can: true })
 	})
 
@@ -59,7 +59,7 @@ describe('createQueryFn', () => {
 			action: 'create',
 		}
 		const queryFn = createQueryFn({ authz: undefined, getParams: () => params })
-		const result = await queryFn()
+		const result = await queryFn({} as any)
 		expect(result).toEqual({ can: true })
 	})
 })

@@ -6,7 +6,7 @@ import { createQueryKey as createIdentityQueryKey } from './identity'
 
 export async function triggerInvalidateAll(
 	queryClient: QueryClient,
-) {
+): Promise<void> {
 	await Promise.all(
 		[
 			createCheckQueryKey(),

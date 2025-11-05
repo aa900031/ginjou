@@ -1,4 +1,4 @@
-import type { MutationKey, MutationObserverOptions, QueryClient } from '@tanstack/query-core'
+import type { MutationFunction, MutationKey, MutationObserverOptions, QueryClient } from '@tanstack/query-core'
 import type { TranslateFn } from '../i18n'
 import type { NotifyFn } from '../notification'
 import type { OptionalMutateAsyncFunction, OptionalMutateSyncFunction, OriginMutateAsyncFunction, OriginMutateSyncFunction } from '../query/types'
@@ -67,12 +67,11 @@ export interface CreateMutationFnProps {
 
 export function createMutationFn<
 	TParams,
-	TError,
 >(
 	{
 		auth,
 	}: CreateMutationFnProps,
-): NonNullable<MutationOptions<TParams, TError>['mutationFn']> {
+): MutationFunction<AuthLoginResult, TParams> {
 	return async function mutationFn(params) {
 		const { login } = auth ?? {}
 		if (typeof login !== 'function')
@@ -109,7 +108,7 @@ export function createSuccessHandler<
 		onSuccess: onSuccessFromProp,
 	}: CreateSuccessHandlerProps<TParams, TError>,
 ): NonNullable<MutationOptions<TParams, TError>['onSuccess']> {
-	return async function onSuccess(data, propsFromFn, context) {
+	return async function onSuccess(data, propsFromFn, onMutateResult, context) {
 		const propsFromProps = getProps()
 		const redirectTo = resolveRedirectTo(data, propsFromFn, propsFromProps) ?? DEFAULT_REDIRECT_TO
 		const ignoreInvalidate = resolveIgnoreInvalidate(data, propsFromFn, propsFromProps) ?? false
@@ -120,7 +119,7 @@ export function createSuccessHandler<
 		if (redirectTo !== false)
 			go(redirectTo)
 
-		await onSuccessFromProp?.(data, propsFromFn, context)
+		await onSuccessFromProp?.(data, propsFromFn, onMutateResult, context)
 	}
 }
 
@@ -148,6 +147,7 @@ export function createErrorHandler<
 	return async function onError(
 		error,
 		variables,
+		onMutateResult,
 		context,
 	) {
 		const redirectTo = getRedirectToByObject(error as any)
@@ -162,7 +162,7 @@ export function createErrorHandler<
 		if (redirectTo != null && redirectTo !== false)
 			go(redirectTo)
 
-		await onErrorFromProp?.(error, variables, context)
+		await onErrorFromProp?.(error, variables, onMutateResult, context)
 	}
 }
 
