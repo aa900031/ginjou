@@ -104,8 +104,6 @@ Made with ❤️
 
 Published under the [MIT License](https://github.com/aa900031/ginjou/blob/main/LICENSE).
 
-
 [coverage-src]: https://img.shields.io/codecov/c/gh/aa900031/ginjou?logo=codecov&style=flat&colorA=18181B&colorB=F0DB4F
 [coverage-href]: https://codecov.io/gh/aa900031/ginjou
 [coderabbit-src]: https://img.shields.io/coderabbit/prs/github/aa900031/ginjou?style=flat&logo=coderabbit&logoColor=FF570A&label=CodeRabbit%20Reviews&colorA=18181B&colorB=F0DB4F
-

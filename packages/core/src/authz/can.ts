@@ -1,4 +1,4 @@
-import type { QueryKey, QueryObserverOptions } from '@tanstack/query-core'
+import type { QueryFunction, QueryKey, QueryObserverOptions } from '@tanstack/query-core'
 import type { Simplify } from 'type-fest'
 import type { EnabledGetter } from '../utils/query'
 import type { AccessCanParams, AccessCanResult, Authz } from './authz'
@@ -58,14 +58,12 @@ const DEFAULT_ACCESS_CAN_RESULT: AccessCanResult = {
 	can: true,
 }
 
-export function createQueryFn<
-	TError,
->(
+export function createQueryFn(
 	{
 		authz,
 		getParams,
 	}: CreateQueryFnProps,
-): NonNullable<QueryOptions<TError>['queryFn']> {
+): QueryFunction<AccessCanResult> {
 	return async function queryFn() {
 		const params = getParams()
 

@@ -48,12 +48,11 @@ export type MutationAsyncFn<
 
 export function createMutationFn<
 	TParams,
-	TError,
 >(
 	{
 		auth,
 	}: CreateMutationFnProps,
-): NonNullable<MutationOptions<TParams, TError>['mutationFn']> {
+): MutationFunction<AuthCheckErrorResult, TParams> {
 	return async function mutationFn(params) {
 		const checkError = auth?.checkError
 		if (typeof checkError !== 'function')
@@ -83,7 +82,7 @@ export function createSuccessHandler<
 		onSuccess: onSuccessFromProp,
 	}: CreateSuccessHandlerProps<TParams, TError>,
 ): NonNullable<MutationOptions<TParams, TError>['onSuccess']> {
-	return async function onSuccess(data, propsFromFn, context) {
+	return async function onSuccess(data, propsFromFn, onMutateResult, context) {
 		const redirectTo = getRedirectToByObject(data)
 		const { logout: shouldLogout } = data
 		if (shouldLogout) {
@@ -96,6 +95,6 @@ export function createSuccessHandler<
 		if (redirectTo != null && redirectTo !== false)
 			go(redirectTo)
 
-		await onSuccessFromProp?.(data, propsFromFn, context)
+		await onSuccessFromProp?.(data, propsFromFn, onMutateResult, context)
 	}
 }

@@ -45,7 +45,7 @@ export function useAuthenticated<
 	const queryKey = computed(() => CheckAuth.createQueryKey<TParams>(
 		getParams(),
 	))
-	const queryFn = CheckAuth.createQueryFn<TParams, TError>({
+	const queryFn = CheckAuth.createQueryFn<TParams>({
 		auth,
 		getParams,
 	})

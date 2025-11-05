@@ -1,4 +1,4 @@
-import type { QueryKey, QueryObserverOptions } from '@tanstack/query-core'
+import type { QueryFunction, QueryKey, QueryObserverOptions } from '@tanstack/query-core'
 import type { Simplify } from 'type-fest'
 import type { EnabledGetter } from '../utils/query'
 import type { Authz } from './authz'
@@ -52,13 +52,12 @@ export interface CreateQueryFnProps<
 export function createQueryFn<
 	TData,
 	TParams,
-	TError,
 >(
 	{
 		authz,
 		getParams,
 	}: CreateQueryFnProps<TParams>,
-): NonNullable<QueryOptions<TData, TError>['queryFn']> {
+): QueryFunction<TData> {
 	return async function queryFn() {
 		const { getPermissions } = authz ?? {}
 		if (typeof getPermissions !== 'function')
