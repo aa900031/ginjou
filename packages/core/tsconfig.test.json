@@ -6,5 +6,9 @@
 			"node"
 		]
 	},
+	"include": [
+		"src/**/*.{spec,test,bench}.ts",
+		"test/**/*"
+	],
 	"exclude": []
 }

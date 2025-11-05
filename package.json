@@ -10,6 +10,7 @@
 		"build:sb": "turbo run build --filter=./stories/*",
 		"preview:sb": "turbo run preview --filter=@ginjou/storybook",
 		"test": "turbo run test",
+		"bench": "turbo run bench",
 		"dev:test": "turbo run dev:test",
 		"dev:sb": "turbo run dev --filter=./stories/*",
 		"dev:nuxt": "turbo run dev --filter=@ginjou/nuxt",
@@ -19,6 +20,7 @@
 	"devDependencies": {
 		"@aa900031/eslint-config": "^3.2.0",
 		"@aa900031/release-it-config": "^0.1.0",
+		"@codspeed/vitest-plugin": "^5.0.1",
 		"@types/node": "^18.19.130",
 		"@vitest/coverage-istanbul": "^3.2.4",
 		"eslint": "^9.38.0",

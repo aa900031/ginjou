@@ -33,3 +33,20 @@ jobs:
           directory: packages
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  benchmark-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup
+        uses: aa900031/github-actions/setup-node@main
+
+      - name: Run benchmark test
+        uses: CodSpeedHQ/action@v4
+        with:
+          run: pnpm vitest bench --run
+          token: ${{ secrets.CODSPEED_TOKEN }}

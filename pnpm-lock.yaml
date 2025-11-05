@@ -17,6 +17,9 @@ importers:
       '@aa900031/release-it-config':
         specifier: ^0.1.0
         version: 0.1.0(conventional-changelog@6.0.0(conventional-commits-filter@5.0.0))(conventional-commits-filter@5.0.0)(conventional-commits-parser@6.1.0)(release-it@19.0.5(@types/node@18.19.130)(magicast@0.3.5))
+      '@codspeed/vitest-plugin':
+        specifier: ^5.0.1
+        version: 5.0.1(tinybench@2.9.0)(vite@7.1.12(@types/node@18.19.130)(jiti@2.6.1)(terser@5.39.0)(tsx@4.19.3)(yaml@2.8.1))(vitest@3.2.4(@types/debug@4.1.12)(@types/node@18.19.130)(happy-dom@17.6.3)(jiti@2.6.1)(msw@2.11.6(@types/node@18.19.130)(typescript@5.9.3))(terser@5.39.0)(tsx@4.19.3)(yaml@2.8.1))
       '@types/node':
         specifier: ^18.19.130
         version: 18.19.130
@@ -615,6 +618,16 @@ packages:
   '@cloudflare/kv-asset-handler@0.4.0':
     resolution: {integrity: sha512-+tv3z+SPp+gqTIcImN9o0hqE9xyfQjI1XD9pL6NuKjua9B1y7mNYv0S9cP+QEbA4ppVgGZEmKOvHX5G5Ei1CVA==}
     engines: {node: '>=18.0.0'}
+
+  '@codspeed/core@5.0.1':
+    resolution: {integrity: sha512-4g5ZyFAin8QywK4+0FK1uXG3GLRPu0oc3xbP+7OUhhFxbwpzFuaJtKmnTofMqLy9/pHH6Bl/7H0/DTVH3cpFkA==}
+
+  '@codspeed/vitest-plugin@5.0.1':
+    resolution: {integrity: sha512-RQLy8AGI16oTtmTyBIS2iKzD4AQQzJP7waurrYkUlnOlCa5Yp/7KXVZuZVzhqwYmPcH984xzFtsC2CENYbpRHQ==}
+    peerDependencies:
+      tinybench: '>=2.9.0'
+      vite: ^4.2.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
+      vitest: '>=3.2'
 
   '@conventional-changelog/git-client@1.0.1':
     resolution: {integrity: sha512-PJEqBwAleffCMETaVm/fUgHldzBE35JFk3/9LL6NUA5EXa3qednu+UT6M7E5iBu3zIQZCULYIiZ90fBYHt6xUw==}
@@ -4260,6 +4273,10 @@ packages:
     resolution: {integrity: sha512-78/PXT1wlLLDgTzDs7sjq9hzz0vXD+zn+7wypEe4fXQxCmdmqfGsEPQxmiCSQI3ajFV91bVSsvNtrJRiW6nGng==}
     engines: {node: '>=10'}
 
+  find-up@6.3.0:
+    resolution: {integrity: sha512-v2ZsoEuVHYy8ZIlYqwPe/39Cy+cFDzp4dXPaxNvkEuouymu+2Jbz0PxpKarJHYJTmv2HWT3O382qY8l4jMWthw==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+
   find-up@7.0.0:
     resolution: {integrity: sha512-YyZM99iHrqLKjmt4LJDj58KI+fYyufRLBSYcqycxf//KpBk9FoewoGX0450m9nB44qrZnovzC2oeP5hUibxc/g==}
     engines: {node: '>=18'}
@@ -7506,8 +7523,8 @@ packages:
   vue-component-type-helpers@2.2.8:
     resolution: {integrity: sha512-4bjIsC284coDO9om4HPA62M7wfsTvcmZyzdfR0aUlFXqq4tXxM1APyXpNVxPC8QazKw9OhmZNHBVDA6ODaZsrA==}
 
-  vue-component-type-helpers@3.1.2:
-    resolution: {integrity: sha512-ch3/SKBtxdZq18vsEntiGCdSszCRNfhX5QaTxjSacCAXLlNQRXfXo+ANjoQEYJMsJOJy1/vHF6Tkc4s85MS+zw==}
+  vue-component-type-helpers@3.1.3:
+    resolution: {integrity: sha512-V1dOD8XYfstOKCnXbWyEJIrhTBMwSyNjv271L1Jlx9ExpNlCSuqOs3OdWrGJ0V544zXufKbcYabi/o+gK8lyfQ==}
 
   vue-demi@0.14.10:
     resolution: {integrity: sha512-nMZBOwuzabUO0nLgIcc6rycZEebF6eeUfaiQx9+WSk8e29IbLvPU9feI6tqW4kTo3hvoYAJkMh8n8D0fuISphg==}
@@ -8088,6 +8105,24 @@ snapshots:
   '@cloudflare/kv-asset-handler@0.4.0':
     dependencies:
       mime: 3.0.0
+
+  '@codspeed/core@5.0.1':
+    dependencies:
+      axios: 1.13.1
+      find-up: 6.3.0
+      form-data: 4.0.4
+      node-gyp-build: 4.8.4
+    transitivePeerDependencies:
+      - debug
+
+  '@codspeed/vitest-plugin@5.0.1(tinybench@2.9.0)(vite@7.1.12(@types/node@18.19.130)(jiti@2.6.1)(terser@5.39.0)(tsx@4.19.3)(yaml@2.8.1))(vitest@3.2.4(@types/debug@4.1.12)(@types/node@18.19.130)(happy-dom@17.6.3)(jiti@2.6.1)(msw@2.11.6(@types/node@18.19.130)(typescript@5.9.3))(terser@5.39.0)(tsx@4.19.3)(yaml@2.8.1))':
+    dependencies:
+      '@codspeed/core': 5.0.1
+      tinybench: 2.9.0
+      vite: 7.1.12(@types/node@18.19.130)(jiti@2.6.1)(terser@5.39.0)(tsx@4.19.3)(yaml@2.8.1)
+      vitest: 3.2.4(@types/debug@4.1.12)(@types/node@18.19.130)(happy-dom@17.6.3)(jiti@2.6.1)(msw@2.11.6(@types/node@18.19.130)(typescript@5.9.3))(terser@5.39.0)(tsx@4.19.3)(yaml@2.8.1)
+    transitivePeerDependencies:
+      - debug
 
   '@conventional-changelog/git-client@1.0.1(conventional-commits-filter@5.0.0)(conventional-commits-parser@6.1.0)':
     dependencies:
@@ -9871,7 +9906,7 @@ snapshots:
       storybook: 10.0.2(@testing-library/dom@10.4.0)(msw@2.11.6(@types/node@18.19.130)(typescript@5.9.3))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vite@7.1.12(@types/node@18.19.130)(jiti@2.6.1)(terser@5.39.0)(tsx@4.19.3)(yaml@2.8.1))
       type-fest: 2.19.0
       vue: 3.5.22(typescript@5.9.3)
-      vue-component-type-helpers: 3.1.2
+      vue-component-type-helpers: 3.1.3
 
   '@stylistic/eslint-plugin@5.5.0(eslint@9.39.0(jiti@2.6.1))':
     dependencies:
@@ -12521,6 +12556,11 @@ snapshots:
       locate-path: 6.0.0
       path-exists: 4.0.0
 
+  find-up@6.3.0:
+    dependencies:
+      locate-path: 7.2.0
+      path-exists: 5.0.0
+
   find-up@7.0.0:
     dependencies:
       locate-path: 7.2.0
@@ -13344,7 +13384,6 @@ snapshots:
   locate-path@7.2.0:
     dependencies:
       p-locate: 6.0.0
-    optional: true
 
   lodash-es@4.17.21: {}
 
@@ -14870,7 +14909,6 @@ snapshots:
   p-limit@4.0.0:
     dependencies:
       yocto-queue: 1.2.1
-    optional: true
 
   p-locate@5.0.0:
     dependencies:
@@ -14879,7 +14917,6 @@ snapshots:
   p-locate@6.0.0:
     dependencies:
       p-limit: 4.0.0
-    optional: true
 
   p-timeout@6.1.4:
     optional: true
@@ -14972,8 +15009,7 @@ snapshots:
 
   path-exists@4.0.0: {}
 
-  path-exists@5.0.0:
-    optional: true
+  path-exists@5.0.0: {}
 
   path-key@3.1.1: {}
 
@@ -16780,7 +16816,7 @@ snapshots:
 
   vue-component-type-helpers@2.2.8: {}
 
-  vue-component-type-helpers@3.1.2: {}
+  vue-component-type-helpers@3.1.3: {}
 
   vue-demi@0.14.10(@vue/composition-api@1.7.2(vue@3.5.22(typescript@5.9.3)))(vue@3.5.22(typescript@5.9.3)):
     dependencies:
@@ -17005,8 +17041,7 @@ snapshots:
 
   yocto-queue@0.1.0: {}
 
-  yocto-queue@1.2.1:
-    optional: true
+  yocto-queue@1.2.1: {}
 
   yoctocolors-cjs@2.1.2: {}
 

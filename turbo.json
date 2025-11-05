@@ -9,10 +9,22 @@
 		"test": {
 			"inputs": [
 				"src/**/*",
-				"test/**/*"
+				"!src/**/*.bench.*",
+				"test/**/*",
+				"vitest.config.*"
 			],
 			"outputs": [
 				"coverage/**/*"
+			]
+		},
+		"bench": {
+			"cache": false,
+			"inputs": [
+				"src/**/*",
+				"!src/**/*.test.*",
+				"!src/**/*.spec.*",
+				"test/**/*",
+				"vitest.config.*"
 			]
 		},
 		"dev": {
