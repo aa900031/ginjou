@@ -48,7 +48,7 @@ export function useCanAccess<
 	const queryKey = computed(() => CanAccess.createQueryKey({
 		params: unref(params),
 	}))
-	const queryFn = CanAccess.createQueryFn<TError>({
+	const queryFn = CanAccess.createQueryFn({
 		authz,
 		getParams: () => unref(params),
 	})

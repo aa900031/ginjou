@@ -10,6 +10,7 @@ export interface AccessCanParams {
 	resource?: string
 	params?: {
 		id?: RecordKey
+		[key: string]: any
 	}
 	meta?: Record<string, any>
 }
