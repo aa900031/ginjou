@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
+import { createMutationContext } from '../../test/tanstack-utils'
 import { createMutationFn, createMutationKey, createSuccessHandler } from './check-error'
 
 describe('createMutationKey', () => {
@@ -10,10 +11,10 @@ describe('createMutationKey', () => {
 describe('createMutationFn', () => {
 	it('should return an empty object if auth or checkError is not defined', async () => {
 		const mutationFn = createMutationFn({ auth: undefined })
-		await expect(mutationFn({}, {} as any)).resolves.toEqual({})
+		await expect(mutationFn({}, createMutationContext())).resolves.toEqual({})
 
 		const mutationFn2 = createMutationFn({ auth: {} as any })
-		await expect(mutationFn2({}, {} as any)).resolves.toEqual({})
+		await expect(mutationFn2({}, createMutationContext())).resolves.toEqual({})
 	})
 
 	it('should call auth.checkError with the given params and return its result', async () => {
@@ -23,7 +24,7 @@ describe('createMutationFn', () => {
 		const params = { someParam: 'value' }
 
 		const mutationFn = createMutationFn({ auth })
-		const result = await mutationFn(params, {} as any)
+		const result = await mutationFn(params, createMutationContext())
 
 		expect(mockCheckError).toHaveBeenCalledWith(params)
 		expect(result).toEqual(mockCheckErrorResult)

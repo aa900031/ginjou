@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
+import { createMutationContext } from '../../test/tanstack-utils'
 import { NotificationType } from '../notification'
 import { RouterGoType } from '../router'
 import { createErrorHandler, createMutateAsyncFn, createMutateFn, createMutationFn, createMutationKey, createSuccessHandler } from './logout'
@@ -12,10 +13,10 @@ describe('createMutationKey', () => {
 describe('createMutationFn', () => {
 	it('should throw an error if auth.logout is not a function', async () => {
 		const mutationFn = createMutationFn({ auth: undefined })
-		await expect(mutationFn({}, {} as any)).rejects.toThrow('No')
+		await expect(mutationFn({}, createMutationContext())).rejects.toThrow('No')
 
 		const mutationFn2 = createMutationFn({ auth: {} as any })
-		await expect(mutationFn2({}, {} as any)).rejects.toThrow('No')
+		await expect(mutationFn2({}, createMutationContext())).rejects.toThrow('No')
 	})
 
 	it('should call auth.logout with params and return the result', async () => {
@@ -25,7 +26,7 @@ describe('createMutationFn', () => {
 		const params = { reason: 'user-request' }
 
 		const mutationFn = createMutationFn({ auth })
-		const result = await mutationFn(params, {} as any)
+		const result = await mutationFn(params, createMutationContext())
 
 		expect(mockLogout).toHaveBeenCalledWith(params)
 		expect(result).toEqual(mockLogoutResult)

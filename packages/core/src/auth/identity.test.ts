@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
+import { createQueryContext } from '../../test/tanstack-utils'
 import { createQueryFn, createQueryKey, getQueryEnabled } from './identity'
 
 describe('createQueryKey', () => {
@@ -16,10 +17,10 @@ describe('createQueryFn', () => {
 	it('should throw an error if auth.getIdentity is not a function', async () => {
 		const getParams = () => ({})
 		const queryFn = createQueryFn({ auth: undefined, getParams })
-		await expect(queryFn({} as any)).rejects.toThrow('No')
+		await expect(queryFn(createQueryContext())).rejects.toThrow('No')
 
 		const queryFn2 = createQueryFn({ auth: {} as any, getParams })
-		await expect(queryFn2({} as any)).rejects.toThrow('No')
+		await expect(queryFn2(createQueryContext())).rejects.toThrow('No')
 	})
 
 	it('should call auth.getIdentity with params and return the result', async () => {
@@ -30,7 +31,7 @@ describe('createQueryFn', () => {
 		const getParams = () => params
 
 		const queryFn = createQueryFn({ auth, getParams })
-		const result = await queryFn({} as any)
+		const result = await queryFn(createQueryContext())
 
 		expect(mockGetIdentity).toHaveBeenCalledWith(params)
 		expect(result).toEqual(mockIdentityResult)
