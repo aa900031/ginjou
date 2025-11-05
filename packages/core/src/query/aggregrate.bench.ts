@@ -23,8 +23,8 @@ describe('createAggregrateFn', () => {
 		)
 	})
 	bench('aggregation 1~10', async () => {
-		await Promise.all([
+		await Promise.all(
 			Array.from({ length: 10 }).map((item, index) => aggregrateFn(index + 1)),
-		])
+		)
 	})
 })
