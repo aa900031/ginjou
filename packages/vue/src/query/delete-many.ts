@@ -66,7 +66,7 @@ export function useDeleteMany<
 	const notify = useNotify(context)
 	const translate = useTranslate(context)
 	const publish = usePublish(context)
-	const { mutateAsync: checkError } = useCheckError(undefined, context)
+	const { mutateAsync: checkError } = useCheckError<TError>(undefined, context)
 
 	const mutation = useMutation<DeleteManyResult<TData>, TError, DeleteMany.MutationProps<TData, TError, TParams>, DeleteMany.MutationContext<TData>>(computed(() => ({
 		...unref(props?.mutationOptions) as any, // TODO:

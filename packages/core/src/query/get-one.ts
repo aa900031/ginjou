@@ -119,6 +119,9 @@ export function createQueryFn<
 	return async function queryFn() {
 		const props = getProps()
 		const _fetcher = getFetcher(props, fetchers)
+		if (typeof _fetcher.getOne !== 'function')
+			throw new Error('No')
+
 		const result = await _fetcher.getOne<TData>(props)
 
 		return result
@@ -164,7 +167,7 @@ export interface CreateErrorHandlerProps<
 	translate: TranslateFn<unknown>
 	getProps: () => ResolvedQueryProps
 	getErrorNotify: () => NotifyProps<GetOneResult<any>, ResolvedQueryProps, TError>['errorNotify']
-	checkError: CheckError.MutationAsyncFn<unknown>
+	checkError: CheckError.MutateAsyncFn<TError, unknown>
 	emitParent: NonNullable<QueryOptions<any, TError, any>['onError']>
 }
 

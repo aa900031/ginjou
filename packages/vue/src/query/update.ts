@@ -66,7 +66,7 @@ export function useUpdateOne<
 	const notify = useNotify(context)
 	const translate = useTranslate(context)
 	const publish = usePublish(context)
-	const { mutateAsync: checkError } = useCheckError(undefined, context)
+	const { mutateAsync: checkError } = useCheckError<TError>(undefined, context)
 
 	const mutation = useMutation<UpdateResult<TData>, TError, UpdateOne.MutationProps<TData, TError, TParams>, UpdateOne.MutationContext<TData>>(computed(() => ({
 		...unref(props?.mutationOptions) as any, // TODO:

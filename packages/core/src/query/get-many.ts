@@ -236,7 +236,7 @@ export interface CreateErrorHandlerProps<
 	translate: TranslateFn<unknown>
 	getProps: () => ResolvedQueryProps
 	getErrorNotify: () => NotifyProps<GetManyResult<any>, ResolvedQueryProps, TError>['errorNotify']
-	checkError: CheckError.MutationAsyncFn<unknown>
+	checkError: CheckError.MutateAsyncFn<TError, unknown>
 	emitParent: NonNullable<QueryOptions<any, TError, any>['onError']>
 }
 
@@ -318,9 +318,12 @@ function execGetMany<
 	props: ResolvedQueryProps,
 	fetcher: Fetcher,
 ) {
-	return typeof fetcher.getMany === 'function'
-		? fetcher.getMany<TData>(props)
-		: fakeMany(props.ids.map(id => fetcher.getOne<TData>({ ...props, id })))
+	if (typeof fetcher.getMany === 'function')
+		return fetcher.getMany<TData>(props)
+	if (typeof fetcher.getOne === 'function')
+		return fakeMany(props.ids.map(id => fetcher.getOne!<TData>({ ...props, id })))
+
+	throw new Error('No')
 }
 
 const aggregExecGetMany = createAggregrateFn(

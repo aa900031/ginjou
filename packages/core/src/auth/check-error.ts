@@ -1,7 +1,8 @@
 import type { MutationFunction, MutationKey, MutationObserverOptions } from '@tanstack/query-core'
+import type { OriginMutateAsyncFunction } from '../query/types'
 import type { RouterGoFn } from '../router'
+import type { Logout } from './'
 import type { Auth, AuthCheckErrorResult } from './auth'
-import type { MutateAsyncFn } from './logout'
 import { getRedirectToByObject } from './helper'
 
 export type MutationOptions<
@@ -39,10 +40,12 @@ export interface CreateMutationFnProps {
 	auth: Auth | undefined
 }
 
-export type MutationAsyncFn<
+export type MutateAsyncFn<
 	TParams,
-> = MutationFunction<
+	TError,
+> = OriginMutateAsyncFunction<
 	AuthCheckErrorResult,
+	TError,
 	TParams
 >
 
@@ -67,7 +70,7 @@ export interface CreateSuccessHandlerProps<
 	TParams,
 	TError,
 > {
-	logout: MutateAsyncFn<unknown, unknown>
+	logout: Logout.MutateAsyncFn<unknown, unknown>
 	go: RouterGoFn
 	onSuccess: MutationOptions<TParams, TError>['onSuccess']
 }

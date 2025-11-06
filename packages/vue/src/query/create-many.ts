@@ -66,7 +66,7 @@ export function useCreateMany<
 	const notify = useNotify(context)
 	const translate = useTranslate(context)
 	const publish = usePublish(context)
-	const { mutateAsync: checkError } = useCheckError(undefined, context)
+	const { mutateAsync: checkError } = useCheckError<TError>(undefined, context)
 
 	const mutation = useMutation<CreateManyResult<TData>, TError, CreateMany.MutationProps<TData, TError, TParams>, any>(computed(() => ({
 		...unref(props?.mutationOptions) as any, // TODO:

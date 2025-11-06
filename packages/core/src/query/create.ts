@@ -150,7 +150,7 @@ export function createSuccessHandler<
 		onSuccess: onSuccessFromProp,
 	}: CreateSuccessHandlerProps<TData, TError, TParams>,
 ): NonNullable<MutationOptions<TData, TError, TParams>['onSuccess']> {
-	return async function onSuccess(data, props, context) {
+	return async function onSuccess(data, props, onMutateResult, context) {
 		const resolvedProps = resolveMutationProps(getProps(), props)
 
 		notify(
@@ -171,7 +171,7 @@ export function createSuccessHandler<
 
 		// TODO: logs
 
-		await onSuccessFromProp?.(data, resolvedProps, context)
+		await onSuccessFromProp?.(data, resolvedProps, onMutateResult, context)
 	}
 }
 
@@ -182,7 +182,7 @@ export interface CreateErrorHandlerProps<
 > {
 	notify: NotifyFn
 	translate: TranslateFn<unknown>
-	checkError: CheckError.MutationAsyncFn<TError>
+	checkError: CheckError.MutateAsyncFn<TError, unknown>
 	getProps: () => Props<TData, TError, TParams> | undefined
 	onError: MutationOptions<TData, TError, TParams>['onError']
 }
@@ -200,7 +200,7 @@ export function createErrorHandler<
 		onError: onErrorFromProp,
 	}: CreateErrorHandlerProps<TData, TError, TParams>,
 ): NonNullable<MutationOptions<TData, TError, TParams>['onError']> {
-	return async function onError(error, props, context) {
+	return async function onError(error, props, onMutateResult, context) {
 		await checkError(error)
 
 		const resolvedProps = resolveMutationProps(getProps(), props)
@@ -215,7 +215,7 @@ export function createErrorHandler<
 			},
 		)
 
-		await onErrorFromProp?.(error, resolvedProps, context)
+		await onErrorFromProp?.(error, resolvedProps, onMutateResult, context)
 	}
 }
 

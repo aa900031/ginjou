@@ -200,7 +200,7 @@ export function createMutateHandler<
 		onMutate: onMutateFromProp,
 	}: CreateMutateHandlerProps<TData, TError, TParams>,
 ): NonNullable<MutationOptions<TData, TError, TParams>['onMutate']> {
-	return async function onMutate(props) {
+	return async function onMutate(props, context) {
 		const resolvedProps = resolveMutationProps(getProps(), props)
 
 		const resourceQueryKey = genResourceQueryKey({ props: resolvedProps })
@@ -242,7 +242,7 @@ export function createMutateHandler<
 			}
 		}
 
-		const resultFromCallback = await onMutateFromProp?.(resolvedProps)
+		const resultFromCallback = await onMutateFromProp?.(resolvedProps, context)
 
 		return {
 			...resultFromCallback,
@@ -276,13 +276,14 @@ export function createSettledHandler<
 		data,
 		error,
 		props,
+		onMutateResult,
 		context,
 	) {
 		const resolvedProps = resolveMutationProps(getProps(), props)
 
 		await triggerInvalidates(resolvedProps, queryClient)
 
-		await onSettledFromProp?.(data, error, resolvedProps, context)
+		await onSettledFromProp?.(data, error, resolvedProps, onMutateResult, context)
 	}
 }
 
@@ -316,6 +317,7 @@ export function createSuccessHandler<
 	return async function onSuccess(
 		data,
 		props,
+		onMutateResult,
 		context,
 	) {
 		const resolvedProps = resolveMutationProps(getProps(), props)
@@ -336,7 +338,7 @@ export function createSuccessHandler<
 
 		// TODO: logs
 
-		await onSuccessFromProp?.(data, resolvedProps, context)
+		await onSuccessFromProp?.(data, resolvedProps, onMutateResult, context)
 	}
 }
 
@@ -348,7 +350,7 @@ export interface CreateErrorHandlerProps<
 	queryClient: QueryClient
 	notify: NotifyFn
 	translate: TranslateFn<unknown>
-	checkError: CheckError.MutationAsyncFn<TError>
+	checkError: CheckError.MutateAsyncFn<TError, unknown>
 	getProps: () => Props<TData, TError, TParams> | undefined
 	onError: MutationOptions<TData, TError, TParams>['onError']
 }
@@ -367,11 +369,11 @@ export function createErrorHandler<
 		onError: onErrorFromProp,
 	}: CreateErrorHandlerProps<TData, TError, TParams>,
 ): NonNullable<MutationOptions<TData, TError, any>['onError']> {
-	return async function onError(error, variables, context) {
+	return async function onError(error, variables, onMutateResult, context) {
 		const resolvedProps = resolveMutationProps(getProps(), variables)
 
-		if (context) {
-			for (const query of context.previousQueries)
+		if (onMutateResult) {
+			for (const query of onMutateResult.previousQueries)
 				queryClient.setQueryData(query[0], query[1])
 		}
 
@@ -389,7 +391,7 @@ export function createErrorHandler<
 			)
 		}
 
-		await onErrorFromProp?.(error, resolvedProps, context)
+		await onErrorFromProp?.(error, resolvedProps, onMutateResult, context)
 	}
 }
 

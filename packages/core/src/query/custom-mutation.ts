@@ -52,10 +52,12 @@ export type MutationOptions<
 	TError,
 	TQuery,
 	TPayload,
+	TMutateResult,
 > = MutationObserverOptions<
 	CustomResult<TData>,
 	TError,
-	MutationProps<TData, TError, TQuery, TPayload>
+	MutationProps<TData, TError, TQuery, TPayload>,
+	TMutateResult
 >
 
 export type MutationOptionsFromProps<
@@ -63,8 +65,9 @@ export type MutationOptionsFromProps<
 	TError,
 	TQuery,
 	TPayload,
+	TMutateResult,
 > = Omit<
-	MutationOptions<TData, TError, TQuery, TPayload>,
+	MutationOptions<TData, TError, TQuery, TPayload, TMutateResult>,
 	| 'mutationFn'
 >
 
@@ -73,10 +76,11 @@ export type Props<
 	TError,
 	TQuery,
 	TPayload,
+	TMutateResult,
 > = Simplify<
 	& MutationProps<TData, TError, TQuery, TPayload>
 	& {
-		mutationOptions?: MutationOptionsFromProps<TData, TError, TQuery, TPayload>
+		mutationOptions?: MutationOptionsFromProps<TData, TError, TQuery, TPayload, TMutateResult>
 	}
 >
 
@@ -107,9 +111,10 @@ export interface CreateMutationFnProps<
 	TError,
 	TQuery,
 	TPayload,
+	TMutateResult,
 > {
 	fetchers: Fetchers
-	getProps: () => Props<TData, TError, TQuery, TPayload> | undefined
+	getProps: () => Props<TData, TError, TQuery, TPayload, TMutateResult> | undefined
 }
 
 export function createMutationFn<
@@ -117,12 +122,13 @@ export function createMutationFn<
 	TError,
 	TQuery,
 	TPayload,
+	TMutateResult,
 >(
 	{
 		fetchers,
 		getProps,
-	}: CreateMutationFnProps<TData, TError, TQuery, TPayload>,
-): NonNullable<MutationOptions<TData, TError, TQuery, TPayload>['mutationFn']> {
+	}: CreateMutationFnProps<TData, TError, TQuery, TPayload, TMutateResult>,
+): NonNullable<MutationOptions<TData, TError, TQuery, TPayload, TMutateResult>['mutationFn']> {
 	return async function mutationFn(props) {
 		const resolvedProps = resolveMutationProps(getProps(), props)
 		const fetcher = getFetcher(resolvedProps, fetchers)
@@ -140,11 +146,12 @@ export interface CreateSuccessHandlerProps<
 	TError,
 	TQuery,
 	TPayload,
+	TMutateResult,
 > {
 	notify: NotifyFn
 	publish: Publish.EmitFn<TPayload>
-	getProps: () => Props<TData, TError, TQuery, TPayload> | undefined
-	onSuccess: MutationOptions<TData, TError, TQuery, TPayload>['onSuccess']
+	getProps: () => Props<TData, TError, TQuery, TPayload, TMutateResult> | undefined
+	onSuccess: MutationOptions<TData, TError, TQuery, TPayload, TMutateResult>['onSuccess']
 }
 
 export function createSuccessHandler<
@@ -152,15 +159,16 @@ export function createSuccessHandler<
 	TError,
 	TQuery,
 	TPayload,
+	TMutateResult,
 >(
 	{
 		notify,
 		publish,
 		getProps,
 		onSuccess: onSuccessFromProp,
-	}: CreateSuccessHandlerProps<TData, TError, TQuery, TPayload>,
-): NonNullable<MutationOptions<TData, TError, TQuery, TPayload>['onSuccess']> {
-	return async function onSuccess(data, props, context) {
+	}: CreateSuccessHandlerProps<TData, TError, TQuery, TPayload, TMutateResult>,
+): NonNullable<MutationOptions<TData, TError, TQuery, TPayload, TMutateResult>['onSuccess']> {
+	return async function onSuccess(data, props, onMutateResult, context) {
 		const resolvedProps = resolveMutationProps(getProps(), props)
 
 		notify(
@@ -175,7 +183,7 @@ export function createSuccessHandler<
 			publish(event)
 		}
 
-		await onSuccessFromProp?.(data, resolvedProps, context)
+		await onSuccessFromProp?.(data, resolvedProps, onMutateResult, context)
 	}
 }
 
@@ -184,12 +192,13 @@ export interface CreateErrorHandlerProps<
 	TError,
 	TQuery,
 	TPayload,
+	TMutateResult,
 > {
 	notify: NotifyFn
 	translate: TranslateFn<unknown>
-	checkError: CheckError.MutationAsyncFn<unknown>
-	getProps: () => Props<TData, TError, TQuery, TPayload> | undefined
-	onError: MutationOptions<TData, TError, TQuery, TPayload>['onError']
+	checkError: CheckError.MutateAsyncFn<TError, unknown>
+	getProps: () => Props<TData, TError, TQuery, TPayload, TMutateResult> | undefined
+	onError: MutationOptions<TData, TError, TQuery, TPayload, TMutateResult>['onError']
 }
 
 export function createErrorHandler<
@@ -197,6 +206,7 @@ export function createErrorHandler<
 	TError,
 	TQuery,
 	TPayload,
+	TMutateResult,
 >(
 	{
 		notify,
@@ -204,9 +214,9 @@ export function createErrorHandler<
 		checkError,
 		getProps,
 		onError: onErrorFromProp,
-	}: CreateErrorHandlerProps<TData, TError, TQuery, TPayload>,
-): NonNullable<MutationOptions<TData, TError, TQuery, TPayload>['onError']> {
-	return async function onError(error, props, context) {
+	}: CreateErrorHandlerProps<TData, TError, TQuery, TPayload, TMutateResult>,
+): NonNullable<MutationOptions<TData, TError, TQuery, TPayload, TMutateResult>['onError']> {
+	return async function onError(error, props, onMutateResult, context) {
 		await checkError(error)
 
 		const resolvedProps = resolveMutationProps(getProps(), props)
@@ -221,7 +231,7 @@ export function createErrorHandler<
 			},
 		)
 
-		await onErrorFromProp?.(error, resolvedProps, context)
+		await onErrorFromProp?.(error, resolvedProps, onMutateResult, context)
 	}
 }
 
@@ -286,8 +296,9 @@ function resolveMutationProps<
 	TError,
 	TQuery,
 	TPayload,
+	TMutateResult,
 >(
-	propsFromProps: Props<TData, TError, TQuery, TPayload> | undefined,
+	propsFromProps: Props<TData, TError, TQuery, TPayload, TMutateResult> | undefined,
 	propsFromFn: MutationProps<TData, TError, TQuery, TPayload>,
 ): ResolvedMutationProps<TData, TError, TQuery, TPayload> {
 	const props = resolveProps(propsFromProps, propsFromFn)
@@ -304,8 +315,9 @@ function resolveProps<
 	TError,
 	TQuery,
 	TPayload,
+	TMutateResult,
 >(
-	propsFromProps: Props<TData, TError, TQuery, TPayload> | undefined,
+	propsFromProps: Props<TData, TError, TQuery, TPayload, TMutateResult> | undefined,
 	propsFromFn: MutationProps<TData, TError, TQuery, TPayload>,
 ): OverrideProperties<MutationProps<TData, TError, TQuery, TPayload>, CustomProps<TQuery, TPayload>> {
 	const props = {

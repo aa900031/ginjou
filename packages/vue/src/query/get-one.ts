@@ -61,7 +61,7 @@ export function useGetOne<
 	const realtimeOptions = useRealtimeOptions(toRef(() => unref(props.realtime)), context)
 	const notify = useNotify(context)
 	const translate = useTranslate(context)
-	const { mutateAsync: checkError } = useCheckError(undefined, context)
+	const { mutateAsync: checkError } = useCheckError<TError>(undefined, context)
 
 	const queryProps = computed(() => GetOne.resolveQueryProps({
 		id: unref(props.id),
