@@ -1,14 +1,12 @@
-import { defineConfig } from 'vitest/config'
+import { defineProject } from 'vitest/config'
 
-export default defineConfig({
+export default defineProject({
 	test: {
-		dir: './src',
-		coverage: {
-			enabled: true,
-			provider: 'istanbul',
-			include: [
-				'./src/**/*',
-			],
+		include: [
+			'**/*.{test,spec}.ts',
+		],
+		benchmark: {
+			include: [],
 		},
 	},
 })
