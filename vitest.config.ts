@@ -12,7 +12,8 @@ export default defineConfig({
 			enabled: true,
 			provider: 'istanbul',
 			include: [
-				'packages/**/src/**/*',
+				'packages/core/src/**/*',
+				'packages/vue/src/**/*',
 			],
 		},
 		projects: [
