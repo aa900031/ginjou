@@ -24,8 +24,9 @@ export type UseCustomMutationProps<
 	TError,
 	TQuery,
 	TPayload,
+	TMutateResult,
 > = ToMaybeRefs<
-	CustomMutation.Props<TData, TError, TQuery, TPayload>
+	CustomMutation.Props<TData, TError, TQuery, TPayload, TMutateResult>
 >
 
 export type UseCustomMutationContext = Simplify<
@@ -60,8 +61,9 @@ export function useCustomMutation<
 	TError,
 	TQuery,
 	TPayload,
+	TMutateResult,
 >(
-	props?: UseCustomMutationProps<TData, TError, TQuery, TPayload>,
+	props?: UseCustomMutationProps<TData, TError, TQuery, TPayload, TMutateResult>,
 	context?: UseCustomMutationContext,
 ): UseCustomMutationResult<TData, TError, TQuery, TPayload> {
 	const queryClient = useQueryClientContext(context)
@@ -69,7 +71,7 @@ export function useCustomMutation<
 	const notify = useNotify(context)
 	const translate = useTranslate(context)
 	const publish = usePublish(context)
-	const { mutateAsync: checkError } = useCheckError(undefined, context)
+	const { mutateAsync: checkError } = useCheckError<TError>(undefined, context)
 
 	const mutation = useMutation<CustomResult<TData>, TError, CustomMutation.MutationProps<TData, TError, TQuery, TPayload>, any>(computed(() => ({
 		...unref(props?.mutationOptions) as any, // TODO:

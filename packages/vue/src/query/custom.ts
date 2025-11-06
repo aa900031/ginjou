@@ -65,7 +65,7 @@ export function useCustom<
 	const fetchers = useFetchersContext({ ...context, strict: true })
 	const notify = useNotify(context)
 	const translate = useTranslate(context)
-	const { mutateAsync: checkError } = useCheckError(undefined, context)
+	const { mutateAsync: checkError } = useCheckError<TError>(undefined, context)
 
 	const queryProps = computed(() => Custom.resolveQueryProps<TQuery, TPayload>({
 		url: unref(props.url),

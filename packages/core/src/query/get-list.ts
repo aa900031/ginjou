@@ -159,6 +159,9 @@ export function createQueryFn<
 	return async function queryFn() {
 		const props = getProps()
 		const _fetcher = getFetcher(props, fetchers)
+		if (typeof _fetcher.getList !== 'function')
+			throw new Error('No')
+
 		const result = await _fetcher.getList<TData, TPageParam>(props)
 		updateCache(queryClient, props, result)
 
@@ -208,7 +211,7 @@ export interface CreateErrorHandlerProps<
 	translate: TranslateFn<unknown>
 	getProps: () => ResolvedQueryProps<TPageParam>
 	getErrorNotify: () => NotifyProps<GetListResult<any>, ResolvedQueryProps<TPageParam>, TError>['errorNotify']
-	checkError: CheckError.MutationAsyncFn<unknown>
+	checkError: CheckError.MutateAsyncFn<TError, unknown>
 	emitParent: NonNullable<QueryOptions<any, TError, any, TPageParam>['onError']>
 }
 

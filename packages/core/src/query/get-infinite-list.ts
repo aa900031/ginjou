@@ -125,6 +125,9 @@ export function createQueryFn<
 		const props = getProps()
 		const fetcher = getFetcher(props, fetchers)
 		const resolvedPagination = resolvePagination<TPageParam>(context, props.pagination)
+		if (typeof fetcher.getList !== 'function')
+			throw new Error('No')
+
 		const result = await fetcher.getList<TData, TPageParam>({
 			...props,
 			pagination: resolvedPagination,
@@ -238,7 +241,7 @@ export interface CreateErrorHandlerProps<
 	translate: TranslateFn<unknown>
 	getProps: () => ResolvedQueryProps<TPageParam>
 	getErrorNotify: () => NotifyProps<any, ResolvedQueryProps<TPageParam>, TError>['errorNotify']
-	checkError: CheckError.MutationAsyncFn<unknown>
+	checkError: CheckError.MutateAsyncFn<TError, unknown>
 	emitParent: NonNullable<QueryOptions<any, TError, any, TPageParam>['onError']>
 }
 
