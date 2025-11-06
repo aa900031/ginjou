@@ -11,7 +11,8 @@ export default defineConfig({
 			],
 		},
 		projects: [
-			'packages/*',
+			'packages/core',
+			'packages/vue',
 			{
 				plugins: [
 					codspeed(),
