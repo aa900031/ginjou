@@ -1,20 +1,12 @@
-import codspeed from '@codspeed/vitest-plugin'
-import { defineConfig } from 'vitest/config'
+import { defineProject } from 'vitest/config'
 
-export default defineConfig({
-	plugins: [
-		codspeed(),
-	],
+export default defineProject({
 	test: {
-		dir: './src',
-		coverage: {
-			enabled: true,
-			provider: 'istanbul',
-		},
+		include: [
+			'**/*.{test,spec}.ts',
+		],
 		benchmark: {
-			include: [
-				'**/*.bench.ts',
-			],
+			include: [],
 		},
 	},
 })

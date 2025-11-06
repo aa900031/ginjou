@@ -1,17 +1,12 @@
 import { fileURLToPath, URL } from 'node:url'
-import { defineConfig } from 'vitest/config'
+import { defineProject } from 'vitest/config'
 
-export default defineConfig({
+export default defineProject({
 	test: {
-		dir: './src',
 		environment: 'happy-dom',
 		setupFiles: [
 			'./test/setup.ts',
 		],
-		coverage: {
-			enabled: true,
-			provider: 'istanbul',
-		},
 	},
 	resolve: {
 		alias: {

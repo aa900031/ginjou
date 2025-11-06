@@ -37,9 +37,6 @@
 	},
 	"scripts": {
 		"build": "unbuild",
-		"test": "vitest run",
-		"bench": "vitest bench --run",
-		"dev:test": "vitest",
 		"release": "release-it --ci"
 	},
 	"peerDependencies": {

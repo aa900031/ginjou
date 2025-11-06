@@ -6,32 +6,7 @@
 			"dependsOn": ["^build"],
 			"outputs": ["dist/**"]
 		},
-		"test": {
-			"inputs": [
-				"src/**/*",
-				"!src/**/*.bench.*",
-				"test/**/*",
-				"vitest.config.*"
-			],
-			"outputs": [
-				"coverage/**/*"
-			]
-		},
-		"bench": {
-			"cache": false,
-			"inputs": [
-				"src/**/*",
-				"!src/**/*.test.*",
-				"!src/**/*.spec.*",
-				"test/**/*",
-				"vitest.config.*"
-			]
-		},
 		"dev": {
-			"cache": false,
-			"persistent": true
-		},
-		"dev:test": {
 			"cache": false,
 			"persistent": true
 		},
