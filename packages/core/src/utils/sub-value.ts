@@ -21,11 +21,14 @@ export function getSubValue<
 
 	if (prop == null) {
 		current = undefined
-	} else if (isValue?.(prop)) {
+	}
+	else if (isValue?.(prop)) {
 		current = prop as TResult // Assuming TProp can be TResult if isValue is true
-	} else if (path === '') { // Explicitly handle empty path
+	}
+	else if (path === '') { // Explicitly handle empty path
 		current = prop as TResult // If path is empty, the "sub-value" is the prop itself
-	} else {
+	}
+	else {
 		current = get(prop, path)
 	}
 
