@@ -13,6 +13,7 @@
 		"bench": "vitest bench --run",
 		"dev:sb": "turbo run dev --filter=./stories/*",
 		"dev:nuxt": "turbo run dev --filter=@ginjou/nuxt",
+		"dev:test": "vitest run --watch --coverage=false",
 		"release:pkgs": "turbo run release --concurrency=1 --filter=./packages/*",
 		"lint": "eslint . --cache --cache-location ./node_modules/.cache/eslint"
 	},

@@ -23,7 +23,6 @@ export function createResourcePath(
 	const result = injectRegexparam(pattern, {
 		...{ id: 'id' in resolved ? resolved.id : undefined },
 		...{ action: resolved.action },
-		...resolved.params,
 		...params,
 	})
 	return result
