@@ -68,14 +68,13 @@ export function useForm<
 		props: unrefs(props),
 		resource: unref(resource),
 	}))
-	const isEnabledQuery = computed(() => {
-		const _props = unref(resolvedProps)
-		const opts = 'queryOptions' in _props ? _props.queryOptions : undefined
-
-		return Form.getIsEnabledQuery({
-			action: _props.action,
-			enabled: opts?.enabled,
-		})
+	const enabledFn = Form.createQueryEnabledFn({
+		getAction: () => unref(resolvedProps).action,
+		getEnabled: () => {
+			const _props = unref(resolvedProps)
+			const opts = 'queryOptions' in _props ? _props.queryOptions : undefined
+			return opts?.enabled
+		},
 	})
 
 	const queryResult = useGetOne<TQueryData, TQueryError, TQueryResultData>({
@@ -91,7 +90,7 @@ export function useForm<
 
 			return {
 				...opts,
-				enabled: unref(isEnabledQuery),
+				enabled: enabledFn,
 			}
 		}),
 		fetcherName: computed(() => unref(resolvedProps).fetcherName),

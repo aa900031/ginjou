@@ -12,7 +12,7 @@ export type Props<
 		| 'callback'
 	>
 	& {
-		enabled?: boolean
+		enabled: () => boolean
 	}
 >
 

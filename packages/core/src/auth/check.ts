@@ -28,10 +28,6 @@ export interface Props<
 	TError,
 > {
 	params?: TParams
-	redirectTo?:
-		| false
-		| string
-		| RouterGoParams
 	queryOptions?: Omit<
 		QueryOptions<TError>,
 		| 'queryFn'
@@ -94,34 +90,4 @@ export function getQueryEnabled(
 		enabled,
 		typeof auth?.check === 'function',
 	)
-}
-
-export interface CreateErrorHandlerProps<
-	TParams,
-	TError,
-> {
-	go: RouterGoFn
-	getRedirectTo: () => Props<TParams, TError>['redirectTo']
-	emitParent: NonNullable<QueryOptions<TError>['onError']>
-}
-
-export function createErrorHandler<
-	TParams,
-	TError,
->(
-	{
-		go,
-		getRedirectTo,
-		emitParent,
-	}: CreateErrorHandlerProps<TParams, TError>,
-): NonNullable<QueryOptions<TError>['onError']> {
-	return function onError(error) {
-		emitParent(error)
-
-		const redirectTo = getRedirectToByObject(error as any)
-			?? getRedirectToByObject({ redirectTo: getRedirectTo() })
-
-		if (redirectTo != null && redirectTo !== false)
-			go(redirectTo)
-	}
 }

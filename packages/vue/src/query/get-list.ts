@@ -77,10 +77,12 @@ export function useGetList<
 	const queryKey = computed(() => GetList.createQueryKey<TPageParam>({
 		props: unref(queryProps),
 	}))
-	const isEnabled = computed(() => GetList.getQueryEnabled({
-		enabled: unref(props.queryOptions)?.enabled,
-		props: unref(queryProps),
-	}))
+	const enabledFn = GetList.createQueryEnabledFn({
+		getEnabled: () => unref(props.queryOptions)?.enabled,
+		getQueryKey: () => unref(queryKey),
+		getResource: () => unref(queryProps).resource,
+		queryClient,
+	})
 	const queryFn = GetList.createQueryFn<TData, TResultData, TError, TPageParam>({
 		getProps: () => unref(queryProps),
 		queryClient,
@@ -108,7 +110,7 @@ export function useGetList<
 			...unref(props.queryOptions) as any,
 			queryKey,
 			queryFn,
-			enabled: isEnabled,
+			enabled: enabledFn,
 			placeholderData,
 		})),
 		queryClient,
@@ -138,7 +140,7 @@ export function useGetList<
 			getFetcherName: () => unref(queryProps).fetcherName,
 		}),
 		actions: [RealtimeAction.Any],
-		enabled: isEnabled,
+		enabled: enabledFn,
 	}, context)
 
 	return {

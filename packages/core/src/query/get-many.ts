@@ -5,7 +5,7 @@ import type { CheckError } from '../auth'
 import type { TranslateFn } from '../i18n'
 import type { NotifyFn } from '../notification'
 import type { ResolvedRealtimeOptions, SubscribeManyParams } from '../realtime'
-import type { EnabledGetter } from '../utils/query'
+import type { EnabledGetter, QueryEnabledFn } from '../utils/query'
 import type { BaseRecord, Fetcher, GetManyProps, GetManyResult, GetOneResult } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { ResolvedQueryProps as GetOneResolvedQueryProps } from './get-one'
@@ -16,7 +16,7 @@ import { hashKey } from '@tanstack/query-core'
 import { NotificationType } from '../notification'
 import { SubscribeType } from '../realtime'
 import { getErrorMessage } from '../utils/error'
-import { resolveEnabled } from '../utils/query'
+import { getQuery, resolveQueryEnableds } from '../utils/query'
 import { createAggregrateFn } from './aggregrate'
 import { getFetcher, resolveFetcherProps } from './fetchers'
 import { createQueryKey as createGetOneQueryKey } from './get-one'
@@ -33,6 +33,7 @@ export type QueryOptions<
 		QueryObserverOptions<
 			GetManyResult<TData>,
 			TError,
+			GetManyResult<TResultData>,
 			GetManyResult<TResultData>
 		>,
 		| 'enabled'
@@ -272,24 +273,51 @@ export function createErrorHandler<
 	}
 }
 
-export interface GetQueryEnabledProps {
-	props: ResolvedQueryProps
-	enabled: QueryOptions<any, any, any>['enabled']
+export interface CreateQueryEnabledFnProps<
+	TData extends BaseRecord,
+	TError,
+	TResultData extends BaseRecord,
+> {
+	getQueryKey: () => QueryKey
+	getEnabled: () => QueryOptions<TData, TError, TResultData>['enabled']
+	getIds: () => ResolvedQueryProps['ids']
+	getResource: () => ResolvedQueryProps['resource']
+	queryClient: QueryClient
 }
 
-export function getQueryEnabled(
+export function createQueryEnabledFn<
+	TData extends BaseRecord,
+	TError,
+	TResultData extends BaseRecord,
+>(
 	{
-		enabled,
-		props,
-	}: GetQueryEnabledProps,
-): boolean {
-	return resolveEnabled(
-		enabled,
-		(
-			props.resource != null && props.resource !== ''
-			&& props.ids.length > 0
+		getQueryKey,
+		getEnabled,
+		getIds,
+		getResource,
+		queryClient,
+	}: CreateQueryEnabledFnProps<TData, TError, TResultData>,
+): QueryEnabledFn<GetManyResult<TData>, TError, GetManyResult<TResultData>> {
+	return function enabled(
+		query = getQuery<GetManyResult<TData>, TError, GetManyResult<TResultData>>(
+			getQueryKey(),
+			queryClient,
 		),
-	)
+	) {
+		return resolveQueryEnableds(
+			query,
+			[
+				getEnabled(),
+				() => {
+					const resource = getResource()
+					const ids = getIds()
+
+					return resource != null && resource !== ''
+						&& ids.length > 0
+				},
+			],
+		)
+	}
 }
 
 export interface GetSubscribeParamsProps {

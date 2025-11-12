@@ -1,13 +1,13 @@
 import type { SetOptional, SetRequired } from 'type-fest'
 import type { BaseRecord, CreateResult, GetOneResult, Meta, UpdateResult } from '../query'
 import type { MutateAsyncFn as CreateMutateFn, MutationOptionsFromProps as CreateMutationOptionsFromProps, MutationProps as CreateMutationProps } from '../query/create'
-import type { QueryOptions as GetOneQueryOptions } from '../query/get-one'
+import type { QueryOptions as GetOneQueryOptions, QueryOptions } from '../query/get-one'
 import type { MutateAsyncFn as UpdateMutateFn, MutationOptionsFromProps as UpdateMutationOptionsFromProps, MutationProps as UpdateMutationProps } from '../query/update'
 import type { ResolvedResource, ResourceActionForForm, ResourceActionTypeValues } from '../resource'
 import type { NavigateToFn, NavigateToProps } from '../router'
 import { getFetcherName, MutationMode } from '../query'
 import { getResourceIdentifier, ResourceActionType } from '../resource'
-import { resolveEnabled } from '../utils/query'
+import { QueryEnabledFn, resolveEnabled, resolveQueryEnableds } from '../utils/query'
 
 export type RedirectTo<
 	TResultData,
@@ -166,29 +166,46 @@ export function resolveProps<
 			throw new Error('No')
 	}
 }
-export interface GetIsEnabledQueryParams {
-	action: ResourceActionForForm
-	enabled: GetOneQueryOptions<any, unknown, any>['enabled']
+
+export interface CreateQueryEnabledFnProps<
+	TData extends BaseRecord,
+	TError,
+	TResultData extends BaseRecord,
+> {
+	getAction: () => ResourceActionForForm
+	getEnabled: () => QueryOptions<TData, TError, TResultData>['enabled']
 }
 
-export function getIsEnabledQuery(
+export function createQueryEnabledFn<
+	TData extends BaseRecord,
+	TError,
+	TResultData extends BaseRecord,
+>(
 	{
-		action,
-		enabled,
-	}: GetIsEnabledQueryParams,
-): boolean {
-	return resolveEnabled(
-		enabled,
-		() => {
-			switch (action) {
-				// TODO: clone
-				case 'edit':
-					return true
-				default:
-					return false
-			}
-		},
-	)
+		getAction,
+		getEnabled,
+	}: CreateQueryEnabledFnProps<TData, TError, TResultData>,
+): QueryOptions<TData, TError, TResultData>['enabled'] {
+	return function enabled(
+		query,
+	) {
+		return resolveQueryEnableds(
+			query,
+			[
+				getEnabled(),
+				() => {
+					const action = getAction()
+					switch (action) {
+						// TODO: clone
+						case 'edit':
+							return true
+						default:
+							return false
+					}
+				},
+			],
+		)
+	}
 }
 
 export interface GetIsLoadingParams {

@@ -72,10 +72,12 @@ export function useGetOne<
 	const queryKey = computed(() => GetOne.createQueryKey({
 		props: unref(queryProps),
 	}))
-	const isEnabled = computed(() => GetOne.getQueryEnabled({
-		enabled: unref(props.queryOptions)?.enabled,
-		props: unref(queryProps),
-	}))
+	const enabledFn = GetOne.createQueryEnabledFn({
+		getEnabled: () => unref(props.queryOptions)?.enabled,
+		getQueryKey: () => unref(queryKey),
+		getId: () => unref(queryProps).id,
+		queryClient,
+	})
 	const queryFn = GetOne.createQueryFn<TData, TResultData, TError>({
 		fetchers,
 		getProps: () => unref(queryProps),
@@ -102,7 +104,7 @@ export function useGetOne<
 			...unref(props.queryOptions) as any,
 			queryKey,
 			queryFn,
-			enabled: isEnabled,
+			enabled: enabledFn,
 			placeholderData,
 		})),
 		queryClient,
@@ -132,7 +134,7 @@ export function useGetOne<
 			getFetcherName: () => unref(queryProps).fetcherName,
 		}),
 		actions: [RealtimeAction.Any],
-		enabled: isEnabled,
+		enabled: enabledFn,
 	}, context)
 
 	return {

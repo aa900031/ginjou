@@ -74,10 +74,13 @@ export function useGetMany<
 	const queryKey = computed(() => GetMany.createQueryKey({
 		props: unref(queryProps),
 	}))
-	const isEnabled = computed(() => GetMany.getQueryEnabled({
-		enabled: unref(props.queryOptions)?.enabled,
-		props: unref(queryProps),
-	}))
+	const enabledFn = GetMany.createQueryEnabledFn({
+		getEnabled: () => unref(props.queryOptions)?.enabled,
+		getQueryKey: () => unref(queryKey),
+		getIds: () => unref(queryProps).ids,
+		getResource: () => unref(queryProps).resource,
+		queryClient,
+	})
 	const queryFn = GetMany.createQueryFn<TData, TResultData, TError>({
 		fetchers,
 		queryClient,
@@ -108,12 +111,11 @@ export function useGetMany<
 			...unref(props.queryOptions) as any,
 			queryKey,
 			queryFn,
-			enabled: isEnabled,
+			enabled: enabledFn,
 			placeholderData,
 		})),
 		queryClient,
 	)
-
 	useQueryCallbacks<GetManyResult<TResultData>, TError>({
 		queryKey,
 		onSuccess: handleSuccess,
@@ -138,7 +140,7 @@ export function useGetMany<
 			getFetcherName: () => unref(queryProps).fetcherName,
 		}),
 		actions: [RealtimeAction.Any],
-		enabled: isEnabled,
+		enabled: enabledFn,
 	}, context)
 
 	return {
