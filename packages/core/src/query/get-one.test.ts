@@ -29,4 +29,11 @@ describe('createQueryEnabledFn', () => {
 		const enabledFn = createQueryEnabledFn({ getQueryKey, getEnabled, getId, queryClient })
 		expect(enabledFn()).toBe(false)
 	})
+
+	it('should handle function-based getEnabled correctly', () => {
+		const getId = () => '1'
+		const getEnabled = () => (_query: Query<any, any, any>) => true
+		const enabledFn = createQueryEnabledFn({ getQueryKey, getEnabled, getId, queryClient })
+		expect(enabledFn(mockQuery)).toBe(true)
+	})
 })

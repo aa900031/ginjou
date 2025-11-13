@@ -57,4 +57,11 @@ describe('createQueryEnabledFn', () => {
 		const enabledFn = createQueryEnabledFn({ getAuthz, getEnabled })
 		expect(enabledFn(mockQuery)).toBe(false)
 	})
+
+	it('should handle function-based getEnabled correctly', () => {
+		const getAuthz = () => ({ getPermissions: vi.fn() }) as any
+		const getEnabled = () => (_query: Query<any, any, any>) => true
+		const enabledFn = createQueryEnabledFn({ getAuthz, getEnabled })
+		expect(enabledFn(mockQuery)).toBe(true)
+	})
 })
