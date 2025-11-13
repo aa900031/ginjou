@@ -80,7 +80,7 @@ export function useGetInfiniteList<
 	const queryKey = computed(() => GetList.createQueryKey<TPageParam>({
 		props: unref(queryProps),
 	}))
-	const enabledFn = GetList.createQueryEnabledFn({
+	const enabledFn = GetInfiniteList.createQueryEnabledFn({
 		getEnabled: () => unref(props.queryOptions)?.enabled,
 		getQueryKey: () => unref(queryKey),
 		getResource: () => unref(queryProps).resource,
@@ -118,7 +118,7 @@ export function useGetInfiniteList<
 			...unref(props.queryOptions) as any,
 			queryKey,
 			queryFn,
-			enabled: enabledFn,
+			enabled: () => enabledFn,
 			placeholderData,
 		})),
 		queryClient,

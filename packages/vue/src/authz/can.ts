@@ -52,17 +52,17 @@ export function useCanAccess<
 		authz,
 		getParams: () => unref(params),
 	})
-	const isEnabled = computed(() => CanAccess.getQueryEnabled({
-		authz,
-		enabled: unref(props.queryOptions)?.enabled,
-	}))
+	const enabledFn = CanAccess.createQueryEnabledFn({
+		getAuthz: () => authz,
+		getEnabled: () => unref(props.queryOptions)?.enabled,
+	})
 
 	return useQuery<AccessCanResult, TError>(
 		computed(() => ({
 			...unref(props.queryOptions),
 			queryKey,
 			queryFn,
-			enabled: isEnabled,
+			enabled: () => enabledFn,
 			retry: false,
 		})),
 		queryClient,

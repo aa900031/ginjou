@@ -4,13 +4,14 @@ import type { SetOptional, SetRequired, Simplify } from 'type-fest'
 import type { CheckError } from '../auth'
 import type { TranslateFn } from '../i18n'
 import type { NotifyFn } from '../notification'
-import type { EnabledGetter } from '../utils/query'
+import type { QueryEnabledFn } from '../utils/query'
 import type { BaseRecord, GetInfiniteListResult, GetListProps, GetOneResult, Pagination } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { NotifyProps } from './notify'
 import type { RealtimeProps } from './realtime'
 import { NotificationType } from '../notification'
 import { getErrorMessage } from '../utils/error'
+import { getQuery, resolveQueryEnableds } from '../utils/query'
 import { getFetcher, resolveFetcherProps } from './fetchers'
 import { createQueryKey as createGetOneQueryKey } from './get-one'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
@@ -21,27 +22,21 @@ export type QueryOptions<
 	TResultData extends BaseRecord,
 	TPageParam,
 > = Simplify<
-	& Omit<
-		SetOptional<
-			InfiniteQueryObserverOptions<
-				GetInfiniteListResult<TData, TPageParam>,
-				TError,
-				InfiniteData<GetInfiniteListResult<TResultData, TPageParam>, TPageParam>,
-				QueryKey,
-				TPageParam
-			>,
-			| 'initialPageParam'
-			| 'getNextPageParam'
+	& SetOptional<
+		InfiniteQueryObserverOptions<
+			GetInfiniteListResult<TData, TPageParam>,
+			TError,
+			InfiniteData<GetInfiniteListResult<TResultData, TPageParam>, TPageParam>,
+			QueryKey,
+			TPageParam
 		>,
-		| 'enabled'
+		| 'initialPageParam'
+		| 'getNextPageParam'
 	>
 	& QueryCallbacks<
 		InfiniteData<GetInfiniteListResult<TResultData, TPageParam>, TPageParam>,
 		TError
 	>
-	& {
-		enabled?: EnabledGetter
-	}
 >
 
 export type GetInfiniteListProps<
@@ -139,6 +134,50 @@ export function createQueryFn<
 		updateCache(queryClient, props, resolved)
 
 		return resolved
+	}
+}
+
+export interface CreateQueryEnabledFnProps<
+	TData extends BaseRecord,
+	TError,
+	TResultData extends BaseRecord,
+	TPageParam,
+> {
+	getQueryKey: () => QueryKey
+	getEnabled: () => QueryOptions<TData, TError, TResultData, TPageParam>['enabled']
+	getResource: () => ResolvedQueryProps<TPageParam>['resource']
+	queryClient: QueryClient
+}
+
+export function createQueryEnabledFn<
+	TData extends BaseRecord,
+	TError,
+	TResultData extends BaseRecord,
+	TPageParam,
+>(
+	{
+		getQueryKey,
+		getEnabled,
+		getResource,
+		queryClient,
+	}: CreateQueryEnabledFnProps<TData, TError, TResultData, TPageParam>,
+): QueryEnabledFn<GetInfiniteListResult<TData, TPageParam>, TError, InfiniteData<GetInfiniteListResult<TData, TPageParam>, TPageParam>> {
+	return function enabled(
+		query = getQuery<GetInfiniteListResult<TData, TPageParam>, TError, InfiniteData<GetInfiniteListResult<TData, TPageParam>, TPageParam>>(
+			getQueryKey(),
+			queryClient,
+		),
+	) {
+		return resolveQueryEnableds(
+			query,
+			[
+				getEnabled(),
+				() => {
+					const resource = getResource()
+					return resource != null && resource !== ''
+				},
+			],
+		)
 	}
 }
 

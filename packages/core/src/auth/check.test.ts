@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { createQueryContext } from '../../test/tanstack-utils'
-import { createQueryFn, createQueryKey, getQueryEnabled } from './check'
+import { createQueryFn, createQueryKey } from './check'
 
 describe('createQueryKey', () => {
 	it('should return the correct query key with params', () => {
@@ -35,28 +35,5 @@ describe('createQueryFn', () => {
 
 		expect(mockCheck).toHaveBeenCalledWith(params)
 		expect(result).toEqual(mockCheckResult)
-	})
-})
-
-describe('getQueryEnabled', () => {
-	it('should return true if enabled is true and auth.check is a function', () => {
-		const auth = { check: () => {} } as any
-		expect(getQueryEnabled({ auth, enabled: true })).toBe(true)
-	})
-
-	it('should return false if enabled is false', () => {
-		const auth = { check: () => {} } as any
-		expect(getQueryEnabled({ auth, enabled: false })).toBe(false)
-	})
-
-	it('should return false if auth.check is not a function', () => {
-		const auth = {} as any
-		expect(getQueryEnabled({ auth, enabled: true })).toBe(false)
-	})
-
-	it('should resolve enabled function', () => {
-		const auth = { check: () => {} } as any
-		expect(getQueryEnabled({ auth, enabled: () => true })).toBe(true)
-		expect(getQueryEnabled({ auth, enabled: () => false })).toBe(false)
 	})
 })

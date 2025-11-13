@@ -1,6 +1,6 @@
 import type { AccessCanParams, Authz } from './authz'
 import { describe, expect, it, vi } from 'vitest'
-import { createQueryFn, createQueryKey, getQueryEnabled } from './can'
+import { createQueryFn, createQueryKey } from './can'
 
 describe('createQueryKey', () => {
 	it('should return a query key with all params', () => {
@@ -61,39 +61,5 @@ describe('createQueryFn', () => {
 		const queryFn = createQueryFn({ authz: undefined, getParams: () => params })
 		const result = await queryFn({} as any)
 		expect(result).toEqual({ can: true })
-	})
-})
-
-describe('getQueryEnabled', () => {
-	it('should return true when enabled is undefined and authz.access is a function', () => {
-		const authz: Authz = {
-			access: vi.fn(),
-		}
-		const enabled = getQueryEnabled({ authz, enabled: undefined })
-		expect(enabled).toBe(true)
-	})
-
-	it('should return false when enabled is undefined and authz.access is not a function', () => {
-		const authz: Authz = {}
-		const enabled = getQueryEnabled({ authz, enabled: undefined })
-		expect(enabled).toBe(false)
-	})
-
-	it('should return the value of enabled when it is a boolean', () => {
-		const authz: Authz = {
-			access: vi.fn(),
-		}
-		const enabled = getQueryEnabled({ authz, enabled: false })
-		expect(enabled).toBe(false)
-	})
-
-	it('should call the enabled function and return its value', () => {
-		const authz: Authz = {
-			access: vi.fn(),
-		}
-		const enabledFn = vi.fn().mockReturnValue(true)
-		const enabled = getQueryEnabled({ authz, enabled: enabledFn })
-		expect(enabledFn).toHaveBeenCalled()
-		expect(enabled).toBe(true)
 	})
 })

@@ -1,19 +1,13 @@
 import type { Enabled, Query, QueryClient, QueryKey } from '@tanstack/query-core'
 import { hashKey } from '@tanstack/query-core'
-import { getter } from './getter'
 
-export type EnabledGetter = (() => boolean | undefined) | boolean
-
-export function resolveEnabled(
-	enabled: EnabledGetter | undefined,
-	condition: boolean | (() => boolean),
-): boolean {
-	const _enabled = getter(enabled)
-	if (_enabled == null)
-		return getter(condition)
-
-	return _enabled && getter(condition)
-}
+export type OriginQueryEnabledFn<
+	TQueryFnData,
+	TError,
+	TData,
+> = (
+	query: Query<TQueryFnData, TError, TData>,
+) => boolean
 
 export type QueryEnabledFn<
 	TQueryFnData,

@@ -5,7 +5,7 @@ import type { CheckError } from '../auth'
 import type { TranslateFn } from '../i18n'
 import type { NotifyFn } from '../notification'
 import type { ResolvedRealtimeOptions, SubscribeListParams } from '../realtime'
-import type { EnabledGetter, QueryEnabledFn } from '../utils/query'
+import type { QueryEnabledFn } from '../utils/query'
 import type { BaseRecord, GetListProps, GetListResult, GetOneResult } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { NotifyProps } from './notify'
@@ -26,24 +26,18 @@ export type QueryOptions<
 	TResultData extends BaseRecord,
 	TPageParam,
 > = Simplify<
-	& Omit<
-		QueryObserverOptions<
-			GetListResult<TData, TPageParam>,
-			TError,
-			GetListResult<TResultData, TPageParam>,
-			GetListResult<TResultData, TPageParam>,
-			QueryKey,
-			TPageParam
-		>,
-		| 'enabled'
+	& QueryObserverOptions<
+		GetListResult<TData, TPageParam>,
+		TError,
+		GetListResult<TResultData, TPageParam>,
+		GetListResult<TResultData, TPageParam>,
+		QueryKey,
+		TPageParam
 	>
 	& QueryCallbacks<
 		GetListResult<TResultData, TPageParam>,
 		TError
 	>
-	& {
-		enabled?: EnabledGetter
-	}
 >
 
 export type QueryProps<

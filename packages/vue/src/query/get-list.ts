@@ -110,7 +110,7 @@ export function useGetList<
 			...unref(props.queryOptions) as any,
 			queryKey,
 			queryFn,
-			enabled: enabledFn,
+			enabled: () => enabledFn,
 			placeholderData,
 		})),
 		queryClient,

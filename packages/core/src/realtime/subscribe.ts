@@ -58,11 +58,9 @@ export function register<
 		...rest
 	} = props
 
-	const isEanbled = typeof enabled === 'function'
-		? enabled()
-		: true
+	const isEnabled = enabled?.() ?? true
 
-	if (!realtime || !isEanbled)
+	if (!realtime || !isEnabled)
 		return noop
 
 	const id = realtime.subscribe<TPayload>(rest)

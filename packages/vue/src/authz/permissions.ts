@@ -48,10 +48,10 @@ export function usePermissions<
 		authz,
 		getParams,
 	})
-	const isEnabled = computed(() => Permissions.getQueryEnabled({
-		authz,
-		enabled: unref(props?.queryOptions)?.enabled,
-	}))
+	const enabledFn = Permissions.createQueryEnabledFn({
+		getAuthz: () => authz,
+		getEnabled: () => unref(props?.queryOptions)?.enabled,
+	})
 
 	return useQuery<TData, TError>(
 		computed(() => ({
@@ -59,7 +59,7 @@ export function usePermissions<
 			...unref(props?.queryOptions) as any,
 			queryKey,
 			queryFn,
-			enabled: isEnabled,
+			enabled: enabledFn,
 		})),
 		queryClient,
 	)

@@ -111,7 +111,7 @@ export function useGetMany<
 			...unref(props.queryOptions) as any,
 			queryKey,
 			queryFn,
-			enabled: enabledFn,
+			enabled: () => enabledFn,
 			placeholderData,
 		})),
 		queryClient,

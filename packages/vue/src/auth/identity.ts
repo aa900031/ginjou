@@ -46,10 +46,10 @@ export function useGetIdentity<
 		auth,
 		getParams,
 	})
-	const isEnabled = computed(() => Identity.getQueryEnabled({
-		enabled: unref(props?.queryOptions)?.enabled,
-		auth,
-	}))
+	const enabledFn = Identity.createQueryEnabledFn({
+		getEnabled: () => unref(props?.queryOptions)?.enabled,
+		getAuth: () => auth,
+	})
 
 	return useQuery<TData, TError>(
 		computed(() => ({
@@ -57,7 +57,7 @@ export function useGetIdentity<
 			...unref(props?.queryOptions) as any,
 			queryKey,
 			queryFn,
-			enabled: isEnabled,
+			enabled: () => enabledFn,
 		})),
 		queryClient,
 	)
