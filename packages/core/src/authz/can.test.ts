@@ -1,6 +1,7 @@
+import type { Query } from '@tanstack/query-core'
 import type { AccessCanParams, Authz } from './authz'
 import { describe, expect, it, vi } from 'vitest'
-import { createQueryFn, createQueryKey } from './can'
+import { createQueryEnabledFn, createQueryFn, createQueryKey } from './can'
 
 describe('createQueryKey', () => {
 	it('should return a query key with all params', () => {
@@ -61,5 +62,44 @@ describe('createQueryFn', () => {
 		const queryFn = createQueryFn({ authz: undefined, getParams: () => params })
 		const result = await queryFn({} as any)
 		expect(result).toEqual({ can: true })
+	})
+})
+
+describe('createQueryEnabledFn', () => {
+	const mockQuery = {} as Query<any, any, any>
+
+	it('should return true if getEnabled returns true and authz.access is a function', () => {
+		const getAuthz = () => ({ access: vi.fn() }) as any
+		const getEnabled = () => true
+		const enabledFn = createQueryEnabledFn({ getAuthz, getEnabled })
+		expect(enabledFn(mockQuery)).toBe(true)
+	})
+
+	it('should return false if getEnabled returns false', () => {
+		const getAuthz = () => ({ access: vi.fn() }) as any
+		const getEnabled = () => false
+		const enabledFn = createQueryEnabledFn({ getAuthz, getEnabled })
+		expect(enabledFn(mockQuery)).toBe(false)
+	})
+
+	it('should return false if authz.access is not a function', () => {
+		const getAuthz = () => ({} as any)
+		const getEnabled = () => true
+		const enabledFn = createQueryEnabledFn({ getAuthz, getEnabled })
+		expect(enabledFn(mockQuery)).toBe(false)
+	})
+
+	it('should return true if getEnabled returns undefined and authz.access is a function', () => {
+		const getAuthz = () => ({ access: vi.fn() }) as any
+		const getEnabled = () => undefined
+		const enabledFn = createQueryEnabledFn({ getAuthz, getEnabled })
+		expect(enabledFn(mockQuery)).toBe(true)
+	})
+
+	it('should return false if getEnabled returns undefined and authz is undefined', () => {
+		const getAuthz = () => undefined
+		const getEnabled = () => undefined
+		const enabledFn = createQueryEnabledFn({ getAuthz, getEnabled })
+		expect(enabledFn(mockQuery)).toBe(false)
 	})
 })

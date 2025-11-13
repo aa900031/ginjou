@@ -1,6 +1,7 @@
+import type { Query } from '@tanstack/query-core'
 import { describe, expect, it, vi } from 'vitest'
 import { createQueryContext } from '../../test/tanstack-utils'
-import { createQueryFn, createQueryKey } from './check'
+import { createQueryEnabledFn, createQueryFn, createQueryKey } from './check'
 
 describe('createQueryKey', () => {
 	it('should return the correct query key with params', () => {
@@ -35,5 +36,44 @@ describe('createQueryFn', () => {
 
 		expect(mockCheck).toHaveBeenCalledWith(params)
 		expect(result).toEqual(mockCheckResult)
+	})
+})
+
+describe('createQueryEnabledFn', () => {
+	const mockQuery = {} as Query<any, any, any>
+
+	it('should return true if getEnabled returns true and auth.check is a function', () => {
+		const getAuth = () => ({ check: vi.fn() }) as any
+		const getEnabled = () => true
+		const enabledFn = createQueryEnabledFn({ getAuth, getEnabled })
+		expect(enabledFn(mockQuery)).toBe(true)
+	})
+
+	it('should return false if getEnabled returns false', () => {
+		const getAuth = () => ({ check: vi.fn() }) as any
+		const getEnabled = () => false
+		const enabledFn = createQueryEnabledFn({ getAuth, getEnabled })
+		expect(enabledFn(mockQuery)).toBe(false)
+	})
+
+	it('should return false if auth.check is not a function', () => {
+		const getAuth = () => ({} as any)
+		const getEnabled = () => true
+		const enabledFn = createQueryEnabledFn({ getAuth, getEnabled })
+		expect(enabledFn(mockQuery)).toBe(false)
+	})
+
+	it('should return true if getEnabled returns undefined and auth.check is a function', () => {
+		const getAuth = () => ({ check: vi.fn() }) as any
+		const getEnabled = () => undefined
+		const enabledFn = createQueryEnabledFn({ getAuth, getEnabled })
+		expect(enabledFn(mockQuery)).toBe(true)
+	})
+
+	it('should return false if getEnabled returns undefined and auth is undefined', () => {
+		const getAuth = () => undefined
+		const getEnabled = () => undefined
+		const enabledFn = createQueryEnabledFn({ getAuth, getEnabled })
+		expect(enabledFn(mockQuery)).toBe(false)
 	})
 })

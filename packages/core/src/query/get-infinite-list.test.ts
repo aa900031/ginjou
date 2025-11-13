@@ -1,5 +1,7 @@
-import { describe, expect, it } from 'vitest'
-import { getNextPageParam, getPreviousPageParam } from './get-infinite-list'
+import type { Query } from '@tanstack/query-core'
+import { QueryClient } from '@tanstack/query-core'
+import { describe, expect, it, vi } from 'vitest'
+import { createQueryEnabledFn, getNextPageParam, getPreviousPageParam } from './get-infinite-list'
 
 describe('get infinite list', () => {
 	describe('for getNextPageParam', () => {
@@ -63,5 +65,33 @@ describe('get infinite list', () => {
 			})
 			expect(previousPage).toBe(1)
 		})
+	})
+})
+
+describe('createQueryEnabledFn', () => {
+	const mockQuery = {} as Query<any, any, any>
+	const queryClient = new QueryClient()
+	const getQueryKey = () => ['test']
+	vi.spyOn(queryClient.getQueryCache(), 'get').mockReturnValue(mockQuery)
+
+	it('should return true if getEnabled returns true and resource is valid', () => {
+		const getEnabled = () => true
+		const getResource = () => 'posts'
+		const enabledFn = createQueryEnabledFn({ getQueryKey, getEnabled, getResource, queryClient })
+		expect(enabledFn()).toBe(true)
+	})
+
+	it('should return false if getEnabled returns false', () => {
+		const getEnabled = () => false
+		const getResource = () => 'posts'
+		const enabledFn = createQueryEnabledFn({ getQueryKey, getEnabled, getResource, queryClient })
+		expect(enabledFn()).toBe(false)
+	})
+
+	it('should return false if resource is empty', () => {
+		const getEnabled = () => true
+		const getResource = () => ''
+		const enabledFn = createQueryEnabledFn({ getQueryKey, getEnabled, getResource, queryClient })
+		expect(enabledFn()).toBe(false)
 	})
 })
