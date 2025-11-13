@@ -11,10 +11,6 @@ describe('createNotifyFn', () => {
 	describe('notify', () => {
 		it('should do nothing if notification is not provided', () => {
 			const openFn = vi.fn()
-			const _mockNotification: Notification = {
-				open: openFn,
-				close: vi.fn(),
-			}
 			const notifyWithUndefined = createNotifyFn({ notification: undefined })
 			notifyWithUndefined({
 				type: 'success',
