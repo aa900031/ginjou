@@ -122,7 +122,7 @@ export function useCustom<
 		params: toRef(() => unref(props.realtime)?.params),
 		meta: toRef(() => unref(queryProps).meta),
 		callback: event => unref(props.realtime)?.callback?.(event),
-		enabled: computed(() => unref(props.realtime)?.channel != null),
+		enabled: () => unref(props.realtime)?.channel != null,
 		actions: [RealtimeAction.Any],
 	}, context)
 

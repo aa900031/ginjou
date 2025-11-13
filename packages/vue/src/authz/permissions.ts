@@ -5,6 +5,7 @@ import type { ToMaybeRefs } from '../utils/refs'
 import type { UseAuthzContextFromProps } from './authz'
 import { Permissions } from '@ginjou/core'
 import { useQuery } from '@tanstack/vue-query'
+import { useQueryCallbacks } from 'tanstack-query-callbacks/vue'
 import { computed, unref } from 'vue-demi'
 import { useQueryClientContext } from '../query'
 import { useAuthzContext } from './authz'
@@ -52,15 +53,22 @@ export function usePermissions<
 		getAuthz: () => authz,
 		getEnabled: () => unref(props?.queryOptions)?.enabled,
 	})
-
-	return useQuery<TData, TError>(
+	const query = useQuery<TData, TError>(
 		computed(() => ({
 			// FIXME: type
 			...unref(props?.queryOptions) as any,
 			queryKey,
 			queryFn,
-			enabled: enabledFn,
+			enabled: () => enabledFn,
 		})),
 		queryClient,
 	)
+	useQueryCallbacks<TData, TError>({
+		queryKey,
+		queryClient,
+		onSuccess: (...args) => unref(props?.queryOptions)?.onSuccess?.(...args),
+		onError: (...args) => unref(props?.queryOptions)?.onError?.(...args),
+	})
+
+	return query
 }

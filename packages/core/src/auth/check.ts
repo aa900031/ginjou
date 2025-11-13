@@ -8,10 +8,9 @@ import { resolveQueryEnableds } from '../utils/query'
 export type QueryOptions<
 	TError,
 > = Simplify<
-	& Omit<
-		QueryObserverOptions<AuthCheckResult, TError>,
-		| 'queryFn'
-		| 'queryKey'
+	& QueryObserverOptions<
+		AuthCheckResult,
+		TError
 	>
 	& QueryCallbacks<
 		AuthCheckResult,

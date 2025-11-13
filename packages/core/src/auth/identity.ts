@@ -9,10 +9,9 @@ export type QueryOptions<
 	TData,
 	TError,
 > = Simplify<
-	& Omit<
-		QueryObserverOptions<TData, TError>,
-		| 'queryFn'
-		| 'queryKey'
+	& QueryObserverOptions<
+		TData,
+		TError
 	>
 	& QueryCallbacks<
 		TData,

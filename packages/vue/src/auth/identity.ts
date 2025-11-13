@@ -5,6 +5,7 @@ import type { ToMaybeRefs } from '../utils/refs'
 import type { UseAuthContextFromProps } from './auth'
 import { Identity } from '@ginjou/core'
 import { useQuery } from '@tanstack/vue-query'
+import { useQueryCallbacks } from 'tanstack-query-callbacks/vue'
 import { computed, unref } from 'vue-demi'
 import { useQueryClientContext } from '../query'
 import { useAuthContext } from './auth'
@@ -50,8 +51,7 @@ export function useGetIdentity<
 		getEnabled: () => unref(props?.queryOptions)?.enabled,
 		getAuth: () => auth,
 	})
-
-	return useQuery<TData, TError>(
+	const query = useQuery<TData, TError>(
 		computed(() => ({
 			// FIXME: type
 			...unref(props?.queryOptions) as any,
@@ -61,6 +61,14 @@ export function useGetIdentity<
 		})),
 		queryClient,
 	)
+	useQueryCallbacks<TData, TError>({
+		queryKey,
+		queryClient,
+		onSuccess: (...args) => unref(props?.queryOptions)?.onSuccess?.(...args),
+		onError: (...args) => unref(props?.queryOptions)?.onError?.(...args),
+	})
+
+	return query
 
 	function getParams(): TParams | undefined {
 		return unref(props?.params)

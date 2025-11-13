@@ -1,4 +1,5 @@
 import type { QueryFunction, QueryKey, QueryObserverOptions } from '@tanstack/query-core'
+import type { QueryCallbacks } from 'tanstack-query-callbacks'
 import type { Simplify } from 'type-fest'
 import type { OriginQueryEnabledFn } from '../utils/query'
 import type { AccessCanParams, AccessCanResult, Authz } from './authz'
@@ -7,10 +8,13 @@ import { resolveQueryEnableds } from '../utils/query'
 export type QueryOptions<
 	TError,
 > = Simplify<
-	& Omit<
-		QueryObserverOptions<AccessCanResult, TError>,
-		| 'queryFn'
-		| 'queryKey'
+	& QueryObserverOptions<
+		AccessCanResult,
+		TError
+	>
+	& QueryCallbacks<
+		AccessCanResult,
+		TError
 	>
 >
 

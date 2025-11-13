@@ -9,10 +9,9 @@ export type QueryOptions<
 	TData,
 	TError,
 > = Simplify<
-	& Omit<
-		QueryObserverOptions<TData, TError>,
-		| 'queryFn'
-		| 'queryKey'
+	& QueryObserverOptions<
+		TData,
+		TError
 	>
 	& QueryCallbacks<
 		TData,
@@ -20,18 +19,21 @@ export type QueryOptions<
 	>
 >
 
-export interface Props<
+export type Props<
 	TData,
 	TParams,
 	TError,
-> {
-	params?: TParams
-	queryOptions?: Omit<
-		QueryOptions<TData, TError>,
-		| 'queryFn'
-		| 'queryKey'
-	>
-}
+> = Simplify<
+	& {}
+	& {
+		params?: TParams
+		queryOptions?: Omit<
+			QueryOptions<TData, TError>,
+			| 'queryFn'
+			| 'queryKey'
+		>
+	}
+>
 
 export function createQueryKey<
 	TParams,
