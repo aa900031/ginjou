@@ -7,7 +7,7 @@ import type { ResolvedResource, ResourceActionForForm, ResourceActionTypeValues 
 import type { NavigateToFn, NavigateToProps } from '../router'
 import { getFetcherName, MutationMode } from '../query'
 import { getResourceIdentifier, ResourceActionType } from '../resource'
-import { QueryEnabledFn, resolveEnabled, resolveQueryEnableds } from '../utils/query'
+import { resolveQueryEnableds } from '../utils/query'
 
 export type RedirectTo<
 	TResultData,

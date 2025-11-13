@@ -1,11 +1,9 @@
 import type { QueryFunction, QueryKey, QueryObserverOptions } from '@tanstack/query-core'
 import type { QueryCallbacks } from 'tanstack-query-callbacks'
 import type { Simplify } from 'type-fest'
-import type { RouterGoFn, RouterGoParams } from '../router'
 import type { EnabledGetter } from '../utils/query'
 import type { Auth, AuthCheckResult } from './auth'
 import { resolveEnabled } from '../utils/query'
-import { getRedirectToByObject } from './helper'
 
 export type QueryOptions<
 	TError,
