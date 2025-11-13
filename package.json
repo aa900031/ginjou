@@ -10,7 +10,7 @@
 		"build:sb": "turbo run build --filter=./stories/*",
 		"preview:sb": "turbo run preview --filter=@ginjou/storybook",
 		"test": "vitest run",
-		"bench": "vitest bench --run",
+		"bench": "vitest bench --run --project benchmark",
 		"dev:sb": "turbo run dev --filter=./stories/*",
 		"dev:nuxt": "turbo run dev --filter=@ginjou/nuxt",
 		"release:pkgs": "turbo run release --concurrency=1 --filter=./packages/*",
