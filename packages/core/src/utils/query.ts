@@ -63,8 +63,8 @@ export function getQuery<
 ): Query<TQueryFnData, TError, TData> {
 	const hash = queryHash ?? (queryKeyHashFn ?? hashKey)(queryKey)
 	const cache = queryClient.getQueryCache()
-	const query = cache.get(hash)
+	const query = cache.get<TQueryFnData, TError, TData>(hash)
 	if (!query)
-		throw new Error('No')
-	return query as any
+		throw new Error(`Query not found in cache for key: ${JSON.stringify(queryKey)}`)
+	return query
 }
