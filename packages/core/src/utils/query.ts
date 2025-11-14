@@ -23,7 +23,10 @@ export function resolveQueryEnableds<
 	TData,
 >(
 	query: Query<TQueryFnData, TError, TData>,
-	enableds: (Enabled<TQueryFnData, TError, TData> | (() => boolean | undefined) | undefined)[],
+	enableds: (
+		| Enabled<TQueryFnData, TError, TData>
+		| (() => boolean | undefined) | undefined
+	)[],
 ): boolean {
 	for (const enabled of enableds) {
 		if (enabled === false)

@@ -1,4 +1,4 @@
-import type { PlaceholderDataFunction, QueryClient, QueryKey, QueryObserverOptions } from '@tanstack/query-core'
+import type { PlaceholderDataFunction, QueryClient, QueryFunction, QueryKey, QueryObserverOptions } from '@tanstack/query-core'
 import type { QueryCallbacks } from 'tanstack-query-callbacks'
 import type { SetOptional, Simplify } from 'type-fest'
 import type { CheckError } from '../auth'
@@ -27,7 +27,7 @@ export type QueryOptions<
 		GetOneResult<TData>,
 		TError,
 		GetOneResult<TResultData>,
-		GetOneResult<TResultData>
+		GetOneResult<TData>
 	>
 	& QueryCallbacks<
 		GetOneResult<TResultData>,
@@ -103,14 +103,12 @@ export interface CreateQueryFnProps {
 
 export function createQueryFn<
 	TData extends BaseRecord,
-	TResultData extends BaseRecord,
-	TError,
 >(
 	{
 		fetchers,
 		getProps,
 	}: CreateQueryFnProps,
-): NonNullable<QueryOptions<TData, TError, TResultData>['queryFn']> {
+): QueryFunction<GetOneResult<TData>> {
 	return async function queryFn() {
 		const props = getProps()
 		const _fetcher = getFetcher(props, fetchers)
@@ -220,9 +218,9 @@ export function createQueryEnabledFn<
 		getId,
 		queryClient,
 	}: CreateQueryEnabledFnProps<TData, TError, TResultData>,
-): QueryEnabledFn<GetOneResult<TData>, TError, GetOneResult<TResultData>> {
+): QueryEnabledFn<GetOneResult<TData>, TError, GetOneResult<TData>> {
 	return function enabled(
-		query = getQuery<GetOneResult<TData>, TError, GetOneResult<TResultData>>(
+		query = getQuery<GetOneResult<TData>, TError, GetOneResult<TData>>(
 			getQueryKey(),
 			queryClient,
 		),
@@ -263,8 +261,7 @@ export function getSubscribeParams(
 export function createPlacholerDataFn<
 	TData extends BaseRecord,
 	TError,
-	TResultData extends BaseRecord,
->(): PlaceholderDataFunction<GetOneResult<TData>, TError, GetOneResult<TResultData>> {
+>(): PlaceholderDataFunction<GetOneResult<TData>, TError, GetOneResult<TData>> {
 	return function placeholderDataFn(previousData) {
 		return previousData
 	}

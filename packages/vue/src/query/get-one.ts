@@ -78,7 +78,7 @@ export function useGetOne<
 		getId: () => unref(queryProps).id,
 		queryClient,
 	})
-	const queryFn = GetOne.createQueryFn<TData, TResultData, TError>({
+	const queryFn = GetOne.createQueryFn<TData>({
 		fetchers,
 		getProps: () => unref(queryProps),
 	})
@@ -96,7 +96,7 @@ export function useGetOne<
 		getErrorNotify: () => unref(props.errorNotify),
 		emitParent: (...args) => unref(props.queryOptions)?.onError?.(...args),
 	})
-	const placeholderData = GetOne.createPlacholerDataFn<TData, TError, TResultData>()
+	const placeholderData = GetOne.createPlacholerDataFn<TData, TError>()
 
 	const query = useQuery<GetOneResult<TData>, TError, GetOneResult<TResultData>>(
 		computed(() => ({

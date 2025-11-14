@@ -24,7 +24,7 @@ export type QueryOptions<
 		CustomResult<TData>,
 		TError,
 		CustomResult<TResultData>,
-		CustomResult<TResultData>
+		CustomResult<TData>
 	>
 	& QueryCallbacks<
 		CustomResult<TResultData>,
@@ -250,9 +250,9 @@ export function createQueryEnabledFn<
 		getEnabled,
 		queryClient,
 	}: CreateQueryEnabledFnProps<TData, TError, TResultData>,
-): QueryEnabledFn<CustomResult<TData>, TError, CustomResult<TResultData>> {
+): QueryEnabledFn<CustomResult<TData>, TError, CustomResult<TData>> {
 	return function enabled(
-		query = getQuery<CustomResult<TData>, TError, CustomResult<TResultData>>(
+		query = getQuery<CustomResult<TData>, TError, CustomResult<TData>>(
 			getQueryKey(),
 			queryClient,
 		),

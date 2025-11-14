@@ -111,7 +111,7 @@ export function useCustom<
 			...unref(props.queryOptions) as any,
 			queryKey,
 			queryFn,
-			enabled: enabledFn,
+			enabled: () => enabledFn,
 		})),
 		queryClient,
 	)

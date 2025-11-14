@@ -33,7 +33,7 @@ export type QueryOptions<
 		GetManyResult<TData>,
 		TError,
 		GetManyResult<TResultData>,
-		GetManyResult<TResultData>
+		GetManyResult<TData>
 	>
 	& QueryCallbacks<
 		GetManyResult<TResultData>,
@@ -166,14 +166,14 @@ export interface CreatePlacholerDataFnProps {
 
 export function createPlacholerDataFn<
 	TData extends BaseRecord,
-	TResultData extends BaseRecord,
 	TError,
+	TResultData extends BaseRecord,
 >(
 	{
 		getProps,
 		queryClient,
 	}: CreatePlacholerDataFnProps,
-): PlaceholderDataFunction<GetManyResult<TData>> {
+): PlaceholderDataFunction<GetManyResult<TData>, TError, GetManyResult<TData>> {
 	return function placeholderDataFn() {
 		const { ids, ...rest } = getProps()
 		const records = (!ids || ids.length === 0)
@@ -291,9 +291,9 @@ export function createQueryEnabledFn<
 		getResource,
 		queryClient,
 	}: CreateQueryEnabledFnProps<TData, TError, TResultData>,
-): QueryEnabledFn<GetManyResult<TData>, TError, GetManyResult<TResultData>> {
+): QueryEnabledFn<GetManyResult<TData>, TError, GetManyResult<TData>> {
 	return function enabled(
-		query = getQuery<GetManyResult<TData>, TError, GetManyResult<TResultData>>(
+		query = getQuery<GetManyResult<TData>, TError, GetManyResult<TData>>(
 			getQueryKey(),
 			queryClient,
 		),

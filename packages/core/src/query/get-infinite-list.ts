@@ -1,4 +1,4 @@
-import type { InfiniteData, InfiniteQueryObserverOptions, PlaceholderDataFunction, QueryClient, QueryFunctionContext, QueryKey } from '@tanstack/query-core'
+import type { GetNextPageParamFunction, GetPreviousPageParamFunction, InfiniteData, InfiniteQueryObserverOptions, PlaceholderDataFunction, QueryClient, QueryFunction, QueryFunctionContext, QueryKey } from '@tanstack/query-core'
 import type { QueryCallbacks } from 'tanstack-query-callbacks'
 import type { SetOptional, SetRequired, Simplify } from 'type-fest'
 import type { CheckError } from '../auth'
@@ -106,8 +106,6 @@ export interface CreateQueryFnProps<
 
 export function createQueryFn<
 	TData extends BaseRecord,
-	TError,
-	TResultData extends BaseRecord,
 	TPageParam,
 >(
 	{
@@ -115,7 +113,7 @@ export function createQueryFn<
 		queryClient,
 		getProps,
 	}: CreateQueryFnProps<TPageParam>,
-): NonNullable<QueryOptions<TData, TError, TResultData, TPageParam>['queryFn']> {
+): QueryFunction<GetInfiniteListResult<TData, TPageParam>, QueryKey, TPageParam> {
 	return async function queryFn(context) {
 		const props = getProps()
 		const fetcher = getFetcher(props, fetchers)
@@ -197,45 +195,49 @@ export function getInitialPageParam<
 	return props.pagination.current
 }
 
-export function getNextPageParam<
-	TPageParam,
+export function createGetNextPageParamFn<
 	TData extends BaseRecord,
->(
-	lastPage: GetInfiniteListResult<TData, TPageParam>,
-): TPageParam | undefined {
-	const { cursor, pagination } = lastPage
+	TPageParam,
+>(): GetNextPageParamFunction<TPageParam, GetInfiniteListResult<TData, TPageParam>> {
+	return function getNextPageParam(
+		lastPage,
+	) {
+		const { cursor, pagination } = lastPage
 
-	if (cursor)
-		return cursor.next
+		if (cursor)
+			return cursor.next
 
-	if (pagination == null)
-		return undefined
+		if (pagination == null)
+			return undefined
 
-	const { current, perPage } = pagination
-	if (typeof current === 'number') {
-		const totalPages = Math.ceil((lastPage.total || 0) / perPage)
+		const { current, perPage } = pagination
+		if (typeof current === 'number') {
+			const totalPages = Math.ceil((lastPage.total || 0) / perPage)
 
-		return current < totalPages ? (Number(current) + 1) as TPageParam : undefined
+			return current < totalPages ? (Number(current) + 1) as TPageParam : undefined
+		}
 	}
 }
 
-export function getPreviousPageParam<
-	TPageParam,
+export function createGetPreviousPageParamFn<
 	TData extends BaseRecord,
->(
-	lastPage: GetInfiniteListResult<TData, TPageParam>,
-): TPageParam | undefined {
-	const { cursor, pagination } = lastPage
+	TPageParam,
+>(): GetPreviousPageParamFunction<TPageParam, GetInfiniteListResult<TData, TPageParam>> {
+	return function getPreviousPageParam(
+		lastPage,
+	) {
+		const { cursor, pagination } = lastPage
 
-	if (cursor)
-		return cursor.prev
+		if (cursor)
+			return cursor.prev
 
-	if (pagination == null)
-		return undefined
+		if (pagination == null)
+			return undefined
 
-	const { current } = pagination
-	if (typeof current === 'number')
-		return current === 1 ? undefined : (current - 1) as TPageParam
+		const { current } = pagination
+		if (typeof current === 'number')
+			return current === 1 ? undefined : (current - 1) as TPageParam
+	}
 }
 
 export interface CreateSuccessHandlerProps<
@@ -338,8 +340,8 @@ export function getRecords<
 export function createPlacholerDataFn<
 	TData extends BaseRecord,
 	TError,
-	TResultData extends BaseRecord,
->(): PlaceholderDataFunction<GetInfiniteListResult<TData>, TError, GetInfiniteListResult<TResultData>> {
+	TPageParam,
+>(): PlaceholderDataFunction<InfiniteData<GetInfiniteListResult<TData, TPageParam>, TPageParam>, TError, InfiniteData<GetInfiniteListResult<TData, TPageParam>, TPageParam>> {
 	return function placeholderDataFn(previousData) {
 		return previousData
 	}

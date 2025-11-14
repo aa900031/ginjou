@@ -30,7 +30,7 @@ export type QueryOptions<
 		GetListResult<TData, TPageParam>,
 		TError,
 		GetListResult<TResultData, TPageParam>,
-		GetListResult<TResultData, TPageParam>,
+		GetListResult<TData, TPageParam>,
 		QueryKey,
 		TPageParam
 	>
@@ -266,9 +266,9 @@ export function createQueryEnabledFn<
 		getResource,
 		queryClient,
 	}: CreateQueryEnabledFnProps<TData, TError, TResultData, TPageParam>,
-): QueryEnabledFn<GetListResult<TData>, TError, GetListResult<TResultData>> {
+): QueryEnabledFn<GetListResult<TData>, TError, GetListResult<TData>> {
 	return function enabled(
-		query = getQuery<GetListResult<TData>, TError, GetListResult<TResultData>>(
+		query = getQuery<GetListResult<TData>, TError, GetListResult<TData>>(
 			getQueryKey(),
 			queryClient,
 		),
@@ -311,8 +311,7 @@ export function getSubscribeParams(
 export function createPlacholerDataFn<
 	TData extends BaseRecord,
 	TError,
-	TResultData extends BaseRecord,
->(): PlaceholderDataFunction<GetListResult<TData>, TError, GetListResult<TResultData>> {
+>(): PlaceholderDataFunction<GetListResult<TData>, TError, GetListResult<TData>> {
 	return function placeholderDataFn(previousData) {
 		return previousData
 	}

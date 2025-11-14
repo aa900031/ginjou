@@ -86,7 +86,7 @@ export function useGetInfiniteList<
 		getResource: () => unref(queryProps).resource,
 		queryClient,
 	})
-	const queryFn = GetInfiniteList.createQueryFn<TData, TError, TResultData, TPageParam>({
+	const queryFn = GetInfiniteList.createQueryFn<TData, TPageParam>({
 		getProps: () => unref(queryProps),
 		queryClient,
 		fetchers,
@@ -105,20 +105,22 @@ export function useGetInfiniteList<
 		getErrorNotify: () => unref(props.errorNotify),
 		emitParent: (...args) => unref(props.queryOptions)?.onError?.(...args),
 	})
-	const placeholderData = GetInfiniteList.createPlacholerDataFn<TData, TError, TResultData>()
+	const placeholderData = GetInfiniteList.createPlacholerDataFn<TData, TError, TPageParam>()
+	const getNextPageParam = GetInfiniteList.createGetNextPageParamFn<TData, TPageParam>()
+	const getPreviousPageParam = GetInfiniteList.createGetPreviousPageParamFn<TData, TPageParam>()
 
 	const query = useInfiniteQuery<GetInfiniteListResult<TData, TPageParam>, TError, InfiniteData<GetInfiniteListResult<TResultData, TPageParam>, TPageParam>, any, TPageParam>(
 		computed(() => ({
 			initialPageParam: GetInfiniteList.getInitialPageParam({
 				props: unref(queryProps),
-			}),
-			getNextPageParam: GetInfiniteList.getNextPageParam,
-			getPreviousPageParam: GetInfiniteList.getPreviousPageParam,
+			}) as any, // Workaround: Just MaybeDeepRef need set object but TPageParam is unknown
+			getNextPageParam,
+			getPreviousPageParam,
 			// FIXME: type
 			...unref(props.queryOptions) as any,
 			queryKey,
 			queryFn,
-			enabled: () => enabledFn,
+			enabled: () => enabledFn as any, // FIXME: Just wait PR merged
 			placeholderData,
 		})),
 		queryClient,
