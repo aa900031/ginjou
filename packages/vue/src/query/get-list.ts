@@ -81,6 +81,7 @@ export function useGetList<
 		getEnabled: () => unref(props.queryOptions)?.enabled,
 		getQueryKey: () => unref(queryKey),
 		getResource: () => unref(queryProps).resource,
+		getQueryOptions: () => unref(props.queryOptions),
 		queryClient,
 	})
 	const queryFn = GetList.createQueryFn<TData, TResultData, TError, TPageParam>({

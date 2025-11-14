@@ -1,4 +1,4 @@
-import type { Enabled, Query, QueryClient, QueryKey } from '@tanstack/query-core'
+import type { Enabled, Query, QueryClient, QueryKey, QueryKeyHashFunction } from '@tanstack/query-core'
 import { hashKey } from '@tanstack/query-core'
 
 export type OriginQueryEnabledFn<
@@ -40,16 +40,30 @@ export function resolveQueryEnableds<
 	return true
 }
 
+export interface GetQueryProps<
+	TQueryKey extends QueryKey,
+> {
+	queryKey: TQueryKey
+	queryClient: QueryClient
+	queryHash?: string
+	queryKeyHashFn?: QueryKeyHashFunction<TQueryKey>
+}
+
 export function getQuery<
 	TQueryFnData,
 	TError,
 	TData,
 >(
-	queryKey: QueryKey,
-	queryClient: QueryClient,
+	{
+		queryKey,
+		queryHash,
+		queryClient,
+		queryKeyHashFn,
+	}: GetQueryProps<QueryKey>,
 ): Query<TQueryFnData, TError, TData> {
+	const hash = queryHash ?? (queryKeyHashFn ?? hashKey)(queryKey)
 	const cache = queryClient.getQueryCache()
-	const query = cache.get(hashKey(queryKey))
+	const query = cache.get(hash)
 	if (!query)
 		throw new Error('No')
 	return query as any

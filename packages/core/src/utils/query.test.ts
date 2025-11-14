@@ -48,12 +48,12 @@ describe('getQuery', () => {
 		const cache = queryClient.getQueryCache()
 		const query = cache.build(queryClient, { queryKey })
 		cache.add(query)
-		expect(getQuery(queryKey, queryClient)).toBe(query)
+		expect(getQuery({ queryKey, queryClient })).toBe(query)
 	})
 
 	it('should throw error if query not found', () => {
 		const queryKey = ['test']
 		const queryClient = new QueryClient()
-		expect(() => getQuery(queryKey, queryClient)).toThrowError('No')
+		expect(() => getQuery({ queryKey, queryClient })).toThrowError('No')
 	})
 })

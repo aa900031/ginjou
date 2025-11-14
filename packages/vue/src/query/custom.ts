@@ -102,6 +102,7 @@ export function useCustom<
 	const enabledFn = Custom.createQueryEnabledFn<TData, TError, TResultData>({
 		getQueryKey: () => unref(queryKey),
 		getEnabled: () => unref(props.queryOptions)?.enabled,
+		getQueryOptions: () => unref(props.queryOptions),
 		queryClient,
 	})
 

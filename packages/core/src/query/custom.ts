@@ -237,6 +237,7 @@ export interface CreateQueryEnabledFnProps<
 > {
 	getQueryKey: () => QueryKey
 	getEnabled: () => QueryOptions<TData, TError, TResultData>['enabled']
+	getQueryOptions: () => Pick<QueryOptions<TData, TError, TResultData>, 'queryHash' | 'queryKeyHashFn'> | undefined
 	queryClient: QueryClient
 }
 
@@ -248,14 +249,16 @@ export function createQueryEnabledFn<
 	{
 		getQueryKey,
 		getEnabled,
+		getQueryOptions,
 		queryClient,
 	}: CreateQueryEnabledFnProps<TData, TError, TResultData>,
 ): QueryEnabledFn<CustomResult<TData>, TError, CustomResult<TData>> {
 	return function enabled(
-		query = getQuery<CustomResult<TData>, TError, CustomResult<TData>>(
-			getQueryKey(),
+		query = getQuery<CustomResult<TData>, TError, CustomResult<TData>>({
+			...getQueryOptions(),
+			queryKey: getQueryKey(),
 			queryClient,
-		),
+		}),
 	) {
 		return resolveQueryEnableds(
 			query,

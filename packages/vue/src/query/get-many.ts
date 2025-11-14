@@ -79,6 +79,7 @@ export function useGetMany<
 		getQueryKey: () => unref(queryKey),
 		getIds: () => unref(queryProps).ids,
 		getResource: () => unref(queryProps).resource,
+		getQueryOptions: () => unref(props.queryOptions),
 		queryClient,
 	})
 	const queryFn = GetMany.createQueryFn<TData, TResultData, TError>({

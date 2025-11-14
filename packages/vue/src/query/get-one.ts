@@ -76,6 +76,7 @@ export function useGetOne<
 		getEnabled: () => unref(props.queryOptions)?.enabled,
 		getQueryKey: () => unref(queryKey),
 		getId: () => unref(queryProps).id,
+		getQueryOptions: () => unref(props.queryOptions),
 		queryClient,
 	})
 	const queryFn = GetOne.createQueryFn<TData>({
