@@ -99,13 +99,19 @@ export function useCustom<
 		getErrorNotify: () => unref(props.errorNotify),
 		emitParent: (...args) => unref(props.queryOptions)?.onError?.(...args),
 	})
+	const enabledFn = Custom.createQueryEnabledFn<TData, TError, TResultData>({
+		getQueryKey: () => unref(queryKey),
+		getEnabled: () => unref(props.queryOptions)?.enabled,
+		queryClient,
+	})
 
 	const query = useQuery<CustomResult<TData>, TError, CustomResult<TResultData>>(
 		computed(() => ({
-			queryKey,
-			queryFn,
 			// FIXME: type
 			...unref(props.queryOptions) as any,
+			queryKey,
+			queryFn,
+			enabled: enabledFn,
 		})),
 		queryClient,
 	)
