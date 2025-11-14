@@ -1,6 +1,7 @@
+import type { Query } from '@tanstack/query-core'
 import { describe, expect, it, vi } from 'vitest'
 import { createQueryContext } from '../../test/tanstack-utils'
-import { createErrorHandler, createQueryFn, createQueryKey, getQueryEnabled } from './check'
+import { createQueryEnabledFn, createQueryFn, createQueryKey } from './check'
 
 describe('createQueryKey', () => {
 	it('should return the correct query key with params', () => {
@@ -38,87 +39,48 @@ describe('createQueryFn', () => {
 	})
 })
 
-describe('getQueryEnabled', () => {
-	it('should return true if enabled is true and auth.check is a function', () => {
-		const auth = { check: () => {} } as any
-		expect(getQueryEnabled({ auth, enabled: true })).toBe(true)
+describe('createQueryEnabledFn', () => {
+	const mockQuery = {} as Query<any, any, any>
+
+	it('should return true if getEnabled returns true and auth.check is a function', () => {
+		const getAuth = () => ({ check: vi.fn() }) as any
+		const getEnabled = () => true
+		const enabledFn = createQueryEnabledFn({ getAuth, getEnabled })
+		expect(enabledFn(mockQuery)).toBe(true)
 	})
 
-	it('should return false if enabled is false', () => {
-		const auth = { check: () => {} } as any
-		expect(getQueryEnabled({ auth, enabled: false })).toBe(false)
+	it('should return false if getEnabled returns false', () => {
+		const getAuth = () => ({ check: vi.fn() }) as any
+		const getEnabled = () => false
+		const enabledFn = createQueryEnabledFn({ getAuth, getEnabled })
+		expect(enabledFn(mockQuery)).toBe(false)
 	})
 
 	it('should return false if auth.check is not a function', () => {
-		const auth = {} as any
-		expect(getQueryEnabled({ auth, enabled: true })).toBe(false)
+		const getAuth = () => ({} as any)
+		const getEnabled = () => true
+		const enabledFn = createQueryEnabledFn({ getAuth, getEnabled })
+		expect(enabledFn(mockQuery)).toBe(false)
 	})
 
-	it('should resolve enabled function', () => {
-		const auth = { check: () => {} } as any
-		expect(getQueryEnabled({ auth, enabled: () => true })).toBe(true)
-		expect(getQueryEnabled({ auth, enabled: () => false })).toBe(false)
-	})
-})
-
-describe('createErrorHandler', () => {
-	it('should call emitParent with the error', () => {
-		const mockGo = vi.fn()
-		const getRedirectTo = () => undefined
-		const mockEmitParent = vi.fn()
-		const errorHandler = createErrorHandler({ go: mockGo, getRedirectTo, emitParent: mockEmitParent })
-		const error = new Error('Test Error')
-
-		errorHandler(error)
-
-		expect(mockEmitParent).toHaveBeenCalledWith(error)
+	it('should return true if getEnabled returns undefined and auth.check is a function', () => {
+		const getAuth = () => ({ check: vi.fn() }) as any
+		const getEnabled = () => undefined
+		const enabledFn = createQueryEnabledFn({ getAuth, getEnabled })
+		expect(enabledFn(mockQuery)).toBe(true)
 	})
 
-	it('should call go with redirectTo from error', () => {
-		const mockGo = vi.fn()
-		const getRedirectTo = () => '/default'
-		const mockEmitParent = vi.fn()
-		const errorHandler = createErrorHandler({ go: mockGo, getRedirectTo, emitParent: mockEmitParent })
-		const error = { redirectTo: '/error-path' }
-
-		errorHandler(error as any)
-
-		expect(mockGo).toHaveBeenCalledWith({ to: '/error-path' })
+	it('should return false if getEnabled returns undefined and auth is undefined', () => {
+		const getAuth = () => undefined
+		const getEnabled = () => undefined
+		const enabledFn = createQueryEnabledFn({ getAuth, getEnabled })
+		expect(enabledFn(mockQuery)).toBe(false)
 	})
 
-	it('should call go with redirectTo from getRedirectTo', () => {
-		const mockGo = vi.fn()
-		const getRedirectTo = () => '/props-path'
-		const mockEmitParent = vi.fn()
-		const errorHandler = createErrorHandler({ go: mockGo, getRedirectTo, emitParent: mockEmitParent })
-		const error = new Error('Test Error')
-
-		errorHandler(error)
-
-		expect(mockGo).toHaveBeenCalledWith({ to: '/props-path' })
-	})
-
-	it('should not call go if redirectTo is false', () => {
-		const mockGo = vi.fn()
-		const getRedirectTo = () => false as const
-		const mockEmitParent = vi.fn()
-		const errorHandler = createErrorHandler({ go: mockGo, getRedirectTo, emitParent: mockEmitParent })
-		const error = new Error('Test Error')
-
-		errorHandler(error)
-
-		expect(mockGo).not.toHaveBeenCalled()
-	})
-
-	it('should not call go if redirectTo is not defined', () => {
-		const mockGo = vi.fn()
-		const getRedirectTo = () => undefined
-		const mockEmitParent = vi.fn()
-		const errorHandler = createErrorHandler({ go: mockGo, getRedirectTo, emitParent: mockEmitParent })
-		const error = new Error('Test Error')
-
-		errorHandler(error)
-
-		expect(mockGo).not.toHaveBeenCalled()
+	it('should handle function-based getEnabled correctly', () => {
+		const getAuth = () => ({ check: vi.fn() }) as any
+		const getEnabled = () => (_query: Query<any, any, any>) => true
+		const enabledFn = createQueryEnabledFn({ getAuth, getEnabled })
+		expect(enabledFn(mockQuery)).toBe(true)
 	})
 })

@@ -1,26 +1,21 @@
 import type { QueryFunction, QueryKey, QueryObserverOptions } from '@tanstack/query-core'
 import type { QueryCallbacks } from 'tanstack-query-callbacks'
 import type { Simplify } from 'type-fest'
-import type { RouterGoFn, RouterGoParams } from '../router'
-import type { EnabledGetter } from '../utils/query'
+import type { OriginQueryEnabledFn } from '../utils/query'
 import type { Auth, AuthCheckResult } from './auth'
-import { resolveEnabled } from '../utils/query'
-import { getRedirectToByObject } from './helper'
+import { resolveQueryEnableds } from '../utils/query'
 
 export type QueryOptions<
 	TError,
 > = Simplify<
-	& Omit<
-		QueryObserverOptions<AuthCheckResult, TError>,
-		| 'enabled'
+	& QueryObserverOptions<
+		AuthCheckResult,
+		TError
 	>
 	& QueryCallbacks<
 		AuthCheckResult,
 		TError
 	>
-	& {
-		enabled?: EnabledGetter
-	}
 >
 
 export interface Props<
@@ -28,10 +23,6 @@ export interface Props<
 	TError,
 > {
 	params?: TParams
-	redirectTo?:
-		| false
-		| string
-		| RouterGoParams
 	queryOptions?: Omit<
 		QueryOptions<TError>,
 		| 'queryFn'
@@ -79,49 +70,30 @@ export function createQueryFn<
 	}
 }
 
-export interface GetQueryEnabledProps {
-	auth: Auth | undefined
-	enabled: QueryOptions<unknown>['enabled']
-}
-
-export function getQueryEnabled(
-	{
-		auth,
-		enabled,
-	}: GetQueryEnabledProps,
-): boolean {
-	return resolveEnabled(
-		enabled,
-		typeof auth?.check === 'function',
-	)
-}
-
-export interface CreateErrorHandlerProps<
-	TParams,
+export interface CreateQueryEnabledFnProps<
 	TError,
 > {
-	go: RouterGoFn
-	getRedirectTo: () => Props<TParams, TError>['redirectTo']
-	emitParent: NonNullable<QueryOptions<TError>['onError']>
+	getAuth: () => Auth | undefined
+	getEnabled: () => QueryOptions<TError>['enabled']
 }
 
-export function createErrorHandler<
-	TParams,
+export function createQueryEnabledFn<
 	TError,
 >(
 	{
-		go,
-		getRedirectTo,
-		emitParent,
-	}: CreateErrorHandlerProps<TParams, TError>,
-): NonNullable<QueryOptions<TError>['onError']> {
-	return function onError(error) {
-		emitParent(error)
-
-		const redirectTo = getRedirectToByObject(error as any)
-			?? getRedirectToByObject({ redirectTo: getRedirectTo() })
-
-		if (redirectTo != null && redirectTo !== false)
-			go(redirectTo)
+		getAuth,
+		getEnabled,
+	}: CreateQueryEnabledFnProps<TError>,
+): OriginQueryEnabledFn<AuthCheckResult, TError, AuthCheckResult> {
+	return function enabled(
+		query,
+	) {
+		return resolveQueryEnableds(
+			query,
+			[
+				getEnabled(),
+				() => typeof getAuth()?.check === 'function',
+			],
+		)
 	}
 }

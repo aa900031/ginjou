@@ -5,7 +5,7 @@ import type { CheckError } from '../auth'
 import type { TranslateFn } from '../i18n'
 import type { NotifyFn } from '../notification'
 import type { ResolvedRealtimeOptions, SubscribeListParams } from '../realtime'
-import type { EnabledGetter } from '../utils/query'
+import type { QueryEnabledFn } from '../utils/query'
 import type { BaseRecord, GetListProps, GetListResult, GetOneResult } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { NotifyProps } from './notify'
@@ -14,7 +14,7 @@ import type { ResourceQueryProps } from './resource'
 import { NotificationType } from '../notification'
 import { SubscribeType } from '../realtime'
 import { getErrorMessage } from '../utils/error'
-import { resolveEnabled } from '../utils/query'
+import { getQuery, resolveQueryEnableds } from '../utils/query'
 import { getFetcher, resolveFetcherProps } from './fetchers'
 import { createQueryKey as createGetOneQueryKey } from './get-one'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
@@ -26,24 +26,18 @@ export type QueryOptions<
 	TResultData extends BaseRecord,
 	TPageParam,
 > = Simplify<
-	& Omit<
-		QueryObserverOptions<
-			GetListResult<TData, TPageParam>,
-			TError,
-			GetListResult<TResultData, TPageParam>,
-			GetListResult<TResultData, TPageParam>,
-			QueryKey,
-			TPageParam
-		>,
-		| 'enabled'
+	& QueryObserverOptions<
+		GetListResult<TData, TPageParam>,
+		TError,
+		GetListResult<TResultData, TPageParam>,
+		GetListResult<TData, TPageParam>,
+		QueryKey,
+		TPageParam
 	>
 	& QueryCallbacks<
 		GetListResult<TResultData, TPageParam>,
 		TError
 	>
-	& {
-		enabled?: EnabledGetter
-	}
 >
 
 export type QueryProps<
@@ -248,21 +242,51 @@ export function createErrorHandler<
 	}
 }
 
-export interface GetQueryEnabledProps {
-	props: ResolvedQueryProps<any>
-	enabled: QueryOptions<any, any, any, any>['enabled']
+export interface CreateQueryEnabledFnProps<
+	TData extends BaseRecord,
+	TError,
+	TResultData extends BaseRecord,
+	TPageParam,
+> {
+	getQueryKey: () => QueryKey
+	getEnabled: () => QueryOptions<TData, TError, TResultData, TPageParam>['enabled']
+	getResource: () => ResolvedQueryProps<TPageParam>['resource']
+	getQueryOptions: () => Pick<QueryOptions<TData, TError, TResultData, TPageParam>, 'queryHash' | 'queryKeyHashFn'> | undefined
+	queryClient: QueryClient
 }
 
-export function getQueryEnabled(
+export function createQueryEnabledFn<
+	TData extends BaseRecord,
+	TError,
+	TResultData extends BaseRecord,
+	TPageParam,
+>(
 	{
-		enabled,
-		props,
-	}: GetQueryEnabledProps,
-): boolean {
-	return resolveEnabled(
-		enabled,
-		!!props.resource != null && props.resource !== '',
-	)
+		getQueryKey,
+		getEnabled,
+		getResource,
+		getQueryOptions,
+		queryClient,
+	}: CreateQueryEnabledFnProps<TData, TError, TResultData, TPageParam>,
+): QueryEnabledFn<GetListResult<TData>, TError, GetListResult<TData>> {
+	return function enabled(
+		query = getQuery<GetListResult<TData>, TError, GetListResult<TData>>({
+			...getQueryOptions(),
+			queryKey: getQueryKey(),
+			queryClient,
+		}),
+	) {
+		return resolveQueryEnableds(
+			query,
+			[
+				getEnabled(),
+				() => {
+					const resource = getResource()
+					return resource != null && resource !== ''
+				},
+			],
+		)
+	}
 }
 
 export interface GetSubscribeParamsProps {
@@ -290,8 +314,7 @@ export function getSubscribeParams(
 export function createPlacholerDataFn<
 	TData extends BaseRecord,
 	TError,
-	TResultData extends BaseRecord,
->(): PlaceholderDataFunction<GetListResult<TData>, TError, GetListResult<TResultData>> {
+>(): PlaceholderDataFunction<GetListResult<TData>, TError, GetListResult<TData>> {
 	return function placeholderDataFn(previousData) {
 		return previousData
 	}

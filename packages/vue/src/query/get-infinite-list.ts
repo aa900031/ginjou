@@ -80,11 +80,14 @@ export function useGetInfiniteList<
 	const queryKey = computed(() => GetList.createQueryKey<TPageParam>({
 		props: unref(queryProps),
 	}))
-	const isEnabled = computed(() => GetList.getQueryEnabled({
-		enabled: unref(props.queryOptions)?.enabled,
-		props: unref(queryProps),
-	}))
-	const queryFn = GetInfiniteList.createQueryFn<TData, TError, TResultData, TPageParam>({
+	const enabledFn = GetInfiniteList.createQueryEnabledFn({
+		getEnabled: () => unref(props.queryOptions)?.enabled,
+		getQueryKey: () => unref(queryKey),
+		getResource: () => unref(queryProps).resource,
+		getQueryOptions: () => unref(props.queryOptions),
+		queryClient,
+	})
+	const queryFn = GetInfiniteList.createQueryFn<TData, TPageParam>({
 		getProps: () => unref(queryProps),
 		queryClient,
 		fetchers,
@@ -103,20 +106,22 @@ export function useGetInfiniteList<
 		getErrorNotify: () => unref(props.errorNotify),
 		emitParent: (...args) => unref(props.queryOptions)?.onError?.(...args),
 	})
-	const placeholderData = GetInfiniteList.createPlacholerDataFn<TData, TError, TResultData>()
+	const placeholderData = GetInfiniteList.createPlacholerDataFn<TData, TError, TPageParam>()
+	const getNextPageParam = GetInfiniteList.createGetNextPageParamFn<TData, TPageParam>()
+	const getPreviousPageParam = GetInfiniteList.createGetPreviousPageParamFn<TData, TPageParam>()
 
 	const query = useInfiniteQuery<GetInfiniteListResult<TData, TPageParam>, TError, InfiniteData<GetInfiniteListResult<TResultData, TPageParam>, TPageParam>, any, TPageParam>(
 		computed(() => ({
 			initialPageParam: GetInfiniteList.getInitialPageParam({
 				props: unref(queryProps),
-			}),
-			getNextPageParam: GetInfiniteList.getNextPageParam,
-			getPreviousPageParam: GetInfiniteList.getPreviousPageParam,
+			}) as any, // Workaround: Just MaybeDeepRef need set object but TPageParam is unknown
+			getNextPageParam,
+			getPreviousPageParam,
 			// FIXME: type
 			...unref(props.queryOptions) as any,
 			queryKey,
 			queryFn,
-			enabled: isEnabled,
+			enabled: () => enabledFn as any, // FIXME: Just wait PR merged
 			placeholderData,
 		})),
 		queryClient,
@@ -150,7 +155,7 @@ export function useGetInfiniteList<
 			getFetcherName: () => unref(queryProps).fetcherName,
 		}),
 		actions: [RealtimeAction.Any],
-		enabled: isEnabled,
+		enabled: enabledFn,
 	}, context)
 
 	return {

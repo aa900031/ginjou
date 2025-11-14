@@ -1,11 +1,11 @@
-import type { PlaceholderDataFunction, QueryKey, QueryObserverOptions } from '@tanstack/query-core'
+import type { PlaceholderDataFunction, QueryClient, QueryFunction, QueryKey, QueryObserverOptions } from '@tanstack/query-core'
 import type { QueryCallbacks } from 'tanstack-query-callbacks'
 import type { SetOptional, Simplify } from 'type-fest'
 import type { CheckError } from '../auth'
 import type { TranslateFn } from '../i18n'
 import type { NotifyFn } from '../notification'
 import type { ResolvedRealtimeOptions, SubscribeOneParams } from '../realtime'
-import type { EnabledGetter } from '../utils/query'
+import type { QueryEnabledFn } from '../utils/query'
 import type { BaseRecord, GetOneProps, GetOneResult } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { NotifyProps } from './notify'
@@ -13,7 +13,7 @@ import type { RealtimeProps } from './realtime'
 import { NotificationType } from '../notification'
 import { SubscribeType } from '../realtime'
 import { getErrorMessage } from '../utils/error'
-import { resolveEnabled } from '../utils/query'
+import { getQuery, resolveQueryEnableds } from '../utils/query'
 import { getFetcher, resolveFetcherProps } from './fetchers'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
 import { createQueryKey as createResourceQueryKey } from './resource'
@@ -23,21 +23,16 @@ export type QueryOptions<
 	TError,
 	TResultData extends BaseRecord,
 > = Simplify<
-	& Omit<
-		QueryObserverOptions<
-			GetOneResult<TData>,
-			TError,
-			GetOneResult<TResultData>
-		>,
-		| 'enabled'
+	& QueryObserverOptions<
+		GetOneResult<TData>,
+		TError,
+		GetOneResult<TResultData>,
+		GetOneResult<TData>
 	>
 	& QueryCallbacks<
 		GetOneResult<TResultData>,
 		TError
 	>
-	& {
-		enabled?: EnabledGetter
-	}
 >
 
 export type QueryProps = Simplify<
@@ -108,14 +103,12 @@ export interface CreateQueryFnProps {
 
 export function createQueryFn<
 	TData extends BaseRecord,
-	TResultData extends BaseRecord,
-	TError,
 >(
 	{
 		fetchers,
 		getProps,
 	}: CreateQueryFnProps,
-): NonNullable<QueryOptions<TData, TError, TResultData>['queryFn']> {
+): QueryFunction<GetOneResult<TData>> {
 	return async function queryFn() {
 		const props = getProps()
 		const _fetcher = getFetcher(props, fetchers)
@@ -203,21 +196,49 @@ export function createErrorHandler<
 	}
 }
 
-export interface GetQueryEnabledProps {
-	props: ResolvedQueryProps
-	enabled: QueryOptions<any, any, any>['enabled']
+export interface CreateQueryEnabledFnProps<
+	TData extends BaseRecord,
+	TError,
+	TResultData extends BaseRecord,
+> {
+	getQueryKey: () => QueryKey
+	getEnabled: () => QueryOptions<TData, TError, TResultData>['enabled']
+	getId: () => ResolvedQueryProps['id']
+	getQueryOptions: () => Pick<QueryOptions<TData, TError, TResultData>, 'queryHash' | 'queryKeyHashFn'> | undefined
+	queryClient: QueryClient
 }
 
-export function getQueryEnabled(
+export function createQueryEnabledFn<
+	TData extends BaseRecord,
+	TError,
+	TResultData extends BaseRecord,
+>(
 	{
-		enabled,
-		props,
-	}: GetQueryEnabledProps,
-): boolean {
-	return resolveEnabled(
-		enabled,
-		props.id != null && props.id !== '',
-	)
+		getQueryKey,
+		getEnabled,
+		getId,
+		getQueryOptions,
+		queryClient,
+	}: CreateQueryEnabledFnProps<TData, TError, TResultData>,
+): QueryEnabledFn<GetOneResult<TData>, TError, GetOneResult<TData>> {
+	return function enabled(
+		query = getQuery<GetOneResult<TData>, TError, GetOneResult<TData>>({
+			...getQueryOptions(),
+			queryKey: getQueryKey(),
+			queryClient,
+		}),
+	) {
+		return resolveQueryEnableds(
+			query,
+			[
+				getEnabled(),
+				() => {
+					const id = getId()
+					return id != null && id !== ''
+				},
+			],
+		)
+	}
 }
 
 export interface GetSubscribeParamsProps {
@@ -243,8 +264,7 @@ export function getSubscribeParams(
 export function createPlacholerDataFn<
 	TData extends BaseRecord,
 	TError,
-	TResultData extends BaseRecord,
->(): PlaceholderDataFunction<GetOneResult<TData>, TError, GetOneResult<TResultData>> {
+>(): PlaceholderDataFunction<GetOneResult<TData>, TError, GetOneResult<TData>> {
 	return function placeholderDataFn(previousData) {
 		return previousData
 	}

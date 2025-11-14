@@ -99,13 +99,20 @@ export function useCustom<
 		getErrorNotify: () => unref(props.errorNotify),
 		emitParent: (...args) => unref(props.queryOptions)?.onError?.(...args),
 	})
+	const enabledFn = Custom.createQueryEnabledFn<TData, TError, TResultData>({
+		getQueryKey: () => unref(queryKey),
+		getEnabled: () => unref(props.queryOptions)?.enabled,
+		getQueryOptions: () => unref(props.queryOptions),
+		queryClient,
+	})
 
 	const query = useQuery<CustomResult<TData>, TError, CustomResult<TResultData>>(
 		computed(() => ({
-			queryKey,
-			queryFn,
 			// FIXME: type
 			...unref(props.queryOptions) as any,
+			queryKey,
+			queryFn,
+			enabled: () => enabledFn,
 		})),
 		queryClient,
 	)
@@ -122,7 +129,7 @@ export function useCustom<
 		params: toRef(() => unref(props.realtime)?.params),
 		meta: toRef(() => unref(queryProps).meta),
 		callback: event => unref(props.realtime)?.callback?.(event),
-		enabled: computed(() => unref(props.realtime)?.channel != null),
+		enabled: () => unref(props.realtime)?.channel != null,
 		actions: [RealtimeAction.Any],
 	}, context)
 

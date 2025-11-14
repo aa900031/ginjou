@@ -5,7 +5,7 @@ import type { CheckError } from '../auth'
 import type { TranslateFn } from '../i18n'
 import type { NotifyFn } from '../notification'
 import type { ResolvedRealtimeOptions, SubscribeManyParams } from '../realtime'
-import type { EnabledGetter } from '../utils/query'
+import type { QueryEnabledFn } from '../utils/query'
 import type { BaseRecord, Fetcher, GetManyProps, GetManyResult, GetOneResult } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { ResolvedQueryProps as GetOneResolvedQueryProps } from './get-one'
@@ -16,7 +16,7 @@ import { hashKey } from '@tanstack/query-core'
 import { NotificationType } from '../notification'
 import { SubscribeType } from '../realtime'
 import { getErrorMessage } from '../utils/error'
-import { resolveEnabled } from '../utils/query'
+import { getQuery, resolveQueryEnableds } from '../utils/query'
 import { createAggregrateFn } from './aggregrate'
 import { getFetcher, resolveFetcherProps } from './fetchers'
 import { createQueryKey as createGetOneQueryKey } from './get-one'
@@ -29,21 +29,16 @@ export type QueryOptions<
 	TError,
 	TResultData extends BaseRecord,
 > = Simplify<
-	& Omit<
-		QueryObserverOptions<
-			GetManyResult<TData>,
-			TError,
-			GetManyResult<TResultData>
-		>,
-		| 'enabled'
+	& QueryObserverOptions<
+		GetManyResult<TData>,
+		TError,
+		GetManyResult<TResultData>,
+		GetManyResult<TData>
 	>
 	& QueryCallbacks<
 		GetManyResult<TResultData>,
 		TError
 	>
-	& {
-		enabled?: EnabledGetter
-	}
 >
 
 export type QueryProps = Simplify<
@@ -171,14 +166,14 @@ export interface CreatePlacholerDataFnProps {
 
 export function createPlacholerDataFn<
 	TData extends BaseRecord,
-	TResultData extends BaseRecord,
 	TError,
+	TResultData extends BaseRecord,
 >(
 	{
 		getProps,
 		queryClient,
 	}: CreatePlacholerDataFnProps,
-): PlaceholderDataFunction<GetManyResult<TData>> {
+): PlaceholderDataFunction<GetManyResult<TData>, TError, GetManyResult<TData>> {
 	return function placeholderDataFn() {
 		const { ids, ...rest } = getProps()
 		const records = (!ids || ids.length === 0)
@@ -272,24 +267,54 @@ export function createErrorHandler<
 	}
 }
 
-export interface GetQueryEnabledProps {
-	props: ResolvedQueryProps
-	enabled: QueryOptions<any, any, any>['enabled']
+export interface CreateQueryEnabledFnProps<
+	TData extends BaseRecord,
+	TError,
+	TResultData extends BaseRecord,
+> {
+	getQueryKey: () => QueryKey
+	getEnabled: () => QueryOptions<TData, TError, TResultData>['enabled']
+	getIds: () => ResolvedQueryProps['ids']
+	getResource: () => ResolvedQueryProps['resource']
+	getQueryOptions: () => Pick<QueryOptions<TData, TError, TResultData>, 'queryHash' | 'queryKeyHashFn'> | undefined
+	queryClient: QueryClient
 }
 
-export function getQueryEnabled(
+export function createQueryEnabledFn<
+	TData extends BaseRecord,
+	TError,
+	TResultData extends BaseRecord,
+>(
 	{
-		enabled,
-		props,
-	}: GetQueryEnabledProps,
-): boolean {
-	return resolveEnabled(
-		enabled,
-		(
-			props.resource != null && props.resource !== ''
-			&& props.ids.length > 0
-		),
-	)
+		getQueryKey,
+		getEnabled,
+		getIds,
+		getResource,
+		getQueryOptions,
+		queryClient,
+	}: CreateQueryEnabledFnProps<TData, TError, TResultData>,
+): QueryEnabledFn<GetManyResult<TData>, TError, GetManyResult<TData>> {
+	return function enabled(
+		query = getQuery<GetManyResult<TData>, TError, GetManyResult<TData>>({
+			...getQueryOptions(),
+			queryKey: getQueryKey(),
+			queryClient,
+		}),
+	) {
+		return resolveQueryEnableds(
+			query,
+			[
+				getEnabled(),
+				() => {
+					const resource = getResource()
+					const ids = getIds()
+
+					return resource != null && resource !== ''
+						&& ids.length > 0
+				},
+			],
+		)
+	}
 }
 
 export interface GetSubscribeParamsProps {

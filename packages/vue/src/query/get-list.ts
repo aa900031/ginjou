@@ -77,10 +77,13 @@ export function useGetList<
 	const queryKey = computed(() => GetList.createQueryKey<TPageParam>({
 		props: unref(queryProps),
 	}))
-	const isEnabled = computed(() => GetList.getQueryEnabled({
-		enabled: unref(props.queryOptions)?.enabled,
-		props: unref(queryProps),
-	}))
+	const enabledFn = GetList.createQueryEnabledFn({
+		getEnabled: () => unref(props.queryOptions)?.enabled,
+		getQueryKey: () => unref(queryKey),
+		getResource: () => unref(queryProps).resource,
+		getQueryOptions: () => unref(props.queryOptions),
+		queryClient,
+	})
 	const queryFn = GetList.createQueryFn<TData, TResultData, TError, TPageParam>({
 		getProps: () => unref(queryProps),
 		queryClient,
@@ -100,7 +103,7 @@ export function useGetList<
 		getErrorNotify: () => unref(props.errorNotify),
 		emitParent: (...args) => unref(props.queryOptions)?.onError?.(...args),
 	})
-	const placeholderData = GetList.createPlacholerDataFn<TData, TError, TResultData>()
+	const placeholderData = GetList.createPlacholerDataFn<TData, TError>()
 
 	const query = useQuery<GetListResult<TData, TPageParam>, TError, GetListResult<TResultData, TPageParam>>(
 		computed(() => ({
@@ -108,7 +111,7 @@ export function useGetList<
 			...unref(props.queryOptions) as any,
 			queryKey,
 			queryFn,
-			enabled: isEnabled,
+			enabled: () => enabledFn,
 			placeholderData,
 		})),
 		queryClient,
@@ -138,7 +141,7 @@ export function useGetList<
 			getFetcherName: () => unref(queryProps).fetcherName,
 		}),
 		actions: [RealtimeAction.Any],
-		enabled: isEnabled,
+		enabled: enabledFn,
 	}, context)
 
 	return {

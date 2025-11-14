@@ -12,7 +12,7 @@ export type Props<
 		| 'callback'
 	>
 	& {
-		enabled?: boolean
+		enabled?: () => boolean
 	}
 >
 
@@ -33,7 +33,6 @@ export function resolveProps<
 ): ResolvedProps<TPayload> {
 	return {
 		...props,
-		enabled: props.enabled ?? true,
 		actions: props.actions ?? DEFAULT_ACTIONS,
 		callback: props.callback ?? noop,
 	}
@@ -59,7 +58,9 @@ export function register<
 		...rest
 	} = props
 
-	if (!realtime || !enabled)
+	const isEnabled = enabled?.() ?? true
+
+	if (!realtime || !isEnabled)
 		return noop
 
 	const id = realtime.subscribe<TPayload>(rest)

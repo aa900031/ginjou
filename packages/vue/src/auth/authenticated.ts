@@ -7,9 +7,9 @@ import type { ToMaybeRefs } from '../utils/refs'
 import type { UseAuthContextFromProps } from './auth'
 import { CheckAuth } from '@ginjou/core'
 import { useQuery } from '@tanstack/vue-query'
+import { useQueryCallbacks } from 'tanstack-query-callbacks/vue'
 import { computed, unref } from 'vue-demi'
 import { useQueryClientContext } from '../query'
-import { useGo } from '../router'
 import { useAuthContext } from './auth'
 
 export type UseAuthenticatedProps<
@@ -40,7 +40,6 @@ export function useAuthenticated<
 ): UseAuthenticatedResult<TError> {
 	const auth = useAuthContext(context)
 	const queryClient = useQueryClientContext(context)
-	const go = useGo(context)
 
 	const queryKey = computed(() => CheckAuth.createQueryKey<TParams>(
 		getParams(),
@@ -49,33 +48,30 @@ export function useAuthenticated<
 		auth,
 		getParams,
 	})
-	const isEnabled = computed(() => CheckAuth.getQueryEnabled({
-		enabled: unref(props?.queryOptions)?.enabled,
-		auth,
-	}))
-	const onError = CheckAuth.createErrorHandler<TParams, TError>({
-		go,
-		getRedirectTo,
-		emitParent: (...args) => unref(props?.queryOptions)?.onError?.(...args),
+	const enabledFn = CheckAuth.createQueryEnabledFn({
+		getEnabled: () => unref(props?.queryOptions)?.enabled,
+		getAuth: () => auth,
 	})
-
-	return useQuery<AuthCheckResult, TError>(
+	const query = useQuery<AuthCheckResult, TError>(
 		computed(() => ({
 			...unref(props?.queryOptions),
 			queryKey,
 			queryFn,
-			enabled: isEnabled,
+			enabled: () => enabledFn,
 			retry: false,
-			onError,
 		})),
 		queryClient,
 	)
+	useQueryCallbacks<AuthCheckResult, TError>({
+		queryKey,
+		queryClient,
+		onSuccess: (...args) => unref(props?.queryOptions)?.onSuccess?.(...args),
+		onError: (...args) => unref(props?.queryOptions)?.onError?.(...args),
+	})
+
+	return query
 
 	function getParams(): TParams | undefined {
 		return unref(props?.params)
-	}
-
-	function getRedirectTo() {
-		return unref(props?.redirectTo)
 	}
 }

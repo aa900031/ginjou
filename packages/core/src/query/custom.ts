@@ -1,15 +1,17 @@
-import type { QueryKey, QueryObserverOptions } from '@tanstack/query-core'
+import type { QueryClient, QueryKey, QueryObserverOptions } from '@tanstack/query-core'
 import type { QueryCallbacks } from 'tanstack-query-callbacks'
 import type { SetRequired, Simplify } from 'type-fest'
 import type { CheckError } from '../auth'
 import type { TranslateFn } from '../i18n'
 import type { NotifyFn } from '../notification'
+import type { QueryEnabledFn } from '../utils/query'
 import type { BaseRecord, CustomProps, CustomResult } from './fetcher'
 import type { FetcherProps, Fetchers } from './fetchers'
 import type { NotifyProps } from './notify'
 import type { RealtimeProps } from './realtime'
 import { NotificationType } from '../notification'
 import { getErrorMessage } from '../utils/error'
+import { getQuery, resolveQueryEnableds } from '../utils/query'
 import { getFetcher } from './fetchers'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
 
@@ -21,7 +23,8 @@ export type QueryOptions<
 	& QueryObserverOptions<
 		CustomResult<TData>,
 		TError,
-		CustomResult<TResultData>
+		CustomResult<TResultData>,
+		CustomResult<TData>
 	>
 	& QueryCallbacks<
 		CustomResult<TResultData>,
@@ -223,6 +226,45 @@ export function createErrorHandler<
 				description: getErrorMessage(error),
 				type: NotificationType.Error,
 			},
+		)
+	}
+}
+
+export interface CreateQueryEnabledFnProps<
+	TData extends BaseRecord,
+	TError,
+	TResultData extends BaseRecord,
+> {
+	getQueryKey: () => QueryKey
+	getEnabled: () => QueryOptions<TData, TError, TResultData>['enabled']
+	getQueryOptions: () => Pick<QueryOptions<TData, TError, TResultData>, 'queryHash' | 'queryKeyHashFn'> | undefined
+	queryClient: QueryClient
+}
+
+export function createQueryEnabledFn<
+	TData extends BaseRecord,
+	TError,
+	TResultData extends BaseRecord,
+>(
+	{
+		getQueryKey,
+		getEnabled,
+		getQueryOptions,
+		queryClient,
+	}: CreateQueryEnabledFnProps<TData, TError, TResultData>,
+): QueryEnabledFn<CustomResult<TData>, TError, CustomResult<TData>> {
+	return function enabled(
+		query = getQuery<CustomResult<TData>, TError, CustomResult<TData>>({
+			...getQueryOptions(),
+			queryKey: getQueryKey(),
+			queryClient,
+		}),
+	) {
+		return resolveQueryEnableds(
+			query,
+			[
+				getEnabled(),
+			],
 		)
 	}
 }
