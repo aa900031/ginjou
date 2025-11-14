@@ -1,10 +1,6 @@
 {
 	"extends": "@ginjou/tsconfig/base.json",
 	"compilerOptions": {
-		"lib": [],
-		"types": [
-			"node"
-		]
 	},
 	"exclude": []
 }

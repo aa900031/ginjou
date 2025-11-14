@@ -48,17 +48,9 @@ export const MockFetchers = {
 } as Fetchers
 
 export const queryClient = new QueryClient({
-	logger: {
-		// eslint-disable-next-line no-console
-		log: console.log,
-		warn: console.warn,
-		error: () => {
-			return {}
-		},
-	},
 	defaultOptions: {
 		queries: {
-			cacheTime: 0,
+			gcTime: 0,
 			retry: 0,
 		},
 	},
