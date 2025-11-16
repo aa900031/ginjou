@@ -1,10 +1,11 @@
 import type { Import } from '../utils/import'
 
 const composables = [
-	'useAccessContext',
 	'useAuthContext',
+	'useAuthzContext',
 	'useAuthenticated',
 	'useBack',
+	'useCanAccess',
 	'useCheckError',
 	'useCreateOne',
 	'useCreateMany',
