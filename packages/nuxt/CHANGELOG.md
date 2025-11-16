@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.8
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/nuxt@0.1.0-beta.7...${npm.name}@0.1.0-beta.8)
+
+### 🚀 Enhancements
+
+-  **nuxt:** Add useCanAccess to auto import ([51adef6](https://github.com/aa900031/ginjou/commit/51adef6bf7951a9fc1ce04c6b7f118788628b708))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.7
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/nuxt@0.1.0-beta.6...${npm.name}@0.1.0-beta.7)
