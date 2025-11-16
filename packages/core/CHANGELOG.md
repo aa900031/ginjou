@@ -3,6 +3,34 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.12
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/core@0.1.0-beta.11...${npm.name}@0.1.0-beta.12)
+
+### 🚀 Enhancements
+
+-  Authz.access could return Promise ([715f546](https://github.com/aa900031/ginjou/commit/715f546f44fe95a8e23ef2738c02d09cabea8e08))
+
+### 💅 Refactors
+
+-  Tanstack query enabled function (#85) ([d404cc5](https://github.com/aa900031/ginjou/commit/d404cc5d8d9728d8e695d9869e7aaa5cf3b4d6fc))
+-  Tanstak-query split mutation context and mutate result (#83) ([4743c3d](https://github.com/aa900031/ginjou/commit/4743c3ddb1ee8a6d895f172d57247885fae02fc7))
+
+### 🏡 Chore
+
+-  Add benchamrk test (#82) ([5a540d4](https://github.com/aa900031/ginjou/commit/5a540d4e528e852d59fcc94f57492914d3f28d8f))
+
+### ✅ Tests
+
+-  **core:** Authz (#81) ([6573a78](https://github.com/aa900031/ginjou/commit/6573a78c6fdf35520795af77a3e8f8b61717c05b))
+-  **core:** I18n, notification, utils (#84) ([76c9d77](https://github.com/aa900031/ginjou/commit/76c9d77b7363b27a6e9dfde60e7dd881b855a2ae))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.11
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/core@0.1.0-beta.10...${npm.name}@0.1.0-beta.11)
