@@ -4,7 +4,7 @@ import type { CheckError } from '../auth'
 import type { TranslateFn } from '../i18n'
 import type { NotifyFn } from '../notification'
 import type { Publish } from '../realtime'
-import type { BaseRecord, CreateProps, CreateResult } from './fetcher'
+import type { BaseRecord, CreateOneFn, CreateProps, CreateResult } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { InvalidatesProps, InvalidateTargetType, ResolvedInvalidatesProps } from './invalidate'
 import type { NotifyProps } from './notify'
@@ -13,7 +13,7 @@ import type { OptionalMutateAsyncFunction, OptionalMutateSyncFunction, OriginMut
 import { NotificationType } from '../notification'
 import { RealtimeAction } from '../realtime/event'
 import { getErrorMessage } from '../utils/error'
-import { getFetcher, resolveFetcherProps } from './fetchers'
+import { getFetcherFn, resolveFetcherProps } from './fetchers'
 import { InvalidateTarget, resolveInvalidateProps, triggerInvalidates } from './invalidate'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
 import { createPublishMeta, createPublishPayloadByOne } from './publish'
@@ -113,12 +113,8 @@ export function createMutationFn<
 ): NonNullable<MutationOptions<TData, TError, TParams>['mutationFn']> {
 	return async function mutationFn(props) {
 		const resolvedProps = resolveMutationProps(getProps(), props)
-
-		const fetcher = getFetcher(resolvedProps, fetchers)
-		if (typeof fetcher.createOne !== 'function')
-			throw new Error('No')
-
-		const result = await fetcher.createOne<TData, TParams>(resolvedProps)
+		const createOne = getFetcherFn(resolvedProps, fetchers, 'createOne') as CreateOneFn<TData, TParams>
+		const result = await createOne(resolvedProps)
 		return result
 	}
 }

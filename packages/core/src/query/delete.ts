@@ -4,7 +4,7 @@ import type { CheckError } from '../auth'
 import type { TranslateFn } from '../i18n'
 import type { NotifyFn } from '../notification'
 import type { Publish } from '../realtime'
-import type { BaseRecord, DeleteOneProps, DeleteOneResult } from './fetcher'
+import type { BaseRecord, DeleteOneFn, DeleteOneProps, DeleteOneResult } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { InvalidatesProps, InvalidateTargetType, ResolvedInvalidatesProps } from './invalidate'
 import type { MutationModeProps, ResolvedMutationModeProps } from './mutation-mode'
@@ -15,7 +15,7 @@ import { NotificationType } from '../notification'
 import { RealtimeAction } from '../realtime/event'
 import { AbortDefer, defer } from '../utils/defer'
 import { getErrorMessage } from '../utils/error'
-import { getFetcher, resolveFetcherProps } from './fetchers'
+import { getFetcherFn, resolveFetcherProps } from './fetchers'
 import { createBaseQueryKey as genBaseGetListQueryKey } from './get-list'
 import { createBaseQueryKey as genBaseGetManyQueryKey } from './get-many'
 import { createQueryKey as genGetOneQueryKey } from './get-one'
@@ -136,12 +136,8 @@ export function createMutationFn<
 	return async function mutationFn(props) {
 		const resolvedProps = resolveMutationProps(getProps(), props)
 
-		const fetcher = getFetcher(resolvedProps, fetchers)
-		if (typeof fetcher.deleteOne !== 'function')
-			throw new Error('No')
-
-		const mutateFn = () =>
-			fetcher.deleteOne!<TData, TParams>(resolvedProps)
+		const deleteOne = getFetcherFn(resolvedProps, fetchers, 'deleteOne') as DeleteOneFn<TData, TParams>
+		const mutateFn = () => deleteOne(resolvedProps)
 
 		switch (resolvedProps.mutationMode) {
 			case MutationMode.Undoable: {

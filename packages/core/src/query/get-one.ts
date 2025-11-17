@@ -6,7 +6,7 @@ import type { TranslateFn } from '../i18n'
 import type { NotifyFn } from '../notification'
 import type { ResolvedRealtimeOptions, SubscribeOneParams } from '../realtime'
 import type { QueryEnabledFn } from '../utils/query'
-import type { BaseRecord, GetOneProps, GetOneResult } from './fetcher'
+import type { BaseRecord, GetOneFn, GetOneProps, GetOneResult } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { NotifyProps } from './notify'
 import type { RealtimeProps } from './realtime'
@@ -14,7 +14,7 @@ import { NotificationType } from '../notification'
 import { SubscribeType } from '../realtime'
 import { getErrorMessage } from '../utils/error'
 import { getQuery, resolveQueryEnableds } from '../utils/query'
-import { getFetcher, resolveFetcherProps } from './fetchers'
+import { getFetcherFn, resolveFetcherProps } from './fetchers'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
 import { createQueryKey as createResourceQueryKey } from './resource'
 
@@ -111,11 +111,8 @@ export function createQueryFn<
 ): QueryFunction<GetOneResult<TData>> {
 	return async function queryFn() {
 		const props = getProps()
-		const _fetcher = getFetcher(props, fetchers)
-		if (typeof _fetcher.getOne !== 'function')
-			throw new Error('No')
-
-		const result = await _fetcher.getOne<TData>(props)
+		const getOne = getFetcherFn(props, fetchers, 'getOne') as GetOneFn<TData>
+		const result = await getOne(props)
 
 		return result
 	}

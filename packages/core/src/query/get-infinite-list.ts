@@ -5,14 +5,14 @@ import type { CheckError } from '../auth'
 import type { TranslateFn } from '../i18n'
 import type { NotifyFn } from '../notification'
 import type { QueryEnabledFn } from '../utils/query'
-import type { BaseRecord, GetInfiniteListResult, GetListProps, GetOneResult, Pagination } from './fetcher'
+import type { BaseRecord, GetInfiniteListResult, GetListFn, GetListProps, GetOneResult, Pagination } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { NotifyProps } from './notify'
 import type { RealtimeProps } from './realtime'
 import { NotificationType } from '../notification'
 import { getErrorMessage } from '../utils/error'
 import { getQuery, resolveQueryEnableds } from '../utils/query'
-import { getFetcher, resolveFetcherProps } from './fetchers'
+import { getFetcherFn, resolveFetcherProps } from './fetchers'
 import { createQueryKey as createGetOneQueryKey } from './get-one'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
 
@@ -116,12 +116,9 @@ export function createQueryFn<
 ): QueryFunction<GetInfiniteListResult<TData, TPageParam>, QueryKey, TPageParam> {
 	return async function queryFn(context) {
 		const props = getProps()
-		const fetcher = getFetcher(props, fetchers)
 		const resolvedPagination = resolvePagination<TPageParam>(context, props.pagination)
-		if (typeof fetcher.getList !== 'function')
-			throw new Error('No')
-
-		const result = await fetcher.getList<TData, TPageParam>({
+		const getList = getFetcherFn(props, fetchers, 'getList') as unknown as GetListFn<TData, TPageParam>
+		const result = await getList({
 			...props,
 			pagination: resolvedPagination,
 		})

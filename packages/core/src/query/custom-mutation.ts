@@ -4,13 +4,13 @@ import type { CheckError } from '../auth'
 import type { TranslateFn } from '../i18n'
 import type { NotifyFn } from '../notification'
 import type { Publish } from '../realtime'
-import type { BaseRecord, CustomProps, CustomResult } from './fetcher'
+import type { BaseRecord, CustomFn, CustomProps, CustomResult } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { NotifyProps } from './notify'
 import type { OptionalMutateAsyncFunction, OptionalMutateSyncFunction, OriginMutateAsyncFunction, OriginMutateSyncFunction } from './types'
 import { NotificationType } from '../notification'
 import { getErrorMessage } from '../utils/error'
-import { getFetcher, resolveFetcherProps } from './fetchers'
+import { getFetcherFn, resolveFetcherProps } from './fetchers'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
 
 export type MutationProps<
@@ -131,11 +131,8 @@ export function createMutationFn<
 ): NonNullable<MutationOptions<TData, TError, TQuery, TPayload, TMutateResult>['mutationFn']> {
 	return async function mutationFn(props) {
 		const resolvedProps = resolveMutationProps(getProps(), props)
-		const fetcher = getFetcher(resolvedProps, fetchers)
-		if (typeof fetcher.custom !== 'function')
-			throw new Error('Not implemented custom on data provider')
-
-		const result = await fetcher.custom<TData, TQuery, TPayload>(resolvedProps)
+		const custom = getFetcherFn(resolvedProps, fetchers, 'custom') as CustomFn<TData, TQuery, TPayload>
+		const result = await custom(resolvedProps)
 
 		return result
 	}

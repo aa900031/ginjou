@@ -6,7 +6,7 @@ import type { TranslateFn } from '../i18n'
 import type { NotifyFn } from '../notification'
 import type { ResolvedRealtimeOptions, SubscribeListParams } from '../realtime'
 import type { QueryEnabledFn } from '../utils/query'
-import type { BaseRecord, GetListProps, GetListResult, GetOneResult } from './fetcher'
+import type { BaseRecord, GetListFn, GetListProps, GetListResult, GetOneResult } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { NotifyProps } from './notify'
 import type { RealtimeProps } from './realtime'
@@ -15,7 +15,7 @@ import { NotificationType } from '../notification'
 import { SubscribeType } from '../realtime'
 import { getErrorMessage } from '../utils/error'
 import { getQuery, resolveQueryEnableds } from '../utils/query'
-import { getFetcher, resolveFetcherProps } from './fetchers'
+import { getFetcherFn, resolveFetcherProps } from './fetchers'
 import { createQueryKey as createGetOneQueryKey } from './get-one'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
 import { createQueryKey as createResourceQueryKey } from './resource'
@@ -152,11 +152,8 @@ export function createQueryFn<
 ): NonNullable<QueryOptions<TData, TError, TResultData, TPageParam>['queryFn']> {
 	return async function queryFn() {
 		const props = getProps()
-		const _fetcher = getFetcher(props, fetchers)
-		if (typeof _fetcher.getList !== 'function')
-			throw new Error('No')
-
-		const result = await _fetcher.getList<TData, TPageParam>(props)
+		const getList = getFetcherFn(props, fetchers, 'getList') as unknown as GetListFn<TData, TPageParam>
+		const result = await getList(props)
 		updateCache(queryClient, props, result)
 
 		return result

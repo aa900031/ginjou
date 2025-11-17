@@ -5,14 +5,14 @@ import type { CheckError } from '../auth'
 import type { TranslateFn } from '../i18n'
 import type { NotifyFn } from '../notification'
 import type { QueryEnabledFn } from '../utils/query'
-import type { BaseRecord, CustomProps, CustomResult } from './fetcher'
+import type { BaseRecord, CustomFn, CustomProps, CustomResult } from './fetcher'
 import type { FetcherProps, Fetchers } from './fetchers'
 import type { NotifyProps } from './notify'
 import type { RealtimeProps } from './realtime'
 import { NotificationType } from '../notification'
 import { getErrorMessage } from '../utils/error'
 import { getQuery, resolveQueryEnableds } from '../utils/query'
-import { getFetcher } from './fetchers'
+import { getFetcherFn } from './fetchers'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
 
 export type QueryOptions<
@@ -137,11 +137,8 @@ export function createQueryFn<
 ): NonNullable<QueryOptions<TData, TError, TResultData>['queryFn']> {
 	return async function queryFn() {
 		const props = getProps()
-		const _fetcher = getFetcher(props, fetchers)
-		if (typeof _fetcher.custom !== 'function')
-			throw new Error('Not implemented custom on data provider')
-
-		const result = await _fetcher.custom<TData, TQuery, TPayload>(props)
+		const custom = getFetcherFn(props, fetchers, 'custom') as CustomFn<TData, TQuery, TPayload>
+		const result = await custom(props)
 
 		return result
 	}
