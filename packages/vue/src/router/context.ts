@@ -1,7 +1,7 @@
 import type { Router } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
 import type { InjectionKey } from 'vue-demi'
-import { inject, provide } from 'vue-demi'
+import { injectLocal, provideLocal } from '@vueuse/shared'
 
 const KEY: InjectionKey<Router<any, any>> = Symbol('@ginjou/router')
 
@@ -10,7 +10,7 @@ export function defineRouterContext<
 >(
 	value: T,
 ): T {
-	provide(KEY, value)
+	provideLocal(KEY, value)
 	return value
 }
 
@@ -42,7 +42,7 @@ export function useRouterContext<
 export function useRouterContext(
 	props?: UseRouterContextProps,
 ): Router<any, any> | undefined {
-	const value = inject(KEY, undefined) ?? props?.router
+	const value = injectLocal(KEY, undefined) ?? props?.router
 	if (props?.strict === true && value == null)
 		throw new Error('No')
 	return value

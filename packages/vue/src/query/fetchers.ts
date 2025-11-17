@@ -1,7 +1,7 @@
 import type { Fetchers } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
 import type { InjectionKey } from 'vue-demi'
-import { inject, provide } from 'vue-demi'
+import { injectLocal, provideLocal } from '@vueuse/shared'
 
 const KEY: InjectionKey<Fetchers> = Symbol('@ginjou/fetchers')
 
@@ -10,7 +10,7 @@ export function defineFetchersContext<
 >(
 	value: T,
 ): T {
-	provide(KEY, value)
+	provideLocal(KEY, value)
 	return value
 }
 
@@ -36,7 +36,7 @@ export function useFetchersContext(
 export function useFetchersContext(
 	props?: UseFetchersContextProps,
 ): Fetchers | undefined {
-	const value = inject(KEY, undefined) ?? props?.fetchers
+	const value = injectLocal(KEY, undefined) ?? props?.fetchers
 	if (props?.strict === true && value == null)
 		throw new Error('No')
 	return value

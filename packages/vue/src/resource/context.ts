@@ -1,7 +1,7 @@
 import type { Resource } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
 import type { InjectionKey } from 'vue-demi'
-import { inject, provide } from 'vue-demi'
+import { injectLocal, provideLocal } from '@vueuse/shared'
 
 const KEY: InjectionKey<Resource> = Symbol('@ginjou/resource')
 
@@ -10,7 +10,7 @@ export function defineResourceContext<
 >(
 	value: T,
 ): T {
-	provide(KEY, value)
+	provideLocal(KEY, value)
 	return value
 }
 
@@ -36,7 +36,7 @@ export function useResourceContext(
 export function useResourceContext(
 	props?: UseResourceContextProps,
 ): Resource | undefined {
-	const value = inject(KEY, undefined) ?? props?.resource
+	const value = injectLocal(KEY, undefined) ?? props?.resource
 	if (props?.strict === true && value == null)
 		throw new Error('No')
 	return value

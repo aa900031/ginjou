@@ -1,7 +1,7 @@
 import type { Realtime } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
 import type { InjectionKey } from 'vue-demi'
-import { inject, provide } from 'vue-demi'
+import { injectLocal, provideLocal } from '@vueuse/shared'
 
 const KEY: InjectionKey<Realtime> = Symbol('@ginjou/realtime')
 
@@ -10,7 +10,7 @@ export function defineRealtimeContext<
 >(
 	value: T,
 ): T {
-	provide(KEY, value)
+	provideLocal(KEY, value)
 	return value
 }
 
@@ -36,7 +36,7 @@ export function useRealtimeContext(
 export function useRealtimeContext(
 	props?: UseRealtimeContextProps,
 ): Realtime | undefined {
-	const value = inject(KEY, undefined) ?? props?.realtime
+	const value = injectLocal(KEY, undefined) ?? props?.realtime
 	if (props?.strict === true && value == null)
 		throw new Error('No')
 	return value

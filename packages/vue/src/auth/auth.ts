@@ -1,7 +1,7 @@
 import type { Auth } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
 import type { InjectionKey } from 'vue-demi'
-import { inject, provide } from 'vue-demi'
+import { injectLocal, provideLocal } from '@vueuse/shared'
 
 const KEY: InjectionKey<Auth> = Symbol('@ginjou/auth')
 
@@ -10,7 +10,7 @@ export function defineAuthContext<
 >(
 	value: T,
 ) {
-	provide(KEY, value)
+	provideLocal(KEY, value)
 	return value
 }
 
@@ -36,7 +36,7 @@ export function useAuthContext(
 export function useAuthContext(
 	props?: UseAuthContextProps,
 ): Auth | undefined {
-	const value = inject(KEY, undefined) ?? props?.auth
+	const value = injectLocal(KEY, undefined) ?? props?.auth
 	if (props?.strict === true && value == null)
 		throw new Error('No')
 	return value

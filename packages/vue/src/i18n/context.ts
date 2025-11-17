@@ -1,7 +1,7 @@
 import type { I18n } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
 import type { InjectionKey } from 'vue-demi'
-import { inject, provide } from 'vue-demi'
+import { injectLocal, provideLocal } from '@vueuse/shared'
 
 const KEY: InjectionKey<I18n> = Symbol('@ginjou/i18n')
 
@@ -10,7 +10,7 @@ export function defineI18nContext<
 >(
 	value: T,
 ): T {
-	provide(KEY, value)
+	provideLocal(KEY, value)
 	return value
 }
 
@@ -36,7 +36,7 @@ export function useI18nContext(
 export function useI18nContext(
 	props?: UseI18nContextProps,
 ): I18n | undefined {
-	const value = inject(KEY, undefined) ?? props?.i18n
+	const value = injectLocal(KEY, undefined) ?? props?.i18n
 	if (props?.strict === true && value == null)
 		throw new Error('No')
 	return value

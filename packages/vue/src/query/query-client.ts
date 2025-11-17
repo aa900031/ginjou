@@ -2,8 +2,7 @@ import type { DehydratedState, QueryClientConfig } from '@tanstack/vue-query'
 import type { Simplify } from 'type-fest'
 import type { InjectionKey } from 'vue-demi'
 import { hydrate, QueryClient } from '@tanstack/vue-query'
-import { tryOnBeforeMount, tryOnUnmounted } from '@vueuse/shared'
-import { inject, provide } from 'vue-demi'
+import { injectLocal, provideLocal, tryOnBeforeMount, tryOnUnmounted } from '@vueuse/shared'
 
 const KEY: InjectionKey<QueryClient> = Symbol('@ginjou/query-client')
 const queryClientMap = new Map<string, QueryClient>()
@@ -23,8 +22,8 @@ export function defineQueryClientContext(
 
 	queryClientMap.set(key, value)
 
-	provide(KEY, value)
-	provide('VUE_QUERY_CLIENT', value)
+	provideLocal(KEY, value)
+	provideLocal('VUE_QUERY_CLIENT', value)
 
 	tryOnBeforeMount(() => value.mount(), true)
 	tryOnUnmounted(() => {
@@ -49,7 +48,7 @@ export function useQueryClientContext(
 	if (props?.queryClient != null)
 		return props.queryClient
 
-	const value = inject(KEY, undefined)
+	const value = injectLocal(KEY, undefined)
 	if (value == null)
 		throw new Error('No \'queryClient\' found in context, use \'defineQueryClientContext\' to properly initialize the library.')
 
