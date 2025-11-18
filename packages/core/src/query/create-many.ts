@@ -4,7 +4,7 @@ import type { CheckError } from '../auth'
 import type { TranslateFn } from '../i18n'
 import type { NotifyFn } from '../notification'
 import type { Publish } from '../realtime'
-import type { BaseRecord, CreateManyProps, CreateManyResult } from './fetcher'
+import type { BaseRecord, CreateManyFn, CreateManyProps, CreateManyResult, CreateOneFn } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { InvalidatesProps, InvalidateTargetType, ResolvedInvalidatesProps } from './invalidate'
 import type { NotifyProps } from './notify'
@@ -13,7 +13,7 @@ import type { OptionalMutateAsyncFunction, OptionalMutateSyncFunction, OriginMut
 import { NotificationType } from '../notification'
 import { RealtimeAction } from '../realtime/event'
 import { getErrorMessage } from '../utils/error'
-import { getFetcher, resolveFetcherProps } from './fetchers'
+import { getFetcherFn, getSafeFetcherFn, resolveFetcherProps } from './fetchers'
 import { fakeMany } from './helper'
 import { InvalidateTarget, resolveInvalidateProps, triggerInvalidates } from './invalidate'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
@@ -113,15 +113,14 @@ export function createMutationFn<
 	}: CreateMutationFnProps<TData, TError, TParams>,
 ): NonNullable<MutationOptions<TData, TError, TParams>['mutationFn']> {
 	return async function mutationFn(props) {
-		const resolveProps = resolveMutationProps(getProps(), props)
+		const resolvedProps = resolveMutationProps(getProps(), props)
 
-		const fetcher = getFetcher(resolveProps, fetchers)
-		if (typeof fetcher.createMany === 'function')
-			return await fetcher.createMany<TData, TParams>(resolveProps)
-		if (typeof fetcher.createOne === 'function')
-			return await fakeMany(resolveProps.params.map(val => fetcher.createOne!<TData, TParams>({ ...resolveProps, params: val })))
+		const createMany = getSafeFetcherFn(resolvedProps, fetchers, 'createMany')
+		if (createMany != null)
+			return await (createMany as CreateManyFn<TData, TParams>)(resolvedProps)
 
-		throw new Error('No')
+		const createOne = getFetcherFn(resolvedProps, fetchers, 'createOne') as CreateOneFn<TData, TParams>
+		return await fakeMany(resolvedProps.params.map(val => createOne({ ...resolvedProps, params: val })))
 	}
 }
 

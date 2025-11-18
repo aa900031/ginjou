@@ -5,8 +5,8 @@ import type { QueryOptions as GetOneQueryOptions, QueryOptions } from '../query/
 import type { MutateAsyncFn as UpdateMutateFn, MutationOptionsFromProps as UpdateMutationOptionsFromProps, MutationProps as UpdateMutationProps } from '../query/update'
 import type { ResolvedResource, ResourceActionForForm, ResourceActionTypeValues } from '../resource'
 import type { NavigateToFn, NavigateToProps } from '../router'
-import { getFetcherName, MutationMode } from '../query'
-import { getResourceIdentifier, ResourceActionType } from '../resource'
+import { MutationMode } from '../query'
+import { getFetcherName, getResourceIdentifier, ResourceActionType } from '../resource'
 import { resolveQueryEnableds } from '../utils/query'
 
 export type RedirectTo<

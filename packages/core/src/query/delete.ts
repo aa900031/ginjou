@@ -137,11 +137,11 @@ export function createMutationFn<
 		const resolvedProps = resolveMutationProps(getProps(), props)
 
 		const deleteOne = getFetcherFn(resolvedProps, fetchers, 'deleteOne') as DeleteOneFn<TData, TParams>
-		const mutateFn = () => deleteOne(resolvedProps)
+		const executeFn = () => deleteOne(resolvedProps)
 
 		switch (resolvedProps.mutationMode) {
 			case MutationMode.Undoable: {
-				const deferResult = defer(mutateFn)
+				const deferResult = defer(executeFn)
 
 				notify(
 					createProgressNotifyParams({
@@ -157,7 +157,7 @@ export function createMutationFn<
 			}
 			case MutationMode.Optimistic:
 			case MutationMode.Pessimistic: {
-				const result = await mutateFn()
+				const result = await executeFn()
 				return result
 			}
 		}

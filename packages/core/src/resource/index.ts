@@ -1,5 +1,6 @@
 export * from './action'
 export * from './definition'
+export * from './fetcher-name'
 export * from './identifier'
 export * from './parse'
 export * from './path'

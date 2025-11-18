@@ -4,7 +4,7 @@ import type { CheckError } from '../auth'
 import type { TranslateFn } from '../i18n'
 import type { NotifyFn } from '../notification'
 import type { Publish } from '../realtime'
-import type { BaseRecord, DeleteManyProps, DeleteManyResult } from './fetcher'
+import type { BaseRecord, DeleteManyFn, DeleteManyProps, DeleteManyResult, DeleteOneFn } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { InvalidatesProps, InvalidateTargetType, ResolvedInvalidatesProps } from './invalidate'
 import type { MutationModeProps, ResolvedMutationModeProps } from './mutation-mode'
@@ -15,7 +15,7 @@ import { NotificationType } from '../notification'
 import { RealtimeAction } from '../realtime/event'
 import { AbortDefer, defer } from '../utils/defer'
 import { getErrorMessage } from '../utils/error'
-import { getFetcher, resolveFetcherProps } from './fetchers'
+import { getFetcherFn, getSafeFetcherFn, resolveFetcherProps } from './fetchers'
 import { createBaseQueryKey as genBaseGetListQueryKey } from './get-list'
 import { createBaseQueryKey as genBaseGetManyQueryKey } from './get-many'
 import { createQueryKey as genGetOneQueryKey } from './get-one'
@@ -136,19 +136,11 @@ export function createMutationFn<
 ): NonNullable<MutationOptions<TData, TError, TParams>['mutationFn']> {
 	return async function mutationFn(props) {
 		const resolvedProps = resolveMutationProps(getProps(), props)
-
-		const fetcher = getFetcher(resolvedProps, fetchers)
-		const mutateFn = typeof fetcher.deleteMany === 'function'
-			? () => fetcher.deleteMany!<TData, TParams>(resolvedProps)
-			: typeof fetcher.deleteOne === 'function'
-				? () => fakeMany(resolvedProps.ids.map(id => fetcher.deleteOne!<TData, TParams>({ ...resolvedProps, id })))
-				: undefined
-		if (mutateFn == null)
-			throw new Error('No')
+		const executeFn = createExecuteFn(resolvedProps)
 
 		switch (resolvedProps.mutationMode) {
 			case MutationMode.Undoable: {
-				const deferResult = defer(mutateFn)
+				const deferResult = defer(executeFn)
 
 				notify(
 					createProgressNotifyParams({
@@ -164,10 +156,20 @@ export function createMutationFn<
 			}
 			case MutationMode.Optimistic:
 			case MutationMode.Pessimistic: {
-				const result = await mutateFn()
+				const result = await executeFn()
 				return result
 			}
 		}
+	}
+
+	function createExecuteFn(
+		resolvedProps: ResolvedMutationProps<TData, TError, TParams>,
+	) {
+		const deleteMany = getSafeFetcherFn(resolvedProps, fetchers, 'deleteMany')
+		if (deleteMany != null)
+			return () => (deleteMany as DeleteManyFn<TData, TParams>)(resolvedProps)
+		const deleteOne = getFetcherFn(resolvedProps, fetchers, 'deleteOne') as DeleteOneFn<TData, TParams>
+		return () => fakeMany(resolvedProps.ids.map(id => deleteOne({ ...resolvedProps, id })))
 	}
 }
 

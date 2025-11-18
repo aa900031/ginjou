@@ -6,7 +6,7 @@ import type { TranslateFn } from '../i18n'
 import type { NotifyFn } from '../notification'
 import type { ResolvedRealtimeOptions, SubscribeManyParams } from '../realtime'
 import type { QueryEnabledFn } from '../utils/query'
-import type { BaseRecord, Fetcher, GetManyProps, GetManyResult, GetOneResult } from './fetcher'
+import type { BaseRecord, GetManyFn, GetManyProps, GetManyResult, GetOneResult } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { ResolvedQueryProps as GetOneResolvedQueryProps } from './get-one'
 import type { NotifyProps } from './notify'
@@ -18,7 +18,7 @@ import { SubscribeType } from '../realtime'
 import { getErrorMessage } from '../utils/error'
 import { getQuery, resolveQueryEnableds } from '../utils/query'
 import { createAggregrateFn } from './aggregrate'
-import { getFetcher, resolveFetcherProps } from './fetchers'
+import { getFetcherFn, getSafeFetcherFn, resolveFetcherProps } from './fetchers'
 import { createQueryKey as createGetOneQueryKey } from './get-one'
 import { fakeMany } from './helper'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
@@ -147,11 +147,10 @@ export function createQueryFn<
 		if (!props.ids || !props.ids.length)
 			return EMPTY_RESULT
 
-		const _fetcher = getFetcher(props, fetchers)
 		const result = props.aggregate
 			// eslint-disable-next-line ts/no-use-before-define
-			? await aggregExecGetMany(props, _fetcher)
-			: await execGetMany(props, _fetcher)
+			? await aggregExecGetMany(props, fetchers)
+			: await execGetMany(props, fetchers)
 
 		updateCache(queryClient, props, result)
 
@@ -341,14 +340,13 @@ function execGetMany<
 	TData extends BaseRecord,
 >(
 	props: ResolvedQueryProps,
-	fetcher: Fetcher,
+	fetchers: Fetchers,
 ) {
-	if (typeof fetcher.getMany === 'function')
-		return fetcher.getMany<TData>(props)
-	if (typeof fetcher.getOne === 'function')
-		return fakeMany(props.ids.map(id => fetcher.getOne!<TData>({ ...props, id })))
-
-	throw new Error('No')
+	const getMany = getSafeFetcherFn(props, fetchers, 'getMany')
+	if (getMany != null)
+		return (getMany as GetManyFn<TData>)(props)
+	const getOne = getFetcherFn(props, fetchers, 'getOne')
+	return fakeMany(props.ids.map(id => getOne({ ...props, id })))
 }
 
 const aggregExecGetMany = createAggregrateFn(

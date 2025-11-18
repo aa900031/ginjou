@@ -2,15 +2,15 @@ export * as CreateOne from './create'
 export * as CreateMany from './create-many'
 export * as Custom from './custom'
 export * as CustomMutation from './custom-mutation'
-
 export * as DeleteOne from './delete'
-
 export * as DeleteMany from './delete-many'
+
 export * from './fetcher'
+export type {
+	Fetchers,
+} from './fetchers'
 
-export * from './fetchers'
 export * as GetInfiniteList from './get-infinite-list'
-
 export * as GetList from './get-list'
 export * as GetMany from './get-many'
 export * as GetOne from './get-one'
