@@ -144,7 +144,7 @@ export function createMutationFn<
 
 				notify(
 					createProgressNotifyParams({
-						method: 'deleteMany',
+						method: 'updateMany',
 						props: resolvedProps,
 						defer: deferResult,
 						translate,
