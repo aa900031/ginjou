@@ -2,7 +2,7 @@ import type { QueryFunction, QueryKey, QueryObserverOptions } from '@tanstack/qu
 import type { QueryCallbacks } from 'tanstack-query-callbacks'
 import type { Simplify } from 'type-fest'
 import type { OriginQueryEnabledFn } from '../utils/query'
-import type { Auth } from './auth'
+import type { Auth, GetIdentityFn } from './auth'
 import { resolveQueryEnableds } from '../utils/query'
 
 export type QueryOptions<
@@ -62,7 +62,7 @@ export function createQueryFn<
 			throw new Error('No')
 
 		const params = getParams()
-		const result = await getIdentity(params)
+		const result = await (getIdentity as GetIdentityFn<TData, TParams>)(params)
 		return result as TData
 	}
 }

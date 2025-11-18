@@ -1,5 +1,5 @@
 import type { SetOptional, SetRequired, Simplify } from 'type-fest'
-import type { Realtime, SubscribeProps } from './realtime'
+import type { Realtime, SubscribeFn, SubscribeProps } from './realtime'
 import { noop } from 'es-toolkit'
 import { RealtimeAction } from './event'
 
@@ -63,7 +63,7 @@ export function register<
 	if (!realtime || !isEnabled)
 		return noop
 
-	const id = realtime.subscribe<TPayload>(rest)
+	const id = (realtime.subscribe as SubscribeFn<TPayload>)(rest)
 
 	return () => {
 		realtime!.unsubscribe?.(id)

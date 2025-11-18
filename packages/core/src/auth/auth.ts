@@ -1,6 +1,6 @@
 import type { RouterGoParams } from '../router'
 
-export interface AuthCommonObjectResult {
+export interface LoginResult {
 	redirectTo?:
 		| false
 		| string
@@ -8,33 +8,64 @@ export interface AuthCommonObjectResult {
 	ignoreInvalidate?: boolean
 }
 
-export type AuthCommonResult
-	= | void
-		| false // prevent redirect
-		| string // redirect to path
-		| AuthCommonObjectResult
+export type LoginFn<
+	TParams,
+> = (
+	params?: TParams,
+) => Promise<LoginResult>
 
-export type AuthLoginResult = AuthCommonResult
+export interface LogoutResult {
+	redirectTo?:
+		| false
+		| string
+		| RouterGoParams
+	ignoreInvalidate?: boolean
+}
 
-export type AuthLogoutResult = AuthCommonResult
+export type LogoutFn<
+	TParams,
+> = (
+	params?: TParams,
+) => Promise<LogoutResult>
 
-export interface AuthCheckResult {
+export interface CheckAuthResult {
 	authenticated: boolean
 }
 
-export interface AuthCheckErrorResult {
+export type CheckAuthFn<
+	TParams,
+> = (
+	params?: TParams,
+) => Promise<CheckAuthResult>
+
+export interface CheckAuthErrorResult<
+	TError,
+> {
 	redirectTo?:
 		| false
 		| string
 		| RouterGoParams
 	logout?: boolean
-	error?: Error | unknown
+	error?: TError
 }
 
+export type CheckAuthErrorFn<
+	TError,
+> = (
+	error: TError,
+) => Promise<CheckAuthErrorResult<TError>>
+
+export type GetIdentityFn<
+	TData,
+	TParams,
+> = (
+	params?: TParams,
+) => Promise<TData>
+
 export interface Auth {
-	login: (params: any) => Promise<AuthLoginResult>
-	logout: (params: any) => Promise<AuthLogoutResult>
-	check: (params?: any) => Promise<AuthCheckResult>
-	checkError: (error: unknown) => Promise<AuthCheckErrorResult>// TODO: Can return void or undefind
-	getIdentity?: (params?: any) => Promise<unknown>
+	login: LoginFn<unknown>
+	logout: LogoutFn<unknown>
+	check: CheckAuthFn<unknown>
+	checkError: CheckAuthErrorFn<unknown>
+	getIdentity?: GetIdentityFn<unknown, unknown>
 }

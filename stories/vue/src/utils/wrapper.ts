@@ -127,10 +127,14 @@ function createAuth(): Auth {
 		login: async () => {
 			await delay(500)
 			;(window as any).__AUTH = 'user001'
+
+			return {}
 		},
 		logout: async () => {
 			await delay(500)
 			;(window as any).__AUTH = undefined
+
+			return {}
 		},
 		check: async () => {
 			await delay(500)

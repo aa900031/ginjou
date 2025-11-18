@@ -54,9 +54,9 @@ export interface SubscribeProps<
 	meta?: Meta
 }
 
-export type SubscribeFn = <
+export type SubscribeFn<
 	TPayload,
->(
+> = (
 	props: SubscribeProps<TPayload>,
 ) => UnsubscribeKey
 
@@ -69,9 +69,9 @@ export type UnsubscribeFn = (
 	props: UnsubscribeProps,
 ) => void
 
-export type PublishFn = <
+export type PublishFn<
 	TPayload,
->(
+> = (
 	event: RealtimeEvent<TPayload>,
 ) => void
 
@@ -99,8 +99,8 @@ export type ResolvedRealtimeOptions<
 >
 
 export interface Realtime {
-	subscribe: SubscribeFn
+	subscribe: SubscribeFn<unknown>
 	unsubscribe?: UnsubscribeFn
-	publish?: PublishFn
+	publish?: PublishFn<unknown>
 	options?: RealtimeContextOptions<unknown>
 }

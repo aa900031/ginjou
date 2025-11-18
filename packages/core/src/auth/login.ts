@@ -3,7 +3,7 @@ import type { TranslateFn } from '../i18n'
 import type { NotifyFn } from '../notification'
 import type { OptionalMutateAsyncFunction, OptionalMutateSyncFunction, OriginMutateAsyncFunction, OriginMutateSyncFunction } from '../query/types'
 import type { RouterGoFn, RouterGoParams } from '../router'
-import type { Auth, AuthCommonObjectResult, AuthLoginResult } from './auth'
+import type { Auth, LoginFn, LoginResult } from './auth'
 import { NotificationType } from '../notification'
 import { RouterGoType } from '../router'
 import { getErrorMessage } from '../utils/error'
@@ -14,7 +14,7 @@ export type MutationOptions<
 	TParams,
 	TError,
 > = MutationObserverOptions<
-	AuthLoginResult,
+	LoginResult,
 	TError,
 	TParams
 >
@@ -31,7 +31,7 @@ export type MutateFn<
 	TParams,
 	TError,
 > = OptionalMutateSyncFunction<
-	AuthLoginResult,
+	LoginResult,
 	TError,
 	TParams
 >
@@ -40,7 +40,7 @@ export type MutateAsyncFn<
 	TParams,
 	TError,
 > = OptionalMutateAsyncFunction<
-	AuthLoginResult,
+	LoginResult,
 	TError,
 	TParams
 >
@@ -49,7 +49,7 @@ export interface Props<
 	TParams,
 	TError,
 > {
-	redirectTo?: AuthCommonObjectResult['redirectTo']
+	redirectTo?: LoginResult['redirectTo']
 	ignoreInvalidate?: boolean
 	mutationOptions?: MutationOptionsFromProps<TParams, TError>
 }
@@ -71,13 +71,13 @@ export function createMutationFn<
 	{
 		auth,
 	}: CreateMutationFnProps,
-): MutationFunction<AuthLoginResult, TParams> {
+): MutationFunction<LoginResult, TParams> {
 	return async function mutationFn(params) {
 		const { login } = auth ?? {}
 		if (typeof login !== 'function')
 			throw new Error('No')
 
-		const result = await login(params)
+		const result = await (login as LoginFn<TParams>)(params)
 		return result
 	}
 }
@@ -87,7 +87,7 @@ export interface CreateSuccessHandlerProps<
 	TError,
 > {
 	queryClient: QueryClient
-	go: RouterGoFn
+	go: RouterGoFn<unknown>
 	getProps: () => Props<TParams, TError> | undefined
 	onSuccess: MutationOptions<TParams, TError>['onSuccess']
 }
@@ -129,7 +129,7 @@ export interface CreateErrorHandlerProps<
 > {
 	notify: NotifyFn
 	translate: TranslateFn<unknown>
-	go: RouterGoFn
+	go: RouterGoFn<unknown>
 	onError: MutationOptions<TParams, TError>['onError']
 }
 
@@ -171,7 +171,7 @@ export interface CreateMutateFnProps<
 	TParams,
 > {
 	originFn: OriginMutateSyncFunction<
-		AuthLoginResult,
+		LoginResult,
 		TError,
 		TParams
 	>
@@ -195,7 +195,7 @@ export interface CreateMutateAsyncFnProps<
 	TParams,
 > {
 	originFn: OriginMutateAsyncFunction<
-		AuthLoginResult,
+		LoginResult,
 		TError,
 		TParams
 	>

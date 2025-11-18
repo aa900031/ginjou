@@ -7,9 +7,7 @@ export function defineI18nBinding<
 	TUseI18nOptions extends UseI18nOptions = UseI18nOptions,
 >(
 	options?: TUseI18nOptions,
-): I18n<
-	Record<string, unknown> | unknown[]
-> {
+): I18n {
 	const i18n = useI18n<TUseI18nOptions>(options)
 
 	return {

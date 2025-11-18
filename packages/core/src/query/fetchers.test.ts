@@ -49,7 +49,7 @@ describe('getFetcher', () => {
 })
 
 describe('getFetcherFn', () => {
-	const mockGetOneFn: GetOneFn = async () => ({ data: { id: '1', name: 'foo' } })
+	const mockGetOneFn: GetOneFn<any> = async () => ({ data: { id: '1', name: 'foo' } })
 	const mockFetchers = {
 		default: {
 			getOne: mockGetOneFn,
@@ -69,7 +69,7 @@ describe('getFetcherFn', () => {
 })
 
 describe('getSafeFetcherFn', () => {
-	const mockGetOneFn: GetOneFn = async () => ({ data: { id: '1', name: 'foo' } })
+	const mockGetOneFn: GetOneFn<any> = async () => ({ data: { id: '1', name: 'foo' } })
 	const mockFetchers = {
 		default: {
 			getOne: mockGetOneFn,

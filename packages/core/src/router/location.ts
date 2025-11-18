@@ -12,9 +12,11 @@ export interface RouterLocation<
 }
 
 export type RouterGetLocationFn<
-	TMeta = unknown,
+	TMeta,
 > = () => RouterLocation<TMeta>
 
 export type RouterOnChangeLocationFn<
-	TMeta = unknown,
-> = (handler: (value: RouterLocation<TMeta>) => void) => () => void
+	TMeta,
+> = (
+	handler: (value: RouterLocation<TMeta>) => void,
+) => () => void

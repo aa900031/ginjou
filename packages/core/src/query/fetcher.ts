@@ -282,7 +282,7 @@ export interface GetOneResult<
 }
 
 export type GetOneFn<
-	TData extends BaseRecord = BaseRecord,
+	TData extends BaseRecord,
 > = (
 	props: GetOneProps,
 ) => Promise<GetOneResult<TData>>
@@ -300,7 +300,7 @@ export interface GetManyResult<
 }
 
 export type GetManyFn<
-	TData extends BaseRecord = BaseRecord,
+	TData extends BaseRecord,
 > = (
 	props: GetManyProps,
 ) => Promise<GetManyResult<TData>>
@@ -338,21 +338,21 @@ export type GetListResult<
 		| GetInfiniteListResult<TData, TPageParam>
 
 export type GetListFn<
-	TData extends BaseRecord = BaseRecord,
-	TPageParam = number,
+	TData extends BaseRecord,
+	TPageParam,
 > = (
 	props: GetListProps<TPageParam>,
 ) => Promise<GetListResult<TData, TPageParam>>
 
 export interface Fetcher {
-	getList?: GetListFn
-	getMany?: GetManyFn
-	getOne?: GetOneFn
-	createOne?: CreateOneFn
-	createMany?: CreateManyFn
-	updateOne?: UpdateOneFn
-	updateMany?: UpdateManyFn
-	deleteOne?: DeleteOneFn
-	deleteMany?: DeleteManyFn
-	custom?: CustomFn
+	getList?: GetListFn<BaseRecord, unknown>
+	getMany?: GetManyFn<BaseRecord>
+	getOne?: GetOneFn<BaseRecord>
+	createOne?: CreateOneFn<BaseRecord, unknown>
+	createMany?: CreateManyFn<BaseRecord, unknown>
+	updateOne?: UpdateOneFn<BaseRecord, unknown>
+	updateMany?: UpdateManyFn<BaseRecord, unknown>
+	deleteOne?: DeleteOneFn<BaseRecord, unknown>
+	deleteMany?: DeleteManyFn<BaseRecord, unknown>
+	custom?: CustomFn<BaseRecord, unknown, unknown>
 }

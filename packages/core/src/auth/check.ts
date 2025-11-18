@@ -2,18 +2,18 @@ import type { QueryFunction, QueryKey, QueryObserverOptions } from '@tanstack/qu
 import type { QueryCallbacks } from 'tanstack-query-callbacks'
 import type { Simplify } from 'type-fest'
 import type { OriginQueryEnabledFn } from '../utils/query'
-import type { Auth, AuthCheckResult } from './auth'
+import type { Auth, CheckAuthFn, CheckAuthResult } from './auth'
 import { resolveQueryEnableds } from '../utils/query'
 
 export type QueryOptions<
 	TError,
 > = Simplify<
 	& QueryObserverOptions<
-		AuthCheckResult,
+		CheckAuthResult,
 		TError
 	>
 	& QueryCallbacks<
-		AuthCheckResult,
+		CheckAuthResult,
 		TError
 	>
 >
@@ -57,14 +57,14 @@ export function createQueryFn<
 		auth,
 		getParams,
 	}: CreateQueryFnProps<TParams>,
-): QueryFunction<AuthCheckResult> {
+): QueryFunction<CheckAuthResult> {
 	return async function queryFn() {
 		const { check } = auth ?? {}
 		if (typeof check !== 'function')
 			throw new Error('No')
 
 		const params = getParams()
-		const result = await check(params)
+		const result = await (check as CheckAuthFn<TParams>)(params)
 
 		return result
 	}
@@ -84,7 +84,7 @@ export function createQueryEnabledFn<
 		getAuth,
 		getEnabled,
 	}: CreateQueryEnabledFnProps<TError>,
-): OriginQueryEnabledFn<AuthCheckResult, TError, AuthCheckResult> {
+): OriginQueryEnabledFn<CheckAuthResult, TError, CheckAuthResult> {
 	return function enabled(
 		query,
 	) {

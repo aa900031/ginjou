@@ -1,4 +1,4 @@
-import type { AuthLoginResult } from '@ginjou/core'
+import type { LoginResult } from '@ginjou/core'
 import type { UseMutationReturnType } from '@tanstack/vue-query'
 import type { OverrideProperties, Simplify } from 'type-fest'
 import type { UseTranslateContext } from '../i18n'
@@ -37,7 +37,7 @@ export type UseLoginResult<
 	TError,
 > = OverrideProperties<
 	UseMutationReturnType<
-		AuthLoginResult,
+		LoginResult,
 		TError,
 		TParams,
 		unknown
@@ -61,7 +61,7 @@ export function useLogin<
 	const notify = useNotify(context)
 	const translate = useTranslate(context)
 
-	const mutation = useMutation<AuthLoginResult, TError, TParams>(computed(() => ({
+	const mutation = useMutation<LoginResult, TError, TParams>(computed(() => ({
 		...unref(props?.mutationOptions),
 		mutationKey: Login.createMutationKey(),
 		mutationFn: Login.createMutationFn({

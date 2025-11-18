@@ -1,4 +1,4 @@
-import type { AuthCheckErrorResult } from '@ginjou/core'
+import type { CheckAuthErrorResult } from '@ginjou/core'
 import type { UseMutationReturnType } from '@tanstack/vue-query'
 import type { Simplify } from 'type-fest'
 import type { UseQueryClientContextProps } from '../query'
@@ -32,7 +32,7 @@ export type UseCheckErrorResult<
 	TParams,
 	TError,
 > = UseMutationReturnType<
-	AuthCheckErrorResult,
+	CheckAuthErrorResult<TParams>,
 	TError,
 	TParams,
 	unknown
@@ -50,7 +50,7 @@ export function useCheckError<
 	const go = useGo(context)
 	const { mutateAsync: logout } = useLogout(undefined, context)
 
-	return useMutation<AuthCheckErrorResult, TError, TParams>(computed(() => ({
+	return useMutation<CheckAuthErrorResult<TParams>, TError, TParams>(computed(() => ({
 		...unref(props?.mutationOptions),
 		mutationKey: CheckError.createMutationKey(),
 		mutationFn: CheckError.createMutationFn({

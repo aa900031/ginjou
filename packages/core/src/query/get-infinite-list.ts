@@ -117,7 +117,7 @@ export function createQueryFn<
 	return async function queryFn(context) {
 		const props = getProps()
 		const resolvedPagination = resolvePagination<TPageParam>(context, props.pagination)
-		const getList = getFetcherFn(props, fetchers, 'getList') as unknown as GetListFn<TData, TPageParam>
+		const getList = getFetcherFn(props, fetchers, 'getList') as GetListFn<TData, TPageParam>
 		const result = await getList({
 			...props,
 			pagination: resolvedPagination,

@@ -1,10 +1,10 @@
 import type { RouterGoParams } from '../router'
-import type { AuthCommonObjectResult, AuthCommonResult } from './auth'
+import type { LoginResult, LogoutResult } from './auth'
 
 export function resolveRedirectTo(
-	data: AuthCommonResult,
-	propsFromFn: any & Partial<AuthCommonObjectResult>,
-	propsFromProps: Partial<AuthCommonObjectResult> | undefined,
+	data: LoginResult | LogoutResult,
+	propsFromFn: any & Partial<LoginResult | LogoutResult>,
+	propsFromProps: Partial<LoginResult | LogoutResult> | undefined,
 ): RouterGoParams | false | undefined {
 	return getRedirectTo(data)
 		?? getRedirectToByObject(propsFromFn)
@@ -12,9 +12,9 @@ export function resolveRedirectTo(
 }
 
 export function resolveIgnoreInvalidate(
-	data: AuthCommonResult,
-	propsFromFn: any & Partial<AuthCommonObjectResult>,
-	propsFromProps: Partial<AuthCommonObjectResult> | undefined,
+	data: LoginResult | LogoutResult,
+	propsFromFn: any & Partial<LoginResult | LogoutResult>,
+	propsFromProps: Partial<LoginResult | LogoutResult> | undefined,
 ): boolean | undefined {
 	return getIgnoreInvalidate(data)
 		?? getIgnoreInvalidate(propsFromFn)
@@ -22,12 +22,10 @@ export function resolveIgnoreInvalidate(
 }
 
 export function getRedirectTo(
-	data: AuthCommonResult,
+	data: LoginResult | LogoutResult | undefined | void,
 ): RouterGoParams | false | undefined {
 	if (data == null)
 		return
-	if (data === false)
-		return false
 	if (typeof data === 'string')
 		return { to: data }
 
@@ -35,7 +33,7 @@ export function getRedirectTo(
 }
 
 export function getRedirectToByObject(
-	data: AuthCommonObjectResult | Partial<AuthCommonObjectResult> | undefined,
+	data: LoginResult | LogoutResult | Partial<LoginResult | LogoutResult> | undefined | void,
 ): RouterGoParams | false | undefined {
 	if (data != null && typeof data === 'object' && 'redirectTo' in data) {
 		if (typeof data.redirectTo === 'string')
@@ -45,7 +43,7 @@ export function getRedirectToByObject(
 }
 
 export function getIgnoreInvalidate(
-	data: AuthCommonResult,
+	data: LoginResult | LogoutResult | undefined | void,
 ): boolean | undefined {
 	if (data != null && typeof data === 'object' && 'ignoreInvalidate' in data)
 		return data.ignoreInvalidate
