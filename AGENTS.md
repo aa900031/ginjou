@@ -8,22 +8,22 @@ Ginjou is a headless, framework-agnostic, progressive library for building admin
 
 ### Core Features
 
-*   **Framework-Agnostic:** Use it with Vue, Nuxt, or bring your own framework.
-*   **Any Backend:** Connect to any backend with ease. Pre-built providers for REST APIs, Supabase, and Directus are available.
-*   **Authentication & Authorization:** Manage user sessions and control access to resources.
-*   **Realtime Streaming:** Automatically update state when content changes.
+- **Framework-Agnostic:** Use it with Vue, Nuxt, or bring your own framework.
+- **Any Backend:** Connect to any backend with ease. Pre-built providers for REST APIs, Supabase, and Directus are available.
+- **Authentication & Authorization:** Manage user sessions and control access to resources.
+- **Realtime Streaming:** Automatically update state when content changes.
 
 ## Monorepo Structure
 
 This project is a monorepo managed by pnpm workspaces and Turbo.
 
--   `packages/`: Contains all the public-facing packages.
-    -   `core/`: The core framework-agnostic library.
-    -   `vue/`: The Vue 3 adapter.
-    -   `nuxt/`: The Nuxt 3, 4 module.
-    -   `with-*`: Integration packages for various services and libraries.
--   `stories/`: Contains Storybook applications for showcasing components and features.
--   `internals/`: Contains internal packages used for development, like tsconfig.
+- `packages/`: Contains all the public-facing packages.
+  - `core/`: The core framework-agnostic library.
+  - `vue/`: The Vue 3 adapter.
+  - `nuxt/`: The Nuxt 3, 4 module.
+  - `with-*`: Integration packages for various services and libraries.
+- `stories/`: Contains Storybook applications for showcasing components and features.
+- `internals/`: Contains internal packages used for development, like tsconfig.
 
 ## Development
 

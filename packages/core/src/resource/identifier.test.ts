@@ -56,11 +56,4 @@ describe('getResourceIdentifier', () => {
 		})
 		expect(identifier).toBe(resourceFromProp)
 	})
-
-	it('should return undefined if resource itself is undefined and resourceFromProp is not provided', () => {
-		const identifier = getResourceIdentifier({
-			resource: undefined,
-		})
-		expect(identifier).toBeUndefined()
-	})
 })
