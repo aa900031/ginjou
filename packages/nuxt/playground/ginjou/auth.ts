@@ -11,7 +11,9 @@ export default () => defineAuthContext({
 	},
 	logout: async () => {
 		delete (globalThis as any)._AUTH
-		return false
+		return {
+			redirectTo: false,
+		}
 	},
 	getIdentity: () => {
 		return (globalThis as any)._AUTH

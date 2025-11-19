@@ -1,11 +1,12 @@
+import type { BaseRecord, Params } from '@ginjou/core'
 import type { UseGetIdentityContext, UseGetIdentityProps, UseGetIdentityResult } from '@ginjou/vue'
 import type { AsyncResult } from '../utils/async'
 import { useGetIdentity } from '@ginjou/vue'
 import { withAsync } from '../utils/async'
 
 export function useAsyncGetIdentity<
-	TData = unknown,
-	TParams = unknown,
+	TData extends BaseRecord = BaseRecord,
+	TParams extends Params = Params,
 	TError = unknown,
 >(
 	props?: UseGetIdentityProps<TData, TParams, TError>,
