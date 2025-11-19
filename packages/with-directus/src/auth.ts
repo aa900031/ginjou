@@ -49,11 +49,9 @@ export function createAuth<
 					})
 					break
 			}
-			return {}
 		},
 		logout: async () => {
 			await client.logout()
-			return {}
 		},
 		check: async () => {
 			const token = await client.getToken()
@@ -70,7 +68,7 @@ export function createAuth<
 				error,
 			}
 		},
-		getIdentity: async (): Promise<any> => {
+		getIdentity: async (): Promise<Record<any, any>> => {
 			const data = await client.request(readMe())
 			return data
 		},
