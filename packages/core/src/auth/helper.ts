@@ -26,8 +26,6 @@ export function getRedirectTo(
 ): RouterGoParams | false | undefined {
 	if (data == null)
 		return
-	if (typeof data === 'string')
-		return { to: data }
 
 	return getRedirectToByObject(data)
 }
