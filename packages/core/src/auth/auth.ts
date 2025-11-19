@@ -1,3 +1,4 @@
+import type { BaseRecord, Params } from '../query'
 import type { RouterGoParams } from '../router'
 
 export interface LoginResult {
@@ -9,10 +10,10 @@ export interface LoginResult {
 }
 
 export type LoginFn<
-	TParams,
+	TParams extends Params,
 > = (
 	params?: TParams,
-) => Promise<LoginResult>
+) => Promise<LoginResult | void>
 
 export interface LogoutResult {
 	redirectTo?:
@@ -23,17 +24,17 @@ export interface LogoutResult {
 }
 
 export type LogoutFn<
-	TParams,
+	TParams extends Params,
 > = (
 	params?: TParams,
-) => Promise<LogoutResult>
+) => Promise<LogoutResult | void>
 
 export interface CheckAuthResult {
 	authenticated: boolean
 }
 
 export type CheckAuthFn<
-	TParams,
+	TParams extends Params,
 > = (
 	params?: TParams,
 ) => Promise<CheckAuthResult>
@@ -56,16 +57,23 @@ export type CheckAuthErrorFn<
 ) => Promise<CheckAuthErrorResult<TError>>
 
 export type GetIdentityFn<
-	TData,
-	TParams,
+	TData extends BaseRecord,
+	TParams extends Params,
 > = (
 	params?: TParams,
 ) => Promise<TData>
 
 export interface Auth {
-	login: LoginFn<unknown>
-	logout: LogoutFn<unknown>
-	check: CheckAuthFn<unknown>
+	login: LoginFn<any>
+	logout: LogoutFn<any>
+	check: CheckAuthFn<any>
 	checkError: CheckAuthErrorFn<unknown>
-	getIdentity?: GetIdentityFn<unknown, unknown>
+	getIdentity?: GetIdentityFn<BaseRecord, any>
+}
+
+/* @__NO_SIDE_EFFECTS__ */
+export function defineAuth<T extends Auth>(
+	value: T,
+): T {
+	return value
 }

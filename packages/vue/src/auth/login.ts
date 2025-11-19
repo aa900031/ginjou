@@ -1,4 +1,4 @@
-import type { LoginResult } from '@ginjou/core'
+import type { LoginResult, Params } from '@ginjou/core'
 import type { UseMutationReturnType } from '@tanstack/vue-query'
 import type { OverrideProperties, Simplify } from 'type-fest'
 import type { UseTranslateContext } from '../i18n'
@@ -18,7 +18,7 @@ import { unrefs } from '../utils/unrefs'
 import { useAuthContext } from './auth'
 
 export type UseLoginProps<
-	TParams,
+	TParams extends Params,
 	TError,
 > = ToMaybeRefs<
 	& Login.Props<TParams, TError>
@@ -33,7 +33,7 @@ export type UseLoginContext = Simplify<
 >
 
 export type UseLoginResult<
-	TParams,
+	TParams extends Params,
 	TError,
 > = OverrideProperties<
 	UseMutationReturnType<
@@ -49,7 +49,7 @@ export type UseLoginResult<
 >
 
 export function useLogin<
-	TParams = unknown,
+	TParams extends Params = Params,
 	TError = unknown,
 >(
 	props?: UseLoginProps<TParams, TError>,

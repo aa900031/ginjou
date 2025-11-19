@@ -26,11 +26,24 @@ export type OpenNotificationParams
 	= | NormalNotificationParams
 		| ProgressNotificationParams
 
-export type NotificationOpenFn = (params: OpenNotificationParams) => void
+export type NotificationOpenFn = (
+	params: OpenNotificationParams,
+) => void
 
-export type NotificationCloseFn = (key: string) => void
+export type NotificationCloseFn = (
+	key: string,
+) => void
 
 export interface Notification {
 	open: NotificationOpenFn
 	close: NotificationCloseFn
+}
+
+/* @__NO_SIDE_EFFECTS__ */
+export function defineNotification<
+	T extends Notification,
+>(
+	value: T,
+): T {
+	return value
 }

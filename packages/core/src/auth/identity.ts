@@ -1,12 +1,13 @@
 import type { QueryFunction, QueryKey, QueryObserverOptions } from '@tanstack/query-core'
 import type { QueryCallbacks } from 'tanstack-query-callbacks'
 import type { Simplify } from 'type-fest'
+import type { BaseRecord, Params } from '../query'
 import type { OriginQueryEnabledFn } from '../utils/query'
 import type { Auth, GetIdentityFn } from './auth'
 import { resolveQueryEnableds } from '../utils/query'
 
 export type QueryOptions<
-	TData,
+	TData extends BaseRecord,
 	TError,
 > = Simplify<
 	& QueryObserverOptions<
@@ -20,8 +21,8 @@ export type QueryOptions<
 >
 
 export interface Props<
-	TData,
-	TParams,
+	TData extends BaseRecord,
+	TParams extends Params,
 	TError,
 > {
 	params?: TParams
@@ -29,7 +30,7 @@ export interface Props<
 }
 
 export function createQueryKey<
-	TParams,
+	TParams extends Params,
 >(
 	params?: TParams,
 ): QueryKey {
@@ -41,15 +42,15 @@ export function createQueryKey<
 }
 
 export interface CreateQueryFnProps<
-	TParams,
+	TParams extends Params,
 > {
 	auth: Auth | undefined
 	getParams: () => TParams | undefined
 }
 
 export function createQueryFn<
-	TData,
-	TParams,
+	TData extends BaseRecord,
+	TParams extends Params,
 >(
 	{
 		auth,
@@ -68,7 +69,7 @@ export function createQueryFn<
 }
 
 export interface CreateQueryEnabledFnProps<
-	TData,
+	TData extends BaseRecord,
 	TError,
 > {
 	getAuth: () => Auth | undefined
@@ -76,7 +77,7 @@ export interface CreateQueryEnabledFnProps<
 }
 
 export function createQueryEnabledFn<
-	TData,
+	TData extends BaseRecord,
 	TError,
 >(
 	{

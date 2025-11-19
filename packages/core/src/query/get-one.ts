@@ -154,7 +154,7 @@ export interface CreateErrorHandlerProps<
 	TError,
 > {
 	notify: NotifyFn
-	translate: TranslateFn<unknown>
+	translate: TranslateFn<any>
 	getProps: () => ResolvedQueryProps
 	getErrorNotify: () => NotifyProps<GetOneResult<any>, ResolvedQueryProps, TError>['errorNotify']
 	checkError: CheckError.MutateAsyncFn<TError, unknown>

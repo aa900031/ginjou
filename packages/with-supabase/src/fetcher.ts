@@ -1,6 +1,7 @@
-import type { Fetcher, FilterOperatorType, Filters, Sorters } from '@ginjou/core'
+import type { FilterOperatorType, Filters, Sorters } from '@ginjou/core'
 import type { PostgrestFilterBuilder } from '@supabase/postgrest-js'
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { defineFetcher } from '@ginjou/core'
 
 export interface CreateFetcherProps {
 	client: SupabaseClient
@@ -16,8 +17,8 @@ export function createFetcher(
 	{
 		client,
 	}: CreateFetcherProps,
-): Fetcher {
-	return {
+) {
+	return defineFetcher({
 		getList: async ({ resource, pagination, filters, sorters, meta }) => {
 			const query = client
 				.from(resource)
@@ -65,7 +66,7 @@ export function createFetcher(
 				data: data as any || [],
 			}
 		},
-		create: async ({ resource, params, meta }) => {
+		createOne: async ({ resource, params, meta }) => {
 			const query = client.from(resource).insert(params)
 
 			if ((meta as FetcherMeta)?.select)
@@ -95,7 +96,7 @@ export function createFetcher(
 				data: data as any,
 			}
 		},
-		update: async ({ resource, id, params, meta }) => {
+		updateOne: async ({ resource, id, params, meta }) => {
 			const query = client.from(resource).update(params)
 
 			if ((meta as FetcherMeta)?.idColumnName)
@@ -148,13 +149,13 @@ export function createFetcher(
 				data: (data || [])[0] as any,
 			}
 		},
-	}
+	})
 }
 
 const splitRE = /\.(.*)/
 
 function applySorters(
-	query: PostgrestFilterBuilder<any, any, any>,
+	query: PostgrestFilterBuilder<any, any, any, any>,
 	sorters: Sorters,
 	meta: FetcherMeta | undefined,
 ) {
@@ -178,7 +179,7 @@ function applySorters(
 }
 
 function applyFilters(
-	query: PostgrestFilterBuilder<any, any, any>,
+	query: PostgrestFilterBuilder<any, any, any, any>,
 	filters: Filters,
 ) {
 	for (const filter of filters) {

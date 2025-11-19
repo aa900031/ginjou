@@ -1,7 +1,7 @@
 import type { DirectusClient, RestClient } from '@directus/sdk'
-import type { ConditionalFilter, Fetcher, FilterOperatorType, Filters, LogicalFilter, Sorters } from '@ginjou/core'
+import type { ConditionalFilter, FilterOperatorType, Filters, LogicalFilter, Sorters } from '@ginjou/core'
 import * as sdk from '@directus/sdk'
-import { SortOrder } from '@ginjou/core'
+import { defineFetcher, SortOrder } from '@ginjou/core'
 import cleanDeep from 'clean-deep'
 import { dset } from 'dset'
 import pluralize from 'pluralize'
@@ -25,8 +25,8 @@ export function createFetcher<
 	{
 		client,
 	}: CreateFetcherProps<TClient>,
-): Fetcher {
-	return {
+) {
+	return defineFetcher({
 		getList: async ({ resource, pagination, filters, sorters, meta }) => {
 			const query = cleanDeep({
 				...(meta as FetcherMeta)?.query,
@@ -66,7 +66,7 @@ export function createFetcher<
 				data: data as any,
 			}
 		},
-		create: async ({ resource, params, meta }) => {
+		createOne: async ({ resource, params, meta }) => {
 			const query = cleanDeep({
 				...(meta as FetcherMeta)?.query,
 			})
@@ -79,7 +79,7 @@ export function createFetcher<
 				data: data as any,
 			}
 		},
-		update: async ({ resource, id, params, meta }) => {
+		updateOne: async ({ resource, id, params, meta }) => {
 			const query = cleanDeep({
 				...(meta as FetcherMeta)?.query,
 			})
@@ -153,7 +153,7 @@ export function createFetcher<
 				data: response,
 			}
 		},
-	}
+	})
 }
 
 const PROTECTED_RESOURCE_PREFIX = ['directus_', 'directus/']

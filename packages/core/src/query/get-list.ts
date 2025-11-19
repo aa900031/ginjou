@@ -76,7 +76,7 @@ export type Props<
 	TPageParam,
 > = Simplify<
 	& QueryProps<TPageParam>
-	& NotifyProps<GetListResult<TResultData>, ResolvedQueryProps<TPageParam>, TError>
+	& NotifyProps<GetListResult<TResultData, TPageParam>, ResolvedQueryProps<TPageParam>, TError>
 	& RealtimeProps<unknown> // TODO: payload
 	& {
 		queryOptions?: Omit<
@@ -166,7 +166,7 @@ export interface CreateSuccessHandlerProps<
 > {
 	notify: NotifyFn
 	getProps: () => ResolvedQueryProps<TPageParam>
-	getSuccessNotify: () => NotifyProps<GetListResult<TResultData>, ResolvedQueryProps<TPageParam>, unknown>['successNotify']
+	getSuccessNotify: () => NotifyProps<GetListResult<TResultData, TPageParam>, ResolvedQueryProps<TPageParam>, unknown>['successNotify']
 	emitParent: NonNullable<QueryOptions<any, unknown, TResultData, TPageParam>['onSuccess']>
 }
 
@@ -199,9 +199,9 @@ export interface CreateErrorHandlerProps<
 	TPageParam,
 > {
 	notify: NotifyFn
-	translate: TranslateFn<unknown>
+	translate: TranslateFn<any>
 	getProps: () => ResolvedQueryProps<TPageParam>
-	getErrorNotify: () => NotifyProps<GetListResult<any>, ResolvedQueryProps<TPageParam>, TError>['errorNotify']
+	getErrorNotify: () => NotifyProps<GetListResult<any, TPageParam>, ResolvedQueryProps<TPageParam>, TError>['errorNotify']
 	checkError: CheckError.MutateAsyncFn<TError, unknown>
 	emitParent: NonNullable<QueryOptions<any, TError, any, TPageParam>['onError']>
 }
@@ -265,9 +265,9 @@ export function createQueryEnabledFn<
 		getQueryOptions,
 		queryClient,
 	}: CreateQueryEnabledFnProps<TData, TError, TResultData, TPageParam>,
-): QueryEnabledFn<GetListResult<TData>, TError, GetListResult<TData>> {
+): QueryEnabledFn<GetListResult<TData, TPageParam>, TError, GetListResult<TData, TPageParam>> {
 	return function enabled(
-		query = getQuery<GetListResult<TData>, TError, GetListResult<TData>>({
+		query = getQuery<GetListResult<TData, TPageParam>, TError, GetListResult<TData, TPageParam>>({
 			...getQueryOptions(),
 			queryKey: getQueryKey(),
 			queryClient,
@@ -311,7 +311,8 @@ export function getSubscribeParams(
 export function createPlacholerDataFn<
 	TData extends BaseRecord,
 	TError,
->(): PlaceholderDataFunction<GetListResult<TData>, TError, GetListResult<TData>> {
+	TPageParam,
+>(): PlaceholderDataFunction<GetListResult<TData, TPageParam>, TError, GetListResult<TData, TPageParam>> {
 	return function placeholderDataFn(previousData) {
 		return previousData
 	}

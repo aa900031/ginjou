@@ -1,6 +1,7 @@
 import type { MutationFunction, MutationKey, MutationObserverOptions, QueryClient } from '@tanstack/query-core'
 import type { TranslateFn } from '../i18n'
 import type { NotifyFn } from '../notification'
+import type { Params } from '../query'
 import type { OptionalMutateAsyncFunction, OptionalMutateSyncFunction, OriginMutateAsyncFunction, OriginMutateSyncFunction } from '../query/types'
 import type { RouterGoFn, RouterGoParams } from '../router'
 import type { Auth, LogoutFn, LogoutResult } from './auth'
@@ -11,7 +12,7 @@ import { getRedirectToByObject, resolveIgnoreInvalidate, resolveRedirectTo } fro
 import { triggerInvalidateAll } from './invalidate'
 
 export type MutationOptions<
-	TParams,
+	TParams extends Params,
 	TError,
 > = MutationObserverOptions<
 	LogoutResult,
@@ -20,7 +21,7 @@ export type MutationOptions<
 >
 
 export type MutationOptionsFromProps<
-	TParams,
+	TParams extends Params,
 	TError,
 > = Omit<
 	MutationOptions<TParams, TError>,
@@ -28,7 +29,7 @@ export type MutationOptionsFromProps<
 >
 
 export type MutateFn<
-	TParams,
+	TParams extends Params,
 	TError,
 > = OptionalMutateSyncFunction<
 	LogoutResult,
@@ -37,7 +38,7 @@ export type MutateFn<
 >
 
 export type MutateAsyncFn<
-	TParams,
+	TParams extends Params,
 	TError,
 > = OptionalMutateAsyncFunction<
 	LogoutResult,
@@ -46,7 +47,7 @@ export type MutateAsyncFn<
 >
 
 export interface Props<
-	TParams,
+	TParams extends Params,
 	TError,
 > {
 	redirectTo?: LogoutResult['redirectTo']
@@ -66,7 +67,7 @@ export interface CreateMutationFnProps {
 }
 
 export function createMutationFn<
-	TParams,
+	TParams extends Params,
 >(
 	{
 		auth,
@@ -77,13 +78,13 @@ export function createMutationFn<
 		if (typeof logout !== 'function')
 			throw new Error('No')
 
-		const result = await (logout as LogoutFn<TParams>)(params)
+		const result = await (logout as LogoutFn<TParams>)(params) ?? {}
 		return result
 	}
 }
 
 export interface CreateSuccessHandlerProps<
-	TParams,
+	TParams extends Params,
 	TError,
 > {
 	queryClient: QueryClient
@@ -98,7 +99,7 @@ const DEFAULT_REDIRECT_TO: RouterGoParams = {
 }
 
 export function createSuccessHandler<
-	TParams,
+	TParams extends Params,
 	TError,
 >(
 	{
@@ -124,17 +125,17 @@ export function createSuccessHandler<
 }
 
 export interface CreateErrorHandlerProps<
-	TParams,
+	TParams extends Params,
 	TError,
 > {
 	notify: NotifyFn
-	translate: TranslateFn<unknown>
+	translate: TranslateFn<any>
 	go: RouterGoFn<unknown>
 	onError: MutationOptions<TParams, TError>['onError']
 }
 
 export function createErrorHandler<
-	TParams,
+	TParams extends Params,
 	TError,
 >(
 	{
@@ -168,7 +169,7 @@ export function createErrorHandler<
 
 export interface CreateMutateFnProps<
 	TError,
-	TParams,
+	TParams extends Params,
 > {
 	originFn: OriginMutateSyncFunction<
 		LogoutResult,
@@ -179,7 +180,7 @@ export interface CreateMutateFnProps<
 
 export function createMutateFn<
 	TError,
-	TParams,
+	TParams extends Params,
 >(
 	{
 		originFn,
@@ -203,7 +204,7 @@ export interface CreateMutateAsyncFnProps<
 
 export function createMutateAsyncFn<
 	TError,
-	TParams,
+	TParams extends Params,
 >(
 	{
 		originFn,

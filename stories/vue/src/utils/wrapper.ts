@@ -5,7 +5,7 @@ import type { ToastMessageOptions } from 'primevue/toast'
 import { NotificationType } from '@ginjou/core'
 import { defineAuthContext, defineAuthzContext, defineFetchersContext, defineI18nContext, defineNotificationContext, defineQueryClientContext, defineResourceContext, defineRouterContext } from '@ginjou/vue'
 import { createFetcher } from '@ginjou/with-rest-api'
-import { createRouterBinding } from '@ginjou/with-vue-router'
+import { createRouter } from '@ginjou/with-vue-router'
 import { delay } from 'msw'
 import Toast from 'primevue/toast'
 import { useToast } from 'primevue/usetoast'
@@ -71,7 +71,7 @@ export function createWrapper(
 						break
 					case 'router':
 						value && defineRouterContext(
-							createRouterBinding(),
+							createRouter(),
 						)
 						break
 					case 'auth':
@@ -159,7 +159,9 @@ function createAuth(): Auth {
 				}
 			}
 			else {
-				return null
+				const error = new Error('AuthError')
+				Object.assign(error, { isAuthError: true })
+				throw error
 			}
 		},
 	}

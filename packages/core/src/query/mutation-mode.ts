@@ -1,6 +1,6 @@
 import type { InfiniteData } from '@tanstack/query-core'
 import type { SetRequired, ValueOf } from 'type-fest'
-import type { BaseRecord, GetListResult, GetManyResult, GetOneResult, RecordKey } from './fetcher'
+import type { BaseRecord, GetListResult, GetManyResult, GetOneResult, Params, RecordKey } from './fetcher'
 import type { UpdaterFn } from './types'
 import { checkTargetRecord, isInfiniteData, mergeTargetRecord } from './helper'
 
@@ -34,11 +34,12 @@ export function resolveMutationModeProps(
 
 export function createModifyListItemUpdaterFn<
 	TData extends BaseRecord,
-	TParams,
+	TParams extends Params,
+	TPageParam,
 >(
 	idOrIds: RecordKey | RecordKey[],
 	params: TParams,
-): UpdaterFn<GetListResult<TData> | InfiniteData<GetListResult<TData>>> {
+): UpdaterFn<GetListResult<TData, TPageParam> | InfiniteData<GetListResult<TData, TPageParam>>> {
 	// TODO: optimisticUpdateMap
 
 	const ids = Array.isArray(idOrIds)
@@ -158,9 +159,10 @@ export function createModifyOneUpdaterFn<
 
 export function createRemoveListItemUpdaterFn<
 	TData extends BaseRecord,
+	TPageParam,
 >(
 	idOrIds: RecordKey | RecordKey[],
-): UpdaterFn<GetListResult<TData> | InfiniteData<GetListResult<TData>>> {
+): UpdaterFn<GetListResult<TData, TPageParam> | InfiniteData<GetListResult<TData, TPageParam>>> {
 	// TODO: optimisticUpdateMap
 
 	const ids = Array.isArray(idOrIds)

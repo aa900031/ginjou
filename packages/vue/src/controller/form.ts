@@ -1,4 +1,4 @@
-import type { BaseRecord } from '@ginjou/core'
+import type { BaseRecord, Params } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
 import type { Ref } from 'vue-demi'
 import type { UseCreateOneContext, UseCreateOneResult, UseGetOneContext, UseGetOneResult, UseUpdateOneContext, UseUpdateOneResult } from '../query'
@@ -14,7 +14,7 @@ import { unrefs } from '../utils/unrefs'
 
 export type UseFormProps<
 	TQueryData extends BaseRecord,
-	TMutationParams,
+	TMutationParams extends Params,
 	TQueryError,
 	TQueryResultData extends BaseRecord,
 	TMutationData extends BaseRecord,
@@ -32,7 +32,7 @@ export type UseFormContext = Simplify<
 >
 
 export type UseFormResult<
-	TMutationParams,
+	TMutationParams extends Params,
 	TQueryError,
 	TQueryResultData extends BaseRecord,
 	TMutationData extends BaseRecord,
@@ -50,7 +50,7 @@ export type UseFormResult<
 
 export function useForm<
 	TQueryData extends BaseRecord = BaseRecord,
-	TMutationParams = unknown,
+	TMutationParams extends Params = Params,
 	TQueryError = unknown,
 	TQueryResultData extends BaseRecord = TQueryData,
 	TMutationData extends BaseRecord = TQueryResultData,

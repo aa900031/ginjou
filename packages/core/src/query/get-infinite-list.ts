@@ -280,7 +280,7 @@ export interface CreateErrorHandlerProps<
 	TPageParam,
 > {
 	notify: NotifyFn
-	translate: TranslateFn<unknown>
+	translate: TranslateFn<any>
 	getProps: () => ResolvedQueryProps<TPageParam>
 	getErrorNotify: () => NotifyProps<any, ResolvedQueryProps<TPageParam>, TError>['errorNotify']
 	checkError: CheckError.MutateAsyncFn<TError, unknown>

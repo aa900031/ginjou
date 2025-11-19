@@ -1,4 +1,4 @@
-import type { LogoutResult } from '@ginjou/core'
+import type { LogoutResult, Params } from '@ginjou/core'
 import type { UseMutationReturnType } from '@tanstack/vue-query'
 import type { OverrideProperties, Simplify } from 'type-fest'
 import type { UseTranslateContext } from '../i18n'
@@ -18,7 +18,7 @@ import { unrefs } from '../utils/unrefs'
 import { useAuthContext } from './auth'
 
 export type UseLogoutProps<
-	TParams,
+	TParams extends Params,
 	TError,
 > = ToMaybeRefs<
 	& Logout.Props<TParams, TError>
@@ -33,7 +33,7 @@ export type UseLogoutContext = Simplify<
 >
 
 export type UseLogoutResult<
-	TParams,
+	TParams extends Params,
 	TError,
 > = OverrideProperties<
 	UseMutationReturnType<
@@ -49,7 +49,7 @@ export type UseLogoutResult<
 >
 
 export function useLogout<
-	TParams = unknown,
+	TParams extends Params = Params,
 	TError = unknown,
 >(
 	props?: UseLogoutProps<TParams, TError>,

@@ -1,22 +1,21 @@
-import type { I18n } from '@ginjou/core'
 import type { Composer, UseI18nOptions } from 'vue-i18n'
+import { defineI18n } from '@ginjou/core'
 import { unref, watch } from 'vue-demi'
 import { useI18n } from 'vue-i18n'
 
-export function defineI18nBinding<
+export function createI18n<
 	TUseI18nOptions extends UseI18nOptions = UseI18nOptions,
 >(
 	options?: TUseI18nOptions,
-): I18n {
+) {
 	const i18n = useI18n<TUseI18nOptions>(options)
 
-	return {
+	return defineI18n({
 		translate: (key, params) => i18n.t(
 			key,
 			params ?? ({} as any),
 		),
-
-		getLocale: () => {
+		getLocale: (): string => {
 			return unref(i18n.locale)!
 		},
 		setLocale: (locale) => {
@@ -27,7 +26,7 @@ export function defineI18nBinding<
 				handler(val!)
 			})
 		},
-	}
+	})
 }
 
 export type UseI18nResult<

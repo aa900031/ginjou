@@ -30,5 +30,14 @@ export type AccessCanFn = (
 
 export interface Authz {
 	access?: AccessCanFn
-	getPermissions?: GetPermissionsFn<unknown, unknown>
+	getPermissions?: GetPermissionsFn<any, any>
+}
+
+/* @__NO_SIDE_EFFECTS__ */
+export function defineAuthz<
+	T extends Authz,
+>(
+	value: T,
+): T {
+	return value
 }

@@ -9,3 +9,12 @@ export interface Router {
 	getLocation: RouterGetLocationFn<any>
 	onChangeLocation: RouterOnChangeLocationFn<any>
 }
+
+/* @__NO_SIDE_EFFECTS__ */
+export function defineRouter<
+	T extends Router,
+>(
+	value: T,
+): T {
+	return value
+}

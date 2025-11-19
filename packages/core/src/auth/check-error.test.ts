@@ -33,7 +33,7 @@ describe('createMutationFn', () => {
 
 describe('createSuccessHandler', () => {
 	it('should call logout if shouldLogout is true', async () => {
-		const mockLogout = vi.fn(() => Promise.resolve())
+		const mockLogout = vi.fn(() => Promise.resolve({}))
 		const mockGo = vi.fn()
 		const mockOnSuccess = vi.fn()
 
@@ -52,7 +52,7 @@ describe('createSuccessHandler', () => {
 	})
 
 	it('should call go if redirectTo is defined and not false', async () => {
-		const mockLogout = vi.fn(() => Promise.resolve())
+		const mockLogout = vi.fn(() => Promise.resolve({}))
 		const mockGo = vi.fn()
 		const mockOnSuccess = vi.fn()
 
@@ -71,7 +71,7 @@ describe('createSuccessHandler', () => {
 	})
 
 	it('should not call go if redirectTo is false', async () => {
-		const mockLogout = vi.fn(() => Promise.resolve())
+		const mockLogout = vi.fn(() => Promise.resolve({}))
 		const mockGo = vi.fn()
 		const mockOnSuccess = vi.fn()
 
@@ -90,7 +90,7 @@ describe('createSuccessHandler', () => {
 	})
 
 	it('should call onSuccess from prop if defined', async () => {
-		const mockLogout = vi.fn(() => Promise.resolve())
+		const mockLogout = vi.fn(() => Promise.resolve({}))
 		const mockGo = vi.fn()
 		const mockOnSuccess = vi.fn()
 
@@ -111,7 +111,7 @@ describe('createSuccessHandler', () => {
 	})
 
 	it('should not call onSuccess from prop if not defined', async () => {
-		const mockLogout = vi.fn(() => Promise.resolve())
+		const mockLogout = vi.fn(() => Promise.resolve({}))
 		const mockGo = vi.fn()
 
 		const successHandler = createSuccessHandler({

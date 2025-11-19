@@ -104,3 +104,12 @@ export interface Realtime {
 	publish?: PublishFn<unknown>
 	options?: RealtimeContextOptions<unknown>
 }
+
+/* @__NO_SIDE_EFFECTS__ */
+export function defineRealtime<
+	T extends Realtime,
+>(
+	value: T,
+): T {
+	return value
+}

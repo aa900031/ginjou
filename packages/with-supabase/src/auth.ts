@@ -1,5 +1,5 @@
-import type { Auth } from '@ginjou/core'
 import type { SignInWithIdTokenCredentials, SignInWithOAuthCredentials, SignInWithPasswordCredentials, SignInWithPasswordlessCredentials, SignInWithSSO, SignOut, SupabaseClient, VerifyOtpParams } from '@supabase/supabase-js'
+import { defineAuth } from '@ginjou/core'
 import { isAuthError } from '@supabase/supabase-js'
 
 export interface CreateAuthProps {
@@ -50,8 +50,8 @@ export function createAuth(
 	{
 		client,
 	}: CreateAuthProps,
-): Auth {
-	return {
+) {
+	return defineAuth({
 		login: async (params: LoginParams) => {
 			const { type, params: params2 } = params
 			switch (type) {
@@ -129,7 +129,10 @@ export function createAuth(
 			const { data: { user }, error } = await client.auth.getUser()
 			if (error)
 				throw error
+			if (user == null)
+				throw new Error('No')
+
 			return user
 		},
-	}
+	})
 }

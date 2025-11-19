@@ -1,5 +1,5 @@
-import type { Fetcher } from '@ginjou/core'
 import type { $Fetch } from 'ofetch'
+import { defineFetcher } from '@ginjou/core'
 import { AbortController, createFetch, fetch, Headers } from 'ofetch'
 import { genFilters } from './utils/filters'
 import { toMethod } from './utils/method'
@@ -15,8 +15,8 @@ export function createFetcher(
 		url,
 		client = createFetch({ fetch, Headers, AbortController }),
 	}: CreateFetcherProps,
-): Fetcher {
-	return {
+) {
+	return defineFetcher({
 		getList: async ({ resource, pagination, filters, sorters, meta }) => {
 			const query: {
 				_start?: number
@@ -137,5 +137,5 @@ export function createFetcher(
 				data: response._data,
 			}
 		},
-	}
+	})
 }
