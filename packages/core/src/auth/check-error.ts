@@ -1,5 +1,4 @@
 import type { MutationFunction, MutationKey, MutationObserverOptions } from '@tanstack/query-core'
-import type { Params } from '../query'
 import type { OriginMutateAsyncFunction } from '../query/types'
 import type { RouterGoFn } from '../router'
 import type { Logout } from './'
