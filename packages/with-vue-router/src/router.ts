@@ -1,4 +1,4 @@
-import type { Router } from '@ginjou/core'
+import type { Router, RouterGoParams, RouterLocation } from '@ginjou/core'
 import type { SetRequired, Simplify } from 'type-fest'
 import type { LocationAsRelativeRaw, RouteLocationNormalizedLoaded, RouteLocationOptions } from 'vue-router'
 import { watch } from 'vue-demi'
@@ -17,28 +17,25 @@ export interface RouteParsedMeta {
 	location: RouteLocationNormalizedLoaded
 }
 
-export function createRouterBinding(): Router<
-	RouteGoMeta,
-	RouteParsedMeta
-> {
+export function createRouterBinding() {
 	const router = useRouter()
 
 	return {
-		go: (params) => {
+		go: (params: RouterGoParams<RouteGoMeta>): void => {
 			const current = router.currentRoute.value
 			const location = toRouteLocation(params, current)
 
 			router.push(location)
 		},
-		back: () => {
+		back: (): void => {
 			router.back()
 		},
-		resolve: (params) => {
+		resolve: (params: RouterGoParams<RouteGoMeta>) => {
 			const current = router.currentRoute.value
 			const resolved = router.resolve(toRouteLocation(params, current))
 			return resolved.href
 		},
-		getLocation: () => {
+		getLocation: (): RouterLocation<RouteParsedMeta> => {
 			return toLocation(router.currentRoute.value)
 		},
 		onChangeLocation: (handler) => {
@@ -49,5 +46,5 @@ export function createRouterBinding(): Router<
 
 			return stopWatch
 		},
-	}
+	} satisfies Router
 }

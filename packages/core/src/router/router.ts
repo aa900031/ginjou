@@ -3,9 +3,9 @@ import type { RouterGetLocationFn, RouterOnChangeLocationFn } from './location'
 import type { RouterResolveFn } from './resolve'
 
 export interface Router {
-	go: RouterGoFn<unknown>
+	go: RouterGoFn<any>
 	back: RouterBackFn
-	resolve: RouterResolveFn<unknown>
-	getLocation: RouterGetLocationFn<unknown>
-	onChangeLocation: RouterOnChangeLocationFn<unknown>
+	resolve: RouterResolveFn<any>
+	getLocation: RouterGetLocationFn<any>
+	onChangeLocation: RouterOnChangeLocationFn<any>
 }

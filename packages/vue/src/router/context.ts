@@ -3,10 +3,10 @@ import type { Simplify } from 'type-fest'
 import type { InjectionKey } from 'vue-demi'
 import { injectLocal, provideLocal } from '@vueuse/shared'
 
-const KEY: InjectionKey<Router<any, any>> = Symbol('@ginjou/router')
+const KEY: InjectionKey<Router> = Symbol('@ginjou/router')
 
 export function defineRouterContext<
-	T extends Router<any, any>,
+	T extends Router,
 >(
 	value: T,
 ): T {
@@ -15,7 +15,7 @@ export function defineRouterContext<
 }
 
 export interface UseRouterContextFromProps {
-	router?: Router<any, any>
+	router?: Router
 }
 
 export type UseRouterContextProps = Simplify<
@@ -25,23 +25,17 @@ export type UseRouterContextProps = Simplify<
 	}
 >
 
-export function useRouterContext<
-	TGoMeta = unknown,
-	TLocationMeta = unknown,
->(
+export function useRouterContext(
 	props: UseRouterContextProps & { strict: true },
-): Router<TGoMeta, TLocationMeta>
-
-export function useRouterContext<
-	TGoMeta = unknown,
-	TLocationMeta = unknown,
->(
-	props?: UseRouterContextProps,
-): Router<TGoMeta, TLocationMeta> | undefined
+): Router
 
 export function useRouterContext(
 	props?: UseRouterContextProps,
-): Router<any, any> | undefined {
+): Router | undefined
+
+export function useRouterContext(
+	props?: UseRouterContextProps,
+): Router | undefined {
 	const value = injectLocal(KEY, undefined) ?? props?.router
 	if (props?.strict === true && value == null)
 		throw new Error('No')
