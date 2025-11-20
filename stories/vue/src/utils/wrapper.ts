@@ -2,7 +2,7 @@ import type { Auth, Authz, Fetchers, I18n, Notification, ResourceDefinition } fr
 import type { Decorator } from '@storybook/vue3'
 import type { QueryClient } from '@tanstack/vue-query'
 import type { ToastMessageOptions } from 'primevue/toast'
-import { NotificationType } from '@ginjou/core'
+import { defineAuth, defineAuthz, defineI18n, NotificationType } from '@ginjou/core'
 import { defineAuthContext, defineAuthzContext, defineFetchersContext, defineI18nContext, defineNotificationContext, defineQueryClientContext, defineResourceContext, defineRouterContext } from '@ginjou/vue'
 import { createFetcher } from '@ginjou/with-rest-api'
 import { createRouter } from '@ginjou/with-vue-router'
@@ -122,8 +122,8 @@ function createFetchers(): Fetchers {
 	}
 }
 
-function createAuth(): Auth {
-	return {
+function createAuth() {
+	return defineAuth({
 		login: async () => {
 			await delay(500)
 			;(window as any).__AUTH = 'user001'
@@ -164,21 +164,21 @@ function createAuth(): Auth {
 				throw error
 			}
 		},
-	}
+	})
 }
 
 function createAuthz() {
-	return {
+	return defineAuthz({
 		getPermissions: async () => {
 			if ((window as any).__AUTH)
 				return ['admin']
 			else
 				return null
 		},
-	}
+	})
 }
 
-function createI18n(): I18n {
+function createI18n() {
 	let locale = 'en-US'
 	const messages: Record<string, Record<string, string>> = {
 		'en-US': {
@@ -194,7 +194,7 @@ function createI18n(): I18n {
 	}
 	const subscribes = new Set<(value: string) => void>()
 
-	return {
+	return defineI18n({
 		translate: (key, params) => {
 			const raw = messages[locale][key as any]
 			if (!raw)
@@ -219,7 +219,7 @@ function createI18n(): I18n {
 			subscribes.add(handler)
 			return () => subscribes.delete(handler)
 		},
-	}
+	})
 }
 
 function createNotification(): Notification {
