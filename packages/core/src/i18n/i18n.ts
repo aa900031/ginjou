@@ -22,7 +22,7 @@ export interface I18n {
 	translate: I18nTranslateFn<Record<any, any>>
 
 	getLocale?: I18nGetLocaleFn
-	setLocale?: I18nSetLocaleFn<unknown>
+	setLocale?: I18nSetLocaleFn<any>
 	onChangeLocale?: I18nOnLocaleChangeFn
 }
 

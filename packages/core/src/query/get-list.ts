@@ -286,17 +286,23 @@ export function createQueryEnabledFn<
 	}
 }
 
-export interface GetSubscribeParamsProps {
-	queryProps: ResolvedQueryProps<unknown>
-	realtimeOptions: ResolvedRealtimeOptions<unknown>
+export interface GetSubscribeParamsProps<
+	TPayload,
+	TPageParam,
+> {
+	queryProps: ResolvedQueryProps<TPageParam>
+	realtimeOptions: ResolvedRealtimeOptions<TPayload>
 }
 
-export function getSubscribeParams(
+export function getSubscribeParams<
+	TPayload,
+	TPageParam,
+>(
 	{
 		queryProps,
 		realtimeOptions,
-	}: GetSubscribeParamsProps,
-): SubscribeListParams {
+	}: GetSubscribeParamsProps<TPayload, TPageParam>,
+): SubscribeListParams<TPageParam> {
 	return {
 		type: SubscribeType.List,
 		resource: queryProps.resource,
