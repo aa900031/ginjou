@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.13
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/core@0.1.0-beta.12...${npm.name}@0.1.0-beta.13)
+
+### 💅 Refactors
+
+-  ⚠️ Definition types (#86) ([abd7c15](https://github.com/aa900031/ginjou/commit/abd7c150cf143129befd28599f1d11a89cb51df7))
+
+### 🏡 Chore
+
+-  **deps:** Update npm non-major develop dependencies (#80) ([0760df6](https://github.com/aa900031/ginjou/commit/0760df678ecea9b9a044bc61073aec2d758201d5))
+-  **deps:** Update pkg: tanstack-query-callbacks ([77cfdcf](https://github.com/aa900031/ginjou/commit/77cfdcff87d2a386bbb29f2bfa36a6582f150463))
+
+
+### ⚠️ Breaking Changes
+
+-  definition types (#86) ([abd7c15](https://github.com/aa900031/ginjou/commit/abd7c150cf143129befd28599f1d11a89cb51df7))
+
+#### ❤️ Contributors
+
+- Renovate[bot] 
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.12
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/core@0.1.0-beta.11...${npm.name}@0.1.0-beta.12)
