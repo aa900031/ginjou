@@ -42,7 +42,7 @@
 		"build:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare",
 		"dev:playground": "nuxi dev playground",
 		"dev": "run-s build:prepare dev:playground",
-		"release": "release-it --ci"
+		"release": "release-it"
 	},
 	"dependencies": {
 		"@ginjou/vue": "workspace:^",
