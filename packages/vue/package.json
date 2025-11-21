@@ -56,7 +56,7 @@
 		"@bouzu/vue-helper": "^0.1.0",
 		"@ginjou/core": "workspace:^",
 		"@vueuse/shared": "^10.11.1",
-		"tanstack-query-callbacks": "^0.2.1",
+		"tanstack-query-callbacks": "^0.2.2",
 		"type-fest": "^4.41.0",
 		"vue-demi": "latest"
 	},

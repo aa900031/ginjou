@@ -4,7 +4,16 @@
 	"tasks": {
 		"build": {
 			"dependsOn": ["^build"],
-			"outputs": ["dist/**"]
+			"outputs": ["dist/**"],
+			"inputs": [
+				".storybook/**",
+				"src/**",
+				"build.config.ts",
+				"tsconfig.json",
+				"tsconfig.*.json",
+				"vite.config.ts",
+				"unocss.config.ts"
+			]
 		},
 		"dev": {
 			"cache": false,
