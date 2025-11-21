@@ -69,8 +69,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       tanstack-query-callbacks:
-        specifier: ^0.2.1
-        version: 0.2.1(@tanstack/query-core@5.90.6)(@tanstack/vue-query@5.90.6(@vue/composition-api@1.7.2(vue@3.5.22(typescript@5.9.3)))(vue@3.5.22(typescript@5.9.3)))(@vue/composition-api@1.7.2(vue@3.5.22(typescript@5.9.3)))(vue@3.5.22(typescript@5.9.3))
+        specifier: ^0.2.2
+        version: 0.2.2(@tanstack/query-core@5.90.6)(@tanstack/vue-query@5.90.6(@vue/composition-api@1.7.2(vue@3.5.22(typescript@5.9.3)))(vue@3.5.22(typescript@5.9.3)))(@vue/composition-api@1.7.2(vue@3.5.22(typescript@5.9.3)))(vue@3.5.22(typescript@5.9.3))
       type-fest:
         specifier: ^4.41.0
         version: 4.41.0
@@ -131,8 +131,8 @@ importers:
         specifier: ^10.11.1
         version: 10.11.1(@vue/composition-api@1.7.2(vue@3.5.22(typescript@5.9.3)))(vue@3.5.22(typescript@5.9.3))
       tanstack-query-callbacks:
-        specifier: ^0.2.1
-        version: 0.2.1(@tanstack/query-core@5.90.6)(@tanstack/vue-query@5.90.6(@vue/composition-api@1.7.2(vue@3.5.22(typescript@5.9.3)))(vue@3.5.22(typescript@5.9.3)))(@vue/composition-api@1.7.2(vue@3.5.22(typescript@5.9.3)))(vue@3.5.22(typescript@5.9.3))
+        specifier: ^0.2.2
+        version: 0.2.2(@tanstack/query-core@5.90.6)(@tanstack/vue-query@5.90.6(@vue/composition-api@1.7.2(vue@3.5.22(typescript@5.9.3)))(vue@3.5.22(typescript@5.9.3)))(@vue/composition-api@1.7.2(vue@3.5.22(typescript@5.9.3)))(vue@3.5.22(typescript@5.9.3))
       type-fest:
         specifier: ^4.41.0
         version: 4.41.0
@@ -6855,8 +6855,8 @@ packages:
     resolution: {integrity: sha512-yEFYrVhod+hdNyx7g5Bnkkb0G6si8HJurOoOEgC8B/O0uXLHlaey/65KRv6cuWBNhBgHKAROVpc7QyYqE5gFng==}
     engines: {node: '>=20'}
 
-  tanstack-query-callbacks@0.2.1:
-    resolution: {integrity: sha512-oCnQdJvA0/s1gRlWP66AOtu9z/mniIMOjCq0UulE6mLXlQqM4chxlFc8SiFrCPS3GQZidkwzpaOWUgdvdLcW0w==}
+  tanstack-query-callbacks@0.2.2:
+    resolution: {integrity: sha512-NKYa83m883Cc4636oFC8bbmn5m8E9r0FvBM5nZPN3wAHWpOSwDsxh64AjXiWCXWkJFv6ci2YHG5YvXCOJmfLxw==}
     peerDependencies:
       '@tanstack/query-core': ^4.* || ^5.*
       '@tanstack/react-query': ^4.* || ^5.*
@@ -7523,8 +7523,8 @@ packages:
   vue-component-type-helpers@2.2.8:
     resolution: {integrity: sha512-4bjIsC284coDO9om4HPA62M7wfsTvcmZyzdfR0aUlFXqq4tXxM1APyXpNVxPC8QazKw9OhmZNHBVDA6ODaZsrA==}
 
-  vue-component-type-helpers@3.1.3:
-    resolution: {integrity: sha512-V1dOD8XYfstOKCnXbWyEJIrhTBMwSyNjv271L1Jlx9ExpNlCSuqOs3OdWrGJ0V544zXufKbcYabi/o+gK8lyfQ==}
+  vue-component-type-helpers@3.1.4:
+    resolution: {integrity: sha512-Uws7Ew1OzTTqHW8ZVl/qLl/HB+jf08M0NdFONbVWAx0N4gMLK8yfZDgeB77hDnBmaigWWEn5qP8T9BG59jIeyQ==}
 
   vue-demi@0.14.10:
     resolution: {integrity: sha512-nMZBOwuzabUO0nLgIcc6rycZEebF6eeUfaiQx9+WSk8e29IbLvPU9feI6tqW4kTo3hvoYAJkMh8n8D0fuISphg==}
@@ -9906,7 +9906,7 @@ snapshots:
       storybook: 10.0.2(@testing-library/dom@10.4.0)(msw@2.11.6(@types/node@18.19.130)(typescript@5.9.3))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vite@7.1.12(@types/node@18.19.130)(jiti@2.6.1)(terser@5.39.0)(tsx@4.19.3)(yaml@2.8.1))
       type-fest: 2.19.0
       vue: 3.5.22(typescript@5.9.3)
-      vue-component-type-helpers: 3.1.3
+      vue-component-type-helpers: 3.1.4
 
   '@stylistic/eslint-plugin@5.5.0(eslint@9.39.0(jiti@2.6.1))':
     dependencies:
@@ -16098,7 +16098,7 @@ snapshots:
 
   tagged-tag@1.0.0: {}
 
-  tanstack-query-callbacks@0.2.1(@tanstack/query-core@5.90.6)(@tanstack/vue-query@5.90.6(@vue/composition-api@1.7.2(vue@3.5.22(typescript@5.9.3)))(vue@3.5.22(typescript@5.9.3)))(@vue/composition-api@1.7.2(vue@3.5.22(typescript@5.9.3)))(vue@3.5.22(typescript@5.9.3)):
+  tanstack-query-callbacks@0.2.2(@tanstack/query-core@5.90.6)(@tanstack/vue-query@5.90.6(@vue/composition-api@1.7.2(vue@3.5.22(typescript@5.9.3)))(vue@3.5.22(typescript@5.9.3)))(@vue/composition-api@1.7.2(vue@3.5.22(typescript@5.9.3)))(vue@3.5.22(typescript@5.9.3)):
     dependencies:
       '@tanstack/query-core': 5.90.6
     optionalDependencies:
@@ -16816,7 +16816,7 @@ snapshots:
 
   vue-component-type-helpers@2.2.8: {}
 
-  vue-component-type-helpers@3.1.3: {}
+  vue-component-type-helpers@3.1.4: {}
 
   vue-demi@0.14.10(@vue/composition-api@1.7.2(vue@3.5.22(typescript@5.9.3)))(vue@3.5.22(typescript@5.9.3)):
     dependencies:
