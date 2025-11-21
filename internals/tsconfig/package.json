@@ -4,6 +4,6 @@
 	"private": true,
 	"author": "zhong666 <hi@zhong666.me>",
 	"dependencies": {
-		"@tsconfig/node20": "^20.1.6"
+		"@tsconfig/node20": "^20.1.7"
 	}
 }
