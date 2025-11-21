@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.5
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/with-rest-api@0.1.0-beta.4...${npm.name}@0.1.0-beta.5)
+
+### 💅 Refactors
+
+-  ⚠️ Definition types (#86) ([abd7c15](https://github.com/aa900031/ginjou/commit/abd7c150cf143129befd28599f1d11a89cb51df7))
+
+
+### ⚠️ Breaking Changes
+
+-  definition types (#86) ([abd7c15](https://github.com/aa900031/ginjou/commit/abd7c150cf143129befd28599f1d11a89cb51df7))
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.4
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/with-rest-api@0.1.0-beta.3...${npm.name}@0.1.0-beta.4)
