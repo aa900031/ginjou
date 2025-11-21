@@ -7,8 +7,9 @@ import { useRealtimeContext } from './context'
 
 export type UseSubscribeProps<
 	TPayload,
+	TPageParam,
 > = ToMaybeRefs<
-	Subscribe.Props<TPayload>
+	Subscribe.Props<TPayload, TPageParam>
 >
 
 export type UseSubscribeContext = Simplify<
@@ -20,14 +21,15 @@ export interface UseSubscribeResult {
 }
 
 export function useSubscribe<
-	TPayload,
+	TPayload = unknown,
+	TPageParam = unknown,
 >(
-	props: UseSubscribeProps<TPayload>,
+	props: UseSubscribeProps<TPayload, TPageParam>,
 	context?: UseSubscribeContext,
 ): UseSubscribeResult {
 	const realtime = useRealtimeContext(context)
 	const resolvedProps = computed(() =>
-		Subscribe.resolveProps<TPayload>(
+		Subscribe.resolveProps<TPayload, TPageParam>(
 			{
 				channel: unref(props.channel),
 				actions: unref(props.actions),
@@ -39,7 +41,7 @@ export function useSubscribe<
 		))
 
 	const stop = watch(resolvedProps, (val, oldVal, onCleanup) => {
-		const unsubscribe = Subscribe.register<TPayload>({
+		const unsubscribe = Subscribe.register<TPayload, TPageParam>({
 			props: val,
 			realtime,
 		})

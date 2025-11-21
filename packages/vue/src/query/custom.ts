@@ -1,4 +1,4 @@
-import type { BaseRecord, CustomResult } from '@ginjou/core'
+import type { BaseRecord, CustomResult, Params } from '@ginjou/core'
 import type { UseQueryReturnType } from '@tanstack/vue-query'
 import type { Simplify } from 'type-fest'
 import type { Ref } from 'vue-demi'
@@ -25,8 +25,8 @@ export type UseCustomProps<
 	TData extends BaseRecord,
 	TError,
 	TResultData extends BaseRecord,
-	TQuery,
-	TPayload,
+	TQuery extends Params,
+	TPayload extends Params,
 > = ToMaybeRefs<
 	Custom.Props<TData, TError, TResultData, TQuery, TPayload>
 >
@@ -55,8 +55,8 @@ export function useCustom<
 	TData extends BaseRecord = BaseRecord,
 	TError = unknown,
 	TResultData extends BaseRecord = TData,
-	TQuery = unknown,
-	TPayload = unknown,
+	TQuery extends Params = Params,
+	TPayload extends Params = Params,
 >(
 	props: UseCustomProps<TData, TError, TResultData, TQuery, TPayload>,
 	context?: UseCustomContext,

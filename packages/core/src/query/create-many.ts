@@ -4,7 +4,7 @@ import type { CheckError } from '../auth'
 import type { TranslateFn } from '../i18n'
 import type { NotifyFn } from '../notification'
 import type { Publish } from '../realtime'
-import type { BaseRecord, CreateManyProps, CreateManyResult } from './fetcher'
+import type { BaseRecord, CreateManyFn, CreateManyProps, CreateManyResult, CreateOneFn, Params } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { InvalidatesProps, InvalidateTargetType, ResolvedInvalidatesProps } from './invalidate'
 import type { NotifyProps } from './notify'
@@ -13,7 +13,7 @@ import type { OptionalMutateAsyncFunction, OptionalMutateSyncFunction, OriginMut
 import { NotificationType } from '../notification'
 import { RealtimeAction } from '../realtime/event'
 import { getErrorMessage } from '../utils/error'
-import { getFetcher, resolveFetcherProps } from './fetchers'
+import { getFetcherFn, getSafeFetcherFn, resolveFetcherProps } from './fetchers'
 import { fakeMany } from './helper'
 import { InvalidateTarget, resolveInvalidateProps, triggerInvalidates } from './invalidate'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
@@ -22,7 +22,7 @@ import { createPublishMeta, createPublishPayloadByMany } from './publish'
 export type MutationProps<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 > = Simplify<
 	& Partial<CreateManyProps<TParams>>
 	& FetcherProps
@@ -33,7 +33,7 @@ export type MutationProps<
 export type ResolvedMutationProps<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 > = Simplify<
 	& OverrideProperties<
 		MutationProps<TData, TError, TParams>,
@@ -46,7 +46,7 @@ export type ResolvedMutationProps<
 export type MutationOptions<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 > = MutationObserverOptions<
 	CreateManyResult<TData>,
 	TError,
@@ -56,7 +56,7 @@ export type MutationOptions<
 export type MutationOptionsFromProps<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 > = Omit<
 	MutationOptions<TData, TError, TParams>,
 	| 'mutationFn'
@@ -65,7 +65,7 @@ export type MutationOptionsFromProps<
 export type Props<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 > = Simplify<
 	& MutationProps<TData, TError, TParams>
 	& {
@@ -76,7 +76,7 @@ export type Props<
 export type MutateFn<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 > = OptionalMutateSyncFunction<
 	CreateManyResult<TData>,
 	TError,
@@ -86,7 +86,7 @@ export type MutateFn<
 export type MutateAsyncFn<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 > = OptionalMutateAsyncFunction<
 	CreateManyResult<TData>,
 	TError,
@@ -96,7 +96,7 @@ export type MutateAsyncFn<
 export interface CreateMutationFnProps<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 > {
 	fetchers: Fetchers
 	getProps: () => Props<TData, TError, TParams> | undefined
@@ -105,7 +105,7 @@ export interface CreateMutationFnProps<
 export function createMutationFn<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 >(
 	{
 		fetchers,
@@ -113,25 +113,24 @@ export function createMutationFn<
 	}: CreateMutationFnProps<TData, TError, TParams>,
 ): NonNullable<MutationOptions<TData, TError, TParams>['mutationFn']> {
 	return async function mutationFn(props) {
-		const resolveProps = resolveMutationProps(getProps(), props)
+		const resolvedProps = resolveMutationProps(getProps(), props)
 
-		const fetcher = getFetcher(resolveProps, fetchers)
-		if (typeof fetcher.createMany === 'function')
-			return await fetcher.createMany<TData, TParams>(resolveProps)
-		if (typeof fetcher.createOne === 'function')
-			return await fakeMany(resolveProps.params.map(val => fetcher.createOne!<TData, TParams>({ ...resolveProps, params: val })))
+		const createMany = getSafeFetcherFn(resolvedProps, fetchers, 'createMany')
+		if (createMany != null)
+			return await (createMany as CreateManyFn<TData, TParams>)(resolvedProps)
 
-		throw new Error('No')
+		const createOne = getFetcherFn(resolvedProps, fetchers, 'createOne') as CreateOneFn<TData, TParams>
+		return await fakeMany(resolvedProps.params.map(val => createOne({ ...resolvedProps, params: val })))
 	}
 }
 
 export interface CreateSuccessHandlerProps<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 > {
 	notify: NotifyFn
-	translate: TranslateFn<unknown>
+	translate: TranslateFn<any>
 	publish: Publish.EmitFn<PublishPayload>
 	queryClient: QueryClient
 	getProps: () => Props<TData, TError, TParams> | undefined
@@ -141,7 +140,7 @@ export interface CreateSuccessHandlerProps<
 export function createSuccessHandler<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 >(
 	{
 		notify,
@@ -180,10 +179,10 @@ export function createSuccessHandler<
 export interface CreateErrorHandlerProps<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 > {
 	notify: NotifyFn
-	translate: TranslateFn<unknown>
+	translate: TranslateFn<any>
 	checkError: CheckError.MutateAsyncFn<TError, unknown>
 	getProps: () => Props<TData, TError, TParams> | undefined
 	onError: MutationOptions<TData, TError, TParams>['onError']
@@ -192,7 +191,7 @@ export interface CreateErrorHandlerProps<
 export function createErrorHandler<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 >(
 	{
 		notify,
@@ -224,7 +223,7 @@ export function createErrorHandler<
 export interface CreateMutateFnProps<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 > {
 	originFn: OriginMutateSyncFunction<
 		CreateManyResult<TData>,
@@ -236,7 +235,7 @@ export interface CreateMutateFnProps<
 export function createMutateFn<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 >(
 	{
 		originFn,
@@ -250,7 +249,7 @@ export function createMutateFn<
 export interface CreateMutateAsyncFnProps<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 > {
 	originFn: OriginMutateAsyncFunction<
 		CreateManyResult<TData>,
@@ -262,7 +261,7 @@ export interface CreateMutateAsyncFnProps<
 export function createMutateAsyncFn<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 >(
 	{
 		originFn,
@@ -275,7 +274,7 @@ export function createMutateAsyncFn<
 
 function createPublishEvent(
 	resolvedProps: ResolvedMutationProps<any, any, any>,
-	data: CreateManyResult,
+	data: CreateManyResult<any>,
 ): Publish.EmitEvent<PublishPayload> {
 	const payload = createPublishPayloadByMany(resolvedProps, data)
 	const meta = createPublishMeta(resolvedProps)
@@ -296,7 +295,7 @@ const DEFAULT_INVALIDATES: InvalidateTargetType[] = [
 function resolveMutationProps<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 >(
 	propsFromProps: Props<TData, TError, TParams> | undefined,
 	propsFromFn: MutationProps<TData, TError, TParams>,
@@ -314,7 +313,7 @@ function resolveMutationProps<
 function resolveProps<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 >(
 	propsFromProps: Props<TData, TError, TParams> | undefined,
 	propsFromFn: MutationProps<TData, TError, TParams>,

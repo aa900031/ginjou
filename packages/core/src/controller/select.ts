@@ -28,8 +28,9 @@ export type Props<
 
 export interface GetOptionsProps<
 	TResultData extends BaseRecord,
+	TPageParam,
 > {
-	listData: GetListResult<TResultData> | undefined
+	listData: GetListResult<TResultData, TPageParam> | undefined
 	manyData: GetManyResult<TResultData> | undefined
 	labelKey: string | undefined
 	valueKey: string | undefined
@@ -45,13 +46,14 @@ export interface OptionItem<
 
 export function getOptions<
 	TResultData extends BaseRecord,
+	TPageParam,
 >(
 	{
 		listData,
 		manyData,
 		labelKey = 'title',
 		valueKey = 'id',
-	}: GetOptionsProps<TResultData>,
+	}: GetOptionsProps<TResultData, TPageParam>,
 ): OptionItem<TResultData>[] {
 	const listOptions = listData?.data.map(item => toOptionItem(item, labelKey, valueKey))
 	const valueOptions = manyData?.data.map(item => toOptionItem(item, labelKey, valueKey))

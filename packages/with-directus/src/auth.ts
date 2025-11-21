@@ -1,6 +1,6 @@
 import type { AuthenticationClient, DirectusClient, LoginOptions, RestClient } from '@directus/sdk'
-import type { Auth } from '@ginjou/core'
 import { readMe } from '@directus/sdk'
+import { defineAuth } from '@ginjou/core'
 
 export interface CreateAuthProps<
 	TClient extends DirectusClient<any> & AuthenticationClient<any> & RestClient<any>,
@@ -31,12 +31,14 @@ export interface LoginWithSSOParams {
 
 export function createAuth<
 	TClient extends DirectusClient<any> & AuthenticationClient<any> & RestClient<any>,
->({
-	client,
-}: CreateAuthProps<TClient>): Auth {
-	return {
-		login: async (params: LoginParams) => {
-			switch (params.type) {
+>(
+	{
+		client,
+	}: CreateAuthProps<TClient>,
+) {
+	return defineAuth({
+		login: async (params?: LoginParams) => {
+			switch (params?.type) {
 				case 'password':
 					await client.login(params.params.email, params.params.password, params.params.options)
 					break
@@ -66,11 +68,11 @@ export function createAuth<
 				error,
 			}
 		},
-		getIdentity: async () => {
+		getIdentity: async (): Promise<Record<any, any>> => {
 			const data = await client.request(readMe())
 			return data
 		},
-	}
+	})
 }
 
 function isClientError(error: unknown): error is {

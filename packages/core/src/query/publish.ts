@@ -9,7 +9,7 @@ export function createPublishPayloadByOne(
 	props: {
 		id: RecordKey
 	} | Record<string, any>,
-	data: CreateResult | UpdateResult | DeleteOneResult,
+	data: CreateResult<any> | UpdateResult<any> | DeleteOneResult<any>,
 ): PublishPayload {
 	const idFromProp = 'id' in props ? props.id : undefined
 	const idFromData = data.data.id
@@ -24,7 +24,7 @@ export function createPublishPayloadByMany(
 	props: {
 		ids: RecordKey[]
 	} | Record<string, any>,
-	data: CreateManyResult | UpdateManyResult | DeleteManyResult,
+	data: CreateManyResult<any> | UpdateManyResult<any> | DeleteManyResult<any>,
 ): PublishPayload {
 	const idsFromData = data.data.map(item => item.id).filter(Boolean)
 	const idsFromProps = 'ids' in props ? props.ids : []

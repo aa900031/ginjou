@@ -1,4 +1,4 @@
-import type { BaseRecord } from '@ginjou/core'
+import type { BaseRecord, Params } from '@ginjou/core'
 import type { UseFormContext, UseFormProps, UseFormResult } from '@ginjou/vue'
 import type { AsyncResult } from '../utils/async'
 import { useForm } from '@ginjou/vue'
@@ -6,7 +6,7 @@ import { withAsync } from '../utils/async'
 
 export function useAsyncForm<
 	TQueryData extends BaseRecord = BaseRecord,
-	TMutationParams = unknown,
+	TMutationParams extends Params = Params,
 	TQueryError = unknown,
 	TQueryResultData extends BaseRecord = TQueryData,
 	TMutationData extends BaseRecord = TQueryResultData,

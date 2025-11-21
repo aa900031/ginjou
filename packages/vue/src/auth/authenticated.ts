@@ -1,4 +1,4 @@
-import type { AuthCheckResult } from '@ginjou/core'
+import type { CheckAuthResult, Params } from '@ginjou/core'
 import type { UseQueryReturnType } from '@tanstack/vue-query'
 import type { Simplify } from 'type-fest'
 import type { UseQueryClientContextProps } from '../query'
@@ -13,7 +13,7 @@ import { useQueryClientContext } from '../query'
 import { useAuthContext } from './auth'
 
 export type UseAuthenticatedProps<
-	TParams,
+	TParams extends Params,
 	TError,
 > = ToMaybeRefs<
 	CheckAuth.Props<TParams, TError>
@@ -28,11 +28,11 @@ export type UseAuthenticatedContext = Simplify<
 export type UseAuthenticatedResult<
 	TError,
 > = Simplify<
-	& UseQueryReturnType<AuthCheckResult, TError>
+	& UseQueryReturnType<CheckAuthResult, TError>
 >
 
 export function useAuthenticated<
-	TParams = unknown,
+	TParams extends Params = Params,
 	TError = unknown,
 >(
 	props?: UseAuthenticatedProps<TParams, TError>,
@@ -52,7 +52,7 @@ export function useAuthenticated<
 		getEnabled: () => unref(props?.queryOptions)?.enabled,
 		getAuth: () => auth,
 	})
-	const query = useQuery<AuthCheckResult, TError>(
+	const query = useQuery<CheckAuthResult, TError>(
 		computed(() => ({
 			...unref(props?.queryOptions),
 			queryKey,
@@ -62,7 +62,7 @@ export function useAuthenticated<
 		})),
 		queryClient,
 	)
-	useQueryCallbacks<AuthCheckResult, TError>({
+	useQueryCallbacks<CheckAuthResult, TError>({
 		queryKey,
 		queryClient,
 		onSuccess: (...args) => unref(props?.queryOptions)?.onSuccess?.(...args),

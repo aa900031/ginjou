@@ -4,20 +4,20 @@ import type { CheckError } from '../auth'
 import type { TranslateFn } from '../i18n'
 import type { NotifyFn } from '../notification'
 import type { Publish } from '../realtime'
-import type { BaseRecord, CustomProps, CustomResult } from './fetcher'
+import type { BaseRecord, CustomFn, CustomProps, CustomResult, Params } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { NotifyProps } from './notify'
 import type { OptionalMutateAsyncFunction, OptionalMutateSyncFunction, OriginMutateAsyncFunction, OriginMutateSyncFunction } from './types'
 import { NotificationType } from '../notification'
 import { getErrorMessage } from '../utils/error'
-import { getFetcher, resolveFetcherProps } from './fetchers'
+import { getFetcherFn, resolveFetcherProps } from './fetchers'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
 
 export type MutationProps<
 	TData extends BaseRecord,
 	TError,
-	TQuery,
-	TPayload,
+	TQuery extends Params,
+	TPayload extends Params,
 > = Simplify<
 	& Partial<CustomProps<TQuery, TPayload>>
 	& FetcherProps
@@ -37,8 +37,8 @@ export type MutationProps<
 export type ResolvedMutationProps<
 	TData extends BaseRecord,
 	TError,
-	TQuery,
-	TPayload,
+	TQuery extends Params,
+	TPayload extends Params,
 > = Simplify<
 	& OverrideProperties<
 		MutationProps<TData, TError, TQuery, TPayload>,
@@ -50,8 +50,8 @@ export type ResolvedMutationProps<
 export type MutationOptions<
 	TData extends BaseRecord,
 	TError,
-	TQuery,
-	TPayload,
+	TQuery extends Params,
+	TPayload extends Params,
 	TMutateResult,
 > = MutationObserverOptions<
 	CustomResult<TData>,
@@ -63,8 +63,8 @@ export type MutationOptions<
 export type MutationOptionsFromProps<
 	TData extends BaseRecord,
 	TError,
-	TQuery,
-	TPayload,
+	TQuery extends Params,
+	TPayload extends Params,
 	TMutateResult,
 > = Omit<
 	MutationOptions<TData, TError, TQuery, TPayload, TMutateResult>,
@@ -74,8 +74,8 @@ export type MutationOptionsFromProps<
 export type Props<
 	TData extends BaseRecord,
 	TError,
-	TQuery,
-	TPayload,
+	TQuery extends Params,
+	TPayload extends Params,
 	TMutateResult,
 > = Simplify<
 	& MutationProps<TData, TError, TQuery, TPayload>
@@ -87,8 +87,8 @@ export type Props<
 export type MutateFn<
 	TData extends BaseRecord,
 	TError,
-	TQuery,
-	TPayload,
+	TQuery extends Params,
+	TPayload extends Params,
 > = OptionalMutateSyncFunction<
 	CustomResult<TData>,
 	TError,
@@ -98,8 +98,8 @@ export type MutateFn<
 export type MutateAsyncFn<
 	TData extends BaseRecord,
 	TError,
-	TQuery,
-	TPayload,
+	TQuery extends Params,
+	TPayload extends Params,
 > = OptionalMutateAsyncFunction<
 	CustomResult<TData>,
 	TError,
@@ -109,8 +109,8 @@ export type MutateAsyncFn<
 export interface CreateMutationFnProps<
 	TData extends BaseRecord,
 	TError,
-	TQuery,
-	TPayload,
+	TQuery extends Params,
+	TPayload extends Params,
 	TMutateResult,
 > {
 	fetchers: Fetchers
@@ -120,8 +120,8 @@ export interface CreateMutationFnProps<
 export function createMutationFn<
 	TData extends BaseRecord,
 	TError,
-	TQuery,
-	TPayload,
+	TQuery extends Params,
+	TPayload extends Params,
 	TMutateResult,
 >(
 	{
@@ -131,11 +131,8 @@ export function createMutationFn<
 ): NonNullable<MutationOptions<TData, TError, TQuery, TPayload, TMutateResult>['mutationFn']> {
 	return async function mutationFn(props) {
 		const resolvedProps = resolveMutationProps(getProps(), props)
-		const fetcher = getFetcher(resolvedProps, fetchers)
-		if (typeof fetcher.custom !== 'function')
-			throw new Error('Not implemented custom on data provider')
-
-		const result = await fetcher.custom<TData, TQuery, TPayload>(resolvedProps)
+		const custom = getFetcherFn(resolvedProps, fetchers, 'custom') as CustomFn<TData, TQuery, TPayload>
+		const result = await custom(resolvedProps)
 
 		return result
 	}
@@ -144,8 +141,8 @@ export function createMutationFn<
 export interface CreateSuccessHandlerProps<
 	TData extends BaseRecord,
 	TError,
-	TQuery,
-	TPayload,
+	TQuery extends Params,
+	TPayload extends Params,
 	TMutateResult,
 > {
 	notify: NotifyFn
@@ -157,8 +154,8 @@ export interface CreateSuccessHandlerProps<
 export function createSuccessHandler<
 	TData extends BaseRecord,
 	TError,
-	TQuery,
-	TPayload,
+	TQuery extends Params,
+	TPayload extends Params,
 	TMutateResult,
 >(
 	{
@@ -190,12 +187,12 @@ export function createSuccessHandler<
 export interface CreateErrorHandlerProps<
 	TData extends BaseRecord,
 	TError,
-	TQuery,
-	TPayload,
+	TQuery extends Params,
+	TPayload extends Params,
 	TMutateResult,
 > {
 	notify: NotifyFn
-	translate: TranslateFn<unknown>
+	translate: TranslateFn<any>
 	checkError: CheckError.MutateAsyncFn<TError, unknown>
 	getProps: () => Props<TData, TError, TQuery, TPayload, TMutateResult> | undefined
 	onError: MutationOptions<TData, TError, TQuery, TPayload, TMutateResult>['onError']
@@ -204,8 +201,8 @@ export interface CreateErrorHandlerProps<
 export function createErrorHandler<
 	TData extends BaseRecord,
 	TError,
-	TQuery,
-	TPayload,
+	TQuery extends Params,
+	TPayload extends Params,
 	TMutateResult,
 >(
 	{
@@ -238,8 +235,8 @@ export function createErrorHandler<
 export interface CreateMutateFnProps<
 	TData extends BaseRecord,
 	TError,
-	TQuery,
-	TPayload,
+	TQuery extends Params,
+	TPayload extends Params,
 > {
 	originFn: OriginMutateSyncFunction<
 		CustomResult<TData>,
@@ -251,8 +248,8 @@ export interface CreateMutateFnProps<
 export function createMutateFn<
 	TData extends BaseRecord,
 	TError,
-	TQuery,
-	TPayload,
+	TQuery extends Params,
+	TPayload extends Params,
 >(
 	{
 		originFn,
@@ -266,8 +263,8 @@ export function createMutateFn<
 export interface CreateMutateAsyncFnProps<
 	TData extends BaseRecord,
 	TError,
-	TQuery,
-	TPayload,
+	TQuery extends Params,
+	TPayload extends Params,
 > {
 	originFn: OriginMutateAsyncFunction<
 		CustomResult<TData>,
@@ -279,8 +276,8 @@ export interface CreateMutateAsyncFnProps<
 export function createMutateAsyncFn<
 	TData extends BaseRecord,
 	TError,
-	TQuery,
-	TPayload,
+	TQuery extends Params,
+	TPayload extends Params,
 >(
 	{
 		originFn,
@@ -294,8 +291,8 @@ export function createMutateAsyncFn<
 function resolveMutationProps<
 	TData extends BaseRecord,
 	TError,
-	TQuery,
-	TPayload,
+	TQuery extends Params,
+	TPayload extends Params,
 	TMutateResult,
 >(
 	propsFromProps: Props<TData, TError, TQuery, TPayload, TMutateResult> | undefined,
@@ -313,8 +310,8 @@ function resolveMutationProps<
 function resolveProps<
 	TData extends BaseRecord,
 	TError,
-	TQuery,
-	TPayload,
+	TQuery extends Params,
+	TPayload extends Params,
 	TMutateResult,
 >(
 	propsFromProps: Props<TData, TError, TQuery, TPayload, TMutateResult> | undefined,

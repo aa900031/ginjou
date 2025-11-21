@@ -6,7 +6,7 @@ import type { TranslateFn } from '../i18n'
 import type { NotifyFn } from '../notification'
 import type { ResolvedRealtimeOptions, SubscribeListParams } from '../realtime'
 import type { QueryEnabledFn } from '../utils/query'
-import type { BaseRecord, GetListProps, GetListResult, GetOneResult } from './fetcher'
+import type { BaseRecord, GetListFn, GetListProps, GetListResult, GetOneResult } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { NotifyProps } from './notify'
 import type { RealtimeProps } from './realtime'
@@ -15,7 +15,7 @@ import { NotificationType } from '../notification'
 import { SubscribeType } from '../realtime'
 import { getErrorMessage } from '../utils/error'
 import { getQuery, resolveQueryEnableds } from '../utils/query'
-import { getFetcher, resolveFetcherProps } from './fetchers'
+import { getFetcherFn, resolveFetcherProps } from './fetchers'
 import { createQueryKey as createGetOneQueryKey } from './get-one'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
 import { createQueryKey as createResourceQueryKey } from './resource'
@@ -76,7 +76,7 @@ export type Props<
 	TPageParam,
 > = Simplify<
 	& QueryProps<TPageParam>
-	& NotifyProps<GetListResult<TResultData>, ResolvedQueryProps<TPageParam>, TError>
+	& NotifyProps<GetListResult<TResultData, TPageParam>, ResolvedQueryProps<TPageParam>, TError>
 	& RealtimeProps<unknown> // TODO: payload
 	& {
 		queryOptions?: Omit<
@@ -152,11 +152,8 @@ export function createQueryFn<
 ): NonNullable<QueryOptions<TData, TError, TResultData, TPageParam>['queryFn']> {
 	return async function queryFn() {
 		const props = getProps()
-		const _fetcher = getFetcher(props, fetchers)
-		if (typeof _fetcher.getList !== 'function')
-			throw new Error('No')
-
-		const result = await _fetcher.getList<TData, TPageParam>(props)
+		const getList = getFetcherFn(props, fetchers, 'getList') as GetListFn<TData, TPageParam>
+		const result = await getList(props)
 		updateCache(queryClient, props, result)
 
 		return result
@@ -169,7 +166,7 @@ export interface CreateSuccessHandlerProps<
 > {
 	notify: NotifyFn
 	getProps: () => ResolvedQueryProps<TPageParam>
-	getSuccessNotify: () => NotifyProps<GetListResult<TResultData>, ResolvedQueryProps<TPageParam>, unknown>['successNotify']
+	getSuccessNotify: () => NotifyProps<GetListResult<TResultData, TPageParam>, ResolvedQueryProps<TPageParam>, unknown>['successNotify']
 	emitParent: NonNullable<QueryOptions<any, unknown, TResultData, TPageParam>['onSuccess']>
 }
 
@@ -202,9 +199,9 @@ export interface CreateErrorHandlerProps<
 	TPageParam,
 > {
 	notify: NotifyFn
-	translate: TranslateFn<unknown>
+	translate: TranslateFn<any>
 	getProps: () => ResolvedQueryProps<TPageParam>
-	getErrorNotify: () => NotifyProps<GetListResult<any>, ResolvedQueryProps<TPageParam>, TError>['errorNotify']
+	getErrorNotify: () => NotifyProps<GetListResult<any, TPageParam>, ResolvedQueryProps<TPageParam>, TError>['errorNotify']
 	checkError: CheckError.MutateAsyncFn<TError, unknown>
 	emitParent: NonNullable<QueryOptions<any, TError, any, TPageParam>['onError']>
 }
@@ -268,9 +265,9 @@ export function createQueryEnabledFn<
 		getQueryOptions,
 		queryClient,
 	}: CreateQueryEnabledFnProps<TData, TError, TResultData, TPageParam>,
-): QueryEnabledFn<GetListResult<TData>, TError, GetListResult<TData>> {
+): QueryEnabledFn<GetListResult<TData, TPageParam>, TError, GetListResult<TData, TPageParam>> {
 	return function enabled(
-		query = getQuery<GetListResult<TData>, TError, GetListResult<TData>>({
+		query = getQuery<GetListResult<TData, TPageParam>, TError, GetListResult<TData, TPageParam>>({
 			...getQueryOptions(),
 			queryKey: getQueryKey(),
 			queryClient,
@@ -289,17 +286,23 @@ export function createQueryEnabledFn<
 	}
 }
 
-export interface GetSubscribeParamsProps {
-	queryProps: ResolvedQueryProps<unknown>
-	realtimeOptions: ResolvedRealtimeOptions<unknown>
+export interface GetSubscribeParamsProps<
+	TPayload,
+	TPageParam,
+> {
+	queryProps: ResolvedQueryProps<TPageParam>
+	realtimeOptions: ResolvedRealtimeOptions<TPayload>
 }
 
-export function getSubscribeParams(
+export function getSubscribeParams<
+	TPayload,
+	TPageParam,
+>(
 	{
 		queryProps,
 		realtimeOptions,
-	}: GetSubscribeParamsProps,
-): SubscribeListParams {
+	}: GetSubscribeParamsProps<TPayload, TPageParam>,
+): SubscribeListParams<TPageParam> {
 	return {
 		type: SubscribeType.List,
 		resource: queryProps.resource,
@@ -314,7 +317,8 @@ export function getSubscribeParams(
 export function createPlacholerDataFn<
 	TData extends BaseRecord,
 	TError,
->(): PlaceholderDataFunction<GetListResult<TData>, TError, GetListResult<TData>> {
+	TPageParam,
+>(): PlaceholderDataFunction<GetListResult<TData, TPageParam>, TError, GetListResult<TData, TPageParam>> {
 	return function placeholderDataFn(previousData) {
 		return previousData
 	}

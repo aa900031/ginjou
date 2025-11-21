@@ -27,7 +27,7 @@ export type NavigateToFn = (
 ) => void
 
 export interface CreateNavigateToProps {
-	go: RouterGoFn
+	go: RouterGoFn<unknown>
 	getResource: () => ResolvedResource | undefined
 	resourceContext: Resource | undefined
 }

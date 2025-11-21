@@ -1,9 +1,10 @@
 import type { MutationFunction, MutationKey, MutationObserverOptions, QueryClient } from '@tanstack/query-core'
 import type { TranslateFn } from '../i18n'
 import type { NotifyFn } from '../notification'
+import type { Params } from '../query'
 import type { OptionalMutateAsyncFunction, OptionalMutateSyncFunction, OriginMutateAsyncFunction, OriginMutateSyncFunction } from '../query/types'
 import type { RouterGoFn, RouterGoParams } from '../router'
-import type { Auth, AuthCommonObjectResult, AuthLoginResult } from './auth'
+import type { Auth, LoginFn, LoginResult } from './auth'
 import { NotificationType } from '../notification'
 import { RouterGoType } from '../router'
 import { getErrorMessage } from '../utils/error'
@@ -11,16 +12,16 @@ import { getRedirectToByObject, resolveIgnoreInvalidate, resolveRedirectTo } fro
 import { triggerInvalidateAll } from './invalidate'
 
 export type MutationOptions<
-	TParams,
+	TParams extends Params,
 	TError,
 > = MutationObserverOptions<
-	AuthLoginResult,
+	LoginResult,
 	TError,
 	TParams
 >
 
 export type MutationOptionsFromProps<
-	TParams,
+	TParams extends Params,
 	TError,
 > = Omit<
 	MutationOptions<TParams, TError>,
@@ -28,28 +29,28 @@ export type MutationOptionsFromProps<
 >
 
 export type MutateFn<
-	TParams,
+	TParams extends Params,
 	TError,
 > = OptionalMutateSyncFunction<
-	AuthLoginResult,
+	LoginResult,
 	TError,
 	TParams
 >
 
 export type MutateAsyncFn<
-	TParams,
+	TParams extends Params,
 	TError,
 > = OptionalMutateAsyncFunction<
-	AuthLoginResult,
+	LoginResult,
 	TError,
 	TParams
 >
 
 export interface Props<
-	TParams,
+	TParams extends Params,
 	TError,
 > {
-	redirectTo?: AuthCommonObjectResult['redirectTo']
+	redirectTo?: LoginResult['redirectTo']
 	ignoreInvalidate?: boolean
 	mutationOptions?: MutationOptionsFromProps<TParams, TError>
 }
@@ -66,28 +67,28 @@ export interface CreateMutationFnProps {
 }
 
 export function createMutationFn<
-	TParams,
+	TParams extends Params,
 >(
 	{
 		auth,
 	}: CreateMutationFnProps,
-): MutationFunction<AuthLoginResult, TParams> {
+): MutationFunction<LoginResult, TParams> {
 	return async function mutationFn(params) {
 		const { login } = auth ?? {}
 		if (typeof login !== 'function')
 			throw new Error('No')
 
-		const result = await login(params)
+		const result = await (login as LoginFn<TParams>)(params) ?? {}
 		return result
 	}
 }
 
 export interface CreateSuccessHandlerProps<
-	TParams,
+	TParams extends Params,
 	TError,
 > {
 	queryClient: QueryClient
-	go: RouterGoFn
+	go: RouterGoFn<unknown>
 	getProps: () => Props<TParams, TError> | undefined
 	onSuccess: MutationOptions<TParams, TError>['onSuccess']
 }
@@ -98,7 +99,7 @@ const DEFAULT_REDIRECT_TO: RouterGoParams = {
 }
 
 export function createSuccessHandler<
-	TParams,
+	TParams extends Params,
 	TError,
 >(
 	{
@@ -124,17 +125,17 @@ export function createSuccessHandler<
 }
 
 export interface CreateErrorHandlerProps<
-	TParams,
+	TParams extends Params,
 	TError,
 > {
 	notify: NotifyFn
-	translate: TranslateFn<unknown>
-	go: RouterGoFn
+	translate: TranslateFn<any>
+	go: RouterGoFn<unknown>
 	onError: MutationOptions<TParams, TError>['onError']
 }
 
 export function createErrorHandler<
-	TParams,
+	TParams extends Params,
 	TError,
 >(
 	{
@@ -168,10 +169,10 @@ export function createErrorHandler<
 
 export interface CreateMutateFnProps<
 	TError,
-	TParams,
+	TParams extends Params,
 > {
 	originFn: OriginMutateSyncFunction<
-		AuthLoginResult,
+		LoginResult,
 		TError,
 		TParams
 	>
@@ -179,7 +180,7 @@ export interface CreateMutateFnProps<
 
 export function createMutateFn<
 	TError,
-	TParams,
+	TParams extends Params,
 >(
 	{
 		originFn,
@@ -192,10 +193,10 @@ export function createMutateFn<
 
 export interface CreateMutateAsyncFnProps<
 	TError,
-	TParams,
+	TParams extends Params,
 > {
 	originFn: OriginMutateAsyncFunction<
-		AuthLoginResult,
+		LoginResult,
 		TError,
 		TParams
 	>
@@ -203,7 +204,7 @@ export interface CreateMutateAsyncFnProps<
 
 export function createMutateAsyncFn<
 	TError,
-	TParams,
+	TParams extends Params,
 >(
 	{
 		originFn,

@@ -11,10 +11,12 @@ export const SubscribeType = {
 
 export type SubscribeTypeValues = ValueOf<typeof SubscribeType>
 
-export interface SubscribeListParams {
+export interface SubscribeListParams<
+	TPageParam,
+> {
 	type: typeof SubscribeType.List
 	resource: string
-	pagination?: Pagination<any>
+	pagination?: Pagination<TPageParam>
 	sorters?: Sorters
 	filters?: Filters
 	meta?: Meta
@@ -42,22 +44,24 @@ export type SubscribeCallbackFn<
 
 export interface SubscribeProps<
 	TPayload,
+	TPageParam,
 > {
 	channel: string
 	actions: RealtimeActionValues[]
 	callback: SubscribeCallbackFn<TPayload>
 	params?:
-		| SubscribeListParams
+		| SubscribeListParams<TPageParam>
 		| SubscribeOneParams
 		| SubscribeManyParams
 		| Record<string, any>
 	meta?: Meta
 }
 
-export type SubscribeFn = <
+export type SubscribeFn<
 	TPayload,
->(
-	props: SubscribeProps<TPayload>,
+	TPageParam,
+> = (
+	props: SubscribeProps<TPayload, TPageParam>,
 ) => UnsubscribeKey
 
 export type UnsubscribeKey = string
@@ -69,9 +73,9 @@ export type UnsubscribeFn = (
 	props: UnsubscribeProps,
 ) => void
 
-export type PublishFn = <
+export type PublishFn<
 	TPayload,
->(
+> = (
 	event: RealtimeEvent<TPayload>,
 ) => void
 
@@ -86,10 +90,12 @@ export interface RealtimeOptions<
 
 export type RealtimeContextOptions<
 	TPayload,
-> = Simplify<Omit<
-	RealtimeOptions<TPayload>,
-	| 'channel'
->>
+> = Simplify<
+	& Omit<
+		RealtimeOptions<TPayload>,
+		| 'channel'
+	>
+>
 
 export type ResolvedRealtimeOptions<
 	TPayload,
@@ -99,8 +105,17 @@ export type ResolvedRealtimeOptions<
 >
 
 export interface Realtime {
-	subscribe: SubscribeFn
+	subscribe: SubscribeFn<any, any>
 	unsubscribe?: UnsubscribeFn
-	publish?: PublishFn
-	options?: RealtimeContextOptions<unknown>
+	publish?: PublishFn<any>
+	options?: RealtimeContextOptions<any>
+}
+
+/* @__NO_SIDE_EFFECTS__ */
+export function defineRealtime<
+	T extends Realtime,
+>(
+	value: T,
+): T {
+	return value
 }

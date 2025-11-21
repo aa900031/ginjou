@@ -1,6 +1,6 @@
 import type { SetOptional } from 'type-fest'
 import type { RealtimeEvent } from './event'
-import type { Realtime } from './realtime'
+import type { PublishFn, Realtime } from './realtime'
 
 export interface CreateEmitFnProps {
 	realtime: Realtime | undefined
@@ -29,7 +29,7 @@ export function createEmitFn<
 			return
 
 		const _event = resolveEvent(event)
-		realtime.publish(_event)
+		;(realtime.publish as PublishFn<TPayload>)(_event)
 	}
 }
 

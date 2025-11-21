@@ -1,4 +1,4 @@
-import type { BaseRecord, DeleteOneResult } from '@ginjou/core'
+import type { BaseRecord, DeleteOneResult, Params } from '@ginjou/core'
 import type { UseMutationReturnType } from '@tanstack/vue-query'
 import type { OverrideProperties, Simplify } from 'type-fest'
 import type { UseCheckErrorContext } from '../auth'
@@ -22,7 +22,7 @@ import { useQueryClientContext } from './query-client'
 export type UseDeleteOneProps<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 > = ToMaybeRefs<
 	DeleteOne.Props<TData, TError, TParams>
 >
@@ -39,7 +39,7 @@ export type UseDeleteOneContext = Simplify<
 export type UseDeleteOneResult<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 > = OverrideProperties<
 	UseMutationReturnType<
 		DeleteOneResult<TData>,
@@ -55,7 +55,7 @@ export type UseDeleteOneResult<
 
 export function useDeleteOne<
 	TData extends BaseRecord = BaseRecord,
-	TParams = TData,
+	TParams extends Params = TData,
 	TError = unknown,
 >(
 	props?: UseDeleteOneProps<TData, TError, TParams>,

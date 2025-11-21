@@ -1,4 +1,4 @@
-import type { BaseRecord, DeleteManyResult } from '@ginjou/core'
+import type { BaseRecord, DeleteManyResult, Params } from '@ginjou/core'
 import type { UseMutationReturnType } from '@tanstack/vue-query'
 import type { OverrideProperties, Simplify } from 'type-fest'
 import type { UseCheckErrorContext } from '../auth'
@@ -22,7 +22,7 @@ import { useQueryClientContext } from './query-client'
 export type UseDeleteManyProps<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 > = ToMaybeRefs<
 	DeleteMany.Props<TData, TError, TParams>
 >
@@ -39,7 +39,7 @@ export type UseDeleteManyContext = Simplify<
 export type UseDeleteManyResult<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 > = OverrideProperties<
 	UseMutationReturnType<
 		DeleteManyResult<TData>,
@@ -55,7 +55,7 @@ export type UseDeleteManyResult<
 
 export function useDeleteMany<
 	TData extends BaseRecord,
-	TParams = TData,
+	TParams extends Params = TData,
 	TError = unknown,
 >(
 	props?: UseDeleteManyProps<TData, TError, TParams>,

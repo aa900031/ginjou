@@ -1,4 +1,4 @@
-import type { BaseRecord, UpdateManyResult } from '@ginjou/core'
+import type { BaseRecord, Params, UpdateManyResult } from '@ginjou/core'
 import type { UseMutationReturnType } from '@tanstack/vue-query'
 import type { OverrideProperties, Simplify } from 'type-fest'
 import type { UseCheckErrorContext } from '../auth'
@@ -22,7 +22,7 @@ import { useQueryClientContext } from './query-client'
 export type UseUpdateManyProps<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 > = ToMaybeRefs<
 	UpdateMany.Props<TData, TError, TParams>
 >
@@ -39,7 +39,7 @@ export type UseUpdateManyContext = Simplify<
 export type UseUpdateManyResult<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 > = OverrideProperties<
 	UseMutationReturnType<
 		UpdateManyResult<TData>,
@@ -55,7 +55,7 @@ export type UseUpdateManyResult<
 
 export function useUpdateMany<
 	TData extends BaseRecord,
-	TParams = TData,
+	TParams extends Params = TData,
 	TError = unknown,
 >(
 	props?: UseUpdateManyProps<TData, TError, TParams>,

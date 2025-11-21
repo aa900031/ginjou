@@ -1,12 +1,12 @@
 import type { SetOptional, SetRequired } from 'type-fest'
-import type { BaseRecord, CreateResult, GetOneResult, Meta, UpdateResult } from '../query'
+import type { BaseRecord, CreateResult, GetOneResult, Meta, Params, UpdateResult } from '../query'
 import type { MutateAsyncFn as CreateMutateFn, MutationOptionsFromProps as CreateMutationOptionsFromProps, MutationProps as CreateMutationProps } from '../query/create'
 import type { QueryOptions as GetOneQueryOptions, QueryOptions } from '../query/get-one'
 import type { MutateAsyncFn as UpdateMutateFn, MutationOptionsFromProps as UpdateMutationOptionsFromProps, MutationProps as UpdateMutationProps } from '../query/update'
 import type { ResolvedResource, ResourceActionForForm, ResourceActionTypeValues } from '../resource'
 import type { NavigateToFn, NavigateToProps } from '../router'
-import { getFetcherName, MutationMode } from '../query'
-import { getResourceIdentifier, ResourceActionType } from '../resource'
+import { MutationMode } from '../query'
+import { getFetcherName, getResourceIdentifier, ResourceActionType } from '../resource'
 import { resolveQueryEnableds } from '../utils/query'
 
 export type RedirectTo<
@@ -21,7 +21,7 @@ export type RedirectTo<
 	)
 
 export type CreateProps<
-	TMutationParams,
+	TMutationParams extends Params,
 	TMutationData extends BaseRecord,
 	TMutationError,
 > = SetOptional<
@@ -42,7 +42,7 @@ export type CreateProps<
 
 export type UpdateProps<
 	TQueryData extends BaseRecord,
-	TMutationParams,
+	TMutationParams extends Params,
 	TQueryError,
 	TQueryResultData extends BaseRecord,
 	TMutationData extends BaseRecord,
@@ -68,7 +68,7 @@ export type UpdateProps<
 
 export type Props<
 	TQueryData extends BaseRecord,
-	TMutationParams,
+	TMutationParams extends Params,
 	TQueryError,
 	TQueryResultData extends BaseRecord,
 	TMutationData extends BaseRecord,
@@ -78,7 +78,7 @@ export type Props<
 		| UpdateProps<TQueryData, TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError>
 
 export type ResolvedCreateProps<
-	TMutationParams,
+	TMutationParams extends Params,
 	TMutationData extends BaseRecord,
 	TMutationError,
 > = SetRequired<
@@ -89,7 +89,7 @@ export type ResolvedCreateProps<
 
 export type ResolvedUpdateProps<
 	TQueryData extends BaseRecord,
-	TMutationParams,
+	TMutationParams extends Params,
 	TQueryError,
 	TQueryResultData extends BaseRecord,
 	TMutationData extends BaseRecord,
@@ -103,7 +103,7 @@ export type ResolvedUpdateProps<
 
 export type ResolvedProps<
 	TQueryData extends BaseRecord,
-	TMutationParams,
+	TMutationParams extends Params,
 	TQueryError,
 	TQueryResultData extends BaseRecord,
 	TMutationData extends BaseRecord,
@@ -114,7 +114,7 @@ export type ResolvedProps<
 
 export interface ResolvePropsParams<
 	TQueryData extends BaseRecord,
-	TMutationParams,
+	TMutationParams extends Params,
 	TQueryError,
 	TQueryResultData extends BaseRecord,
 	TMutationData extends BaseRecord,
@@ -126,7 +126,7 @@ export interface ResolvePropsParams<
 
 export function resolveProps<
 	TQueryData extends BaseRecord,
-	TMutationParams,
+	TMutationParams extends Params,
 	TQueryError,
 	TQueryResultData extends BaseRecord,
 	TMutationData extends BaseRecord,
@@ -242,7 +242,7 @@ export type SaveFn<
 
 export interface CreateSaveFnParams<
 	TQueryData extends BaseRecord,
-	TMutationParams,
+	TMutationParams extends Params,
 	TQueryError,
 	TQueryResultData extends BaseRecord,
 	TMutationData extends BaseRecord,
@@ -256,7 +256,7 @@ export interface CreateSaveFnParams<
 
 export function createSaveFn<
 	TQueryData extends BaseRecord,
-	TMutationParams,
+	TMutationParams extends Params,
 	TQueryError,
 	TQueryResultData extends BaseRecord,
 	TMutationData extends BaseRecord,
@@ -348,7 +348,7 @@ export function getRecord<
 
 function dispatchRedirect<
 	TMutationData extends BaseRecord,
-	TMutationParams,
+	TMutationParams extends Params,
 >(
 	navigateTo: NavigateToFn,
 	props: ResolvedProps<any, TMutationParams, any, any, TMutationData, any>,

@@ -1,3 +1,4 @@
+import type { Params } from '../query'
 import type { I18n } from './i18n'
 
 export interface TranslateFn<
@@ -19,7 +20,7 @@ export interface CreateTranslateFnProps {
 }
 
 export function createTranslateFn<
-	TParams = unknown,
+	TParams extends Params,
 >(
 	{
 		i18n,

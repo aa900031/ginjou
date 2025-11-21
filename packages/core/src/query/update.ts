@@ -4,7 +4,7 @@ import type { CheckError } from '../auth'
 import type { TranslateFn } from '../i18n'
 import type { NotifyFn } from '../notification'
 import type { Publish } from '../realtime'
-import type { BaseRecord, UpdateProps, UpdateResult } from './fetcher'
+import type { BaseRecord, Params, UpdateOneFn, UpdateProps, UpdateResult } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { InvalidatesProps, InvalidateTargetType, ResolvedInvalidatesProps } from './invalidate'
 import type { MutationModeProps, ResolvedMutationModeProps } from './mutation-mode'
@@ -15,7 +15,7 @@ import { NotificationType } from '../notification'
 import { RealtimeAction } from '../realtime/event'
 import { AbortDefer, defer } from '../utils/defer'
 import { getErrorMessage } from '../utils/error'
-import { getFetcher, resolveFetcherProps } from './fetchers'
+import { getFetcherFn, resolveFetcherProps } from './fetchers'
 import { createBaseQueryKey as genBaseGetListQueryKey } from './get-list'
 import { createBaseQueryKey as genBaseGetManyQueryKey } from './get-many'
 import { createQueryKey as genGetOneQueryKey } from './get-one'
@@ -28,7 +28,7 @@ import { createQueryKey as genResourceQueryKey } from './resource'
 export type MutationProps<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 > = Simplify<
 	& Partial<UpdateProps<TParams>>
 	& FetcherProps
@@ -40,7 +40,7 @@ export type MutationProps<
 export type ResolvedMutationProps<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 > = Simplify<
 	& OverrideProperties<
 		MutationProps<TData, TError, TParams>,
@@ -60,7 +60,7 @@ export interface MutationContext<
 export type MutationOptions<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 > = MutationObserverOptions<
 	UpdateResult<TData>,
 	TError,
@@ -71,7 +71,7 @@ export type MutationOptions<
 export type MutationOptionsFromProps<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 > = Omit<
 	MutationOptions<TData, TError, TParams>,
 	| 'mutationFn'
@@ -80,7 +80,7 @@ export type MutationOptionsFromProps<
 export type Props<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 > = Simplify<
 	& MutationProps<TData, TError, TParams>
 	& {
@@ -91,7 +91,7 @@ export type Props<
 export type MutateFn<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 > = OptionalMutateSyncFunction<
 	UpdateResult<TData>,
 	TError,
@@ -102,7 +102,7 @@ export type MutateFn<
 export type MutateAsyncFn<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 > = OptionalMutateAsyncFunction<
 	UpdateResult<TData>,
 	TError,
@@ -113,18 +113,18 @@ export type MutateAsyncFn<
 export interface CreateMutationFnProps<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 > {
 	fetchers: Fetchers
 	notify: NotifyFn
-	translate: TranslateFn<unknown>
+	translate: TranslateFn<any>
 	getProps: () => Props<TData, TError, TParams> | undefined
 }
 
 export function createMutationFn<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 >(
 	{
 		fetchers,
@@ -135,16 +135,12 @@ export function createMutationFn<
 ): NonNullable<MutationOptions<TData, TError, TParams>['mutationFn']> {
 	return async function mutationFn(props) {
 		const resolvedProps = resolveMutationProps(getProps(), props)
-
-		const fetcher = getFetcher(resolvedProps, fetchers)
-		if (typeof fetcher.updateOne !== 'function')
-			throw new Error('No')
-
-		const mutateFn = () => fetcher.updateOne!<TData, TParams>(resolvedProps)
+		const updateOne = getFetcherFn(resolvedProps, fetchers, 'updateOne') as UpdateOneFn<TData, TParams>
+		const executeFn = () => updateOne(resolvedProps)
 
 		switch (resolvedProps.mutationMode) {
 			case MutationMode.Undoable: {
-				const deferResult = defer(mutateFn)
+				const deferResult = defer(executeFn)
 
 				notify(
 					createProgressNotifyParams({
@@ -160,7 +156,7 @@ export function createMutationFn<
 			}
 			case MutationMode.Optimistic:
 			case MutationMode.Pessimistic: {
-				const result = await mutateFn()
+				const result = await executeFn()
 				return result
 			}
 		}
@@ -170,11 +166,11 @@ export function createMutationFn<
 export interface CreateMutateHandlerProps<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 > {
 	queryClient: QueryClient
 	notify: NotifyFn
-	translate: TranslateFn<unknown>
+	translate: TranslateFn<any>
 	getProps: () => Props<TData, TError, TParams> | undefined
 	onMutate: MutationOptions<TData, TError, TParams>['onMutate']
 }
@@ -182,7 +178,7 @@ export interface CreateMutateHandlerProps<
 export function createMutateHandler<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 >(
 	{
 		queryClient,
@@ -246,7 +242,7 @@ export function createMutateHandler<
 export interface CreateSettledHandlerProps<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 > {
 	queryClient: QueryClient
 	getProps: () => Props<TData, TError, TParams> | undefined
@@ -256,7 +252,7 @@ export interface CreateSettledHandlerProps<
 export function createSettledHandler<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 >(
 	{
 		queryClient,
@@ -282,11 +278,11 @@ export function createSettledHandler<
 export interface CreateSuccessHandlerProps<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 > {
 	queryClient: QueryClient
 	notify: NotifyFn
-	translate: TranslateFn<unknown>
+	translate: TranslateFn<any>
 	publish: Publish.EmitFn<PublishPayload>
 	getProps: () => Props<TData, TError, TParams> | undefined
 	onSuccess: MutationOptions<TData, TError, TParams>['onSuccess']
@@ -295,7 +291,7 @@ export interface CreateSuccessHandlerProps<
 export function createSuccessHandler<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 >(
 	{
 		queryClient,
@@ -337,11 +333,11 @@ export function createSuccessHandler<
 export interface CreateErrorHandlerProps<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 > {
 	queryClient: QueryClient
 	notify: NotifyFn
-	translate: TranslateFn<unknown>
+	translate: TranslateFn<any>
 	checkError: CheckError.MutateAsyncFn<TError, unknown>
 	getProps: () => Props<TData, TError, TParams> | undefined
 	onError: MutationOptions<TData, TError, TParams>['onError']
@@ -350,7 +346,7 @@ export interface CreateErrorHandlerProps<
 export function createErrorHandler<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 >(
 	{
 		queryClient,
@@ -390,7 +386,7 @@ export function createErrorHandler<
 export interface CreateMutateFnProps<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 > {
 	originFn: OriginMutateSyncFunction<
 		UpdateResult<TData>,
@@ -403,7 +399,7 @@ export interface CreateMutateFnProps<
 export function createMutateFn<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 >(
 	{
 		originFn,
@@ -417,7 +413,7 @@ export function createMutateFn<
 export interface CreateMutateAsyncFnProps<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 > {
 	originFn: OriginMutateAsyncFunction<
 		UpdateResult<TData>,
@@ -430,7 +426,7 @@ export interface CreateMutateAsyncFnProps<
 export function createMutateAsyncFn<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 >(
 	{
 		originFn,
@@ -443,7 +439,7 @@ export function createMutateAsyncFn<
 
 function createPublishEvent(
 	resolvedProps: ResolvedMutationProps<any, any, any>,
-	data: UpdateResult,
+	data: UpdateResult<any>,
 ): Publish.EmitEvent<PublishPayload> {
 	const payload = createPublishPayloadByOne(resolvedProps, data)
 	const meta = createPublishMeta(resolvedProps)
@@ -465,7 +461,7 @@ const DEFAULT_INVALIDATES: InvalidateTargetType[] = [
 function resolveMutationProps<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 >(
 	propsFromProps: Props<TData, TError, TParams> | undefined,
 	propsFromFn: MutationProps<TData, TError, TParams>,
@@ -484,7 +480,7 @@ function resolveMutationProps<
 function resolveProps<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 >(
 	propsFromProps: Props<TData, TError, TParams> | undefined,
 	propsFromFn: MutationProps<TData, TError, TParams>,
@@ -507,14 +503,15 @@ function resolveProps<
 
 function updateCache<
 	TData extends BaseRecord,
-	TParams,
+	TParams extends Params,
+	TPageParam,
 >(
 	props: ResolvedMutationProps<TData, any, TParams>,
 	queryClient: QueryClient,
 ) {
 	queryClient.setQueriesData(
 		{ queryKey: genBaseGetListQueryKey({ props }) },
-		createModifyListItemUpdaterFn<TData, TParams>(props.id, props.params),
+		createModifyListItemUpdaterFn<TData, TParams, TPageParam>(props.id, props.params),
 	)
 	queryClient.setQueriesData(
 		{ queryKey: genBaseGetManyQueryKey({ props }) },

@@ -1,13 +1,14 @@
 import type { SetOptional, SetRequired, Simplify } from 'type-fest'
-import type { Realtime, SubscribeProps } from './realtime'
+import type { Realtime, SubscribeFn, SubscribeProps } from './realtime'
 import { noop } from 'es-toolkit'
 import { RealtimeAction } from './event'
 
 export type Props<
 	TPayload,
+	TPageParam,
 > = Simplify<
 	& SetOptional<
-		SubscribeProps<TPayload>,
+		SubscribeProps<TPayload, TPageParam>,
 		| 'actions'
 		| 'callback'
 	>
@@ -18,8 +19,9 @@ export type Props<
 
 export type ResolvedProps<
 	TPayload,
+	TPageParam,
 > = SetRequired<
-	Props<TPayload>,
+	Props<TPayload, TPageParam>,
 	| 'actions'
 	| 'callback'
 >
@@ -28,9 +30,10 @@ const DEFAULT_ACTIONS = [RealtimeAction.Any]
 
 export function resolveProps<
 	TPayload,
+	TPageParam,
 >(
-	props: Props<TPayload>,
-): ResolvedProps<TPayload> {
+	props: Props<TPayload, TPageParam>,
+): ResolvedProps<TPayload, TPageParam> {
 	return {
 		...props,
 		actions: props.actions ?? DEFAULT_ACTIONS,
@@ -40,18 +43,20 @@ export function resolveProps<
 
 export interface RegisterProps<
 	TPayload,
+	TPageParam,
 > {
-	props: ResolvedProps<TPayload>
+	props: ResolvedProps<TPayload, TPageParam>
 	realtime: Realtime | undefined
 }
 
 export function register<
 	TPayload,
+	TPageParam,
 >(
 	{
 		props,
 		realtime,
-	}: RegisterProps<TPayload>,
+	}: RegisterProps<TPayload, TPageParam>,
 ): () => void {
 	const {
 		enabled,
@@ -63,7 +68,7 @@ export function register<
 	if (!realtime || !isEnabled)
 		return noop
 
-	const id = realtime.subscribe<TPayload>(rest)
+	const id = (realtime.subscribe as SubscribeFn<TPayload, TPageParam>)(rest)
 
 	return () => {
 		realtime!.unsubscribe?.(id)

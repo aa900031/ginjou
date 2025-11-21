@@ -106,7 +106,7 @@ export function createProgressNotifyKey(
 export interface ResolveProgressNotifyParamsProps extends CreateProgressNotifyKeyProps {
 	props: CreateProgressNotifyKeyProps['props'] & { undoableTimeout: number }
 	defer: DeferResult<unknown>
-	translate: TranslateFn<unknown>
+	translate: TranslateFn<any>
 }
 
 export function createProgressNotifyParams(

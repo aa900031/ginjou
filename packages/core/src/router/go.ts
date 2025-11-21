@@ -20,7 +20,9 @@ export interface RouterGoParams<
 }
 
 export type RouterGoFn<
-	TMeta = unknown,
-> = (params: RouterGoParams<TMeta>) => void
+	TMeta,
+> = (
+	params: RouterGoParams<TMeta>,
+) => void
 
 export type RouterBackFn = () => void

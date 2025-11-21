@@ -2,7 +2,7 @@ import type { QueryFunction, QueryKey, QueryObserverOptions } from '@tanstack/qu
 import type { QueryCallbacks } from 'tanstack-query-callbacks'
 import type { Simplify } from 'type-fest'
 import type { OriginQueryEnabledFn } from '../utils/query'
-import type { Authz } from './authz'
+import type { Authz, GetPermissionsFn } from './authz'
 import { resolveQueryEnableds } from '../utils/query'
 
 export type QueryOptions<
@@ -69,9 +69,8 @@ export function createQueryFn<
 			throw new Error('No')
 
 		const params = getParams()
-		const result = await getPermissions(params)
-
-		return result as TData
+		const result = await (getPermissions as GetPermissionsFn<TData, TParams>)(params)
+		return result
 	}
 }
 

@@ -5,14 +5,14 @@ import type { CheckError } from '../auth'
 import type { TranslateFn } from '../i18n'
 import type { NotifyFn } from '../notification'
 import type { QueryEnabledFn } from '../utils/query'
-import type { BaseRecord, CustomProps, CustomResult } from './fetcher'
+import type { BaseRecord, CustomFn, CustomProps, CustomResult, Params } from './fetcher'
 import type { FetcherProps, Fetchers } from './fetchers'
 import type { NotifyProps } from './notify'
 import type { RealtimeProps } from './realtime'
 import { NotificationType } from '../notification'
 import { getErrorMessage } from '../utils/error'
 import { getQuery, resolveQueryEnableds } from '../utils/query'
-import { getFetcher } from './fetchers'
+import { getFetcherFn } from './fetchers'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
 
 export type QueryOptions<
@@ -33,16 +33,16 @@ export type QueryOptions<
 >
 
 export type QueryProps<
-	TQuery,
-	TPayload,
+	TQuery extends Params,
+	TPayload extends Params,
 > = Simplify<
 	& CustomProps<TQuery, TPayload>
 	& FetcherProps
 >
 
 export type ResolvedQueryProps<
-	TQuery,
-	TPayload,
+	TQuery extends Params,
+	TPayload extends Params,
 > = Simplify<
 	& CustomProps<TQuery, TPayload>
 	& SetRequired<
@@ -55,8 +55,8 @@ export type Props<
 	TData extends BaseRecord,
 	TError,
 	TResultData extends BaseRecord,
-	TQuery,
-	TPayload,
+	TQuery extends Params,
+	TPayload extends Params,
 > = Simplify<
 	& QueryProps<TQuery, TPayload>
 	& NotifyProps<CustomResult<TResultData>, ResolvedQueryProps<TQuery, TPayload>, TError>
@@ -71,8 +71,8 @@ export type Props<
 >
 
 export function resolveQueryProps<
-	TQuery,
-	TPayload,
+	TQuery extends Params,
+	TPayload extends Params,
 >(
 	props: QueryProps<TQuery, TPayload>,
 ): ResolvedQueryProps<TQuery, TPayload> {
@@ -90,15 +90,15 @@ export function resolveQueryProps<
 }
 
 export interface CreateQueryKeyProps<
-	TQuery,
-	TPayload,
+	TQuery extends Params,
+	TPayload extends Params,
 > {
 	props: ResolvedQueryProps<TQuery, TPayload>
 }
 
 export function createQueryKey<
-	TQuery,
-	TPayload,
+	TQuery extends Params,
+	TPayload extends Params,
 >(
 	{
 		props,
@@ -116,8 +116,8 @@ export function createQueryKey<
 }
 
 export interface CreateQueryFnProps<
-	TQuery,
-	TPayload,
+	TQuery extends Params,
+	TPayload extends Params,
 > {
 	fetchers: Fetchers
 	getProps: () => ResolvedQueryProps<TQuery, TPayload>
@@ -127,8 +127,8 @@ export function createQueryFn<
 	TData extends BaseRecord,
 	TResultData extends BaseRecord,
 	TError,
-	TQuery,
-	TPayload,
+	TQuery extends Params,
+	TPayload extends Params,
 >(
 	{
 		getProps,
@@ -137,11 +137,8 @@ export function createQueryFn<
 ): NonNullable<QueryOptions<TData, TError, TResultData>['queryFn']> {
 	return async function queryFn() {
 		const props = getProps()
-		const _fetcher = getFetcher(props, fetchers)
-		if (typeof _fetcher.custom !== 'function')
-			throw new Error('Not implemented custom on data provider')
-
-		const result = await _fetcher.custom<TData, TQuery, TPayload>(props)
+		const custom = getFetcherFn(props, fetchers, 'custom') as CustomFn<TData, TQuery, TPayload>
+		const result = await custom(props)
 
 		return result
 	}
@@ -149,8 +146,8 @@ export function createQueryFn<
 
 export interface CreateSuccessHandlerProps<
 	TResultData extends BaseRecord,
-	TQuery,
-	TPayload,
+	TQuery extends Params,
+	TPayload extends Params,
 > {
 	notify: NotifyFn
 	getProps: () => ResolvedQueryProps<TQuery, TPayload>
@@ -161,8 +158,8 @@ export interface CreateSuccessHandlerProps<
 export function createSuccessHandler<
 	TData extends BaseRecord,
 	TResultData extends BaseRecord,
-	TQuery,
-	TPayload,
+	TQuery extends Params,
+	TPayload extends Params,
 >(
 	{
 		notify,
@@ -185,11 +182,11 @@ export function createSuccessHandler<
 
 export interface CreateErrorHandlerProps<
 	TError,
-	TQuery,
-	TPayload,
+	TQuery extends Params,
+	TPayload extends Params,
 > {
 	notify: NotifyFn
-	translate: TranslateFn<unknown>
+	translate: TranslateFn<any>
 	getProps: () => ResolvedQueryProps<TQuery, TPayload>
 	getErrorNotify: () => NotifyProps<CustomResult<any>, ResolvedQueryProps<TQuery, TPayload>, TError>['errorNotify']
 	checkError: CheckError.MutateAsyncFn<TError, unknown>
@@ -198,8 +195,8 @@ export interface CreateErrorHandlerProps<
 
 export function createErrorHandler<
 	TError,
-	TQuery,
-	TPayload,
+	TQuery extends Params,
+	TPayload extends Params,
 >(
 	{
 		getProps,

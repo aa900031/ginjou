@@ -2,14 +2,14 @@ import type { MutationFunction, MutationKey, MutationObserverOptions } from '@ta
 import type { OriginMutateAsyncFunction } from '../query/types'
 import type { RouterGoFn } from '../router'
 import type { Logout } from './'
-import type { Auth, AuthCheckErrorResult } from './auth'
+import type { Auth, CheckAuthErrorFn, CheckAuthErrorResult } from './auth'
 import { getRedirectToByObject } from './helper'
 
 export type MutationOptions<
 	TParams,
 	TError,
 > = MutationObserverOptions<
-	AuthCheckErrorResult,
+	CheckAuthErrorResult<TParams>,
 	TError,
 	TParams
 >
@@ -44,7 +44,7 @@ export type MutateAsyncFn<
 	TParams,
 	TError,
 > = OriginMutateAsyncFunction<
-	AuthCheckErrorResult,
+	CheckAuthErrorResult<TParams>,
 	TError,
 	TParams
 >
@@ -55,13 +55,13 @@ export function createMutationFn<
 	{
 		auth,
 	}: CreateMutationFnProps,
-): MutationFunction<AuthCheckErrorResult, TParams> {
+): MutationFunction<CheckAuthErrorResult<TParams>, TParams> {
 	return async function mutationFn(params) {
 		const checkError = auth?.checkError
 		if (typeof checkError !== 'function')
 			return {}
 
-		const result = await checkError(params)
+		const result = await (checkError as CheckAuthErrorFn<TParams>)(params)
 		return result
 	}
 }
@@ -70,8 +70,8 @@ export interface CreateSuccessHandlerProps<
 	TParams,
 	TError,
 > {
-	logout: Logout.MutateAsyncFn<unknown, unknown>
-	go: RouterGoFn
+	logout: Logout.MutateAsyncFn<any, any>
+	go: RouterGoFn<unknown>
 	onSuccess: MutationOptions<TParams, TError>['onSuccess']
 }
 

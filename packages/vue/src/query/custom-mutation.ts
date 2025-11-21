@@ -1,4 +1,4 @@
-import type { BaseRecord, CustomResult } from '@ginjou/core'
+import type { BaseRecord, CustomResult, Params } from '@ginjou/core'
 import type { UseMutationReturnType } from '@tanstack/vue-query'
 import type { OverrideProperties, Simplify } from 'type-fest'
 import type { UseCheckErrorContext } from '../auth'
@@ -22,8 +22,8 @@ import { useQueryClientContext } from './query-client'
 export type UseCustomMutationProps<
 	TData extends BaseRecord,
 	TError,
-	TQuery,
-	TPayload,
+	TQuery extends Params,
+	TPayload extends Params,
 	TMutateResult,
 > = ToMaybeRefs<
 	CustomMutation.Props<TData, TError, TQuery, TPayload, TMutateResult>
@@ -41,8 +41,8 @@ export type UseCustomMutationContext = Simplify<
 export type UseCustomMutationResult<
 	TData extends BaseRecord,
 	TError,
-	TQuery,
-	TPayload,
+	TQuery extends Params,
+	TPayload extends Params,
 > = OverrideProperties<
 	UseMutationReturnType<
 		CustomResult<TData>,
@@ -59,8 +59,8 @@ export type UseCustomMutationResult<
 export function useCustomMutation<
 	TData extends BaseRecord,
 	TError,
-	TQuery,
-	TPayload,
+	TQuery extends Params,
+	TPayload extends Params,
 	TMutateResult,
 >(
 	props?: UseCustomMutationProps<TData, TError, TQuery, TPayload, TMutateResult>,

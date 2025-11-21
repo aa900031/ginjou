@@ -1,12 +1,15 @@
 import type { ValueOf } from 'type-fest'
 
-export type Meta = Record<string | number | symbol, unknown>
+export type Meta = Record<any, any>
+
+export type Params = Record<any, any>
 
 export type RecordKey = string | number
 
-export type BaseRecord = {
-	id?: RecordKey | null
-} & Partial<Record<string, any>>
+export interface BaseRecord {
+	id?: RecordKey
+	[key: string]: any
+}
 
 export const SortOrder = {
 	Asc: 'asc',
@@ -77,35 +80,35 @@ export type Filter = (LogicalFilter | ConditionalFilter)
 export type Filters = Filter[]
 
 export interface CursorOnlyNext<
-	TPageParam = number,
+	TPageParam,
 > {
 	prev?: undefined
 	next: TPageParam
 }
 
 export interface CursorOnlyPrev<
-	TPageParam = number,
+	TPageParam,
 > {
 	prev: TPageParam
 	next?: undefined
 }
 
 export interface CursorBi<
-	TPageParam = number,
+	TPageParam,
 > {
 	prev: TPageParam
 	next: TPageParam
 }
 
 export type Cursor<
-	TPageParam = number,
+	TPageParam,
 >
 	= | CursorOnlyNext<TPageParam>
 		| CursorOnlyPrev<TPageParam>
 		| CursorBi<TPageParam>
 
 export interface CreateProps<
-	TParams = Record<string, any>,
+	TParams extends Params,
 > {
 	resource: string
 	params: TParams
@@ -113,19 +116,20 @@ export interface CreateProps<
 }
 
 export interface CreateResult<
-	TData = BaseRecord,
+	TData extends BaseRecord,
 > {
 	data: TData
 }
 
-export type CreateOneFn = <
-	TData extends BaseRecord = BaseRecord,
-	TParams = Record<string, any>,
->(props: CreateProps<TParams>,
+export type CreateOneFn<
+	TData extends BaseRecord,
+	TParams extends Params,
+> = (
+	props: CreateProps<TParams>,
 ) => Promise<CreateResult<TData>>
 
 export interface CreateManyProps<
-	TParams = Record<string, any>,
+	TParams extends Params,
 > {
 	resource: string
 	params: TParams[]
@@ -133,19 +137,20 @@ export interface CreateManyProps<
 }
 
 export interface CreateManyResult<
-	TData = BaseRecord,
+	TData extends BaseRecord,
 > {
 	data: TData[]
 }
 
-export type CreateManyFn = <
-	TData extends BaseRecord = BaseRecord,
-	TParams = Record<string, any>,
->(props: CreateManyProps<TParams>,
+export type CreateManyFn<
+	TData extends BaseRecord,
+	TParams extends Params,
+> = (
+	props: CreateManyProps<TParams>,
 ) => Promise<CreateManyResult<TData>>
 
 export interface DeleteManyProps<
-	TParams = Record<string, any>,
+	TParams extends Params,
 > {
 	resource: string
 	ids: RecordKey[]
@@ -154,19 +159,20 @@ export interface DeleteManyProps<
 }
 
 export interface DeleteManyResult<
-	TData = BaseRecord,
+	TData extends BaseRecord,
 > {
 	data: TData[]
 }
 
-export type DeleteManyFn = <
-	TData extends BaseRecord = BaseRecord,
-	TParams = Record<string, any>,
->(props: DeleteManyProps<TParams>,
+export type DeleteManyFn<
+	TData extends BaseRecord,
+	TParams extends Params,
+> = (
+	props: DeleteManyProps<TParams>,
 ) => Promise<DeleteManyResult<TData>>
 
 export interface DeleteOneProps<
-	TParams = Record<string, any>,
+	TParams extends Params,
 > {
 	resource: string
 	id: RecordKey
@@ -175,20 +181,21 @@ export interface DeleteOneProps<
 }
 
 export interface DeleteOneResult<
-	TData = BaseRecord,
+	TData extends BaseRecord,
 > {
 	data: TData
 }
 
-export type DeleteOneFn = <
-	TData extends BaseRecord = BaseRecord,
-	TParams = Record<string, any>,
->(props: DeleteOneProps<TParams>,
+export type DeleteOneFn<
+	TData extends BaseRecord,
+	TParams extends Params,
+> = (
+	props: DeleteOneProps<TParams>,
 ) => Promise<DeleteOneResult<TData>>
 
 export interface CustomProps<
-	TQuery = unknown,
-	TPayload = unknown,
+	TQuery extends Params,
+	TPayload extends Params,
 > {
 	url: string
 	method:
@@ -208,26 +215,27 @@ export interface CustomProps<
 }
 
 export interface CustomResult<
-	TData = BaseRecord,
+	TData extends BaseRecord,
 > {
 	data: TData
 }
 
-export type CustomFn = <
-	TData extends BaseRecord = BaseRecord,
-	TQuery = unknown,
-	TPayload = unknown,
->(props: CustomProps<TQuery, TPayload>,
+export type CustomFn<
+	TData extends BaseRecord,
+	TQuery extends Params,
+	TPayload extends Params,
+> = (
+	props: CustomProps<TQuery, TPayload>,
 ) => Promise<CustomResult<TData>>
 
 export interface UpdateResult<
-	TData extends BaseRecord = BaseRecord,
+	TData extends BaseRecord,
 > {
 	data: TData
 }
 
 export interface UpdateProps<
-	TParams = Record<string, any>,
+	TParams extends Params,
 > {
 	resource: string
 	id: RecordKey
@@ -235,14 +243,15 @@ export interface UpdateProps<
 	meta?: Meta
 }
 
-export type UpdateOneFn = <
-	TData extends BaseRecord = BaseRecord,
-	TParams = Record<string, any>,
->(props: UpdateProps<TParams>,
+export type UpdateOneFn<
+	TData extends BaseRecord,
+	TParams extends Params,
+> = (
+	props: UpdateProps<TParams>,
 ) => Promise<UpdateResult<TData>>
 
 export interface UpdateManyProps<
-	TParams = Record<string, any>,
+	TParams extends Params,
 > {
 	resource: string
 	ids: RecordKey[]
@@ -251,15 +260,16 @@ export interface UpdateManyProps<
 }
 
 export interface UpdateManyResult<
-	TData extends BaseRecord = BaseRecord,
+	TData extends BaseRecord,
 > {
 	data: TData[]
 }
 
-export type UpdateManyFn = <
-	TData extends BaseRecord = BaseRecord,
-	TParams = Record<string, any>,
->(props: UpdateManyProps<TParams>,
+export type UpdateManyFn<
+	TData extends BaseRecord,
+	TParams extends Params,
+> = (
+	props: UpdateManyProps<TParams>,
 ) => Promise<UpdateManyResult<TData>>
 
 export interface GetOneProps {
@@ -269,14 +279,15 @@ export interface GetOneProps {
 }
 
 export interface GetOneResult<
-	TData extends BaseRecord = BaseRecord,
+	TData extends BaseRecord,
 > {
 	data: TData
 }
 
-export type GetOneFn = <
-	TData extends BaseRecord = BaseRecord,
->(props: GetOneProps,
+export type GetOneFn<
+	TData extends BaseRecord,
+> = (
+	props: GetOneProps,
 ) => Promise<GetOneResult<TData>>
 
 export interface GetManyProps {
@@ -286,18 +297,19 @@ export interface GetManyProps {
 }
 
 export interface GetManyResult<
-	TData extends BaseRecord = BaseRecord,
+	TData extends BaseRecord,
 > {
 	data: TData[]
 }
 
-export type GetManyFn = <
-	TData extends BaseRecord = BaseRecord,
->(props: GetManyProps,
+export type GetManyFn<
+	TData extends BaseRecord,
+> = (
+	props: GetManyProps,
 ) => Promise<GetManyResult<TData>>
 
 export interface GetListProps<
-	TPageParam = number,
+	TPageParam,
 > {
 	resource: string
 	pagination?: Pagination<TPageParam>
@@ -307,42 +319,52 @@ export interface GetListProps<
 }
 
 export interface BaseGetListResult<
-	TData extends BaseRecord = BaseRecord,
+	TData extends BaseRecord,
 > {
 	data: TData[]
 	total: number
 }
 
 export interface GetInfiniteListResult<
-	TData extends BaseRecord = BaseRecord,
-	TPageParam = number,
+	TData extends BaseRecord,
+	TPageParam,
 > extends BaseGetListResult<TData> {
 	pagination?: Pagination<TPageParam>
 	cursor?: Cursor<TPageParam>
 }
 
 export type GetListResult<
-	TData extends BaseRecord = BaseRecord,
-	TPageParam = number,
+	TData extends BaseRecord,
+	TPageParam,
 >
 	= | BaseGetListResult<TData>
 		| GetInfiniteListResult<TData, TPageParam>
 
-export type GetListFn = <
-	TData extends BaseRecord = BaseRecord,
-	TPageParam = number,
->(props: GetListProps<TPageParam>,
+export type GetListFn<
+	TData extends BaseRecord,
+	TPageParam,
+> = (
+	props: GetListProps<TPageParam>,
 ) => Promise<GetListResult<TData, TPageParam>>
 
 export interface Fetcher {
-	getList?: GetListFn
-	getMany?: GetManyFn
-	getOne?: GetOneFn
-	createOne?: CreateOneFn
-	createMany?: CreateManyFn
-	updateOne?: UpdateOneFn
-	updateMany?: UpdateManyFn
-	deleteOne?: DeleteOneFn
-	deleteMany?: DeleteManyFn
-	custom?: CustomFn
+	getList?: GetListFn<any, any>
+	getMany?: GetManyFn<any>
+	getOne?: GetOneFn<any>
+	createOne?: CreateOneFn<any, any>
+	createMany?: CreateManyFn<any, any>
+	updateOne?: UpdateOneFn<any, any>
+	updateMany?: UpdateManyFn<any, any>
+	deleteOne?: DeleteOneFn<any, any>
+	deleteMany?: DeleteManyFn<any, any>
+	custom?: CustomFn<any, any, any>
+}
+
+/* @__NO_SIDE_EFFECTS__ */
+export function defineFetcher<
+	T extends Fetcher,
+>(
+	value: T,
+): T {
+	return value
 }

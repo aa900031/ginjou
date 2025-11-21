@@ -1,4 +1,4 @@
-import type { BaseRecord, UpdateResult } from '@ginjou/core'
+import type { BaseRecord, Params, UpdateResult } from '@ginjou/core'
 import type { UseMutationReturnType } from '@tanstack/vue-query'
 import type { OverrideProperties, Simplify } from 'type-fest'
 import type { UseCheckErrorContext } from '../auth'
@@ -22,7 +22,7 @@ import { useQueryClientContext } from './query-client'
 export type UseUpdateOneProps<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 > = ToMaybeRefs<
 	UpdateOne.Props<TData, TError, TParams>
 >
@@ -39,7 +39,7 @@ export type UseUpdateOneContext = Simplify<
 export type UseUpdateOneResult<
 	TData extends BaseRecord,
 	TError,
-	TParams,
+	TParams extends Params,
 > = OverrideProperties<
 	UseMutationReturnType<
 		UpdateResult<TData>,
@@ -55,7 +55,7 @@ export type UseUpdateOneResult<
 
 export function useUpdateOne<
 	TData extends BaseRecord = BaseRecord,
-	TParams = TData,
+	TParams extends Params = TData,
 	TError = unknown,
 >(
 	props?: UseUpdateOneProps<TData, TError, TParams>,

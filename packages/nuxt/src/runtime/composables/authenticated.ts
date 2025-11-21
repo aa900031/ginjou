@@ -1,10 +1,11 @@
+import type { Params } from '@ginjou/core'
 import type { UseAuthenticatedContext, UseAuthenticatedProps, UseAuthenticatedResult } from '@ginjou/vue'
 import type { AsyncResult } from '../utils/async'
 import { useAuthenticated } from '@ginjou/vue'
 import { withAsync } from '../utils/async'
 
 export function useAsyncAuthenticated<
-	TParams = unknown,
+	TParams extends Params = Params,
 	TError = unknown,
 >(
 	props?: UseAuthenticatedProps<TParams, TError>,

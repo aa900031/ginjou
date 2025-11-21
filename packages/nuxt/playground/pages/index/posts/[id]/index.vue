@@ -4,14 +4,15 @@ const { data: authenticated } = await useAsyncAuthenticated()
 if (!unref(authenticated)?.authenticated) {
 	throw createError({
 		status: 401,
+		fatal: true,
 	})
 }
 </script>
 
 <template>
-	<h1>Post #{{ record.id }}</h1>
+	<h1>Post #{{ record!.id }}</h1>
 	<pre>{{ record }}</pre>
-	<NuxtLink :to="`/posts/${record.id}/edit`">
+	<NuxtLink :to="`/posts/${record!.id}/edit`">
 		Edit
 	</NuxtLink>
 </template>

@@ -1,3 +1,4 @@
+import type { BaseRecord, Params } from '@ginjou/core'
 import type { UseQueryReturnType } from '@tanstack/vue-query'
 import type { Simplify } from 'type-fest'
 import type { UseQueryClientContextProps } from '../query'
@@ -11,8 +12,8 @@ import { useQueryClientContext } from '../query'
 import { useAuthContext } from './auth'
 
 export type UseGetIdentityProps<
-	TData,
-	TParams,
+	TData extends BaseRecord,
+	TParams extends Params,
 	TError,
 > = ToMaybeRefs<
 	Identity.Props<TData, TParams, TError>
@@ -24,7 +25,7 @@ export type UseGetIdentityContext = Simplify<
 >
 
 export type UseGetIdentityResult<
-	TData,
+	TData extends BaseRecord,
 	TError,
 > = UseQueryReturnType<
 	TData,
@@ -32,8 +33,8 @@ export type UseGetIdentityResult<
 >
 
 export function useGetIdentity<
-	TData = unknown,
-	TParams = unknown,
+	TData extends BaseRecord = BaseRecord,
+	TParams extends Params = Params,
 	TError = unknown,
 >(
 	props?: UseGetIdentityProps<TData, TParams, TError>,

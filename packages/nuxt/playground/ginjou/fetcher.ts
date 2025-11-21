@@ -11,7 +11,7 @@ export default () => defineFetchersContext({
 							id,
 							name: `posts-${id}`,
 							user: `${id}`,
-						} as any,
+						},
 					}
 				case 'users':
 					return {
@@ -41,7 +41,7 @@ export default () => defineFetchersContext({
 							},
 						],
 						total: 2,
-					} as any
+					}
 				case 'users':
 					return {
 						data: [
@@ -55,12 +55,12 @@ export default () => defineFetchersContext({
 							},
 						],
 						total: 2,
-					} as any
+					}
 				default:
 					throw new Error('No')
 			}
 		},
-		update: async ({ resource, id, params }) => {
+		updateOne: async ({ resource, id, params }) => {
 			switch (resource) {
 				case 'posts':
 					return {
@@ -68,7 +68,7 @@ export default () => defineFetchersContext({
 							id,
 							...params,
 						},
-					} as any
+					}
 				default:
 					throw new Error('No')
 			}

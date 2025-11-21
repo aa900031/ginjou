@@ -21,7 +21,7 @@ export function useLocation<
 >(
 	context?: UseLocationContext,
 ): UseLocationResult<TMeta> {
-	const router = useRouterContext<unknown, TMeta>(context)
+	const router = useRouterContext(context)
 
 	const result = shallowRef(router?.getLocation()) as Ref<RouterLocation<TMeta> | undefined>
 	router?.onChangeLocation((location) => {
