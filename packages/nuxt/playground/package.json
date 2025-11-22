@@ -10,6 +10,6 @@
 	},
 	"dependencies": {
 		"@ginjou/nuxt": "workspace:^",
-		"nuxt": "^3.19.3"
+		"nuxt": "^3.20.1"
 	}
 }
