@@ -11,13 +11,11 @@ export default defineConfig({
 		coverage: {
 			provider: 'istanbul',
 			include: [
-				'packages/core/src/**/*',
-				'packages/vue/src/**/*',
+				'packages/*/src/**/*',
 			],
 		},
 		projects: [
-			'packages/core',
-			'packages/vue',
+			'packages/*',
 			{
 				plugins: isCI
 					? [

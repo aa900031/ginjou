@@ -38,7 +38,7 @@ export function createFetcher<
 				...(sorters ? genSorters(sorters) : undefined),
 			})
 
-			const fn = getProtectedFunction(resource, 'read')
+			const fn = getProtectedFunction(resource, 'read', false)
 			const data = await client.request(fn ? fn(query) : sdk.readItems(resource as any, query as any))
 
 			const aggregateOptions = {
@@ -190,7 +190,7 @@ function genSorters(
 		})
 		.filter(Boolean) as string[]
 
-	if (resolved.length <= 1)
+	if (resolved.length === 0)
 		return
 
 	return {
