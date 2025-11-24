@@ -37,9 +37,4 @@ export default defineConfig({
 			},
 		],
 	},
-	resolve: {
-		alias: {
-			'@ginjou/core': fileURLToPath(new URL('./packages/core/src/index.ts', import.meta.url)),
-		},
-	},
 })
