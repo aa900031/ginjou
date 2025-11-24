@@ -16,6 +16,7 @@ export default defineConfig({
 		},
 		projects: [
 			'packages/*',
+			'!packages/nuxt',
 			{
 				plugins: isCI
 					? [
