@@ -1,3 +1,4 @@
+import { fileURLToPath, URL } from 'node:url'
 import { getV8Flags } from '@codspeed/core'
 import codspeed from '@codspeed/vitest-plugin'
 import { isCI } from 'std-env'
@@ -35,5 +36,10 @@ export default defineConfig({
 				},
 			},
 		],
+	},
+	resolve: {
+		alias: {
+			'@ginjou/core': fileURLToPath(new URL('./packages/core/src/index.ts', import.meta.url)),
+		},
 	},
 })
