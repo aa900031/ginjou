@@ -1,4 +1,3 @@
-import { fileURLToPath, URL } from 'node:url'
 import { getV8Flags } from '@codspeed/core'
 import codspeed from '@codspeed/vitest-plugin'
 import { isCI } from 'std-env'
