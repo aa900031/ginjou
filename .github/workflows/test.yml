@@ -17,9 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v6
 
       - name: Setup
         uses: aa900031/github-actions/setup-node@main
@@ -34,11 +32,12 @@ jobs:
 
   benchmark-test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v6
 
       - name: Setup
         uses: aa900031/github-actions/setup-node@main
@@ -48,4 +47,3 @@ jobs:
         with:
           mode: instrumentation
           run: pnpm vitest bench
-          token: ${{ secrets.CODSPEED_TOKEN }}

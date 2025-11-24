@@ -15,7 +15,7 @@ jobs:
       is_latest: ${{ steps.verify.outputs.is_latest }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -42,9 +42,7 @@ jobs:
       id-token: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v6
 
       - name: Setup
         uses: aa900031/github-actions/setup-node@main
