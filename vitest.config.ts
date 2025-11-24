@@ -13,6 +13,9 @@ export default defineConfig({
 			include: [
 				'packages/*/src/**/*',
 			],
+			exclude: [
+				'packages/nuxt/**/*',
+			],
 		},
 		projects: [
 			'packages/*',
