@@ -1,5 +1,6 @@
 {
 	"name": "@ginjou/vite-config",
+	"version": "0.1.0",
 	"private": true,
 	"author": "zhong666 <hi@zhong666.me>",
 	"exports": {
