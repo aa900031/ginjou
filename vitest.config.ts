@@ -35,5 +35,8 @@ export default defineConfig({
 				},
 			},
 		],
+		outputFile: {
+			junit: './reports/junit.xml',
+		},
 	},
 })

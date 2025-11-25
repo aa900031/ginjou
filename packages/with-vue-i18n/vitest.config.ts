@@ -1,4 +1,4 @@
-import { fileURLToPath, URL } from 'node:url'
+import alias from '@ginjou/vite-config/alias'
 import { defineProject } from 'vitest/config'
 
 export default defineProject({
@@ -11,8 +11,6 @@ export default defineProject({
 		},
 	},
 	resolve: {
-		alias: {
-			'@ginjou/core': fileURLToPath(new URL('../core/src/index.ts', import.meta.url)),
-		},
+		alias,
 	},
 })

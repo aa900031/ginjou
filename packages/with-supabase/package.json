@@ -46,6 +46,7 @@
 	"devDependencies": {
 		"@ginjou/core": "workspace:^",
 		"@ginjou/tsconfig": "workspace:*",
+		"@ginjou/vite-config": "workspace:*",
 		"@supabase/supabase-js": "^2.81.1"
 	}
 }
