@@ -2,6 +2,9 @@
 	"name": "@ginjou/vite-config",
 	"private": true,
 	"author": "zhong666 <hi@zhong666.me>",
+	"exports": {
+		"./alias": "./alias.mjs"
+	},
 	"devDependencies": {
 		"@ginjou/tsconfig": "workspace:*"
 	}
