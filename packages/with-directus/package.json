@@ -52,6 +52,7 @@
 	"devDependencies": {
 		"@directus/sdk": "^15.1.0",
 		"@ginjou/core": "workspace:^",
-		"@ginjou/tsconfig": "workspace:*"
+		"@ginjou/tsconfig": "workspace:*",
+		"@ginjou/vite-config": "workspace:*"
 	}
 }

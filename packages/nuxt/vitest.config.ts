@@ -1,14 +1,12 @@
 import alias from '@ginjou/vite-config/alias'
-import { defineProject } from 'vitest/config'
+import { defaultExclude, defineProject } from 'vitest/config'
 
 export default defineProject({
 	test: {
-		include: [
-			'**/*.{test,spec}.ts',
+		exclude: [
+			...defaultExclude,
+			'playground/**',
 		],
-		benchmark: {
-			include: [],
-		},
 	},
 	resolve: {
 		alias,

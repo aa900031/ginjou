@@ -11,9 +11,7 @@
 		{ "path": "../vue/tsconfig.app.json" }
 	],
 	"include": [
-		"src/**/*.test.ts",
-		"src/**/*.spec.ts",
-		"src/**/*.bench.ts",
+		"src/**/*.ts",
 		"test/**/*.ts"
 	],
 	"exclude": []

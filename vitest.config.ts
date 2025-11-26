@@ -11,13 +11,15 @@ export default defineConfig({
 		coverage: {
 			provider: 'istanbul',
 			include: [
-				'packages/core/src/**/*',
-				'packages/vue/src/**/*',
+				'packages/*/src/**/*',
+			],
+			exclude: [
+				'packages/nuxt/**/*',
 			],
 		},
 		projects: [
-			'packages/core',
-			'packages/vue',
+			'packages/*',
+			'!packages/nuxt',
 			{
 				plugins: isCI
 					? [
@@ -33,5 +35,8 @@ export default defineConfig({
 				},
 			},
 		],
+		outputFile: {
+			junit: './reports/junit.xml',
+		},
 	},
 })
