@@ -1,4 +1,4 @@
-import type { BaseRecord, Params } from '../query'
+import type { Params } from '../query'
 import type { RouterGoParams } from '../router'
 
 export interface LoginResult {
