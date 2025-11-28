@@ -1,4 +1,4 @@
-import type { BaseRecord, Params } from '@ginjou/core'
+import type { GetIdentityResult, Params } from '@ginjou/core'
 import type { UseQueryReturnType } from '@tanstack/vue-query'
 import type { Simplify } from 'type-fest'
 import type { UseQueryClientContextProps } from '../query'
@@ -12,7 +12,7 @@ import { useQueryClientContext } from '../query'
 import { useAuthContext } from './auth'
 
 export type UseGetIdentityProps<
-	TData extends BaseRecord,
+	TData,
 	TParams extends Params,
 	TError,
 > = ToMaybeRefs<
@@ -25,15 +25,15 @@ export type UseGetIdentityContext = Simplify<
 >
 
 export type UseGetIdentityResult<
-	TData extends BaseRecord,
+	TData,
 	TError,
 > = UseQueryReturnType<
-	TData,
+	GetIdentityResult<TData>,
 	TError
 >
 
 export function useGetIdentity<
-	TData extends BaseRecord = BaseRecord,
+	TData = unknown,
 	TParams extends Params = Params,
 	TError = unknown,
 >(
@@ -52,7 +52,7 @@ export function useGetIdentity<
 		getEnabled: () => unref(props?.queryOptions)?.enabled,
 		getAuth: () => auth,
 	})
-	const query = useQuery<TData, TError>(
+	const query = useQuery<GetIdentityResult<TData>, TError>(
 		computed(() => ({
 			// FIXME: type
 			...unref(props?.queryOptions) as any,
@@ -62,7 +62,7 @@ export function useGetIdentity<
 		})),
 		queryClient,
 	)
-	useQueryCallbacks<TData, TError>({
+	useQueryCallbacks<GetIdentityResult<TData>, TError>({
 		queryKey,
 		queryClient,
 		onSuccess: (...args) => unref(props?.queryOptions)?.onSuccess?.(...args),

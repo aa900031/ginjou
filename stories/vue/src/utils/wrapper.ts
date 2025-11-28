@@ -158,11 +158,7 @@ function createAuth() {
 					username: (window as any).__AUTH,
 				}
 			}
-			else {
-				const error = new Error('AuthError')
-				Object.assign(error, { isAuthError: true })
-				throw error
-			}
+			return null
 		},
 	})
 }

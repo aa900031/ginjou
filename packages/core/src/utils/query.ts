@@ -4,7 +4,7 @@ import { hashKey } from '@tanstack/query-core'
 export type OriginQueryEnabledFn<
 	TQueryFnData,
 	TError,
-	TData,
+	TData = TQueryFnData,
 > = (
 	query: Query<TQueryFnData, TError, TData>,
 ) => boolean

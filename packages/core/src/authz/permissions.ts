@@ -2,7 +2,7 @@ import type { QueryFunction, QueryKey, QueryObserverOptions } from '@tanstack/qu
 import type { QueryCallbacks } from 'tanstack-query-callbacks'
 import type { Simplify } from 'type-fest'
 import type { OriginQueryEnabledFn } from '../utils/query'
-import type { Authz, GetPermissionsFn } from './authz'
+import type { Authz, GetPermissionsFn, GetPermissionsResult } from './authz'
 import { resolveQueryEnableds } from '../utils/query'
 
 export type QueryOptions<
@@ -10,11 +10,11 @@ export type QueryOptions<
 	TError,
 > = Simplify<
 	& QueryObserverOptions<
-		TData,
+		GetPermissionsResult<TData>,
 		TError
 	>
 	& QueryCallbacks<
-		TData,
+		GetPermissionsResult<TData>,
 		TError
 	>
 >
@@ -24,7 +24,6 @@ export type Props<
 	TParams,
 	TError,
 > = Simplify<
-	& {}
 	& {
 		params?: TParams
 		queryOptions?: Omit<
@@ -62,7 +61,7 @@ export function createQueryFn<
 		authz,
 		getParams,
 	}: CreateQueryFnProps<TParams>,
-): QueryFunction<TData> {
+): QueryFunction<GetPermissionsResult<TData>> {
 	return async function queryFn() {
 		const { getPermissions } = authz ?? {}
 		if (typeof getPermissions !== 'function')
@@ -90,7 +89,7 @@ export function createQueryEnabledFn<
 		getAuthz,
 		getEnabled,
 	}: CreateQueryEnabledFnProps<TData, TError>,
-): OriginQueryEnabledFn<TData, TError, TData> {
+): OriginQueryEnabledFn<GetPermissionsResult<TData>, TError> {
 	return function enabled(
 		query,
 	) {

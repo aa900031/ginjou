@@ -85,7 +85,7 @@ export function createQueryEnabledFn<
 		getAuth,
 		getEnabled,
 	}: CreateQueryEnabledFnProps<TError>,
-): OriginQueryEnabledFn<CheckAuthResult, TError, CheckAuthResult> {
+): OriginQueryEnabledFn<CheckAuthResult, TError> {
 	return function enabled(
 		query,
 	) {

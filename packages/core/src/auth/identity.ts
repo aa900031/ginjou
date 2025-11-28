@@ -1,33 +1,39 @@
 import type { QueryFunction, QueryKey, QueryObserverOptions } from '@tanstack/query-core'
 import type { QueryCallbacks } from 'tanstack-query-callbacks'
 import type { Simplify } from 'type-fest'
-import type { BaseRecord, Params } from '../query'
+import type { Params } from '../query'
 import type { OriginQueryEnabledFn } from '../utils/query'
-import type { Auth, GetIdentityFn } from './auth'
+import type { Auth, GetIdentityFn, GetIdentityResult } from './auth'
 import { resolveQueryEnableds } from '../utils/query'
 
 export type QueryOptions<
-	TData extends BaseRecord,
+	TData,
 	TError,
 > = Simplify<
 	& QueryObserverOptions<
-		TData,
+		GetIdentityResult<TData>,
 		TError
 	>
 	& QueryCallbacks<
-		TData,
+		GetIdentityResult<TData>,
 		TError
 	>
 >
 
-export interface Props<
-	TData extends BaseRecord,
+export type Props<
+	TData,
 	TParams extends Params,
 	TError,
-> {
-	params?: TParams
-	queryOptions?: QueryOptions<TData, TError>
-}
+> = Simplify<
+	& {
+		params?: TParams
+		queryOptions?: Omit<
+			QueryOptions<TData, TError>,
+			| 'queryFn'
+			| 'queryKey'
+		>
+	}
+>
 
 export function createQueryKey<
 	TParams extends Params,
@@ -49,14 +55,14 @@ export interface CreateQueryFnProps<
 }
 
 export function createQueryFn<
-	TData extends BaseRecord,
+	TData,
 	TParams extends Params,
 >(
 	{
 		auth,
 		getParams,
 	}: CreateQueryFnProps<TParams>,
-): QueryFunction<TData> {
+): QueryFunction<GetIdentityResult<TData>> {
 	return async function queryFn() {
 		const { getIdentity } = auth ?? {}
 		if (typeof getIdentity !== 'function')
@@ -69,7 +75,7 @@ export function createQueryFn<
 }
 
 export interface CreateQueryEnabledFnProps<
-	TData extends BaseRecord,
+	TData,
 	TError,
 > {
 	getAuth: () => Auth | undefined
@@ -77,14 +83,14 @@ export interface CreateQueryEnabledFnProps<
 }
 
 export function createQueryEnabledFn<
-	TData extends BaseRecord,
+	TData,
 	TError,
 >(
 	{
 		getAuth,
 		getEnabled,
 	}: CreateQueryEnabledFnProps<TData, TError>,
-): OriginQueryEnabledFn<TData, TError, TData> {
+): OriginQueryEnabledFn<GetIdentityResult<TData>, TError> {
 	return function enabled(
 		query,
 	) {

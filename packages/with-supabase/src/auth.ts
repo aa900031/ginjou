@@ -129,9 +129,6 @@ export function createAuth(
 			const { data: { user }, error } = await client.auth.getUser()
 			if (error)
 				throw error
-			if (user == null)
-				throw new Error('No')
-
 			return user
 		},
 	})

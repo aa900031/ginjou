@@ -87,7 +87,7 @@ export function createQueryEnabledFn<
 		getAuthz,
 		getEnabled,
 	}: CreateQueryEnabledFnProps<TError>,
-): OriginQueryEnabledFn<AccessCanResult, TError, AccessCanResult> {
+): OriginQueryEnabledFn<AccessCanResult, TError> {
 	return function enabled(
 		query,
 	) {

@@ -2,7 +2,7 @@
 import { useLogin, usePermissions } from '@ginjou/vue'
 
 const { mutateAsync: login } = useLogin()
-const { data: permissions, isLoading } = usePermissions()
+const { data: permissions, isLoading } = usePermissions<string[]>()
 
 login()
 </script>

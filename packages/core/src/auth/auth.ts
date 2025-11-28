@@ -56,19 +56,23 @@ export type CheckAuthErrorFn<
 	error: TError,
 ) => Promise<CheckAuthErrorResult<TError>>
 
+export type GetIdentityResult<
+	TData,
+> = TData | null
+
 export type GetIdentityFn<
-	TData extends BaseRecord,
+	TData,
 	TParams extends Params,
 > = (
 	params?: TParams,
-) => Promise<TData>
+) => Promise<GetIdentityResult<TData>>
 
 export interface Auth {
 	login: LoginFn<any>
 	logout: LogoutFn<any>
 	check: CheckAuthFn<any>
 	checkError: CheckAuthErrorFn<unknown>
-	getIdentity?: GetIdentityFn<BaseRecord, any>
+	getIdentity?: GetIdentityFn<unknown, any>
 }
 
 /* @__NO_SIDE_EFFECTS__ */
