@@ -51,6 +51,6 @@
 	"devDependencies": {
 		"@ginjou/tsconfig": "workspace:*",
 		"@ginjou/vite-config": "workspace:*",
-		"@tanstack/query-core": "^5.90.10"
+		"@tanstack/query-core": "^5.90.11"
 	}
 }
