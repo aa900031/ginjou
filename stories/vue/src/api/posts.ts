@@ -1,20 +1,11 @@
-import { faker } from '@faker-js/faker'
-import { primaryKey } from '@mswjs/data'
+import { z } from 'zod'
 
-export interface Post {
-	id: string
-	title: string
-	status: string
-}
+export const PostSchema = z.object({
+	id: z.string(),
+	title: z.string(),
+	status: z.string(),
+})
 
+export type Post = z.infer<typeof PostSchema>
 export type PostFormData = Omit<Post, 'id'>
-
 export type PostRawFormData = Partial<PostFormData>
-
-export const MockModel = {
-	posts: {
-		id: primaryKey(faker.string.uuid),
-		title: faker.word.sample,
-		status: () => 'rejected',
-	},
-}
