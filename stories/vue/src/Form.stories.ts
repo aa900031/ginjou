@@ -1,8 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
-import { factory } from '@mswjs/data'
+
+import { Collection } from '@msw/data'
 import { vueRouter } from 'storybook-vue3-router'
 import MOCK_POSTS from '../data/mock-posts.json'
-import { MockModel } from './api/posts'
+import { PostSchema } from './api/posts'
 import FormCreate from './FormCreate.vue'
 import FormEdit from './FormEdit.vue'
 import { toHandlers } from './utils/msw-data'
@@ -16,15 +17,17 @@ const meta: Meta = {
 	title: 'Controllers/Form',
 }
 
-const db = factory(MockModel)
-MOCK_POSTS.forEach(db.posts.create)
+const posts = new Collection({
+	schema: PostSchema,
+})
+MOCK_POSTS.forEach(post => posts.create(post))
 
 export const Create: StoryObj<typeof meta> = {
 	name: 'Create',
 	render: renderRouteView,
 	parameters: {
 		msw: {
-			handlers: toHandlers(db, 'posts', 'https://rest-api.local'),
+			handlers: toHandlers(posts, 'posts', 'https://rest-api.local'),
 		},
 	},
 	decorators: [
@@ -74,7 +77,7 @@ export const Edit: StoryObj<typeof meta> = {
 	render: renderRouteView,
 	parameters: {
 		msw: {
-			handlers: toHandlers(db, 'posts', 'https://rest-api.local'),
+			handlers: toHandlers(posts, 'posts', 'https://rest-api.local'),
 		},
 	},
 	decorators: [

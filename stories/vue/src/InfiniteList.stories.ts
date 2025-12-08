@@ -1,10 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
-import { factory } from '@mswjs/data'
+
+import { Collection } from '@msw/data'
 import { vueRouter } from 'storybook-vue3-router'
 import { h } from 'vue'
 import { RouterView } from 'vue-router'
 import MOCK_POSTS from '../data/mock-posts.json'
-import { MockModel } from './api/posts'
+import { PostSchema } from './api/posts'
 import InfiniteListPagination from './InfiniteListPagination.vue'
 import { toHandlers } from './utils/msw-data'
 import { createWrapper } from './utils/wrapper'
@@ -13,15 +14,17 @@ const meta: Meta = {
 	title: 'Controllers/Infinite List',
 }
 
-const db = factory(MockModel)
-MOCK_POSTS.forEach(db.posts.create)
+const posts = new Collection({
+	schema: PostSchema,
+})
+MOCK_POSTS.forEach(post => posts.create(post))
 
 export const Pagination: StoryObj<typeof meta> = {
 	name: 'Pagination',
 	render: () => () => h(RouterView),
 	parameters: {
 		msw: {
-			handlers: toHandlers(db, 'posts', 'https://rest-api.local'),
+			handlers: toHandlers(posts, 'posts', 'https://rest-api.local'),
 		},
 	},
 	decorators: [
