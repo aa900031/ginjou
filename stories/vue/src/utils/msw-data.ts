@@ -7,13 +7,13 @@ export function toHandlers(
 	collection: Collection<any>,
 	collectionName: string,
 	baseUrl: string,
-): any {
-	const listUrl = resolveURL(baseUrl, collectionName)
-	const itemUrl = `${listUrl}/:id`
+) {
+	const listPath = resolveURL(baseUrl, collectionName)
+	const itemPath = `${listPath}/:id`
 
 	return [
 		// GET /resource - List all records with filtering, sorting, and pagination
-		http.get(listUrl, async (info) => {
+		http.get(listPath, async (info) => {
 			try {
 				const url = new URL(info.request.url)
 
@@ -43,57 +43,44 @@ export function toHandlers(
 						}
 					}
 				})
-
-				// Query records
-				let allRecords: any[]
-				if (Object.keys(filterParams).length > 0) {
-					allRecords = collection.findMany((q: any) => q.where(filterParams))
-				}
-				else {
-					allRecords = collection.findMany()
-				}
-
-				// Handle sorting
+				const orderBy: Record<string, any> = {}
 				const sort = url.searchParams.get('_sort')
 				const order = url.searchParams.get('_order')
-				let records = allRecords
 				if (sort && order) {
 					const sorts = sort.split(',')
 					const orders = order.split(',')
-					records = allRecords.sort((a: any, b: any) => {
-						for (let i = 0; i < sorts.length; i++) {
-							const sortKey = sorts[i]
-							const sortOrder = orders[i]
-							const aVal = a[sortKey]
-							const bVal = b[sortKey]
-
-							let comparison = 0
-							if (aVal < bVal)
-								comparison = -1
-							else if (aVal > bVal)
-								comparison = 1
-
-							if (comparison !== 0) {
-								return sortOrder === 'DESC' ? -comparison : comparison
-							}
-						}
-						return 0
-					})
+					for (let i = 0; i < sorts.length; i++) {
+						const key = sorts[i]
+						const order = orders[i]
+						orderBy[key] = order
+					}
 				}
 
-				// Handle pagination
 				const start = url.searchParams.get('_start')
 				const end = url.searchParams.get('_end')
-				const total = records.length
+				let take: number | undefined
+				let skip: number | undefined
 				if (start && end) {
 					const startNum = Number(start)
 					const endNum = Number(end)
-					records = records.slice(startNum, endNum)
+					skip = startNum
+					take = endNum - startNum
 				}
 
+				// Query records
+				const records = collection.findMany(
+					Object.keys(filterParams).length > 0
+						? (q: any) => q.where(filterParams)
+						: undefined,
+					{
+						take,
+						skip,
+						orderBy,
+					},
+				)
 				return HttpResponse.json(records, {
 					headers: {
-						'x-total-count': `${total}`,
+						'x-total-count': `${collection.count()}`,
 					},
 				})
 			}
@@ -106,7 +93,7 @@ export function toHandlers(
 		}),
 
 		// GET /resource/:id - Get a single record
-		http.get(itemUrl, async (info) => {
+		http.get(itemPath, async (info) => {
 			try {
 				const id = info.params.id
 				const record = collection.findFirst((q: any) => q.where({ id }))
@@ -129,7 +116,7 @@ export function toHandlers(
 		}),
 
 		// POST /resource - Create a new record
-		http.post(listUrl, async (info) => {
+		http.post(listPath, async (info) => {
 			try {
 				const body = await info.request.json()
 				const record = await collection.create({
@@ -147,7 +134,7 @@ export function toHandlers(
 		}),
 
 		// PUT /resource/:id - Update a record
-		http.put(itemUrl, async (info) => {
+		http.put(itemPath, async (info) => {
 			try {
 				const id = info.params.id
 				const body = await info.request.json()
@@ -172,7 +159,7 @@ export function toHandlers(
 		}),
 
 		// PATCH /resource/:id - Partial update
-		http.patch(itemUrl, async (info) => {
+		http.patch(itemPath, async (info) => {
 			try {
 				const id = info.params.id
 				const body = await info.request.json()
@@ -197,7 +184,7 @@ export function toHandlers(
 		}),
 
 		// DELETE /resource/:id - Delete a record
-		http.delete(itemUrl, async (info) => {
+		http.delete(itemPath, async (info) => {
 			try {
 				const id = info.params.id
 				const deleted = collection.delete((q: any) => q.where({ id }))
