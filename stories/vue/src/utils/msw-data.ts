@@ -16,8 +16,6 @@ export function toHandlers(
 		http.get(listPath, async (info) => {
 			try {
 				const url = new URL(info.request.url)
-
-				// Build query with filters
 				const filterParams: Record<string, any> = {}
 				url.searchParams.forEach((value, key) => {
 					if (!['_start', '_end', '_sort', '_order'].includes(key)) {
@@ -30,10 +28,18 @@ export function toHandlers(
 								filterParams[field] = (val: any) => val !== value
 								break
 							case 'gte':
-								filterParams[field] = (val: any) => Number(val) >= Number(value)
+								filterParams[field] = (val: any) => {
+									const numVal = Number(val)
+									const numThreshold = Number(value)
+									return !Number.isNaN(numVal) && !Number.isNaN(numThreshold) && numVal >= numThreshold
+								}
 								break
 							case 'lte':
-								filterParams[field] = (val: any) => Number(val) <= Number(value)
+								filterParams[field] = (val: any) => {
+									const numVal = Number(val)
+									const numThreshold = Number(value)
+									return !Number.isNaN(numVal) && !Number.isNaN(numThreshold) && numVal <= numThreshold
+								}
 								break
 							case 'like':
 								filterParams[field] = (val: any) => String(val).includes(value)
@@ -43,6 +49,7 @@ export function toHandlers(
 						}
 					}
 				})
+
 				const orderBy: Record<string, any> = {}
 				const sort = url.searchParams.get('_sort')
 				const order = url.searchParams.get('_order')
@@ -67,7 +74,6 @@ export function toHandlers(
 					take = endNum - startNum
 				}
 
-				// Query records
 				const records = collection.findMany(
 					Object.keys(filterParams).length > 0
 						? (q: any) => q.where(filterParams)
@@ -78,9 +84,15 @@ export function toHandlers(
 						orderBy,
 					},
 				)
+				const all = collection.findMany(
+					Object.keys(filterParams).length > 0
+						? (q: any) => q.where(filterParams)
+						: undefined,
+				)
+
 				return HttpResponse.json(records, {
 					headers: {
-						'x-total-count': `${collection.count()}`,
+						'x-total-count': `${all.length}`,
 					},
 				})
 			}
