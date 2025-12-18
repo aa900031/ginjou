@@ -1,92 +1,87 @@
 import type { RecordKey } from '../query'
-import type { ResolvedResource, Resource } from '../resource'
+import type { Resource } from '../resource'
 import type { RouterGoFn, RouterGoParams } from './go'
 import { createResourcePath, resolveResource, ResourceActionType } from '../resource'
 
-export interface NavigateToResourceProps {
+export interface Props {
+	resource?: string
+}
+
+export interface ToPropsWithResource {
 	resource?: string
 	action: typeof ResourceActionType.List | typeof ResourceActionType.Create
 	params?: Record<string, any>
 }
 
-export interface NavigateToResourceWithIdProps {
+export interface ToPropsWithResourceId {
 	resource?: string
 	action: typeof ResourceActionType.Edit | typeof ResourceActionType.Show
 	id: RecordKey
 	params?: Record<string, any>
 }
 
-export type NavigateToProps
-	= | NavigateToResourceProps
-		| NavigateToResourceWithIdProps
+export type ToProps
+	= | ToPropsWithResource
+		| ToPropsWithResourceId
 		| RouterGoParams
 		| false
 
-export type NavigateToFn = (
-	props: NavigateToProps,
+export type ToFn = (
+	props: ToProps,
 ) => void
 
-export interface CreateNavigateToProps {
+export interface CreateToFnProps {
 	go: RouterGoFn<unknown>
-	getResource: () => ResolvedResource | undefined
-	resourceContext: Resource | undefined
+	getResourceFromProp: () => string | undefined
+	resource: Resource | undefined
 }
 
-export function createNavigateToFn(
+export function createToFn(
 	{
 		go,
-		getResource,
-		resourceContext,
-	}: CreateNavigateToProps,
-): NavigateToFn {
+		getResourceFromProp,
+		resource: resourceContext,
+	}: CreateToFnProps,
+): ToFn {
 	return function navigateTo(props) {
-		if (props === false)
+		if (props === false || props == null)
 			return
 
-		if (props != null && typeof props === 'object') {
-			if ('action' in props) {
-				if (!resourceContext)
+		if (!('action' in props)) {
+			return go(props)
+		}
+
+		switch (props.action) {
+			case ResourceActionType.List:
+			case ResourceActionType.Create: {
+				const path = createResourcePath({
+					resolved: resolveResource(resourceContext, { name: props.resource ?? getResourceFromProp() }),
+					action: props.action,
+					params: props.params,
+				})
+				if (path == null)
 					return
 
-				const resource = (
-					props.resource ? resolveResource(resourceContext, { name: props.resource }) : undefined
-				) ?? getResource()
-
-				if (resource == null)
-					return
-
-				switch (props.action) {
-					case ResourceActionType.List:
-					case ResourceActionType.Create: {
-						const path = createResourcePath({
-							resolved: resource,
-							action: props.action,
-							params: props.params,
-						})
-
-						return go({
-							to: path,
-						})
-					}
-					case ResourceActionType.Edit:
-					case ResourceActionType.Show: {
-						const path = createResourcePath({
-							resolved: resource,
-							action: props.action,
-							params: {
-								id: props.id,
-								...props.params,
-							},
-						})
-
-						return go({
-							to: path,
-						})
-					}
-				}
+				return go({
+					to: path,
+				})
 			}
-			else {
-				return go(props)
+			case ResourceActionType.Edit:
+			case ResourceActionType.Show: {
+				const path = createResourcePath({
+					resolved: resolveResource(resourceContext, { name: props.resource ?? getResourceFromProp() }),
+					action: props.action,
+					params: {
+						id: props.id,
+						...props.params,
+					},
+				})
+				if (path == null)
+					return
+
+				return go({
+					to: path,
+				})
 			}
 		}
 	}
