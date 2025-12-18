@@ -50,7 +50,7 @@ export type UseEditResult<
 
 export function useEdit<
 	TQueryData extends BaseRecord = BaseRecord,
-	TMutationParams extends Params = Params,
+	TMutationParams extends Params = TQueryData,
 	TQueryError = unknown,
 	TQueryResultData extends BaseRecord = TQueryData,
 	TMutationData extends BaseRecord = TQueryResultData,

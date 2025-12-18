@@ -10,8 +10,8 @@ import type { Navigate } from '../router'
 import { ResourceActionType } from '../resource'
 
 export type Props<
-	TMutationParams extends Params,
 	TMutationData extends BaseRecord,
+	TMutationParams extends Params,
 	TMutationError,
 > = SetOptional<
 	& Omit<
@@ -43,24 +43,24 @@ export function getIsLoading(
 }
 
 export type SaveFn<
-	TMutationParams,
 	TMutationData extends BaseRecord,
+	TMutationParams,
 > = (params: TMutationParams) => Promise<CreateResult<TMutationData>>
 
 export interface SaveFnParams<
-	TMutationParams extends Params,
 	TMutationData extends BaseRecord,
+	TMutationParams extends Params,
 	TMutationError,
 > {
 	navigateTo: Navigate.ToFn
 	getResourceName: () => string | undefined
-	getRedirect: () => Props<TMutationParams, TMutationData, TMutationError>['redirect']
+	getRedirect: () => Props<TMutationData, TMutationParams, TMutationError>['redirect']
 	mutateFn: CreateMutateFn<TMutationData, TMutationError, TMutationParams>
 }
 
 export function createSaveFn<
-	TMutationParams extends Params,
 	TMutationData extends BaseRecord,
+	TMutationParams extends Params,
 	TMutationError,
 >(
 	{
@@ -68,8 +68,8 @@ export function createSaveFn<
 		mutateFn,
 		getResourceName,
 		getRedirect,
-	}: SaveFnParams<TMutationParams, TMutationData, TMutationError>,
-): SaveFn<TMutationParams, TMutationData> {
+	}: SaveFnParams<TMutationData, TMutationParams, TMutationError>,
+): SaveFn<TMutationData, TMutationParams> {
 	return async function saveFn(params) {
 		return mutateFn({
 			params,

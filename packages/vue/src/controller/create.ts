@@ -12,11 +12,11 @@ import { useResource } from '../resource'
 import { useNavigateTo } from '../router'
 
 export type UseCreateProps<
-	TMutationParams extends Params,
 	TMutationData extends BaseRecord,
+	TMutationParams extends Params,
 	TMutationError,
 > = ToMaybeRefs<
-	Create.Props<TMutationParams, TMutationData, TMutationError>
+	Create.Props<TMutationData, TMutationParams, TMutationError>
 >
 
 export type UseCreateContext = Simplify<
@@ -27,25 +27,25 @@ export type UseCreateContext = Simplify<
 >
 
 export type UseCreateResult<
-	TMutationParams extends Params,
 	TMutationData extends BaseRecord,
+	TMutationParams extends Params,
 	TMutationError = unknown,
 > = Simplify<
 	& UseCreateOneResult<TMutationData, TMutationError, TMutationParams>
 	& {
 		isLoading: Ref<boolean>
-		save: Create.SaveFn<TMutationParams, TMutationData>
+		save: Create.SaveFn<TMutationData, TMutationParams>
 	}
 >
 
 export function useCreate<
-	TMutationParams extends Params = Params,
 	TMutationData extends BaseRecord = BaseRecord,
+	TMutationParams extends Params = TMutationData,
 	TMutationError = unknown,
 >(
-	props?: UseCreateProps<TMutationParams, TMutationData, TMutationError>,
+	props?: UseCreateProps<TMutationData, TMutationParams, TMutationError>,
 	context?: UseCreateContext,
-): UseCreateResult<TMutationParams, TMutationData, TMutationError> {
+): UseCreateResult<TMutationData, TMutationParams, TMutationError> {
 	const resource = useResource({ name: props?.resource }, context)
 	const navigateTo = useNavigateTo(props, context)
 
@@ -69,7 +69,7 @@ export function useCreate<
 		isPending: unref(mutation.isPending),
 	}))
 
-	const save = Create.createSaveFn<TMutationParams, TMutationData, TMutationError>({
+	const save = Create.createSaveFn<TMutationData, TMutationParams, TMutationError>({
 		navigateTo,
 		getResourceName: () => unref(resourceName),
 		getRedirect: () => unref(props?.redirect),
