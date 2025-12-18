@@ -1,8 +1,8 @@
+import type { BaseRecord, UpdateResult } from '../query'
+import type { Navigate } from '../router'
 import { describe, expect, it, vi } from 'vitest'
 import { MutationMode } from '../query'
-import type { BaseRecord, UpdateResult } from '../query'
 import { ResourceActionType } from '../resource'
-import type { Navigate } from '../router'
 import { createSaveFn, getId, getIsLoading } from './edit'
 
 describe('edit controller', () => {

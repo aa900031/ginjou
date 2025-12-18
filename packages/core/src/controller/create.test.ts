@@ -1,7 +1,7 @@
-import { describe, expect, it, vi } from 'vitest'
-import { ResourceActionType } from '../resource'
 import type { BaseRecord, CreateResult } from '../query'
 import type { Navigate } from '../router'
+import { describe, expect, it, vi } from 'vitest'
+import { ResourceActionType } from '../resource'
 import { createSaveFn, getIsLoading } from './create'
 
 describe('create controller', () => {

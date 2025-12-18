@@ -18,8 +18,8 @@ Based on `git diff main..HEAD`, the following key source files were added or sig
 ## Test Files Created
 
 ### 1. packages/core/src/controller/create.test.ts
-**Lines:** 408  
-**Test Cases:** 19  
+**Lines:** 408
+**Test Cases:** 19
 **Coverage:**
 
 - **`getIsLoading` function:**
@@ -54,8 +54,8 @@ Based on `git diff main..HEAD`, the following key source files were added or sig
 ---
 
 ### 2. packages/core/src/controller/edit.test.ts
-**Lines:** 696  
-**Test Cases:** 40  
+**Lines:** 696
+**Test Cases:** 40
 **Coverage:**
 
 - **`getId` function:**
@@ -111,8 +111,8 @@ Based on `git diff main..HEAD`, the following key source files were added or sig
 ---
 
 ### 3. packages/core/src/router/navigate.test.ts
-**Lines:** 446  
-**Test Cases:** 28  
+**Lines:** 446
+**Test Cases:** 28
 **Coverage:**
 
 - **`createToFn` function - Basic Behavior:**
@@ -160,7 +160,7 @@ Based on `git diff main..HEAD`, the following key source files were added or sig
 
 ## Test Framework and Conventions
 
-**Framework:** Vitest  
+**Framework:** Vitest
 **Testing Library:** Vitest's built-in assertions and mocking
 
 **Conventions Followed:**
