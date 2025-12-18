@@ -1,3 +1,4 @@
+import type { Resource } from '../resource'
 import { describe, expect, it, vi } from 'vitest'
 import { ResourceActionType } from '../resource'
 import { createToFn } from './navigate'
@@ -88,9 +89,13 @@ describe('navigate', () => {
 			it('should navigate to list action', () => {
 				const go = vi.fn()
 				const getResourceFromProp = vi.fn(() => 'posts')
-				const resource = {
-					name: 'posts',
-					list: '/posts',
+				const resource: Resource = {
+					resources: [
+						{
+							name: 'posts',
+							list: '/posts',
+						},
+					],
 				}
 
 				const navigateTo = createToFn({
@@ -112,9 +117,21 @@ describe('navigate', () => {
 			it('should use resource from prop when provided', () => {
 				const go = vi.fn()
 				const getResourceFromProp = vi.fn(() => 'comments')
-				const resource = {
-					name: 'posts',
-					list: '/posts',
+				const resource: Resource = {
+					resources: [
+						{
+							name: 'posts',
+							list: '/posts',
+						},
+						{
+							name: 'comments',
+							list: '/comments',
+						},
+						{
+							name: 'users',
+							list: '/users',
+						},
+					],
 				}
 
 				const navigateTo = createToFn({
@@ -134,9 +151,13 @@ describe('navigate', () => {
 			it('should include params in the path', () => {
 				const go = vi.fn()
 				const getResourceFromProp = vi.fn(() => 'posts')
-				const resource = {
-					name: 'posts',
-					list: '/posts',
+				const resource: Resource = {
+					resources: [
+						{
+							name: 'posts',
+							list: '/posts',
+						},
+					],
 				}
 
 				const navigateTo = createToFn({
@@ -176,9 +197,13 @@ describe('navigate', () => {
 			it('should navigate to create action', () => {
 				const go = vi.fn()
 				const getResourceFromProp = vi.fn(() => 'posts')
-				const resource = {
-					name: 'posts',
-					create: '/posts/create',
+				const resource: Resource = {
+					resources: [
+						{
+							name: 'posts',
+							create: '/posts/create',
+						},
+					],
 				}
 
 				const navigateTo = createToFn({
@@ -200,9 +225,13 @@ describe('navigate', () => {
 			it('should include params in create navigation', () => {
 				const go = vi.fn()
 				const getResourceFromProp = vi.fn(() => 'posts')
-				const resource = {
-					name: 'posts',
-					create: '/posts/create',
+				const resource: Resource = {
+					resources: [
+						{
+							name: 'posts',
+							create: '/posts/create',
+						},
+					],
 				}
 
 				const navigateTo = createToFn({
@@ -224,9 +253,13 @@ describe('navigate', () => {
 			it('should navigate to edit action with id', () => {
 				const go = vi.fn()
 				const getResourceFromProp = vi.fn(() => 'posts')
-				const resource = {
-					name: 'posts',
-					edit: '/posts/:id/edit',
+				const resource: Resource = {
+					resources: [
+						{
+							name: 'posts',
+							edit: '/posts/:id/edit',
+						},
+					],
 				}
 
 				const navigateTo = createToFn({
@@ -246,9 +279,13 @@ describe('navigate', () => {
 			it('should handle string ids', () => {
 				const go = vi.fn()
 				const getResourceFromProp = vi.fn(() => 'posts')
-				const resource = {
-					name: 'posts',
-					edit: '/posts/:id/edit',
+				const resource: Resource = {
+					resources: [
+						{
+							name: 'posts',
+							edit: '/posts/:id/edit',
+						},
+					],
 				}
 
 				const navigateTo = createToFn({
@@ -268,9 +305,13 @@ describe('navigate', () => {
 			it('should include id in params for edit', () => {
 				const go = vi.fn()
 				const getResourceFromProp = vi.fn(() => 'posts')
-				const resource = {
-					name: 'posts',
-					edit: '/posts/:id/edit',
+				const resource: Resource = {
+					resources: [
+						{
+							name: 'posts',
+							edit: '/posts/:id/edit',
+						},
+					],
 				}
 
 				const navigateTo = createToFn({
@@ -312,9 +353,13 @@ describe('navigate', () => {
 			it('should navigate to show action with id', () => {
 				const go = vi.fn()
 				const getResourceFromProp = vi.fn(() => 'posts')
-				const resource = {
-					name: 'posts',
-					show: '/posts/:id',
+				const resource: Resource = {
+					resources: [
+						{
+							name: 'posts',
+							show: '/posts/:id',
+						},
+					],
 				}
 
 				const navigateTo = createToFn({
@@ -334,9 +379,13 @@ describe('navigate', () => {
 			it('should handle string ids for show', () => {
 				const go = vi.fn()
 				const getResourceFromProp = vi.fn(() => 'posts')
-				const resource = {
-					name: 'posts',
-					show: '/posts/:id',
+				const resource: Resource = {
+					resources: [
+						{
+							name: 'posts',
+							show: '/posts/:id',
+						},
+					],
 				}
 
 				const navigateTo = createToFn({
@@ -356,9 +405,13 @@ describe('navigate', () => {
 			it('should include id in params for show', () => {
 				const go = vi.fn()
 				const getResourceFromProp = vi.fn(() => 'posts')
-				const resource = {
-					name: 'posts',
-					show: '/posts/:id',
+				const resource: Resource = {
+					resources: [
+						{
+							name: 'posts',
+							show: '/posts/:id',
+						},
+					],
 				}
 
 				const navigateTo = createToFn({
@@ -399,9 +452,13 @@ describe('navigate', () => {
 		it('should use getResourceFromProp when resource prop is undefined', () => {
 			const go = vi.fn()
 			const getResourceFromProp = vi.fn(() => 'posts')
-			const resource = {
-				name: 'posts',
-				list: '/posts',
+			const resource: Resource = {
+				resources: [
+					{
+						name: 'posts',
+						list: '/posts',
+					},
+				],
 			}
 
 			const navigateTo = createToFn({
@@ -420,12 +477,16 @@ describe('navigate', () => {
 		it('should handle complex navigation scenarios', () => {
 			const go = vi.fn()
 			const getResourceFromProp = vi.fn(() => 'posts')
-			const resource = {
-				name: 'posts',
-				list: '/posts',
-				create: '/posts/create',
-				edit: '/posts/:id/edit',
-				show: '/posts/:id',
+			const resource: Resource = {
+				resources: [
+					{
+						name: 'posts',
+						list: '/posts',
+						create: '/posts/create',
+						edit: '/posts/:id/edit',
+						show: '/posts/:id',
+					},
+				],
 			}
 
 			const navigateTo = createToFn({

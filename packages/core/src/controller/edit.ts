@@ -112,7 +112,7 @@ export function createSaveFn<
 						data: { id: getId(), ...params as any } as TMutationData,
 					},
 					{
-						resource: getResourceName()!,
+						resource: getResourceName(),
 						redirect: getRedirect(),
 					},
 				)
@@ -128,7 +128,7 @@ export function createSaveFn<
 						navigateTo,
 						data,
 						{
-							resource: getResourceName()!,
+							resource: getResourceName(),
 							redirect: getRedirect(),
 						},
 					)

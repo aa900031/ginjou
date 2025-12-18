@@ -19,9 +19,11 @@ describe('edit controller', () => {
 		it('should return id from resource when action is edit and no prop provided', () => {
 			const result = getId({
 				resource: {
-					name: 'posts',
 					action: 'edit',
 					id: 456,
+					resource: {
+						name: 'posts',
+					},
 				},
 				idFromProp: undefined,
 			})
@@ -32,9 +34,11 @@ describe('edit controller', () => {
 		it('should prefer id from prop over resource', () => {
 			const result = getId({
 				resource: {
-					name: 'posts',
 					action: 'edit',
 					id: 456,
+					resource: {
+						name: 'posts',
+					},
 				},
 				idFromProp: 123,
 			})
@@ -549,7 +553,7 @@ describe('edit controller', () => {
 			const getId = vi.fn(() => 1)
 			const getResourceName = vi.fn(() => 'posts')
 			const getMutationMode = vi.fn(() => MutationMode.Pessimistic)
-			const getRedirect = vi.fn(() => undefined)
+			const getRedirect = vi.fn(() => false as const)
 			const navigateTo = vi.fn()
 			const error = new Error('Update failed')
 			const mutateFn = vi.fn().mockRejectedValue(error)
@@ -568,11 +572,10 @@ describe('edit controller', () => {
 		})
 
 		it('should handle mutation errors in optimistic mode', async () => {
-			vi.useFakeTimers()
 			const getId = vi.fn(() => 1)
 			const getResourceName = vi.fn(() => 'posts')
 			const getMutationMode = vi.fn(() => MutationMode.Optimistic)
-			const getRedirect = vi.fn(() => undefined)
+			const getRedirect = vi.fn(() => false as const)
 			const navigateTo = vi.fn()
 			const error = new Error('Update failed')
 			const mutateFn = vi.fn().mockRejectedValue(error)
@@ -587,14 +590,9 @@ describe('edit controller', () => {
 			})
 
 			const savePromise = saveFn({ title: 'Updated' })
-			await vi.runAllTimersAsync()
-
 			await expect(savePromise).rejects.toThrow('Update failed')
-
-			// Navigation should still happen in optimistic mode before error
+			await new Promise(resolve => setTimeout(resolve, 1))
 			expect(navigateTo).toHaveBeenCalled()
-
-			vi.useRealTimers()
 		})
 
 		it('should handle undefined resource name', async () => {
