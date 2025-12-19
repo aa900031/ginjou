@@ -1,14 +1,13 @@
 import type { Auth, Authz, Fetchers, I18n, Notification, ResourceDefinition } from '@ginjou/core'
 import type { Decorator } from '@storybook/vue3'
 import type { QueryClient } from '@tanstack/vue-query'
-import type { ToastMessageOptions } from 'primevue/toast'
 import { defineAuth, defineAuthz, defineI18n, NotificationType } from '@ginjou/core'
 import { defineAuthContext, defineAuthzContext, defineFetchersContext, defineI18nContext, defineNotificationContext, defineQueryClientContext, defineResourceContext, defineRouterContext } from '@ginjou/vue'
 import { createFetcher } from '@ginjou/with-rest-api'
 import { createRouter } from '@ginjou/with-vue-router'
 import { delay } from 'msw'
-import Toast from 'primevue/toast'
-import { useToast } from 'primevue/usetoast'
+import { ToastClose, ToastDescription, ToastProvider, ToastRoot, ToastTitle, ToastViewport } from 'reka-ui'
+import { defineToast, useToast } from './reka-toast'
 
 export type CreateWrapperProps
 	= & {
@@ -54,8 +53,10 @@ export function createWrapper(
 
 	return story => ({
 		name: 'GinjouWrapper',
-		components: { story, Toast },
+		components: { story, ToastRoot, ToastTitle, ToastDescription, ToastViewport, ToastClose, ToastProvider },
 		setup: () => {
+			const { toasts, remove } = defineToast()
+
 			for (const [key, value] of Object.entries(resolved)) {
 				switch (key) {
 					case 'queryClient':
@@ -89,27 +90,44 @@ export function createWrapper(
 				}
 			}
 
-			function handleToastClose({ message }: { message: ToastMessageOptions }) {
-				if ('_onCancel' in message && typeof message._onCancel === 'function')
-					message._onCancel()
-			}
-
-			function handleToastLifeEnd({ message }: { message: ToastMessageOptions }) {
-				if ('_onFinish' in message && typeof message._onFinish === 'function')
-					message._onFinish()
-			}
-
 			return {
-				handleToastClose,
-				handleToastLifeEnd,
+				toasts,
+				remove,
 			}
 		},
 		template: `
 			<story />
-			<Toast
-				@close="handleToastClose"
-				@life-end="handleToastLifeEnd"
-			/>
+			<ToastProvider>
+				<ToastViewport
+					style="position: fixed; top: 1rem; right: 1rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem;"
+				>
+					<ToastRoot
+						v-for="toast in toasts"
+						:key="toast.id"
+						:open="true"
+						@update:open="(isOpen) => !isOpen && remove(toast.id)"
+						:style="{
+							padding: '1rem',
+							borderRadius: '6px',
+							color: '#fff',
+							fontFamily: '-apple-system, BlinkMacSystemFont, \\'Segoe UI\\', Roboto, Helvetica, Arial, sans-serif, \\'Apple Color Emoji\\', \\'Segoe UI Emoji\\', \\'Segoe UI Symbol\\'',
+							fontSize: '0.875rem',
+							boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+							backgroundColor: toast.severity === 'success' ? '#22c55e' : toast.severity === 'error' ? '#ef4444' : '#64748b',
+						}"
+					>
+						<ToastTitle v-if="toast.title" style="font-weight: 600;">
+							{{ toast.title }}
+						</ToastTitle>
+						<ToastDescription v-if="toast.description" style="margin-top: 0.25rem;">
+							{{ toast.description }}
+						</ToastDescription>
+						<ToastClose style="position: absolute; top: 0.5rem; right: 0.5rem; background: none; border: none; color: inherit; cursor: pointer;">
+							X
+						</ToastClose>
+					</ToastRoot>
+				</ToastViewport>
+			</ToastProvider>
 		`,
 	})
 }
@@ -224,63 +242,37 @@ function createNotification(): Notification {
 
 	return {
 		open: (params) => {
+			let id: string | undefined
 			switch (params.type) {
 				case NotificationType.Success:
 				case NotificationType.Error: {
-					const opt: ToastMessageOptions = {
+					id = toast.show({
 						severity: params.type,
-						summary: params.message,
-						detail: params.description,
-						life: 3000,
-						...{
-							onFinish: () => {
-								params.key
-								&& removeFnMap.delete(params.key)
-							},
-							_onCancel: () => {
-								params.key
-								&& removeFnMap.delete(params.key)
-							},
-						},
-					}
-					toast.add(opt)
-					params.key
-					&& removeFnMap.set(params.key, () => toast.remove(opt))
-
+						title: params.message,
+						description: params.description,
+					})
 					break
 				}
 				case NotificationType.Progress: {
-					const opt: ToastMessageOptions = {
+					id = toast.show({
 						severity: 'secondary',
-						summary: params.message,
-						detail: params.description,
-						life: params.timeout,
-						...{
-							_onFinish: () => {
-								params.key
-								&& removeFnMap.delete(params.key)
-								params.onFinish()
-							},
-							_onCancel: async () => {
-								params.key
-								&& removeFnMap.delete(params.key)
-								params.onCancel()
-							},
-						} as any,
-					}
-					toast.add(opt)
-
-					params.key
-					&& removeFnMap.set(params.key, () => toast.remove(opt))
-
+						title: params.message,
+						description: params.description,
+					})
+					// Reka UI's provider controls duration, can't set per-toast timeout easily here.
+					// The onFinish/onCancel logic is also not directly supported by this simple wrapper.
 					break
 				}
 				default:
 					break
 			}
+			if (id && params.key) {
+				removeFnMap.set(params.key, () => toast.remove(id!))
+			}
 		},
 		close: (key) => {
 			removeFnMap.get(key)?.()
+			removeFnMap.delete(key)
 		},
 	}
 }

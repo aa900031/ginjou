@@ -2,26 +2,14 @@
 import 'uno.css'
 import type { Preview } from '@storybook/vue3-vite'
 import { AbortDefer } from '@ginjou/core'
-import Aura from '@primevue/themes/aura'
 import { setup as setupVue } from '@storybook/vue3-vite'
 import { mswLoader as MswLoader, initialize as setupMsw } from 'msw-storybook-addon'
-import PrimeVue from 'primevue/config'
-import ToastService from 'primevue/toastservice'
 
 setupMsw({
 	onUnhandledRequest: 'bypass',
 	serviceWorker: {
 		url: './mockServiceWorker.js',
 	},
-})
-
-setupVue((app) => {
-	app.use(PrimeVue, {
-		theme: {
-			preset: Aura,
-		},
-	})
-	app.use(ToastService)
 })
 
 setupVue((app) => {
