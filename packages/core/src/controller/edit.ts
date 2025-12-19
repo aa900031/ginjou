@@ -1,14 +1,16 @@
 import type { SetOptional } from 'type-fest'
-import type { BaseRecord, Meta, MutationModeValues, Params, RecordKey, UpdateResult } from '../query'
+import type { BaseRecord, GetOneResult, Meta, MutationModeValues, Params, RecordKey, UpdateResult } from '../query'
 import type { QueryOptions as GetOneQueryOptions } from '../query/get-one'
 import type {
 	MutateAsyncFn as UpdateMutateFn,
 	Props as UpdateProps,
 } from '../query/update'
-import type { ResolvedResource, ResourceActionTypeValues } from '../resource'
+import type { ResolvedResource } from '../resource'
 import type { Navigate } from '../router'
+import type { RedirectOptions } from './redirect-to'
 import { MutationMode } from '../query'
 import { ResourceActionType } from '../resource'
+import { redirectTo } from './redirect-to'
 
 export type Props<
 	TQueryData extends BaseRecord,
@@ -23,10 +25,7 @@ export type Props<
 		| 'params'
 	>
 	& {
-		redirect?:
-			| Navigate.ToProps
-			| ResourceActionTypeValues
-			| ((data: UpdateResult<TMutationData>) => Navigate.ToProps | ResourceActionTypeValues)
+		redirect?: RedirectOptions<UpdateResult<TMutationData>>
 		queryMeta?: Meta
 		queryOptions?: GetOneQueryOptions<TQueryData, TQueryError, TQueryResultData>
 	},
@@ -73,11 +72,13 @@ export interface SaveFnParams<
 	TMutationParams extends Params,
 	TMutationData extends BaseRecord,
 	TMutationError,
+	TQueryResultData extends BaseRecord,
 > {
 	getId: () => RecordKey
 	getResourceName: () => string | undefined
 	getMutationMode: () => MutationModeValues | undefined
-	getRedirect: () => Props<any, any, any, any, any, any>['redirect'] | undefined
+	getRedirect: () => RedirectOptions<UpdateResult<TMutationData>> | undefined
+	getQueryData: () => GetOneResult<TQueryResultData> | undefined
 	navigateTo: Navigate.ToFn
 	mutateFn: UpdateMutateFn<TMutationData, TMutationError, TMutationParams>
 }
@@ -86,15 +87,17 @@ export function createSaveFn<
 	TMutationParams extends Params,
 	TMutationData extends BaseRecord,
 	TMutationError,
+	TQueryResultData extends BaseRecord,
 >(
 	{
 		getId,
 		getResourceName,
 		getMutationMode,
 		getRedirect,
+		getQueryData,
 		navigateTo,
 		mutateFn,
-	}: SaveFnParams<TMutationParams, TMutationData, TMutationError>,
+	}: SaveFnParams<TMutationParams, TMutationData, TMutationError, TQueryResultData>,
 ): SaveFn<TMutationParams, TMutationData> {
 	return async function saveFn(params) {
 		const mutationMode = getMutationMode()
@@ -102,16 +105,19 @@ export function createSaveFn<
 
 		if (!isPessimistic) {
 			setTimeout(() => {
-				redirectTo(
+				redirectTo({
+					redirect: getRedirect() ?? ResourceActionType.Show,
+					resource: getResourceName(),
+					id: getId(),
+					data: {
+						data: {
+							id: getId(),
+							...getQueryData(),
+							...params as any,
+						} as TMutationData,
+					},
 					navigateTo,
-					{
-						data: { id: getId(), ...params as any } as TMutationData,
-					},
-					{
-						resource: getResourceName(),
-						redirect: getRedirect(),
-					},
-				)
+				})
 			}, 0)
 		}
 
@@ -120,49 +126,15 @@ export function createSaveFn<
 		}, {
 			onSuccess: (data) => {
 				if (isPessimistic) {
-					redirectTo(
-						navigateTo,
+					redirectTo({
+						redirect: getRedirect() ?? ResourceActionType.Show,
+						resource: getResourceName(),
+						id: data.data.id,
 						data,
-						{
-							resource: getResourceName(),
-							redirect: getRedirect(),
-						},
-					)
+						navigateTo,
+					})
 				}
 			},
 		})
-	}
-}
-
-function redirectTo<
-	TData extends BaseRecord,
->(
-	navigateTo: Navigate.ToFn,
-	data: UpdateResult<TData>,
-	props: {
-		resource: string | undefined
-		redirect: Props<any, any, any, TData, any, any>['redirect']
-	},
-) {
-	const params = (typeof props.redirect === 'function'
-		? props.redirect(data)
-		: props.redirect
-	) ?? ResourceActionType.Show
-	switch (params) {
-		case ResourceActionType.List:
-		case ResourceActionType.Create:
-			return navigateTo({
-				resource: props.resource,
-				action: params,
-			})
-		case ResourceActionType.Edit:
-		case ResourceActionType.Show:
-			return navigateTo({
-				resource: props.resource,
-				action: params,
-				id: data.data.id!,
-			})
-		default:
-			return navigateTo(params)
 	}
 }

@@ -116,6 +116,8 @@ describe('edit controller', () => {
 	})
 
 	describe('createSaveFn', () => {
+		const getQueryData = vi.fn(() => ({ data: { id: 1, title: 'origin' } }))
+
 		it('should return a function', () => {
 			const getId = vi.fn()
 			const getResourceName = vi.fn()
@@ -129,6 +131,7 @@ describe('edit controller', () => {
 				getResourceName,
 				getMutationMode,
 				getRedirect,
+				getQueryData,
 				navigateTo,
 				mutateFn,
 			})
@@ -143,6 +146,7 @@ describe('edit controller', () => {
 				const getMutationMode = vi.fn(() => MutationMode.Pessimistic)
 				const getRedirect = vi.fn(() => undefined)
 				const navigateTo = vi.fn()
+
 				const mockData: UpdateResult<BaseRecord> = {
 					data: { id: 1, title: 'Updated' },
 				}
@@ -155,6 +159,7 @@ describe('edit controller', () => {
 					getId,
 					getResourceName,
 					getMutationMode,
+					getQueryData,
 					getRedirect,
 					navigateTo,
 					mutateFn,
@@ -177,6 +182,7 @@ describe('edit controller', () => {
 				const getMutationMode = vi.fn(() => undefined)
 				const getRedirect = vi.fn(() => undefined)
 				const navigateTo = vi.fn()
+
 				const mockData: UpdateResult<BaseRecord> = {
 					data: { id: 1, title: 'Updated' },
 				}
@@ -190,6 +196,7 @@ describe('edit controller', () => {
 					getResourceName,
 					getMutationMode,
 					getRedirect,
+					getQueryData,
 					navigateTo,
 					mutateFn,
 				})
@@ -205,6 +212,7 @@ describe('edit controller', () => {
 				const getMutationMode = vi.fn(() => MutationMode.Pessimistic)
 				const getRedirect = vi.fn(() => undefined)
 				const navigateTo = vi.fn()
+
 				const mutateFn = vi.fn().mockImplementation(() => {
 					// Check if navigateTo was called before this point
 					expect(navigateTo).not.toHaveBeenCalled()
@@ -216,6 +224,7 @@ describe('edit controller', () => {
 					getResourceName,
 					getMutationMode,
 					getRedirect,
+					getQueryData,
 					navigateTo,
 					mutateFn,
 				})
@@ -232,6 +241,7 @@ describe('edit controller', () => {
 				const getMutationMode = vi.fn(() => MutationMode.Optimistic)
 				const getRedirect = vi.fn(() => undefined)
 				const navigateTo = vi.fn()
+
 				const mockData: UpdateResult<BaseRecord> = {
 					data: { id: 1, title: 'Updated' },
 				}
@@ -242,6 +252,7 @@ describe('edit controller', () => {
 					getResourceName,
 					getMutationMode,
 					getRedirect,
+					getQueryData,
 					navigateTo,
 					mutateFn,
 				})
@@ -269,6 +280,7 @@ describe('edit controller', () => {
 				const getMutationMode = vi.fn(() => MutationMode.Optimistic)
 				const getRedirect = vi.fn(() => undefined)
 				const navigateTo = vi.fn()
+
 				const mockData: UpdateResult<BaseRecord> = {
 					data: { id: 1, title: 'Updated' },
 				}
@@ -279,6 +291,7 @@ describe('edit controller', () => {
 					getResourceName,
 					getMutationMode,
 					getRedirect,
+					getQueryData,
 					navigateTo,
 					mutateFn,
 				})
@@ -305,6 +318,7 @@ describe('edit controller', () => {
 				const getMutationMode = vi.fn(() => MutationMode.Optimistic)
 				const getRedirect = vi.fn(() => undefined)
 				const navigateTo = vi.fn()
+
 				const mockData: UpdateResult<BaseRecord> = {
 					data: { id: 1, title: 'Updated' },
 				}
@@ -315,6 +329,7 @@ describe('edit controller', () => {
 					getResourceName,
 					getMutationMode,
 					getRedirect,
+					getQueryData,
 					navigateTo,
 					mutateFn,
 				})
@@ -342,6 +357,7 @@ describe('edit controller', () => {
 				const getMutationMode = vi.fn(() => MutationMode.Undoable)
 				const getRedirect = vi.fn(() => undefined)
 				const navigateTo = vi.fn()
+
 				const mockData: UpdateResult<BaseRecord> = {
 					data: { id: 1, title: 'Updated' },
 				}
@@ -352,6 +368,7 @@ describe('edit controller', () => {
 					getResourceName,
 					getMutationMode,
 					getRedirect,
+					getQueryData,
 					navigateTo,
 					mutateFn,
 				})
@@ -374,6 +391,7 @@ describe('edit controller', () => {
 				const getMutationMode = vi.fn(() => MutationMode.Pessimistic)
 				const getRedirect = vi.fn(() => ResourceActionType.List)
 				const navigateTo = vi.fn()
+
 				const mockData: UpdateResult<BaseRecord> = {
 					data: { id: 1, title: 'Updated' },
 				}
@@ -387,6 +405,7 @@ describe('edit controller', () => {
 					getResourceName,
 					getMutationMode,
 					getRedirect,
+					getQueryData,
 					navigateTo,
 					mutateFn,
 				})
@@ -408,6 +427,7 @@ describe('edit controller', () => {
 				const mockData: UpdateResult<BaseRecord> = {
 					data: { id: 1, title: 'Updated' },
 				}
+
 				const mutateFn = vi.fn().mockImplementation((_, options) => {
 					options?.onSuccess(mockData)
 					return Promise.resolve(mockData)
@@ -418,6 +438,7 @@ describe('edit controller', () => {
 					getResourceName,
 					getMutationMode,
 					getRedirect,
+					getQueryData,
 					navigateTo,
 					mutateFn,
 				})
@@ -436,6 +457,7 @@ describe('edit controller', () => {
 				const getMutationMode = vi.fn(() => MutationMode.Pessimistic)
 				const getRedirect = vi.fn(() => ResourceActionType.Edit)
 				const navigateTo = vi.fn()
+
 				const mockData: UpdateResult<BaseRecord> = {
 					data: { id: 1, title: 'Updated' },
 				}
@@ -449,6 +471,7 @@ describe('edit controller', () => {
 					getResourceName,
 					getMutationMode,
 					getRedirect,
+					getQueryData,
 					navigateTo,
 					mutateFn,
 				})
@@ -470,6 +493,7 @@ describe('edit controller', () => {
 					to: '/custom/path',
 				}
 				const getRedirect = vi.fn(() => () => customNavProps)
+
 				const navigateTo = vi.fn()
 				const mockData: UpdateResult<BaseRecord> = {
 					data: { id: 1, title: 'Updated' },
@@ -484,6 +508,7 @@ describe('edit controller', () => {
 					getResourceName,
 					getMutationMode,
 					getRedirect,
+					getQueryData,
 					navigateTo,
 					mutateFn,
 				})
@@ -499,6 +524,7 @@ describe('edit controller', () => {
 				const getMutationMode = vi.fn(() => MutationMode.Pessimistic)
 				const redirectFn = vi.fn(() => ResourceActionType.List)
 				const getRedirect = vi.fn(() => redirectFn)
+
 				const navigateTo = vi.fn()
 				const mockData: UpdateResult<BaseRecord> = {
 					data: { id: 1, title: 'Updated' },
@@ -513,6 +539,7 @@ describe('edit controller', () => {
 					getResourceName,
 					getMutationMode,
 					getRedirect,
+					getQueryData,
 					navigateTo,
 					mutateFn,
 				})
@@ -529,6 +556,7 @@ describe('edit controller', () => {
 			const getResourceName = vi.fn(() => 'posts')
 			const getMutationMode = vi.fn(() => MutationMode.Pessimistic)
 			const getRedirect = vi.fn(() => undefined)
+
 			const navigateTo = vi.fn()
 			const mockData: UpdateResult<BaseRecord> = {
 				data: { id: 1, title: 'Updated' },
@@ -540,6 +568,7 @@ describe('edit controller', () => {
 				getResourceName,
 				getMutationMode,
 				getRedirect,
+				getQueryData,
 				navigateTo,
 				mutateFn,
 			})
@@ -554,6 +583,7 @@ describe('edit controller', () => {
 			const getResourceName = vi.fn(() => 'posts')
 			const getMutationMode = vi.fn(() => MutationMode.Pessimistic)
 			const getRedirect = vi.fn(() => false as const)
+
 			const navigateTo = vi.fn()
 			const error = new Error('Update failed')
 			const mutateFn = vi.fn().mockRejectedValue(error)
@@ -563,6 +593,7 @@ describe('edit controller', () => {
 				getResourceName,
 				getMutationMode,
 				getRedirect,
+				getQueryData,
 				navigateTo,
 				mutateFn,
 			})
@@ -576,6 +607,7 @@ describe('edit controller', () => {
 			const getResourceName = vi.fn(() => 'posts')
 			const getMutationMode = vi.fn(() => MutationMode.Optimistic)
 			const getRedirect = vi.fn(() => false as const)
+
 			const navigateTo = vi.fn()
 			const error = new Error('Update failed')
 			const mutateFn = vi.fn().mockRejectedValue(error)
@@ -585,6 +617,7 @@ describe('edit controller', () => {
 				getResourceName,
 				getMutationMode,
 				getRedirect,
+				getQueryData,
 				navigateTo,
 				mutateFn,
 			})
@@ -600,6 +633,7 @@ describe('edit controller', () => {
 			const getResourceName = vi.fn(() => undefined)
 			const getMutationMode = vi.fn(() => MutationMode.Pessimistic)
 			const getRedirect = vi.fn(() => undefined)
+
 			const navigateTo = vi.fn()
 			const mockData: UpdateResult<BaseRecord> = {
 				data: { id: 1, title: 'Updated' },
@@ -614,6 +648,7 @@ describe('edit controller', () => {
 				getResourceName,
 				getMutationMode,
 				getRedirect,
+				getQueryData,
 				navigateTo,
 				mutateFn,
 			})
@@ -632,6 +667,7 @@ describe('edit controller', () => {
 			const getResourceName = vi.fn(() => 'posts')
 			const getMutationMode = vi.fn(() => MutationMode.Pessimistic)
 			const getRedirect = vi.fn(() => undefined)
+
 			const navigateTo = vi.fn()
 			const mockData: UpdateResult<BaseRecord> = {
 				data: { id: 1, title: 'Updated', meta: { tags: ['a', 'b'] } },
@@ -643,6 +679,7 @@ describe('edit controller', () => {
 				getResourceName,
 				getMutationMode,
 				getRedirect,
+				getQueryData,
 				navigateTo,
 				mutateFn,
 			})
@@ -664,6 +701,7 @@ describe('edit controller', () => {
 			const getResourceName = vi.fn(() => 'posts')
 			const getMutationMode = vi.fn(() => MutationMode.Pessimistic)
 			const getRedirect = vi.fn(() => undefined)
+
 			const navigateTo = vi.fn()
 			const mockData: UpdateResult<BaseRecord> = {
 				data: { id: 'abc-123', title: 'Updated' },
@@ -678,6 +716,7 @@ describe('edit controller', () => {
 				getResourceName,
 				getMutationMode,
 				getRedirect,
+				getQueryData,
 				navigateTo,
 				mutateFn,
 			})

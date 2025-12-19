@@ -4,9 +4,10 @@ import type {
 	MutateAsyncFn as CreateMutateFn,
 	Props as CreateProps,
 } from '../query/create'
-import type { ResourceActionTypeValues } from '../resource'
 import type { Navigate } from '../router'
+import type { RedirectOptions } from './redirect-to'
 import { ResourceActionType } from '../resource'
+import { redirectTo } from './redirect-to'
 
 export type Props<
 	TMutationData extends BaseRecord,
@@ -18,10 +19,7 @@ export type Props<
 		| 'params'
 	>
 	& {
-		redirect?:
-			| Navigate.ToProps
-			| ResourceActionTypeValues
-			| ((data: CreateResult<TMutationData>) => Navigate.ToProps | ResourceActionTypeValues)
+		redirect?: RedirectOptions<CreateResult<TMutationData>>
 	},
 	'resource'
 >
@@ -50,7 +48,7 @@ export interface SaveFnParams<
 > {
 	navigateTo: Navigate.ToFn
 	getResourceName: () => string | undefined
-	getRedirect: () => Props<TMutationData, TMutationParams, TMutationError>['redirect']
+	getRedirect: () => RedirectOptions<CreateResult<TMutationData>> | undefined
 	mutateFn: CreateMutateFn<TMutationData, TMutationError, TMutationParams>
 }
 
@@ -71,49 +69,14 @@ export function createSaveFn<
 			params,
 		}, {
 			onSuccess: (data) => {
-				redirectTo(
-					navigateTo,
+				redirectTo({
+					redirect: getRedirect() ?? ResourceActionType.List,
+					resource: getResourceName(),
+					id: data.data.id,
 					data,
-					{
-						resource: getResourceName(),
-						redirect: getRedirect(),
-					},
-				)
+					navigateTo,
+				})
 			},
 		})
-	}
-}
-
-function redirectTo<
-	TData extends BaseRecord,
->(
-	navigateTo: Navigate.ToFn,
-	data: CreateResult<TData>,
-	props: {
-		resource: string | undefined
-		redirect: Props<TData, any, any>['redirect']
-	},
-) {
-	const params = (typeof props.redirect === 'function'
-		? props.redirect(data)
-		: props.redirect
-	) ?? ResourceActionType.List
-
-	switch (params) {
-		case ResourceActionType.List:
-		case ResourceActionType.Create:
-			return navigateTo({
-				resource: props.resource,
-				action: params,
-			})
-		case ResourceActionType.Edit:
-		case ResourceActionType.Show:
-			return navigateTo({
-				resource: props.resource,
-				action: params,
-				id: data.data.id!,
-			})
-		default:
-			return navigateTo(params)
 	}
 }

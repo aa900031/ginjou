@@ -96,11 +96,12 @@ export function useEdit<
 		isUpdatePending: unref(mutation.isPending),
 	}))
 
-	const save = Edit.createSaveFn<TMutationParams, TMutationData, TMutationError>({
+	const save = Edit.createSaveFn<TMutationParams, TMutationData, TMutationError, TQueryResultData>({
 		getId: () => unref(id),
 		getResourceName: () => unref(resourceName),
 		getMutationMode: () => unref(props?.mutationMode),
 		getRedirect: () => unref(props?.redirect),
+		getQueryData: () => unref(query.data),
 		navigateTo,
 		mutateFn: mutation.mutateAsync,
 	})
