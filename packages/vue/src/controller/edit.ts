@@ -43,6 +43,7 @@ export type UseEditResult<
 		| 'record'
 	>
 	& {
+		query: UseGetOneResult<TQueryError, TQueryResultData>
 		isLoading: Ref<boolean>
 		save: Edit.SaveFn<TMutationParams, TMutationData>
 	}
@@ -86,8 +87,8 @@ export function useEdit<
 	const mutation = useUpdateOne<TMutationData, TMutationParams, TMutationError>({
 		...props,
 		resource: resourceName,
+		id,
 		fetcherName,
-		meta: props?.mutationMeta,
 	}, context)
 
 	const isLoading = computed(() => Edit.getIsLoading({
@@ -108,6 +109,7 @@ export function useEdit<
 		...mutation,
 		record: query.record,
 		isLoading,
+		query,
 		save,
 	}
 }

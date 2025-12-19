@@ -62,7 +62,6 @@ export function useCreate<
 		...props,
 		resource: resourceName,
 		fetcherName,
-		meta: props?.mutationMeta,
 	}, context)
 
 	const isLoading = computed(() => Create.getIsLoading({

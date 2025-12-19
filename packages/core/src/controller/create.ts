@@ -1,9 +1,8 @@
 import type { SetOptional } from 'type-fest'
-import type { BaseRecord, CreateResult, Meta, Params } from '../query'
+import type { BaseRecord, CreateResult, Params } from '../query'
 import type {
 	MutateAsyncFn as CreateMutateFn,
-	MutationOptionsFromProps as CreateMutationOptionsFromProps,
-	MutationProps as CreateMutationProps,
+	Props as CreateProps,
 } from '../query/create'
 import type { ResourceActionTypeValues } from '../resource'
 import type { Navigate } from '../router'
@@ -15,17 +14,14 @@ export type Props<
 	TMutationError,
 > = SetOptional<
 	& Omit<
-		CreateMutationProps<TMutationData, TMutationError, TMutationParams>,
+		CreateProps<TMutationData, TMutationError, TMutationParams>,
 		| 'params'
-		| 'meta'
 	>
 	& {
 		redirect?:
 			| Navigate.ToProps
 			| ResourceActionTypeValues
 			| ((data: CreateResult<TMutationData>) => Navigate.ToProps | ResourceActionTypeValues)
-		mutationMeta?: Meta
-		mutationOptions?: CreateMutationOptionsFromProps<TMutationData, TMutationError, TMutationParams>
 	},
 	'resource'
 >

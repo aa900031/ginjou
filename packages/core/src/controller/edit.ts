@@ -3,8 +3,7 @@ import type { BaseRecord, Meta, MutationModeValues, Params, RecordKey, UpdateRes
 import type { QueryOptions as GetOneQueryOptions } from '../query/get-one'
 import type {
 	MutateAsyncFn as UpdateMutateFn,
-	MutationOptionsFromProps as UpdateMutationOptionsFromProps,
-	MutationProps as UpdateMutationProps,
+	Props as UpdateProps,
 } from '../query/update'
 import type { ResolvedResource, ResourceActionTypeValues } from '../resource'
 import type { Navigate } from '../router'
@@ -20,9 +19,8 @@ export type Props<
 	TMutationError,
 > = SetOptional<
 	& Omit<
-		UpdateMutationProps<TMutationData, TMutationError, TMutationParams>,
+		UpdateProps<TMutationData, TMutationError, TMutationParams>,
 		| 'params'
-		| 'meta'
 	>
 	& {
 		redirect?:
@@ -31,8 +29,6 @@ export type Props<
 			| ((data: UpdateResult<TMutationData>) => Navigate.ToProps | ResourceActionTypeValues)
 		queryMeta?: Meta
 		queryOptions?: GetOneQueryOptions<TQueryData, TQueryError, TQueryResultData>
-		mutationMeta?: Meta
-		mutationOptions?: UpdateMutationOptionsFromProps<TMutationData, TMutationError, TMutationParams>
 	},
 	| 'resource'
 	| 'id'
