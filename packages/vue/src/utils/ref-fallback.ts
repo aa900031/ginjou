@@ -3,12 +3,12 @@ import { shallowRef, watch } from 'vue-demi'
 
 export function refFallback<T, TParams>(
 	params: () => TParams,
-	get: (params: TParams) => T,
+	get: (params: TParams, old: T | undefined) => T,
 ): Ref<T> {
 	const result = shallowRef<T>()
 
 	watch(params, (val) => {
-		result.value = get(val)
+		result.value = get(val, result.value)
 	}, {
 		flush: 'sync',
 		immediate: true,
