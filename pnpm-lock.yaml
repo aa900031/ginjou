@@ -333,6 +333,9 @@ importers:
       '@ginjou/tsconfig':
         specifier: workspace:*
         version: link:../../internals/tsconfig
+      '@ginjou/vite-config':
+        specifier: workspace:*
+        version: link:../../internals/vite-config
       '@ginjou/vue':
         specifier: workspace:*
         version: link:../../packages/vue

@@ -1,16 +1,15 @@
-import type { MaybeRef } from '@vueuse/shared'
+import type { ToMaybeRefs } from '@bouzu/vue-helper'
 import type { Simplify } from 'type-fest'
 import type { UseResourceContext } from '../resource'
 import type { UseGoContext } from './go'
-import { createNavigateToFn } from '@ginjou/core'
-import { toRef } from '@vueuse/shared'
+import { Navigate } from '@ginjou/core'
 import { unref } from 'vue-demi'
-import { useResource, useResourceContext } from '../resource'
+import { useResourceContext } from '../resource'
 import { useGo } from './go'
 
-export interface UseNavigateToProps {
-	resource?: MaybeRef<string | undefined>
-}
+export type UseNavigateToProps = ToMaybeRefs<
+	Navigate.Props
+>
 
 export type UseNavigateToContext = Simplify<
 	& UseGoContext
@@ -21,15 +20,12 @@ export function useNavigateTo(
 	props?: UseNavigateToProps,
 	context?: UseNavigateToContext,
 ) {
-	const go = useGo(context)
-	const resource = useResource({
-		name: toRef(() => unref(props?.resource)),
-	}, context)
 	const resourceContext = useResourceContext(context)
+	const go = useGo(context)
 
-	return createNavigateToFn({
+	return Navigate.createToFn({
 		go,
-		getResource: () => unref(resource),
-		resourceContext,
+		getResourceFromProp: () => unref(props?.resource),
+		resource: resourceContext,
 	})
 }

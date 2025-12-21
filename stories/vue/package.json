@@ -26,6 +26,7 @@
 		"@faker-js/faker": "^10.1.0",
 		"@ginjou/core": "workspace:^",
 		"@ginjou/tsconfig": "workspace:*",
+		"@ginjou/vite-config": "workspace:*",
 		"@ginjou/vue": "workspace:*",
 		"@ginjou/with-rest-api": "workspace:*",
 		"@ginjou/with-vue-i18n": "workspace:*",
