@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.11
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/nuxt@0.1.0-beta.10...${npm.name}@0.1.0-beta.11)
+
+### 🩹 Fixes
+
+-  **nuxt:** UseAsyncEdit replace useAsyncForm ([1a27b1c](https://github.com/aa900031/ginjou/commit/1a27b1c6a804efa994234071ae16de05c6da850f))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.10
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/nuxt@0.1.0-beta.9...${npm.name}@0.1.0-beta.10)
