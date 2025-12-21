@@ -3,7 +3,7 @@ import { shallowRef, watch } from 'vue-demi'
 
 export function refFallback<T, TParams>(
 	params: () => TParams,
-	get: (params: TParams, old: T | undefined) => T,
+	get: (params: TParams, old?: T | undefined) => T,
 ): Ref<T> {
 	const result = shallowRef<T>()
 
