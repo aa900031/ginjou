@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.15
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/core@0.1.0-beta.14...${npm.name}@0.1.0-beta.15)
+
+### 🩹 Fixes
+
+-  **core:** Lost location equal check ([8fdea0e](https://github.com/aa900031/ginjou/commit/8fdea0efb7952df65659e4b801278de522a0a232))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.14
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/core@0.1.0-beta.13...${npm.name}@0.1.0-beta.14)
