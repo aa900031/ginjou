@@ -51,7 +51,7 @@ describe('refFallback', () => {
 
 		it('should update when nested params change', () => {
 			const params = ref({ a: 5, b: 10 })
-			const get = vi.fn((p: { a: number; b: number }) => p.a + p.b)
+			const get = vi.fn((p: { a: number, b: number }) => p.a + p.b)
 
 			const result = refFallback(() => unref(params), get)
 
@@ -66,7 +66,7 @@ describe('refFallback', () => {
 		it('should handle multiple reactive dependencies', () => {
 			const param1 = ref(5)
 			const param2 = ref(10)
-			const get = vi.fn((p: { x: number; y: number }) => p.x * p.y)
+			const get = vi.fn((p: { x: number, y: number }) => p.x * p.y)
 
 			const result = refFallback(
 				() => ({ x: unref(param1), y: unref(param2) }),
@@ -141,7 +141,7 @@ describe('refFallback', () => {
 				total: number
 				history: string[]
 			}
-			const get = vi.fn((p: { action: string; value: number }, old?: State): State => {
+			const get = vi.fn((p: { action: string, value: number }, old?: State): State => {
 				const prevTotal = old?.total ?? 0
 				const prevHistory = old?.history ?? []
 				return {
@@ -239,7 +239,8 @@ describe('refFallback', () => {
 		it('should handle errors in get function', () => {
 			const params = ref(10)
 			const get = vi.fn((p: number) => {
-				if (p > 5) throw new Error('Value too large')
+				if (p > 5)
+					throw new Error('Value too large')
 				return p
 			})
 
@@ -339,7 +340,7 @@ describe('refFallback', () => {
 	describe('performance', () => {
 		it('should not cause unnecessary recalculations', () => {
 			const params = ref({ a: 1, b: 2 })
-			const get = vi.fn((p: { a: number; b: number }) => p.a + p.b)
+			const get = vi.fn((p: { a: number, b: number }) => p.a + p.b)
 
 			const result = refFallback(() => unref(params), get)
 
@@ -376,8 +377,9 @@ describe('refFallback', () => {
 			const location = ref<Location>({ query: { page: '1' } })
 			const syncRoute = ref(true)
 
-			const get = (params: { location: Location; syncRoute: boolean }) => {
-				if (!params.syncRoute) return undefined
+			const get = (params: { location: Location, syncRoute: boolean }) => {
+				if (!params.syncRoute)
+					return undefined
 				return Number.parseInt(params.location.query.page) || undefined
 			}
 
@@ -430,12 +432,12 @@ describe('refFallback', () => {
 		})
 
 		it('should work with filters and sorters', () => {
-			type Filters = Array<{ field: string; value: any }>
+			type Filters = Array<{ field: string, value: any }>
 
 			const locationFilters = ref<Filters | undefined>(undefined)
 			const propFilters = ref<Filters | undefined>([{ field: 'status', value: 'active' }])
 
-			const get = (params: { location?: Filters; prop?: Filters }, old?: Filters) => {
+			const get = (params: { location?: Filters, prop?: Filters }, old?: Filters) => {
 				return params.location ?? params.prop ?? old ?? []
 			}
 
