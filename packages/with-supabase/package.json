@@ -1,7 +1,7 @@
 {
 	"name": "@ginjou/with-supabase",
 	"type": "module",
-	"version": "0.1.0-beta.6",
+	"version": "0.1.0-beta.7",
 	"author": "zhong666 <hi@zhong666.me>",
 	"license": "MIT",
 	"homepage": "https://github.com/aa900031/ginjou#readme",
