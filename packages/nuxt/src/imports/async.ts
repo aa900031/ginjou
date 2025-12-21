@@ -28,8 +28,8 @@ const composables = [
 		name: 'useAsyncList',
 	},
 	{
-		from: './runtime/composables/form',
-		name: 'useAsyncForm',
+		from: './runtime/composables/edit',
+		name: 'useAsyncEdit',
 	},
 	{
 		from: './runtime/composables/select',

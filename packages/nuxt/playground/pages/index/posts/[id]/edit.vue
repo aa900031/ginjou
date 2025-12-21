@@ -5,7 +5,7 @@ const { options } = await useAsyncSelect({
 	valueKey: 'id',
 })
 
-const { record, save } = await useAsyncForm()
+const { record, save } = await useAsyncEdit()
 
 const formData = reactive({
 	name: unref(record)?.name,
