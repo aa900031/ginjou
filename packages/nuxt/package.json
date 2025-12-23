@@ -47,7 +47,8 @@
 	"dependencies": {
 		"@ginjou/vue": "workspace:^",
 		"@ginjou/with-vue-router": "workspace:^",
-		"@nuxt/kit": "^3.20.1"
+		"@nuxt/kit": "^3.20.1",
+		"local-pkg": "^1.1.2"
 	},
 	"devDependencies": {
 		"@ginjou/vite-config": "workspace:*",
