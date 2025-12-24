@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.12
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/nuxt@0.1.0-beta.11...${npm.name}@0.1.0-beta.12)
+
+### 🩹 Fixes
+
+-  **nuxt:** Warning for @ginjou/with-vue-i18n is not install ([517d096](https://github.com/aa900031/ginjou/commit/517d096fd9731e46290b09a19e654bcfd2171186))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.11
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/nuxt@0.1.0-beta.10...${npm.name}@0.1.0-beta.11)
