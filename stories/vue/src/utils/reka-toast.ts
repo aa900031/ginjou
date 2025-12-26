@@ -9,11 +9,9 @@ export interface ToastOptions {
 	severity?: 'success' | 'error' | 'secondary'
 }
 
-let count = 0
-
 function genId() {
-	count = (count + 1) % 100
-	return count.toString()
+	// Use timestamp + counter for better uniqueness
+	return `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
 }
 
 const KEY = Symbol('toast')
