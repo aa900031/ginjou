@@ -354,9 +354,6 @@ importers:
       '@msw/data':
         specifier: ^1.1.2
         version: 1.1.2
-      '@primevue/themes':
-        specifier: ^4.5.1
-        version: 4.5.1
       '@storybook/addon-docs':
         specifier: ^10.1.4
         version: 10.1.4(@types/react@19.2.7)(esbuild@0.25.12)(rollup@4.53.3)(storybook@10.1.4(@testing-library/dom@10.4.0)(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(vite@7.2.7(@types/node@24.10.1)(jiti@2.6.1)(terser@5.39.0)(tsx@4.19.3)(yaml@2.8.1))
@@ -378,9 +375,6 @@ importers:
       msw-storybook-addon:
         specifier: 2.0.6
         version: 2.0.6(msw@2.12.4(@types/node@24.10.1)(typescript@5.9.3))
-      primevue:
-        specifier: ^4.5.1
-        version: 4.5.1(vue@3.5.25(typescript@5.9.3))
       reka-ui:
         specifier: ^2.6.1
         version: 2.6.1(@vue/composition-api@1.7.2(vue@3.5.25(typescript@5.9.3)))(typescript@5.9.3)(vue@3.5.25(typescript@5.9.3))
@@ -1820,34 +1814,6 @@ packages:
 
   '@poppinss/exception@1.2.2':
     resolution: {integrity: sha512-m7bpKCD4QMlFCjA/nKTs23fuvoVFoA83brRKmObCUNmi/9tVu8Ve3w4YQAnJu4q3Tjf5fr685HYIC/IA2zHRSg==}
-
-  '@primeuix/styled@0.7.4':
-    resolution: {integrity: sha512-QSO/NpOQg8e9BONWRBx9y8VGMCMYz0J/uKfNJEya/RGEu7ARx0oYW0ugI1N3/KB1AAvyGxzKBzGImbwg0KUiOQ==}
-    engines: {node: '>=12.11.0'}
-
-  '@primeuix/styles@2.0.2':
-    resolution: {integrity: sha512-LNtkJsTonNHF5ag+9s3+zQzm00+LRmffw68QRIHy6S/dam1JpdrrAnUzNYlWbaY7aE2EkZvQmx7Np7+PyHn+ow==}
-
-  '@primeuix/themes@2.0.2':
-    resolution: {integrity: sha512-prwQvA3tDGBz8yWSUenaJUttEMCEvPvxwOfFhDPmSe1vwsfVKL2Nmh5eZvtPFQnxmIOPsHZS7zc0/L3CzJ83Eg==}
-
-  '@primeuix/utils@0.6.2':
-    resolution: {integrity: sha512-l+li4z6UAwamqbu4xodN3lqr1G4S37DKEJ7Y/nE3MjEx7zJ+KIBkb5voF26Nuly1UCmIcRWQJokhLRF7+sRhyg==}
-    engines: {node: '>=12.11.0'}
-
-  '@primevue/core@4.5.1':
-    resolution: {integrity: sha512-SJ1WsXepdLgrOTg2gSN9F+nd3HNnOvTDzba4VeMRAC5YrQsE8/pJ8KRyFI2FFcTxTeCrqJbjEaEN8t3VPqdhpA==}
-    engines: {node: '>=12.11.0'}
-    peerDependencies:
-      vue: ^3.5.0
-
-  '@primevue/icons@4.5.1':
-    resolution: {integrity: sha512-wsaarGLyWkwPXcYP5PwdIMl9/u7uMr7XWK8Oq074GXP0Ox2C2G5peWl65stlvB2FDqm3H4TlNQ+vJ9Pp5yQlNQ==}
-    engines: {node: '>=12.11.0'}
-
-  '@primevue/themes@4.5.1':
-    resolution: {integrity: sha512-cdAHbF0mWn+4en6qNCezi164SNgFYgcR55jzdOETzdxcbczVhNBBQI0fTed7E0oLbwn1sdoUsJwIORsL4bDuyg==}
-    engines: {node: '>=12.11.0'}
 
   '@puppeteer/browsers@2.3.0':
     resolution: {integrity: sha512-ioXoq9gPxkss4MYhD+SFaU9p1IHFUX0ILAWFPyjGaBdjLsYAlZw6j1iLA0N/m12uVHLFDfSYNF7EQccjinIMDA==}
@@ -6220,10 +6186,6 @@ packages:
     resolution: {integrity: sha512-Qb1gy5OrP5+zDf2Bvnzdl3jsTf1qXVMazbvCoKhtKqVs4/YK4ozX4gKQJJVyNe+cajNPn0KoC0MC3FUmaHWEmQ==}
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
 
-  primevue@4.5.1:
-    resolution: {integrity: sha512-RH6MTfYwX6jno1Io36uYfOUU1WCJ//aWYzlv4hZzOyBwjHTE3lfjP9I3hPtHbjp7I0NiNC4xPwzGRUkw/rdn2g==}
-    engines: {node: '>=12.11.0'}
-
   process-nextick-args@2.0.1:
     resolution: {integrity: sha512-3ouUOpQhtgrbOa17J7+uxOTpITYWaGP7/AhoR3+A+/1e9skrzelGi/dXzEYyvbxubEF6Wn2ypscTKiKJFFn1ag==}
 
@@ -9563,38 +9525,6 @@ snapshots:
       supports-color: 10.0.0
 
   '@poppinss/exception@1.2.2': {}
-
-  '@primeuix/styled@0.7.4':
-    dependencies:
-      '@primeuix/utils': 0.6.2
-
-  '@primeuix/styles@2.0.2':
-    dependencies:
-      '@primeuix/styled': 0.7.4
-
-  '@primeuix/themes@2.0.2':
-    dependencies:
-      '@primeuix/styled': 0.7.4
-
-  '@primeuix/utils@0.6.2': {}
-
-  '@primevue/core@4.5.1(vue@3.5.25(typescript@5.9.3))':
-    dependencies:
-      '@primeuix/styled': 0.7.4
-      '@primeuix/utils': 0.6.2
-      vue: 3.5.25(typescript@5.9.3)
-
-  '@primevue/icons@4.5.1(vue@3.5.25(typescript@5.9.3))':
-    dependencies:
-      '@primeuix/utils': 0.6.2
-      '@primevue/core': 4.5.1(vue@3.5.25(typescript@5.9.3))
-    transitivePeerDependencies:
-      - vue
-
-  '@primevue/themes@4.5.1':
-    dependencies:
-      '@primeuix/styled': 0.7.4
-      '@primeuix/themes': 2.0.2
 
   '@puppeteer/browsers@2.3.0':
     dependencies:
@@ -15233,16 +15163,6 @@ snapshots:
       ansi-regex: 5.0.1
       ansi-styles: 5.2.0
       react-is: 17.0.2
-
-  primevue@4.5.1(vue@3.5.25(typescript@5.9.3)):
-    dependencies:
-      '@primeuix/styled': 0.7.4
-      '@primeuix/styles': 2.0.2
-      '@primeuix/utils': 0.6.2
-      '@primevue/core': 4.5.1(vue@3.5.25(typescript@5.9.3))
-      '@primevue/icons': 4.5.1(vue@3.5.25(typescript@5.9.3))
-    transitivePeerDependencies:
-      - vue
 
   process-nextick-args@2.0.1: {}
 
