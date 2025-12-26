@@ -427,6 +427,7 @@ export function getLocationFilters(
 		location,
 		syncRouteFromProp,
 	}: GetLocationFiltersProps,
+	old: Filters | undefined,
 ): Filters | undefined {
 	if (!checkNeedSyncRoute(syncRouteFromProp))
 		return
@@ -443,6 +444,9 @@ export function getLocationFilters(
 	if (parsed === undefined)
 		return
 
+	if (old != null && isEqual(old, parsed))
+		return old
+
 	return parsed
 }
 
@@ -456,6 +460,7 @@ export function getLocationSorters(
 		location,
 		syncRouteFromProp,
 	}: GetLocationSortersProps,
+	old: Sorters | undefined,
 ): Sorters | undefined {
 	if (!checkNeedSyncRoute(syncRouteFromProp))
 		return
@@ -471,6 +476,9 @@ export function getLocationSorters(
 	const parsed = parseQueryValue('sorters', syncRouteFromProp, sorters)
 	if (parsed === undefined)
 		return
+
+	if (old != null && isEqual(old, parsed))
+		return old
 
 	return parsed
 }

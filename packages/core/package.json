@@ -1,7 +1,7 @@
 {
 	"name": "@ginjou/core",
 	"type": "module",
-	"version": "0.1.0-beta.13",
+	"version": "0.1.0-beta.15",
 	"author": "zhong666 <hi@zhong666.me>",
 	"license": "MIT",
 	"homepage": "https://github.com/aa900031/ginjou#readme",
@@ -51,6 +51,6 @@
 	"devDependencies": {
 		"@ginjou/tsconfig": "workspace:*",
 		"@ginjou/vite-config": "workspace:*",
-		"@tanstack/query-core": "^5.90.11"
+		"@tanstack/query-core": "^5.90.12"
 	}
 }

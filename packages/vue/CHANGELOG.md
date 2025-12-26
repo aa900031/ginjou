@@ -3,6 +3,39 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.14
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/vue@0.1.0-beta.13...${npm.name}@0.1.0-beta.14)
+
+### 🚀 Enhancements
+
+-  Prevent unnecessary location query updates (#100) ([5dd82c9](https://github.com/aa900031/ginjou/commit/5dd82c9d191117385e4b88a4ca77c446fb268826))
+
+### 💅 Refactors
+
+-  ⚠️ Separate useForm into useCreate and useEdit (#98) ([060fa38](https://github.com/aa900031/ginjou/commit/060fa38f25a24b9e73d1fe74eedaea7c06420ce2))
+-  Results type for getPermissions and getIdentity ([5b953fe](https://github.com/aa900031/ginjou/commit/5b953fe97a60a50d14cd272eac6fa4565cbf4f3e))
+
+### 🏡 Chore
+
+-  **deps:** Update npm non-major develop dependencies (#88) ([100dd84](https://github.com/aa900031/ginjou/commit/100dd840adaf25e064c30fceb2892d154a784f47))
+-  **deps:** Update npm non-major develop dependencies (#91) ([498191d](https://github.com/aa900031/ginjou/commit/498191d25de1d3203f103c61c83945e54bb1c3b8))
+-  **deps:** Update npm non-major develop dependencies (#93) ([3fb159b](https://github.com/aa900031/ginjou/commit/3fb159b02d5590884155f160c69afe8e2c39c7e2))
+
+### ✅ Tests
+
+-  Intergration pkgs (#90) ([43f860f](https://github.com/aa900031/ginjou/commit/43f860f608df72923e573827f66174ea61141049))
+
+
+### ⚠️ Breaking Changes
+
+-  separate useForm into useCreate and useEdit (#98) ([060fa38](https://github.com/aa900031/ginjou/commit/060fa38f25a24b9e73d1fe74eedaea7c06420ce2))
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+- Renovate[bot]
+
 ## v0.1.0-beta.13
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/vue@0.1.0-beta.12...${npm.name}@0.1.0-beta.13)

@@ -3,6 +3,61 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.12
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/nuxt@0.1.0-beta.11...${npm.name}@0.1.0-beta.12)
+
+### 🩹 Fixes
+
+-  **nuxt:** Warning for @ginjou/with-vue-i18n is not install ([517d096](https://github.com/aa900031/ginjou/commit/517d096fd9731e46290b09a19e654bcfd2171186))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
+## v0.1.0-beta.11
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/nuxt@0.1.0-beta.10...${npm.name}@0.1.0-beta.11)
+
+### 🩹 Fixes
+
+-  **nuxt:** UseAsyncEdit replace useAsyncForm ([1a27b1c](https://github.com/aa900031/ginjou/commit/1a27b1c6a804efa994234071ae16de05c6da850f))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
+## v0.1.0-beta.10
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/nuxt@0.1.0-beta.9...${npm.name}@0.1.0-beta.10)
+
+### 💅 Refactors
+
+-  ⚠️ Separate useForm into useCreate and useEdit (#98) ([060fa38](https://github.com/aa900031/ginjou/commit/060fa38f25a24b9e73d1fe74eedaea7c06420ce2))
+
+### 🏡 Chore
+
+-  **deps:** Update npm major dependencies ([c6bd83a](https://github.com/aa900031/ginjou/commit/c6bd83abccd0725211a56d3a57f56a9cb5fcd61e))
+-  **deps:** Update npm non-major dependencies (#79) ([978c770](https://github.com/aa900031/ginjou/commit/978c770e86646b467f07ca981ceaa42c8daabae8))
+
+### ✅ Tests
+
+-  Intergration pkgs (#90) ([43f860f](https://github.com/aa900031/ginjou/commit/43f860f608df72923e573827f66174ea61141049))
+
+
+### ⚠️ Breaking Changes
+
+-  separate useForm into useCreate and useEdit (#98) ([060fa38](https://github.com/aa900031/ginjou/commit/060fa38f25a24b9e73d1fe74eedaea7c06420ce2))
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+- Renovate[bot]
+
 ## v0.1.0-beta.9
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/nuxt@0.1.0-beta.8...${npm.name}@0.1.0-beta.9)

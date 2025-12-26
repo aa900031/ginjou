@@ -1,10 +1,10 @@
 import type { BaseRecord, Params } from '@ginjou/core'
-import type { UseFormContext, UseFormProps, UseFormResult } from '@ginjou/vue'
+import type { UseEditContext, UseEditProps, UseEditResult } from '@ginjou/vue'
 import type { AsyncResult } from '../utils/async'
-import { useForm } from '@ginjou/vue'
+import { useEdit } from '@ginjou/vue'
 import { withAsync } from '../utils/async'
 
-export function useAsyncForm<
+export function useAsyncEdit<
 	TQueryData extends BaseRecord = BaseRecord,
 	TMutationParams extends Params = Params,
 	TQueryError = unknown,
@@ -12,10 +12,10 @@ export function useAsyncForm<
 	TMutationData extends BaseRecord = TQueryResultData,
 	TMutationError = unknown,
 >(
-	props?: UseFormProps<TQueryData, TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError>,
-	context?: UseFormContext,
-): AsyncResult<UseFormResult<TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError>> {
-	const result = useForm(props, context)
+	props?: UseEditProps<TQueryData, TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError>,
+	context?: UseEditContext,
+): AsyncResult<UseEditResult<TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError>> {
+	const result = useEdit(props, context)
 	return withAsync(result, async () => {
 		await result.query.suspense()
 	})

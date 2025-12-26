@@ -1,7 +1,7 @@
 {
 	"name": "@ginjou/nuxt",
 	"type": "module",
-	"version": "0.1.0-beta.9",
+	"version": "0.1.0-beta.12",
 	"author": "zhong666 <hi@zhong666.me>",
 	"license": "MIT",
 	"homepage": "https://github.com/aa900031/ginjou#readme",
@@ -47,7 +47,8 @@
 	"dependencies": {
 		"@ginjou/vue": "workspace:^",
 		"@ginjou/with-vue-router": "workspace:^",
-		"@nuxt/kit": "^3.20.1"
+		"@nuxt/kit": "^3.20.1",
+		"local-pkg": "^1.1.2"
 	},
 	"devDependencies": {
 		"@ginjou/vite-config": "workspace:*",

@@ -4,6 +4,9 @@ packages:
   - stories/*
   - packages/nuxt/playground
 
+ignoredBuiltDependencies:
+  - puppeteer
+
 onlyBuiltDependencies:
   - '@parcel/watcher'
   - esbuild

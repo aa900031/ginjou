@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.11
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/with-directus@0.1.0-beta.10...${npm.name}@0.1.0-beta.11)
+
+### ✅ Tests
+
+-  Intergration pkgs (#90) ([43f860f](https://github.com/aa900031/ginjou/commit/43f860f608df72923e573827f66174ea61141049))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.10
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/with-directus@0.1.0-beta.9...${npm.name}@0.1.0-beta.10)

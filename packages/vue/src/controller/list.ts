@@ -104,22 +104,34 @@ export function useList<
 		List.getPropSortersMode,
 	)
 
-	const currentPageLocation = computed<number | undefined>(() => List.getLocationCurrentPage({
-		location: unref(location),
-		syncRouteFromProp: unref(props?.syncRoute),
-	}))
-	const perPageLocation = computed(() => List.getLocationPerPage({
-		location: unref(location),
-		syncRouteFromProp: unref(props?.syncRoute),
-	}))
-	const filtersLocation = computed(() => List.getLocationFilters({
-		location: unref(location),
-		syncRouteFromProp: unref(props?.syncRoute),
-	}))
-	const sortersLocation = computed(() => List.getLocationSorters({
-		location: unref(location),
-		syncRouteFromProp: unref(props?.syncRoute),
-	}))
+	const currentPageLocation = refFallback<number | undefined, List.GetLocationCurrentPageProps>(
+		() => ({
+			location: unref(location),
+			syncRouteFromProp: unref(props?.syncRoute),
+		}),
+		List.getLocationCurrentPage,
+	)
+	const perPageLocation = refFallback<number | undefined, List.GetLocationPerPageProps>(
+		() => ({
+			location: unref(location),
+			syncRouteFromProp: unref(props?.syncRoute),
+		}),
+		List.getLocationPerPage,
+	)
+	const filtersLocation = refFallback<Filters | undefined, List.GetLocationFiltersProps>(
+		() => ({
+			location: unref(location),
+			syncRouteFromProp: unref(props?.syncRoute),
+		}),
+		List.getLocationFilters,
+	)
+	const sortersLocation = refFallback<Sorters | undefined, List.GetLocationSortersProps>(
+		() => ({
+			location: unref(location),
+			syncRouteFromProp: unref(props?.syncRoute),
+		}),
+		List.getLocationSorters,
+	)
 
 	const resourceName = computed(() => getResourceIdentifier({
 		resource: unref(resource),

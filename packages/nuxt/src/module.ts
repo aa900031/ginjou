@@ -1,4 +1,5 @@
 import { addImports, addPlugin, createResolver, defineNuxtModule } from '@nuxt/kit'
+import { isPackageExists } from 'local-pkg'
 import ImportListForAsync from './imports/async'
 import ImportListForGinjou from './imports/ginjou'
 import ImportListForTanstackQuery from './imports/tanstack-query'
@@ -25,8 +26,12 @@ export default defineNuxtModule({
 				'@ginjou/core',
 				'@ginjou/vue',
 				'@ginjou/with-vue-router',
-				'@ginjou/with-vue-i18n',
 			)
+			for (const pkg of ['@ginjou/with-vue-i18n']) {
+				if (isPackageExists(pkg)) {
+					config.optimizeDeps.include.push(pkg)
+				}
+			}
 		})
 
 		addImports(ImportListForTanstackQuery)
