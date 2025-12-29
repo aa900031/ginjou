@@ -1,8 +1,6 @@
-import { Meta } from '@storybook/addon-docs/blocks'
-
-<Meta title="Conception" />
-
-# Conception
+---
+title: Conception
+---
 
 Ginjou is designed with two key ideas in mind: **Flexibility** and **Composition**.
 

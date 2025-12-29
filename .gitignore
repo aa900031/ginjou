@@ -26,3 +26,7 @@ coverage/
 .turbo/
 
 /stories/vue/public/mockServiceWorker.js
+
+.env
+.env.*
+!.env.example

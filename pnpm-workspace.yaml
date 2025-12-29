@@ -1,4 +1,5 @@
 packages:
+  - docs
   - packages/*
   - internals/*
   - stories/*
@@ -11,4 +12,6 @@ onlyBuiltDependencies:
   - '@parcel/watcher'
   - esbuild
   - msw
+  - sharp
   - vue-demi
+  - better-sqlite3

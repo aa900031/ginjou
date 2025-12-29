@@ -8,11 +8,13 @@
 	"scripts": {
 		"build:pkgs": "turbo run build --filter=./packages/*",
 		"build:sb": "turbo run build --filter=./stories/*",
+		"build:docs": "turbo run build --filter=@ginjou/docs",
 		"preview:sb": "turbo run preview --filter=@ginjou/storybook",
 		"test": "vitest run",
 		"bench": "vitest bench --run --project benchmark",
 		"dev:sb": "turbo run dev --filter=./stories/*",
 		"dev:nuxt": "turbo run dev --filter=@ginjou/nuxt",
+		"dev:docs": "turbo run dev --filter=@ginjou/docs",
 		"release:pkgs": "turbo run release --concurrency=1 --filter=./packages/*",
 		"lint": "eslint . --cache --cache-location ./node_modules/.cache/eslint"
 	},

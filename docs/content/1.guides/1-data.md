@@ -1,0 +1,191 @@
+---
+title: Data
+description: How to fetch data?
+---
+
+Data is the most important part of any app. It lets users see and update information from a database or API.
+
+To do this, we use a **Fetcher**. Think of it as a translator between your app and your API. You can use a ready-made one, or build your own to fit your needs.
+
+After setting up the Fetcher, you can use **Data Composables** (like `useGetOne`, `useGetList`) to work with your data. The framework handles the details, like telling the provider which data to get (using `resource` or `id`).
+
+You can also use more than one Fetcher at the same time. For example, you can get products from a **REST API** and users from a **GraphQL API**.
+
+```mermaid
+flowchart LR
+    A[App] -- Calls composables --> B[Data Composables]
+    B -- Calls fetcher methods<br/>(via TanStack Query) --> C[Fetcher]
+    C -- HTTP Request --> D[API]
+```
+
+## Fetching Data
+
+Let's say we want to get a record with ID `123` from the `products` list. We can use the `useGetOne` composable. It simply calls the `fetcher.getOne` method for you.
+
+<!-- {/* Example Code */} -->
+
+## Updating Data
+
+To update a record with ID `123` in `products`, use the `useUpdateOne` composable. This calls the `fetcher.updateOne` method.
+
+<!-- {/* Example Code */} -->
+
+## Listing Data
+
+If you need a list of records from `products`, use `useGetList` or `useGetInfiniteList`. These call `fetcher.getList` and give you the `data` and total count (`total`).
+
+<!-- {/* Example Code */} -->
+
+### Filters, Sorters and Pagination
+
+Usually, you don't want to load *all* the data. You probably want just some of it.
+
+Ginjou lets you use `filters`, `sorters`, and `pagination` in your data composables. These are passed to your `fetcher`, which then asks the API for exactly what you need.
+
+Let's look at a more realistic example. Suppose we want to:
+
+- Get 5 products.
+- Where the `material` is `wooden`.
+- Sorted by `ID` (newest to oldest).
+
+We can do this by passing `filters`, `sorters`, and `pagination` to `useGetList`.
+
+`useGetList` then calls `fetcher.getList` with these settings, and your API request is updated accordingly.
+
+You can also build more complex queries. For example, finding products that:
+
+- Are made of wood.
+- Belong to category ID 45.
+- **OR** have a price between 1000 and 2000.
+
+<!-- {/* Example Code */} -->
+
+## Multiple Fetchers
+
+In Ginjou, you can use multiple fetchers in one app. This is great if you have different APIs.
+
+Each fetcher has its own settings. This makes it easy to handle complex data.
+
+For example, you might want to fetch:
+
+- `products` from `https://api.products.example.com`
+- `users` from `https://api.users.example.com`.
+
+In the example below:
+
+- We define multiple fetchers.
+- We use `fetcherName` to tell the composable which one to use.
+
+<!-- {/* Example Code */} -->
+
+## Relationships
+
+Ginjou helps you manage connections between data using composables like `useGetOne` and `useGetMany`. This gives you a flexible way to handle relationships.
+
+### One-to-One
+
+This is when one item matches exactly one other item. Like a partnership.
+
+For example, a **Product** has only one **Product Detail**.
+
+```mermaid
+erDiagram
+    direction LR
+    Products ||--o| ProductDetail : "has"
+    Products {
+        string id
+        string name
+        number price
+        string description
+    }
+    ProductDetail {
+        string id
+        number weight
+        string dimensions
+        string productId
+    }
+```
+
+Use `useGetOne` to get the details for a product.
+
+<!-- {/* Example Code */} -->
+
+### One-to-Many
+
+This is when one item is connected to many others. Like a parent with many children.
+
+For example, a **Product** can have many **Reviews**.
+
+```mermaid
+erDiagram
+    direction LR
+    Products ||--o{ Reviews : "has"
+    Products {
+        string id
+        string name
+        number price
+        string description
+        string detail
+    }
+    Reviews {
+        string id
+        number rating
+        string comment
+        string user
+        string product
+    }
+```
+
+Use `useGetList` and filter by the product ID to get its reviews.
+
+<!-- {/* Example Code */} -->
+
+### Many-to-Many
+
+This is when items from one group can match many items in another group, and vice versa.
+
+For example, **Products** can have many **Categories**, and **Categories** can have many **Products**.
+
+```mermaid
+erDiagram
+    Products ||--o{ ProductCategories : "has"
+    Categories ||--o{ ProductCategories : "has"
+    Products {
+        string id
+        string name
+        number price
+        string description
+        string detail
+    }
+    ProductCategories {
+        string id
+        string productId
+        string categoryId
+    }
+    Categories {
+        string id
+        string name
+        string description
+    }
+```
+
+Here, use `useGetMany` twice: once to get the categories for a product, or once to get the products for a category.
+
+<!-- {/* Example Code */} -->
+
+## Data Composables
+
+| Composable | Method | Description |
+| :--- | :--- | :--- |
+| `useGetOne` | `getOne` | Get a single record. |
+| `useUpdateOne` | `updateOne` | Update an existing record. |
+| `useCreateOne` | `createOne` | Create a new record. |
+| `useDeleteOne` | `deleteOne` | Delete a single record. |
+| `useGetList` | `getList` | Get a list of records. |
+| `useGetInfiniteList` | `getList` | Get a list of records with infinite scroll. |
+| `useGetMany` | `getMany` | Get multiple records. |
+| `useCreateMany` | `createMany` | Create multiple records. |
+| `useDeleteMany` | `deleteMany` | Delete multiple records. |
+| `useUpdateMany` | `updateMany` | Update multiple records. |
+| `useCustom` | `custom` | Make custom API requests. |
+| `useCustomMutation` | `custom` | Make custom API mutation requests. |
