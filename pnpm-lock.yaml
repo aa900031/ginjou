@@ -56,6 +56,9 @@ importers:
 
   docs:
     dependencies:
+      '@barzhsieh/nuxt-content-mermaid':
+        specifier: ^2.1.3
+        version: 2.1.3(@nuxt/content@3.10.0(better-sqlite3@12.5.0)(magicast@0.5.1)(valibot@1.2.0(typescript@5.9.3)))(magicast@0.5.1)(nuxt@4.2.2(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.10.1)(@vue/compiler-sfc@3.5.26)(better-sqlite3@12.5.0)(cac@6.7.14)(db0@0.3.4(better-sqlite3@12.5.0))(eslint@9.39.1(jiti@2.6.1))(ioredis@5.8.2)(lightningcss@1.30.2)(magicast@0.5.1)(meow@13.2.0)(optionator@0.9.4)(rollup@4.54.0)(terser@5.39.0)(tsx@4.19.3)(typescript@5.9.3)(vite@7.3.0(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.39.0)(tsx@4.19.3)(yaml@2.8.2))(vue-tsc@3.1.4(typescript@5.9.3))(yaml@2.8.2))
       '@nuxt/hints':
         specifier: ^1.0.0-alpha.5
         version: 1.0.0-alpha.5(@netlify/blobs@9.1.2)(better-sqlite3@12.5.0)(magicast@0.5.1)(vite@7.3.0(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.39.0)(tsx@4.19.3)(yaml@2.8.2))(vue@3.5.25(typescript@5.9.3))
@@ -632,6 +635,12 @@ packages:
   '@babel/types@7.28.5':
     resolution: {integrity: sha512-qQ5m48eI/MFLQ5PxQj4PFaprjyCTLI37ElWMmNs0K8Lk3dVeOdNpB3ks8jc7yM5CDmVC73eMVk/trk3fgmrUpA==}
     engines: {node: '>=6.9.0'}
+
+  '@barzhsieh/nuxt-content-mermaid@2.1.3':
+    resolution: {integrity: sha512-qNYgDkUvj3GFYyibhLJuFrZxstfHEu/ujNtlYF0SLzf1/GTocgxodMuitn+GehrqhRX40EjDCxawqcZXaIQKwA==}
+    peerDependencies:
+      '@nuxt/content': '>=3.5.0'
+      nuxt: ^3.20.1 || ^4.1.0
 
   '@bomb.sh/tab@0.0.10':
     resolution: {integrity: sha512-6ALS2rh/4LKn0Yxwm35V6LcgQuSiECHbqQo7+9g4rkgGyXZ0siOc8K+IuWIq/4u0Zkv2mevP9QSqgKhGIvLJMw==}
@@ -11261,6 +11270,16 @@ snapshots:
     dependencies:
       '@babel/helper-string-parser': 7.27.1
       '@babel/helper-validator-identifier': 7.28.5
+
+  '@barzhsieh/nuxt-content-mermaid@2.1.3(@nuxt/content@3.10.0(better-sqlite3@12.5.0)(magicast@0.5.1)(valibot@1.2.0(typescript@5.9.3)))(magicast@0.5.1)(nuxt@4.2.2(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.10.1)(@vue/compiler-sfc@3.5.26)(better-sqlite3@12.5.0)(cac@6.7.14)(db0@0.3.4(better-sqlite3@12.5.0))(eslint@9.39.1(jiti@2.6.1))(ioredis@5.8.2)(lightningcss@1.30.2)(magicast@0.5.1)(meow@13.2.0)(optionator@0.9.4)(rollup@4.54.0)(terser@5.39.0)(tsx@4.19.3)(typescript@5.9.3)(vite@7.3.0(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.39.0)(tsx@4.19.3)(yaml@2.8.2))(vue-tsc@3.1.4(typescript@5.9.3))(yaml@2.8.2))':
+    dependencies:
+      '@nuxt/content': 3.10.0(better-sqlite3@12.5.0)(magicast@0.5.1)(valibot@1.2.0(typescript@5.9.3))
+      '@nuxt/kit': 4.2.1(magicast@0.5.1)
+      defu: 6.1.4
+      mermaid: 11.12.2
+      nuxt: 4.2.2(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.10.1)(@vue/compiler-sfc@3.5.26)(better-sqlite3@12.5.0)(cac@6.7.14)(db0@0.3.4(better-sqlite3@12.5.0))(eslint@9.39.1(jiti@2.6.1))(ioredis@5.8.2)(lightningcss@1.30.2)(magicast@0.5.1)(meow@13.2.0)(optionator@0.9.4)(rollup@4.54.0)(terser@5.39.0)(tsx@4.19.3)(typescript@5.9.3)(vite@7.3.0(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.39.0)(tsx@4.19.3)(yaml@2.8.2))(vue-tsc@3.1.4(typescript@5.9.3))(yaml@2.8.2)
+    transitivePeerDependencies:
+      - magicast
 
   '@bomb.sh/tab@0.0.10(cac@6.7.14)(citty@0.1.6)':
     optionalDependencies:

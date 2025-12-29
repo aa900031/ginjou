@@ -38,8 +38,6 @@ Connect to any API and build powerful apps in minutes. No complex setup, just cl
 ::
 
 ::u-page-section
-#title
-Features
 
 #features
   :::u-page-feature
