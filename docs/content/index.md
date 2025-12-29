@@ -45,7 +45,7 @@ Features
   :::u-page-feature
   ---
   icon: i-lucide-plug
-  orientation: vertical 
+  orientation: vertical
   ---
   #title
   Use Any API
