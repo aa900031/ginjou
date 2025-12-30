@@ -1,9 +1,23 @@
-# Ginjou
+<p align="center">
+	<img alt="Ginjou Logo" width="256" src="./docs/public/logo.png">
+</p>
+
+<br/>
+
+<h1 align="center">
+  Ginjou
+</h1>
+
+<div align="center">
 
 [![Coverage](https://img.shields.io/codecov/c/gh/aa900031/ginjou?label=Coverage&logo=codecov&style=flat&colorA=18181B&colorB=F0DB4F)](https://codecov.io/gh/aa900031/ginjou)
 ![CodeRabbit](https://img.shields.io/coderabbit/prs/github/aa900031/ginjou?style=flat&logo=coderabbit&logoColor=FF570A&label=CodeRabbit%20Reviews&colorA=18181B&colorB=F0DB4F)
 [![Socket Secure](https://badge.socket.dev/npm/package/@ginjou/core)](https://socket.dev/npm/package/@ginjou/core)
 [![CodSpeed Benchmarks](https://img.shields.io/endpoint?url=https://codspeed.io/badge.json)](https://codspeed.io/aa900031/ginjou)
+
+</div>
+
+<br>
 
 Ginjou is a headless, framework-agnostic, progressive  library for building admin panels, dashboards, and other data-intensive applications. It is inspired by [refine](https://github.com/refinedev/refine) and [react-admin](https://github.com/marmelab/react-admin)
 
