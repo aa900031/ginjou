@@ -32,12 +32,15 @@ Connect to any API and build powerful apps in minutes. No complex setup, just cl
   :::u-button
   ---
   color: neutral
-  icon: i-simple-icons-github
+  icon: i-simple-icons-storybook
   size: xl
-  to: https://github.com/aa900031/ginjou
+  to: https://ginjou-storybook.pages.dev
   variant: outline
+  target: _blank
+  class: after:content-['↗']
+  rel: noreferrer noopener
   ---
-  View on GitHub
+  Storybook
   :::
 ::
 
