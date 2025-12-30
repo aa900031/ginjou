@@ -62,3 +62,28 @@ pnpm lint
 ```
 
 This project uses ESLint for code quality and consistency.
+
+### Writing Documentation
+
+When writing documentation for Ginjou (especially Guides and Concepts), follow these rules to ensure high quality and consistency:
+
+1.  **Language Style: The S.P.A. Principle**
+    *   **Simple**: Use short sentences and direct phrasing. (e.g., "Use `useCreate` to..." instead of "One might utilize `useCreate` in order to...")
+    *   **Professional**: Keep technical terms precise (e.g., Composable, Controller, Mutation, Context). Do not dumb down the technology, just the language structure.
+    *   **Accessible**: Write for non-native English speakers. Avoid complex idioms, metaphors, or overly academic vocabulary.
+
+2.  **Structure & Content**
+    *   **Goal-Oriented**: Start every section with a clear goal. What will the user learn?
+    *   **Clean Headers**: Do not use numbered headers (e.g., use "Create", not "1.1 Create").
+    *   **Composition Pattern**: When documenting high-level Controllers (like `useEdit`), always explain their **Composition**:
+        *   **Data Hooks**: Which low-level hooks are used? (e.g., `useGetOne`, `useUpdateOne`)
+        *   **Actions**: What triggers the action? (e.g., `save` button)
+        *   **Success Flow**: Explicitly separate "Mutation On Success" (data side effects) from "Controller On Success" (navigation/UI side effects).
+
+3.  **Visual Aids (Mermaid)**
+    *   **Logic Flow**: Use diagrams to show how data moves, not just call hierarchies.
+    *   **Resource Injection**: Explicitly show `useResource` providing "Resource & Fetcher Name" to downstream hooks.
+    *   **Correct Timing**: Ensure arrows reflect the actual sequence (e.g., `On Success` happens *after* the mutation completes).
+
+4.  **Flexibility Emphasis**
+    *   Always remind the user that while Controllers are convenient, they are composed of granular parts that can be overridden manually. This reinforces Ginjou's core philosophy of flexibility.
