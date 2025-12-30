@@ -6,6 +6,9 @@ export default defineAppConfig({
 		title: 'Ginjou',
 	},
 	ui: {
+		colors: {
+			primary: 'brand',
+		},
 		prose: {
 			codeIcon: {
 				svelte: 'i-vscode-icons-file-type-svelte',

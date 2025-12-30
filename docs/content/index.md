@@ -8,6 +8,11 @@ seo:
 ---
 orientation: horizontal
 ---
+
+#default
+  :::the-logo
+  :::
+
 #title
 Data Applications Made Simple
 
@@ -17,10 +22,9 @@ Connect to any API and build powerful apps in minutes. No complex setup, just cl
 #links
   :::u-button
   ---
-  color: neutral
   size: xl
   to: /guides/introduction
-  trailing-icon: i-lucide-arrow-right
+  icon: i-lucide-arrow-right
   ---
   Get started
   :::

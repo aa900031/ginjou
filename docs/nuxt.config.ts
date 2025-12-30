@@ -34,4 +34,13 @@ export default defineNuxtConfig({
 			],
 		},
 	},
+	site: {
+		name: 'Ginjou',
+	},
+	css: [
+		'~/assets/css/main.css',
+	],
+	llms: {
+		domain: 'https://ginjou.pages.dev',
+	},
 })
