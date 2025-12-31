@@ -43,14 +43,14 @@ import { defineFetchersContext } from '@ginjou/vue'
 import { createFetcher } from '@ginjou/with-rest-api'
 
 defineFetchersContext({
-  default: createFetcher({
-    url: 'https://api.example.com'
-  })
+	default: createFetcher({
+		url: 'https://api.example.com'
+	})
 })
 </script>
 
 <template>
-  <RouterView />
+	<RouterView />
 </template>
 ```
 
@@ -64,16 +64,16 @@ import { defineFetchersContext } from '@ginjou/vue'
 import { createFetcher } from '@ginjou/with-rest-api'
 
 defineFetchersContext({
-  default: createFetcher({
-    url: 'https://api.example.com'
-  })
+	default: createFetcher({
+		url: 'https://api.example.com'
+	})
 })
 </script>
 
 <template>
-  <NuxtLayout>
-    <NuxtPage />
-  </NuxtLayout>
+	<NuxtLayout>
+		<NuxtPage />
+	</NuxtLayout>
 </template>
 ```
 

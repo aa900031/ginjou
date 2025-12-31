@@ -41,23 +41,23 @@ In a Vue application, use `defineFetchersContext` and `defineAuthContext` within
 
 ```vue [App.vue]
 <script setup lang="ts">
-import { defineFetchersContext, defineAuthContext } from '@ginjou/vue'
-import { createDirectus, rest, authentication } from '@directus/sdk'
-import { createFetcher, createAuth } from '@ginjou/with-directus'
+import { authentication, createDirectus, rest } from '@directus/sdk'
+import { defineAuthContext, defineFetchersContext } from '@ginjou/vue'
+import { createAuth, createFetcher } from '@ginjou/with-directus'
 
 const client = createDirectus('https://your-directus-url.com')
-  .with(rest())
-  .with(authentication())
+	.with(rest())
+	.with(authentication())
 
 defineFetchersContext({
-  default: createFetcher({ client })
+	default: createFetcher({ client })
 })
 
 defineAuthContext(createAuth({ client }))
 </script>
 
 <template>
-  <RouterView />
+	<RouterView />
 </template>
 ```
 
@@ -67,25 +67,25 @@ For Nuxt applications, register the providers in your root `app.vue` component.
 
 ```vue [app.vue]
 <script setup lang="ts">
-import { defineFetchersContext, defineAuthContext } from '@ginjou/vue'
-import { createDirectus, rest, authentication } from '@directus/sdk'
-import { createFetcher, createAuth } from '@ginjou/with-directus'
+import { authentication, createDirectus, rest } from '@directus/sdk'
+import { defineAuthContext, defineFetchersContext } from '@ginjou/vue'
+import { createAuth, createFetcher } from '@ginjou/with-directus'
 
 const client = createDirectus('https://your-directus-url.com')
-  .with(rest())
-  .with(authentication());
+	.with(rest())
+	.with(authentication())
 
 defineFetchersContext({
-  default: createFetcher({ client })
+	default: createFetcher({ client })
 })
 
 defineAuthContext(createAuth({ client }))
 </script>
 
 <template>
-  <NuxtLayout>
-    <NuxtPage />
-  </NuxtLayout>
+	<NuxtLayout>
+		<NuxtPage />
+	</NuxtLayout>
 </template>
 ```
 
@@ -99,7 +99,7 @@ By default, the `resource` name maps to the corresponding Directus collection.
 
 ```typescript
 // Requests /items/posts
-const { data } = useList({ resource: 'posts' });
+const { data } = useList({ resource: 'posts' })
 ```
 
 ### Advanced Queries
@@ -108,14 +108,14 @@ For advanced query configurations such as field selection, deep filtering, or al
 
 ```typescript
 const { data } = useList({
-  resource: 'posts',
-  meta: {
-    query: {
-      fields: ['*', 'author.*'],
-      sort: ['-date_created'],
-    }
-  }
-});
+	resource: 'posts',
+	meta: {
+		query: {
+			fields: ['*', 'author.*'],
+			sort: ['-date_created'],
+		}
+	}
+})
 ```
 
 ### System Collections
@@ -135,27 +135,27 @@ The `createAuth` function facilitates integration with Directus authentication s
 The provider supports both standard password-based authentication and Single Sign-On (SSO).
 
 ```typescript
-const { login } = useAuth();
+const { login } = useAuth()
 
 // Password Authentication
 await login({
-  type: 'password',
-  params: {
-    email: 'admin@example.com',
-    password: 'password',
-  },
-});
+	type: 'password',
+	params: {
+		email: 'admin@example.com',
+		password: 'password',
+	},
+})
 
 // SSO Authentication
 await login({
-  type: 'sso',
-  params: {
-    provider: 'google',
-    options: {
-      redirect: 'https://your-app.com/callback',
-    },
-  },
-});
+	type: 'sso',
+	params: {
+		provider: 'google',
+		options: {
+			redirect: 'https://your-app.com/callback',
+		},
+	},
+})
 ```
 
 ### User Identity
@@ -163,7 +163,7 @@ await login({
 Use the `useIdentity` hook to retrieve profile information for the authenticated user. This internally calls the Directus `/users/me` endpoint.
 
 ```typescript
-const { data: user } = useIdentity();
+const { data: user } = useIdentity()
 ```
 
 ### Session Management

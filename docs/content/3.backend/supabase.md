@@ -41,23 +41,23 @@ In a Vue application, use `defineFetchersContext` and `defineAuthContext` within
 
 ```vue [App.vue]
 <script setup lang="ts">
-import { defineFetchersContext, defineAuthContext } from '@ginjou/vue'
+import { defineAuthContext, defineFetchersContext } from '@ginjou/vue'
+import { createAuth, createFetcher } from '@ginjou/with-supabase'
 import { createClient } from '@supabase/supabase-js'
-import { createFetcher, createAuth } from '@ginjou/with-supabase'
 
 const supabaseUrl = 'https://your-project.supabase.co'
 const supabaseKey = 'your-anon-key'
 const client = createClient(supabaseUrl, supabaseKey)
 
 defineFetchersContext({
-  default: createFetcher({ client })
+	default: createFetcher({ client })
 })
 
 defineAuthContext(createAuth({ client }))
 </script>
 
 <template>
-  <RouterView />
+	<RouterView />
 </template>
 ```
 
@@ -67,25 +67,25 @@ For Nuxt applications, register the providers in your root `app.vue` component.
 
 ```vue [app.vue]
 <script setup lang="ts">
-import { defineFetchersContext, defineAuthContext } from '@ginjou/vue'
+import { defineAuthContext, defineFetchersContext } from '@ginjou/vue'
+import { createAuth, createFetcher } from '@ginjou/with-supabase'
 import { createClient } from '@supabase/supabase-js'
-import { createFetcher, createAuth } from '@ginjou/with-supabase'
 
 const supabaseUrl = 'https://your-project.supabase.co'
 const supabaseKey = 'your-anon-key'
 const client = createClient(supabaseUrl, supabaseKey)
 
 defineFetchersContext({
-  default: createFetcher({ client })
+	default: createFetcher({ client })
 })
 
 defineAuthContext(createAuth({ client }))
 </script>
 
 <template>
-  <NuxtLayout>
-    <NuxtPage />
-  </NuxtLayout>
+	<NuxtLayout>
+		<NuxtPage />
+	</NuxtLayout>
 </template>
 ```
 
@@ -99,13 +99,13 @@ Since Supabase is built on top of [Postgrest](https://postgrest.org/), the `@gin
 
 ```typescript
 const { data } = useList({
-  resource: 'posts',
-  meta: {
-    // Maps directly to .select() in Supabase-js
-    select: 'id, title, author(name)', 
-    count: 'exact',
-  }
-});
+	resource: 'posts',
+	meta: {
+		// Maps directly to .select() in Supabase-js
+		select: 'id, title, author(name)',
+		count: 'exact',
+	}
+})
 ```
 
 ### Custom ID Column
@@ -114,12 +114,12 @@ If your table uses a column other than `id` as the primary key, specify it using
 
 ```typescript
 const { data } = useOne({
-  resource: 'posts',
-  id: 'my-uuid',
-  meta: {
-    idColumnName: 'post_id'
-  }
-});
+	resource: 'posts',
+	id: 'my-uuid',
+	meta: {
+		idColumnName: 'post_id'
+	}
+})
 ```
 
 ## Authentication
@@ -131,32 +131,32 @@ The `createAuth` function provides a wrapper around Supabase Auth (GoTrue).
 The provider supports various Supabase authentication methods, including password, OAuth, and OTP.
 
 ```typescript
-const { login } = useAuth();
+const { login } = useAuth()
 
 // Password Authentication
 await login({
-  type: 'password',
-  params: {
-    email: 'user@example.com',
-    password: 'password',
-  },
-});
+	type: 'password',
+	params: {
+		email: 'user@example.com',
+		password: 'password',
+	},
+})
 
 // OAuth Authentication
 await login({
-  type: 'oauth',
-  params: {
-    provider: 'github',
-  },
-});
+	type: 'oauth',
+	params: {
+		provider: 'github',
+	},
+})
 
 // OTP (Magic Link)
 await login({
-  type: 'otp',
-  params: {
-    email: 'user@example.com',
-  },
-});
+	type: 'otp',
+	params: {
+		email: 'user@example.com',
+	},
+})
 ```
 
 ### User Identity
@@ -164,9 +164,9 @@ await login({
 Use the `useIdentity` hook to retrieve the current user profile from Supabase.
 
 ```typescript
-const { data: user } = useIdentity();
+const { data: user } = useIdentity()
 
-console.log(user.email, user.user_metadata);
+console.log(user.email, user.user_metadata)
 ```
 
 ### Session Management
