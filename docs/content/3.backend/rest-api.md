@@ -88,7 +88,9 @@ The fetcher translates Ginjou's pagination state into `_start` and `_end` query 
 - `_start`: The zero-based index of the first item to return.
 - `_end`: The zero-based index of the last item (exclusive).
 
-**Total Count**: The fetcher expects the total number of records to be returned in the `x-total-count` HTTP header. If this header is missing, it will default to the length of the returned data array.
+::note
+The fetcher expects the total number of records to be returned in the `x-total-count` HTTP header. If this header is missing, it will default to the length of the returned data array.
+::
 
 ### Sorting
 
@@ -109,11 +111,12 @@ Filters are mapped to query parameters using field suffixes:
 | `lte` | `_lte` | `views_lte=20` |
 | `contains` | `_like` | `title_like=ginjou` |
 
-**Global Search**: If a filter with the field `q` is provided, it is sent as a global search parameter (`?q=keyword`) as per `json-server` specifications.
+::tip
+If a filter with the field `q` is provided, it is sent as a global search parameter (`?q=keyword`) as per `json-server` specifications.
+::
 
-## Limitations
-
+::warning
 Because this provider follows the `json-server` specification, certain advanced filtering features are not supported:
-
 - **Logical Operators**: The `or` and `and` logical operators are not supported. Using these in your filters will result in an error.
 - **Nested Objects**: Filtering and sorting are primarily designed for flat resource structures.
+::

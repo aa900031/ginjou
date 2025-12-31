@@ -93,9 +93,9 @@ defineAuthContext(createAuth({ client }))
 
 The `createFetcher` function integrates Ginjou's data hooks with Supabase's Postgrest API.
 
-### Postgrest Power-Ups
-
-Since Supabase is built on top of [Postgrest](https://postgrest.org/), the `@ginjou/with-supabase` fetcher allows you to pass Postgrest query options directly through the `meta` property. This gives you full control over field selection and join operations.
+::tip
+The `meta` object acts as a direct interface to Supabase's Postgrest syntax, enabling powerful joins and precise field control.
+::
 
 ```typescript
 const { data } = useList({
@@ -159,9 +159,9 @@ await login({
 })
 ```
 
-### User Identity
-
-Use the `useIdentity` hook to retrieve the current user profile from Supabase.
+::note
+Internally, this uses `client.auth.getUser()` to safely retrieve the current user's profile and metadata from the server.
+::
 
 ```typescript
 const { data: user } = useIdentity()

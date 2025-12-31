@@ -1,6 +1,6 @@
 ---
 title: Directus
-description: Integration of Directus just a second
+description: Connect Directus to Ginjou for instant Headless CMS capabilities.
 ---
 
 [Directus](https://directus.io/) is an instant Headless CMS that provides a flexible REST and GraphQL API for your SQL database.
@@ -104,7 +104,9 @@ const { data } = useList({ resource: 'posts' })
 
 ### Advanced Queries
 
-For advanced query configurations such as field selection, deep filtering, or aliasing, use the `meta.query` property:
+::tip
+The `meta.query` object is passed directly to the `@directus/sdk` rest methods, allowing you to use any standard Directus query parameters.
+::
 
 ```typescript
 const { data } = useList({
@@ -120,7 +122,9 @@ const { data } = useList({
 
 ### System Collections
 
+::note
 The provider automatically routes requests for system collections. Resources prefixed with `directus_` or `directus/` are mapped to their respective system endpoints:
+::
 
 - `directus_users` maps to `/users`
 - `directus_files` maps to `/files`
@@ -158,9 +162,9 @@ await login({
 })
 ```
 
-### User Identity
-
-Use the `useIdentity` hook to retrieve profile information for the authenticated user. This internally calls the Directus `/users/me` endpoint.
+::note
+This internally calls the Directus `/users/me` endpoint to fetch the full user profile.
+::
 
 ```typescript
 const { data: user } = useIdentity()

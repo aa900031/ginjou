@@ -39,6 +39,10 @@ Connect to any API and build powerful apps in minutes. No complex setup, just cl
   target: _blank
   class: after:content-['↗']
   rel: noreferrer noopener
+  ui: {
+    base: 'group',
+    leadingIcon: 'group-hover:text-pink-500',
+  }
   ---
   Storybook
   :::
