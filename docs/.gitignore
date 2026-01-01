@@ -3,4 +3,4 @@
 .nuxt/
 .nitro/
 .cache/
-.dist/
+dist

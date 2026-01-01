@@ -4,7 +4,8 @@
 	"private": true,
 	"scripts": {
 		"build": "nuxt generate",
-		"dev": "nuxt dev"
+		"dev": "nuxt dev",
+		"preview": "sirv ./dist --host -p 3000"
 	},
 	"dependencies": {
 		"@barzhsieh/nuxt-content-mermaid": "^2.1.3",

@@ -10,6 +10,7 @@
 		"build:sb": "turbo run build --filter=./stories/*",
 		"build:docs": "turbo run build --filter=@ginjou/docs",
 		"preview:sb": "turbo run preview --filter=@ginjou/storybook",
+		"preview:docs": "turbo run preview --filter=@ginjou/docs",
 		"test": "vitest run",
 		"bench": "vitest bench --run --project benchmark",
 		"dev:sb": "turbo run dev --filter=./stories/*",
