@@ -1,12 +1,12 @@
 <script setup lang="ts">
-const routeToStorbyook = 'https://ginjou-storybook.pages.dev'
+const routeToStorybook = 'https://ginjou-storybook.pages.dev'
 </script>
 
 <template>
 	<div class="hidden lg:block">
 		<UButton
 			class="p-1.5"
-			:to="routeToStorbyook"
+			:to="routeToStorybook"
 			color="neutral"
 			variant="ghost"
 			target="_blank"
