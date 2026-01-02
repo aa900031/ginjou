@@ -60,7 +60,7 @@
 		"@ginjou/tsconfig": "workspace:*",
 		"@ginjou/vite-config": "workspace:*",
 		"@ginjou/vue": "workspace:^",
-		"vue": "^3.5.25",
+		"vue": "^3.5.26",
 		"vue-i18n": "^9.14.5"
 	}
 }
