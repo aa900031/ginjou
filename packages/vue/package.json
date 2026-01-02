@@ -65,6 +65,6 @@
 		"@ginjou/vite-config": "workspace:*",
 		"@tanstack/vue-query": "^5.92.1",
 		"@testing-library/vue": "^8.1.0",
-		"vue": "^3.5.25"
+		"vue": "^3.5.26"
 	}
 }
