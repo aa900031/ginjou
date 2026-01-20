@@ -2,6 +2,9 @@ shellEmulator: true
 
 trustPolicy: no-downgrade
 
+trustPolicyExclude:
+  - chokidar@4.0.3
+
 packages:
   - docs
   - packages/*
@@ -10,6 +13,7 @@ packages:
   - packages/nuxt/playground
 
 ignoredBuiltDependencies:
+  - '@aa900031/eslint-config'
   - puppeteer
 
 onlyBuiltDependencies:

@@ -9,8 +9,8 @@
 	},
 	"dependencies": {
 		"@barzhsieh/nuxt-content-mermaid": "^2.2.1",
-		"better-sqlite3": "^12.5.0",
-		"docus": "^5.4.1",
+		"better-sqlite3": "^12.6.2",
+		"docus": "^5.4.4",
 		"nuxt": "^4.2.2"
 	}
 }
