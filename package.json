@@ -23,7 +23,7 @@
 		"@aa900031/eslint-config": "^5.0.0",
 		"@aa900031/release-it-config": "^0.1.0",
 		"@codspeed/vitest-plugin": "^5.0.1",
-		"@types/node": "^18.19.130",
+		"@types/node": "^22.19.7",
 		"@vitest/coverage-istanbul": "^3.2.4",
 		"eslint": "^9.39.1",
 		"happy-dom": "^20.0.11",
