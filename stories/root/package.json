@@ -23,8 +23,6 @@
 		"@types/react": "^19.2.9",
 		"@types/react-dom": "^19.2.3",
 		"@vitejs/plugin-react": "^5.1.2",
-		"mdx-mermaid": "^2.0.3",
-		"mermaid": "^11.12.2",
 		"react": "^19.2.3",
 		"react-dom": "^19.2.3",
 		"remark-gfm": "^4.0.1",
