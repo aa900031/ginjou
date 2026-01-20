@@ -18,6 +18,7 @@ export interface RouteParsedMeta {
 	location: RouteLocationNormalizedLoaded
 }
 
+// eslint-disable-next-line ts/explicit-function-return-type
 export function createRouter() {
 	const router = useRouter()
 

@@ -178,7 +178,7 @@ export function getPropFilters(
 		prop,
 		prev,
 	}: GetPropFiltersProps,
-) {
+): Filters | undefined {
 	return getSubValue({
 		path: 'value',
 		prop,
@@ -251,7 +251,7 @@ export function getPropSorters(
 		prop,
 		prev,
 	}: GetPropSortersProps,
-) {
+): Sorters | undefined {
 	return getSubValue({
 		path: 'value',
 		prop,
@@ -495,7 +495,7 @@ export function getInitialPage<
 	{
 		initalPageFromProp,
 	}: GetInitialPageProps<TPageParam>,
-) {
+): TPageParam {
 	return initalPageFromProp
 		?? 1 as TPageParam
 }
@@ -765,7 +765,7 @@ export function getFiltersForQuery(
 		filtersModeFromProp,
 		filters,
 	}: GetFiltersForQuery,
-) {
+): Filters | undefined {
 	switch (filtersModeFromProp) {
 		case undefined:
 		case 'server':
@@ -963,7 +963,7 @@ export function getTotal<
 function compareFilter(
 	left: Filter,
 	right: Filter,
-) {
+): boolean {
 	if (
 		left.operator !== FilterOperator.and
 		&& left.operator !== FilterOperator.or

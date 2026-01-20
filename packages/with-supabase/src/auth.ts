@@ -46,6 +46,7 @@ export interface LoginWithOtpTokenParams {
 
 export type LogoutParams = SignOut
 
+// eslint-disable-next-line ts/explicit-function-return-type
 export function createAuth(
 	{
 		client,

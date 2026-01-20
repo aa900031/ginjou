@@ -341,7 +341,7 @@ function execGetMany<
 >(
 	props: ResolvedQueryProps,
 	fetchers: Fetchers,
-) {
+): Promise<GetManyResult<TData>> {
 	const getMany = getSafeFetcherFn(props, fetchers, 'getMany')
 	if (getMany != null)
 		return (getMany as GetManyFn<TData>)(props)

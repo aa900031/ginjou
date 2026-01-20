@@ -19,7 +19,7 @@ export type UseNavigateToContext = Simplify<
 export function useNavigateTo(
 	props?: UseNavigateToProps,
 	context?: UseNavigateToContext,
-) {
+): Navigate.ToFn {
 	const resourceContext = useResourceContext(context)
 	const go = useGo(context)
 

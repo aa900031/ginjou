@@ -115,7 +115,7 @@ function setCache(
 	resource: ResourceDefinition,
 	location: RouterLocation,
 	parsed: ResourceParseResult,
-) {
+): void {
 	const hash = JSON.stringify(omit(location, ['meta']))
 	const map = getLocationMap(resource)
 	map[hash] = parsed

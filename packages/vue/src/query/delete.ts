@@ -121,7 +121,7 @@ export function useDeleteOne<
 		mutateAsync,
 	}
 
-	function getProps() {
+	function getProps(): DeleteOne.Props<TData, TError, TParams> | undefined {
 		return props
 			? unrefs(props) as any // TODO:
 			: undefined

@@ -10,6 +10,7 @@ export interface CreateFetcherProps {
 	client?: $Fetch
 }
 
+// eslint-disable-next-line ts/explicit-function-return-type
 export function createFetcher(
 	{
 		url,

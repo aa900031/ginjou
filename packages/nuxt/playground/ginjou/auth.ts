@@ -1,5 +1,6 @@
 import { defineAuthContext } from '@ginjou/vue'
 
+// eslint-disable-next-line ts/explicit-function-return-type
 export default () => defineAuthContext({
 	login: async () => {
 		;(globalThis as any)._AUTH = {

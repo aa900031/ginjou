@@ -19,6 +19,7 @@ export interface FetcherMeta {
 	groupBy?: string[]
 }
 
+// eslint-disable-next-line ts/explicit-function-return-type
 export function createFetcher<
 	TClient extends DirectusClient<any> & RestClient<any>,
 >(
@@ -171,12 +172,12 @@ function getProtectedFunction(
 	const formated = singular ? pluralize.singular(name) : pluralize.plural(name)
 	const funName = camelCase(`${type}_${formated}`)
 
-	return sdk[funName]
+	return (sdk as any)[funName]
 }
 
 function genSorters(
 	sorters: Sorters,
-) {
+): { sort: string } | undefined {
 	const resolved = sorters
 		.map((item) => {
 			switch (item.order) {
@@ -201,7 +202,7 @@ function genSorters(
 function genFilters(
 	filters: Filters,
 	meta: FetcherMeta | undefined,
-) {
+): any {
 	const result = {
 		search: '',
 		filter: {

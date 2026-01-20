@@ -34,7 +34,7 @@ export function redirectTo<
 		data,
 		navigateTo,
 	}: RedirectToProps<TData>,
-) {
+): void {
 	const params = typeof redirect === 'function'
 		? redirect(data)
 		: redirect

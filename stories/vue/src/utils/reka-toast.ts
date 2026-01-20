@@ -9,7 +9,7 @@ export interface ToastOptions {
 	severity?: 'success' | 'error' | 'secondary'
 }
 
-function genId() {
+function genId(): string {
 	// Use timestamp + counter for better uniqueness
 	return `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
 }
@@ -22,6 +22,7 @@ export interface Toast {
 	remove: (id: string) => void
 }
 
+// eslint-disable-next-line ts/explicit-function-return-type
 export function defineToast() {
 	const toasts = ref<ToastOptions[]>([])
 

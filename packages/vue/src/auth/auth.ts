@@ -9,7 +9,7 @@ export function defineAuthContext<
 	T extends Auth,
 >(
 	value: T,
-) {
+): T {
 	provideLocal(KEY, value)
 	return value
 }

@@ -9,7 +9,7 @@ export function defineAuthzContext<
 	T extends Authz,
 >(
 	value: T,
-) {
+): T {
 	provideLocal(KEY, value)
 	return value
 }

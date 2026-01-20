@@ -53,6 +53,7 @@
 		"@directus/sdk": "^15.1.0",
 		"@ginjou/core": "workspace:^",
 		"@ginjou/tsconfig": "workspace:*",
-		"@ginjou/vite-config": "workspace:*"
+		"@ginjou/vite-config": "workspace:*",
+		"@types/pluralize": "^0.0.33"
 	}
 }

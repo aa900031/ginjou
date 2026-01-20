@@ -95,7 +95,7 @@ export function useLogin<
 		mutateAsync,
 	}
 
-	function getProps() {
+	function getProps(): Login.Props<TParams, TError> | undefined {
 		return props
 			? unrefs(props) as any // TODO:
 			: undefined

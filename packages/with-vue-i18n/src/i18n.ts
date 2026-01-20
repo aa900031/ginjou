@@ -3,6 +3,7 @@ import { defineI18n } from '@ginjou/core'
 import { unref, watch } from 'vue-demi'
 import { useI18n } from 'vue-i18n'
 
+// eslint-disable-next-line ts/explicit-function-return-type
 export function createI18n<
 	TUseI18nOptions extends UseI18nOptions = UseI18nOptions,
 >(

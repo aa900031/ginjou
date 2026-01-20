@@ -121,7 +121,7 @@ export function useUpdateMany<
 		mutateAsync,
 	}
 
-	function getProps() {
+	function getProps(): UpdateMany.Props<TData, TError, TParams> | undefined {
 		return props
 			? unrefs(props) as any // TODO:
 			: undefined

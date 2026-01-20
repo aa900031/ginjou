@@ -137,7 +137,7 @@ export function createMutationFn<
 		const resolvedProps = resolveMutationProps(getProps(), props)
 
 		const deleteOne = getFetcherFn(resolvedProps, fetchers, 'deleteOne') as DeleteOneFn<TData, TParams>
-		const executeFn = () => deleteOne(resolvedProps)
+		const executeFn = (): Promise<DeleteOneResult<TData>> => deleteOne(resolvedProps)
 
 		switch (resolvedProps.mutationMode) {
 			case MutationMode.Undoable: {
@@ -511,7 +511,7 @@ function updateCache<
 >(
 	props: ResolvedMutationProps<TData, any, any>,
 	queryClient: QueryClient,
-) {
+): void {
 	queryClient.setQueriesData(
 		{
 			queryKey: genBaseGetListQueryKey({ props }),
@@ -538,7 +538,7 @@ function dispatchSuccessNotify<
 	translate: TranslateFn<any>,
 	data: DeleteOneResult<TData>,
 	resolvedProps: ResolvedMutationProps<any, any, any>,
-) {
+): void {
 	notify(
 		resolveSuccessNotifyParams(resolvedProps.successNotify, data, resolvedProps),
 		{

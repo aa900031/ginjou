@@ -118,7 +118,7 @@ export function getValueIds(
 	{
 		valueFormProp,
 	}: GetValueIdsProps,
-) {
+): any[] | undefined {
 	if (valueFormProp == null)
 		return
 

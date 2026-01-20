@@ -1,4 +1,5 @@
 import type { Collection } from '@msw/data'
+import type { HttpHandler } from 'msw'
 import { faker } from '@faker-js/faker'
 import { http, HttpResponse } from 'msw'
 import { resolveURL } from 'ufo'
@@ -7,7 +8,7 @@ export function toHandlers(
 	collection: Collection<any>,
 	collectionName: string,
 	baseUrl: string,
-) {
+): HttpHandler[] {
 	const listPath = resolveURL(baseUrl, collectionName)
 	const itemPath = `${listPath}/:id`
 

@@ -43,7 +43,7 @@ export type TriggerInvalidatesProps = Simplify<
 export async function triggerInvalidates(
 	props: TriggerInvalidatesProps,
 	queryClient: QueryClient,
-) {
+): Promise<void> {
 	const { invalidates } = props
 
 	if (invalidates === false || !invalidates.length)

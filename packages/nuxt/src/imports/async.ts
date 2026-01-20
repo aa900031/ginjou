@@ -61,7 +61,7 @@ const composables = [
 
 export default function (
 	resolve: (...path: string[]) => string,
-) {
+): Import[] {
 	return composables.map(
 		item => ({
 			from: resolve(item.from),

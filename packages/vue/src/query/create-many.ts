@@ -106,7 +106,7 @@ export function useCreateMany<
 		mutateAsync,
 	}
 
-	function getProps() {
+	function getProps(): CreateMany.Props<TData, TError, TParams> | undefined {
 		return props
 			? unrefs(props) as any
 			: undefined

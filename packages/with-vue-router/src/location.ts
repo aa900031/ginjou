@@ -66,6 +66,6 @@ export function toLocation(
 
 function resolveHash(
 	rawHash: string | undefined,
-) {
+): string | undefined {
 	return rawHash?.replace(/^#/, '')
 }

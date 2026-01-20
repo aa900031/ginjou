@@ -121,7 +121,7 @@ export function useUpdateOne<
 		mutateAsync,
 	}
 
-	function getProps() {
+	function getProps(): UpdateOne.Props<TData, TError, TParams> | undefined {
 		return props
 			? unrefs(props) as any // TODO:
 			: undefined

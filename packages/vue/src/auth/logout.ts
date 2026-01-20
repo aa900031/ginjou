@@ -95,7 +95,7 @@ export function useLogout<
 		mutateAsync,
 	}
 
-	function getProps() {
+	function getProps(): Logout.Props<TParams, TError> | undefined {
 		return props
 			? unrefs(props) as any // TODO:
 			: undefined

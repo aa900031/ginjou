@@ -13,6 +13,7 @@ export interface FetcherMeta {
 	idColumnName?: string
 }
 
+// eslint-disable-next-line ts/explicit-function-return-type
 export function createFetcher(
 	{
 		client,
@@ -158,7 +159,7 @@ function applySorters(
 	query: PostgrestFilterBuilder<any, any, any, any>,
 	sorters: Sorters,
 	meta: FetcherMeta | undefined,
-) {
+): void {
 	for (const sorter of sorters) {
 		const [foreignTable, field] = sorter.field.split(splitRE)
 
@@ -181,7 +182,7 @@ function applySorters(
 function applyFilters(
 	query: PostgrestFilterBuilder<any, any, any, any>,
 	filters: Filters,
-) {
+): void {
 	for (const filter of filters) {
 		switch (filter.operator) {
 			case 'eq':
@@ -251,7 +252,7 @@ function applyFilters(
 
 function getOperator(
 	operator: FilterOperatorType,
-) {
+): string {
 	switch (operator) {
 		case 'ne':
 			return 'neq'

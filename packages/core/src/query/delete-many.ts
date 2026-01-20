@@ -518,7 +518,7 @@ function updateCache<
 >(
 	props: ResolvedMutationProps<TData, any, any>,
 	queryClient: QueryClient,
-) {
+): void {
 	queryClient.setQueriesData(
 		{
 			queryKey: genBaseGetListQueryKey({ props }),
@@ -547,7 +547,7 @@ function dispatchSuccessNotify<
 	translate: TranslateFn<any>,
 	data: DeleteManyResult<TData>,
 	resolvedProps: ResolvedMutationProps<any, any, any>,
-) {
+): void {
 	notify(
 		resolveSuccessNotifyParams(resolvedProps.successNotify, data, resolvedProps),
 		{

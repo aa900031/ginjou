@@ -109,7 +109,7 @@ export function useCustomMutation<
 		mutateAsync,
 	}
 
-	function getProps() {
+	function getProps(): CustomMutation.Props<TData, TError, TQuery, TPayload, TMutateResult> | undefined {
 		return props
 			? unrefs(props) as any // TODO:
 			: undefined

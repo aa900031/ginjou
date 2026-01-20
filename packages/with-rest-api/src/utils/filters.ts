@@ -35,7 +35,7 @@ export function genFilters(
 
 function getOperator(
 	operator: FilterOperatorType,
-) {
+): string {
 	switch (operator) {
 		case FilterOperator.ne:
 		case FilterOperator.gte:

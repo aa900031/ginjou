@@ -22,7 +22,7 @@ export function defer<
 		reject = rej
 	})
 
-	async function run() {
+	async function run(): Promise<TResult> {
 		try {
 			const result = await exec()
 			resolve(result)
@@ -34,7 +34,7 @@ export function defer<
 		}
 	}
 
-	function cancel() {
+	function cancel(): void {
 		reject(new AbortDefer())
 	}
 

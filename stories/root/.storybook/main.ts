@@ -38,7 +38,7 @@ export default {
 
 function getRefsUrl(
 	type: string | undefined,
-) {
+): Record<string, string> {
 	switch (type) {
 		case 'DEVELOPMENT':
 			return {

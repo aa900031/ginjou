@@ -29,6 +29,7 @@ export interface LoginWithSSOParams {
 	}
 }
 
+// eslint-disable-next-line ts/explicit-function-return-type
 export function createAuth<
 	TClient extends DirectusClient<any> & AuthenticationClient<any> & RestClient<any>,
 >(

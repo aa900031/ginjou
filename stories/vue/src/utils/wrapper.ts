@@ -140,6 +140,7 @@ function createFetchers(): Fetchers {
 	}
 }
 
+// eslint-disable-next-line ts/explicit-function-return-type
 function createAuth() {
 	return defineAuth({
 		login: async () => {
@@ -181,6 +182,7 @@ function createAuth() {
 	})
 }
 
+// eslint-disable-next-line ts/explicit-function-return-type
 function createAuthz() {
 	return defineAuthz({
 		getPermissions: async () => {
@@ -192,6 +194,7 @@ function createAuthz() {
 	})
 }
 
+// eslint-disable-next-line ts/explicit-function-return-type
 function createI18n() {
 	let locale = 'en-US'
 	const messages: Record<string, Record<string, string>> = {

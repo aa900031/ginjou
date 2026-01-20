@@ -42,6 +42,6 @@ function safeTranslateFn(
 	key: string,
 	params?: any,
 	defaultValue?: string,
-) {
+): string {
 	return defaultValue ?? key
 }

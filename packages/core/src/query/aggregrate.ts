@@ -21,6 +21,8 @@ export function createAggregrateFn<
 	const allArgs: TArgs[] = []
 	const allResolves: PromiseResolvePair<TResult>[] = []
 
+	return wrapFn as unknown as TFn
+
 	function wrapFn(this: ThisType<TFn>, ...args: TArgs): Promise<TResult> {
 		return new Promise<TResult>((resolve, reject) => {
 			allArgs.push(args)
@@ -43,7 +45,7 @@ export function createAggregrateFn<
 		})
 	}
 
-	async function exec() {
+	async function exec(): Promise<void> {
 		const aggregated = resolveArgs(allArgs, allResolves)
 
 		for (const [args, resolves] of aggregated) {
@@ -58,6 +60,4 @@ export function createAggregrateFn<
 			}
 		}
 	}
-
-	return wrapFn as unknown as TFn
 }

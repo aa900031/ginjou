@@ -1,7 +1,8 @@
+import type { Ref } from 'vue-demi'
 import { eventRef } from '@bouzu/vue-helper'
 import { useI18nContext } from './context'
 
-export function useLocale() {
+export function useLocale(): Ref<string> {
 	const i18n = useI18nContext()
 
 	if (

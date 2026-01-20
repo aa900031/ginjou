@@ -24,7 +24,7 @@ export function resolveFetcherProps(
 export function getFetcher(
 	props: ResolvedFetcherProps,
 	fetchers: Fetchers | undefined,
-) {
+): Fetcher {
 	if (!fetchers)
 		throw new Error('Data Provider not exists!')
 

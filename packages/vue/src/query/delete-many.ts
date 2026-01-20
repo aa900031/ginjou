@@ -121,7 +121,7 @@ export function useDeleteMany<
 		mutateAsync,
 	}
 
-	function getProps() {
+	function getProps(): DeleteMany.Props<TData, TError, TParams> | undefined {
 		return props
 			? unrefs(props) as any // TODO:
 			: undefined

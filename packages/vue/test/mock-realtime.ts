@@ -16,7 +16,7 @@ export const MockRealtimes = {
 
 export function expectUnsubscribeCalled(
 	times: number = 1,
-) {
+): void {
 	expect(unsubscribeFn).toBeCalledWith(UNSUBSCRIBE_FN_KEY)
 	expect(unsubscribeFn).toBeCalledTimes(times)
 }

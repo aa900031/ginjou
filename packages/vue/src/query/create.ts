@@ -106,7 +106,7 @@ export function useCreateOne<
 		mutateAsync,
 	}
 
-	function getProps() {
+	function getProps(): CreateOne.Props<TData, TError, TParams> | undefined {
 		return props
 			? unrefs(props) as any // TODO:
 			: undefined

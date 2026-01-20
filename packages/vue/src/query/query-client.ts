@@ -11,7 +11,7 @@ const dehydratedStateMap = new Map<string, DehydratedState>()
 export function defineQueryClientContext(
 	value?: QueryClientConfig | QueryClient,
 	key = 'default',
-) {
+): QueryClient {
 	value = createQueryClient(value)
 
 	const dehydratedState = dehydratedStateMap.get(key)
@@ -62,7 +62,7 @@ export function getQueryClients(): Map<string, QueryClient> {
 export function setQueryClientDehydrateState(
 	key: string,
 	value: DehydratedState,
-) {
+): void {
 	dehydratedStateMap.set(key, value)
 }
 

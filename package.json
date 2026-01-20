@@ -20,7 +20,7 @@
 		"lint": "eslint . --cache --cache-location ./node_modules/.cache/eslint"
 	},
 	"devDependencies": {
-		"@aa900031/eslint-config": "^3.2.0",
+		"@aa900031/eslint-config": "^5.0.0",
 		"@aa900031/release-it-config": "^0.1.0",
 		"@codspeed/vitest-plugin": "^5.0.1",
 		"@types/node": "^18.19.130",

@@ -18,7 +18,7 @@ export function withAsync<
 	if (import.meta.server) {
 		const instance = getCurrentInstance()
 
-		const handler = async () => {
+		const handler = async (): Promise<void> => {
 			await wait()
 		}
 

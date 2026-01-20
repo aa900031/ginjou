@@ -87,7 +87,7 @@ export function createProgressNotifyKey(
 		method,
 		props,
 	}: CreateProgressNotifyKeyProps,
-) {
+): string {
 	const { fetcherName, resource } = props
 	const identitesText = 'id' in props
 		? props.id

@@ -10,7 +10,7 @@ export function getResourceIdentifier(
 		resource,
 		resourceFromProp,
 	}: GetResourceIdentifierProps,
-) {
+): string | undefined {
 	return resourceFromProp
 		?? resource?.resource.name
 }
