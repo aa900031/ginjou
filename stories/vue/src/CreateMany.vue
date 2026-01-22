@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { Post, PostFormData, PostRawFormData } from './api/posts'
+import type { Post, PostRawFormData } from './api/posts'
 import { useCreateMany } from '@ginjou/vue'
 import { reactive, shallowRef } from 'vue'
 
-const { mutateAsync: updateOne, isPending } = useCreateMany<Post, PostFormData>({
+const { mutateAsync: createMany, isPending } = useCreateMany<Post, PostRawFormData>({
 	resource: 'posts',
 })
 
@@ -13,15 +13,16 @@ const formData = reactive<PostRawFormData>({
 const result = shallowRef<Post[]>()
 
 async function handleSubmit() {
-	await updateOne({
+	await createMany({
 		params: [
-			formData as PostFormData,
+			formData,
 		],
 	}, {
 		onSuccess: (data) => {
 			result.value = data.data
 		},
 	})
+}
 }
 </script>
 
