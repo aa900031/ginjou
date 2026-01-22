@@ -1,19 +1,23 @@
 <script setup lang="ts">
 import type { Post, PostRawFormData } from './api/posts'
-import { useCreateOne } from '@ginjou/vue'
+import { useUpdateMany } from '@ginjou/vue'
 import { reactive, shallowRef } from 'vue'
 
-const { mutateAsync: createOne, isPending } = useCreateOne<Post, PostRawFormData>({
+const { mutateAsync: updateMany, isPending } = useUpdateMany<Post, PostRawFormData>({
 	resource: 'posts',
+	ids: [
+		'6c6d3a48-8eef-4c96-a1ba-156bdfd3d389',
+		'ce08aff6-41db-40e0-b3bb-65a256b2e780',
+	],
 })
 
 const formData = reactive<PostRawFormData>({
-	status: 'test',
+	title: 'Next title',
 })
-const result = shallowRef<Post>()
+const result = shallowRef<Post[]>()
 
 async function handleSubmit() {
-	await createOne({
+	await updateMany({
 		params: formData,
 	}, {
 		onSuccess: (data) => {
@@ -26,10 +30,12 @@ async function handleSubmit() {
 <template>
 	<div>
 		<h1 class="text-2xl font-bold">
-			useCreateOne
+			useUpdateMany
 		</h1>
 
-		<form @submit.prevent="handleSubmit">
+		<form
+			@submit.prevent="handleSubmit"
+		>
 			<div>
 				<label for="post-title">
 					Title
@@ -44,6 +50,7 @@ async function handleSubmit() {
 				{{ isPending ? 'Submitting...' : 'Submit' }}
 			</button>
 		</form>
+
 		<hr>
 		<details open>
 			<summary>Result</summary>

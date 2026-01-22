@@ -159,7 +159,7 @@ export function createSuccessHandler<
 			},
 		)
 
-		await triggerInvalidates(resolvedProps, queryClient)
+		await triggerInvalidates(resolvedProps, data, queryClient)
 
 		publish(
 			createPublishEvent(resolvedProps, data),

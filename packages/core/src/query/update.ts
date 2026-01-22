@@ -269,7 +269,7 @@ export function createSettledHandler<
 	) {
 		const resolvedProps = resolveMutationProps(getProps(), props)
 
-		await triggerInvalidates(resolvedProps, queryClient)
+		await triggerInvalidates(resolvedProps, data, queryClient)
 
 		await onSettledFromProp?.(data, error, resolvedProps, onMutateResult, context)
 	}
