@@ -3,12 +3,13 @@ import { Collection } from '@msw/data'
 import { h } from 'vue'
 import MOCK_POSTS from '../data/mock-posts.json'
 import { PostSchema } from './api/posts'
-import CreateOne from './CreateOne.vue'
+import UpdateMany from './UpdateMany.vue'
+import UpdateOne from './UpdateOne.vue'
 import { toHandlers } from './utils/msw-data'
 import { createWrapper } from './utils/wrapper'
 
 const meta: Meta = {
-	title: 'Query/CreateOne',
+	title: 'Query/Update',
 }
 
 const posts = new Collection({
@@ -28,7 +29,22 @@ export const Basic: StoryObj<typeof meta> = {
 			notification: true,
 		}),
 	],
-	render: () => () => h(CreateOne),
+	render: () => () => h(UpdateOne),
+}
+
+export const Many: StoryObj<typeof meta> = {
+	name: 'Many',
+	parameters: {
+		msw: {
+			handlers: toHandlers(posts, 'posts', 'https://rest-api.local'),
+		},
+	},
+	decorators: [
+		createWrapper({
+			notification: true,
+		}),
+	],
+	render: () => () => h(UpdateMany),
 }
 
 export default meta
