@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.16
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/core@0.1.0-beta.15...${npm.name}@0.1.0-beta.16)
+
+### 🚀 Enhancements
+
+-  Invalidate by result data (#102) ([26331a9](https://github.com/aa900031/ginjou/commit/26331a94c3a2ba3e2fb2dd441e174f06e7274722))
+
+### 🏡 Chore
+
+-  Docs (#99) ([41c63c6](https://github.com/aa900031/ginjou/commit/41c63c63982d5106b141a7feacf52ef6e04f10bf))
+-  **format, deps:** Update eslint config ([1ef7c3e](https://github.com/aa900031/ginjou/commit/1ef7c3efa98b034cfd00f222f181bb3bcfef7651))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.15
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/core@0.1.0-beta.14...${npm.name}@0.1.0-beta.15)
