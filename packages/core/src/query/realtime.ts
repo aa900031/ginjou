@@ -63,6 +63,7 @@ export function createSubscribeCallback<
 					},
 				},
 				InvalidateTarget.Resource,
+				undefined,
 				queryClient,
 			)
 		}
