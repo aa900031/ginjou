@@ -1,15 +1,18 @@
 ---
 title: RESTful API
-description: Connect Ginjou to any RESTful API with json-server style conventions.
+description: Connect Ginjou to any RESTful API using json-server conventions.
 ---
 
-The `@ginjou/with-rest-api` package provides a flexible fetcher for connecting Ginjou to standard RESTful APIs. It is specifically designed to follow the conventions established by [json-server v0.x.x](https://github.com/typicode/json-server/tree/v0.17.4).
+The `@ginjou/with-rest-api` package connects Ginjou to standard RESTful APIs. It follows the query parameter and header conventions established by [json-server v0.x.x](https://github.com/typicode/json-server/tree/v0.17.4), making it compatible with many existing mocking tools and API standards.
 
 ## Installation
 
-Install the RESTful API provider and its peer dependency:
+Install the provider.
 
 ::code-group
+---
+sync: package-manager
+---
 
 ```bash [pnpm]
 pnpm add @ginjou/with-rest-api
@@ -31,13 +34,14 @@ bun add @ginjou/with-rest-api
 
 ## Setup
 
-To use the RESTful API provider, initialize the fetcher and register it in your root component.
+Initialize the fetcher and register it in your root component (`App.vue` or `app.vue`).
 
-### Vue
+::code-group
+---
+sync: guide-example
+---
 
-In a Vue application, use `defineFetchersContext` within your `App.vue` setup.
-
-```vue [App.vue]
+```vue [Vue]
 <script setup lang="ts">
 import { defineFetchersContext } from '@ginjou/vue'
 import { createFetcher } from '@ginjou/with-rest-api'
@@ -54,54 +58,40 @@ defineFetchersContext({
 </template>
 ```
 
-### Nuxt
-
-For Nuxt applications, register the provider in your root `app.vue` component.
-
-```vue [app.vue]
-<script setup lang="ts">
-import { defineFetchersContext } from '@ginjou/vue'
-import { createFetcher } from '@ginjou/with-rest-api'
-
-defineFetchersContext({
-	default: createFetcher({
-		url: 'https://api.example.com'
-	})
-})
+```svelte [Svelte]
+<!-- WIP -->
+<script>
+  // ...
 </script>
-
-<template>
-	<NuxtLayout>
-		<NuxtPage />
-	</NuxtLayout>
-</template>
 ```
 
-## Fetcher Capability & Conventions
+::
 
-The `createFetcher` implementation relies on specific query parameters and header conventions common in the `json-server` ecosystem.
+## Fetcher Conventions
+
+The `createFetcher` implementation relies on specific query parameters and headers to handle data operations.
 
 ### Pagination
 
 The fetcher translates Ginjou's pagination state into `_start` and `_end` query parameters.
 
-- `_start`: The zero-based index of the first item to return.
-- `_end`: The zero-based index of the last item (exclusive).
+- `_start`: Zero-based index of the first item.
+- `_end`: Zero-based index of the last item (exclusive).
 
 ::note
-The fetcher expects the total number of records to be returned in the `x-total-count` HTTP header. If this header is missing, it will default to the length of the returned data array.
+The API must return the total number of records in the `x-total-count` HTTP header. If missing, Ginjou defaults to the length of the returned array.
 ::
 
 ### Sorting
 
-Sorting is handled via `_sort` and `_order` parameters.
+Sorting uses `_sort` and `_order` parameters.
 
-- `_sort`: A comma-separated list of fields to sort by.
-- `_order`: A comma-separated list of sort directions (`asc` or `desc`).
+- `_sort`: Comma-separated list of fields.
+- `_order`: Comma-separated list of directions (`asc` or `desc`).
 
 ### Filtering
 
-Filters are mapped to query parameters using field suffixes:
+Filters map to query parameters using field suffixes.
 
 | Operator | Parameter Suffix | Example |
 | :--- | :--- | :--- |
@@ -112,11 +102,9 @@ Filters are mapped to query parameters using field suffixes:
 | `contains` | `_like` | `title_like=ginjou` |
 
 ::tip
-If a filter with the field `q` is provided, it is sent as a global search parameter (`?q=keyword`) as per `json-server` specifications.
+A filter with the field `q` sends a global search parameter (`?q=keyword`).
 ::
 
 ::warning
-Because this provider follows the `json-server` specification, certain advanced filtering features are not supported:
-- **Logical Operators**: The `or` and `and` logical operators are not supported. Using these in your filters will result in an error.
-- **Nested Objects**: Filtering and sorting are primarily designed for flat resource structures.
+This provider does not support `or` / `and` logical operators or filtering on nested objects, as `json-server` does not natively support them.
 ::
