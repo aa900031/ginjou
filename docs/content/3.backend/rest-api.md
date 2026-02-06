@@ -3,7 +3,7 @@ title: RESTful API
 description: Connect Ginjou to any RESTful API with json-server style conventions.
 ---
 
-The `@ginjou/with-rest-api` package provides a flexible fetcher for connecting Ginjou to standard RESTful APIs. It is specifically designed to follow the conventions established by [json-server](https://github.com/typicode/json-server/tree/v0).
+The `@ginjou/with-rest-api` package provides a flexible fetcher for connecting Ginjou to standard RESTful APIs. It is specifically designed to follow the conventions established by [json-server v0.x.x](https://github.com/typicode/json-server/tree/v0.17.4).
 
 ## Installation
 
