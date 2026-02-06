@@ -111,7 +111,14 @@ The `createAuth` function wraps Supabase Auth (GoTrue) to manage user sessions.
 
 ### Login Types
 
-The provider supports multiple authentication methods, including password, OAuth, and OTP.
+The provider supports multiple authentication methods. The `type` determines which Supabase-js method is called.
+
+- `password`: Calls `signInWithPassword`
+- `oauth`: Calls `signInWithOAuth`
+- `otp`: Calls `signInWithOtp` (Magic Link or SMS)
+- `otp-token`: Calls `verifyOtp` (Verify code)
+- `idtoken`: Calls `signInWithIdToken`
+- `sso`: Calls `signInWithSSO`
 
 ```typescript
 const { login } = useAuth()
@@ -131,7 +138,7 @@ await login({
 	params: {
 		provider: 'github',
 		options: {
-			redirect: 'https://your-app.com/callback',
+			redirectTo: 'https://your-app.com/callback',
 		},
 	},
 })
@@ -141,27 +148,19 @@ await login({
 	type: 'otp',
 	params: {
 		email: 'user@example.com',
+		options: {
+			redirectTo: 'https://your-app.com/callback',
+		},
+	},
+})
+
+// OTP Token Verification
+await login({
+	type: 'otp-token',
+	params: {
+		email: 'user@example.com',
+		token: '123456',
+		type: 'magiclink',
 	},
 })
 ```
-
-### Identity
-
-The `useIdentity` composable retrieves the current user's profile and metadata.
-
-::note
-Internally, this uses `client.auth.getUser()` to safely retrieve the user session.
-::
-
-```typescript
-const { data: user } = useIdentity()
-
-console.log(user.email, user.user_metadata)
-```
-
-### Session Management
-
-The provider handles session lifecycle:
-
-- `useAuth().check()`: Checks for an active session.
-- `useAuth().logout()`: Terminates the current session.

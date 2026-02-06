@@ -117,6 +117,9 @@ The `createAuth` function manages authentication state using the Directus SDK.
 
 The provider supports password-based authentication and Single Sign-On (SSO).
 
+- `password`: Standard email/password login.
+- `sso`: Social login via configured providers (Google, GitHub, etc.).
+
 ```typescript
 const { login } = useAuth()
 
@@ -130,32 +133,14 @@ await login({
 })
 
 // SSO Authentication
+// This will redirect to the configured provider
 await login({
 	type: 'sso',
 	params: {
 		provider: 'google',
 		options: {
-			redirect: 'https://your-app.com/callback',
+			mode: 'session',
 		},
 	},
 })
 ```
-
-### Identity
-
-The `useIdentity` composable retrieves the current user's profile.
-
-::note
-Internally, this calls the Directus `/users/me` endpoint.
-::
-
-```typescript
-const { data: user } = useIdentity()
-```
-
-### Session Management
-
-The provider handles session verification and termination:
-
-- `useAuth().check()`: Verifies the validity of the current token.
-- `useAuth().logout()`: Terminates the session and revokes the token.
