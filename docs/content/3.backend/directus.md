@@ -82,7 +82,7 @@ By default, the `resource` name corresponds to the Directus collection name.
 
 ```typescript
 // Requests /items/posts
-const { data } = useList({ resource: 'posts' })
+const { records } = useList({ resource: 'posts' })
 ```
 
 ### System Collections
@@ -98,7 +98,7 @@ The provider automatically routes requests for system collections. Resources pre
 Pass standard Directus query parameters via the `meta.query` object.
 
 ```typescript
-const { data } = useList({
+const { records } = useList({
 	resource: 'posts',
 	meta: {
 		query: {
@@ -121,7 +121,7 @@ The provider supports password-based authentication and Single Sign-On (SSO).
 - `sso`: Social login via configured providers (Google, GitHub, etc.).
 
 ```typescript
-const { login } = useAuth()
+const { mutateAsync: login } = useLogin()
 
 // Password Authentication
 await login({

@@ -81,7 +81,7 @@ The `createFetcher` function integrates Ginjou's data hooks with Supabase's Post
 Use the `meta` object to control the Supabase query directly. This maps to the `.select()` method in the SDK.
 
 ```typescript
-const { data } = useList({
+const { records } = useList({
 	resource: 'posts',
 	meta: {
 		// Maps directly to .select() in Supabase-js
@@ -96,7 +96,7 @@ const { data } = useList({
 If your table uses a primary key other than `id`, specify it using `idColumnName`.
 
 ```typescript
-const { data } = useOne({
+const { record } = useGetOne({
 	resource: 'posts',
 	id: 'my-uuid',
 	meta: {
@@ -121,7 +121,7 @@ The provider supports multiple authentication methods. The `type` determines whi
 - `sso`: Calls `signInWithSSO`
 
 ```typescript
-const { login } = useAuth()
+const { mutateAsync: login } = useLogin()
 
 // Password Authentication
 await login({
