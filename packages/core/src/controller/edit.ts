@@ -1,6 +1,6 @@
 import type { SetOptional } from 'type-fest'
 import type { BaseRecord, GetOneResult, Meta, MutationModeValues, Params, RecordKey, UpdateResult } from '../query'
-import type { QueryOptions as GetOneQueryOptions } from '../query/get-one'
+import type { Props as GetOneProps } from '../query/get-one'
 import type {
 	MutateAsyncFn as UpdateMutateFn,
 	Props as UpdateProps,
@@ -27,7 +27,7 @@ export type Props<
 	& {
 		redirect?: RedirectOptions<UpdateResult<TMutationData>>
 		queryMeta?: Meta
-		queryOptions?: GetOneQueryOptions<TQueryData, TQueryError, TQueryResultData>
+		queryOptions?: GetOneProps<TQueryData, TQueryError, TQueryResultData>['queryOptions']
 	},
 	| 'resource'
 	| 'id'
