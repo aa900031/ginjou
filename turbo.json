@@ -6,9 +6,10 @@
 			"dependsOn": ["^build"],
 			"outputs": ["dist/**"],
 			"inputs": [
-				".storybook/**",
+				"$TURBO_ROOT$/vite.config.ts",
+				"$TURBO_ROOT$/internals/tsdown-config/src/**",
 				"src/**",
-				"build.config.ts",
+				"tsdown.config.ts",
 				"tsconfig.json",
 				"tsconfig.*.json",
 				"vite.config.ts",
@@ -27,10 +28,18 @@
 			"cache": false,
 			"persistent": true
 		},
+		"@ginjou/storybook#build": {
+			"inputs": [
+				".storybook/**"
+			]
+		},
 		"@ginjou/storybook-vue#build": {
 			"dependsOn": [
 				"@ginjou/storybook#build",
 				"^build"
+			],
+			"inputs": [
+				".storybook/**"
 			],
 			"outputs": ["../root/dist/vue/**"]
 		}
