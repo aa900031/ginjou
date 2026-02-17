@@ -21,7 +21,7 @@
 	},
 	"devDependencies": {
 		"@aa900031/eslint-config": "^5.0.0",
-		"@aa900031/release-it-config": "^0.1.0",
+		"@aa900031/release-it-config": "^0.1.1",
 		"@codspeed/vitest-plugin": "^5.0.1",
 		"@types/node": "^22.19.7",
 		"@vitest/coverage-istanbul": "^3.2.4",
