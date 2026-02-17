@@ -1,5 +1,5 @@
 <p align="center">
-	<img alt="Ginjou Logo" width="256" src="./docs/public/logo.png">
+	<img alt="Ginjou Logo" width="256" src="https://cdn.jsdelivr.net/gh/aa900031/ginjou/assets/logo.svg">
 </p>
 
 <br/>

@@ -3,15 +3,16 @@ title: Directus
 description: Connect Directus to Ginjou for instant Headless CMS capabilities.
 ---
 
-[Directus](https://directus.io/) is an instant Headless CMS that provides a flexible REST and GraphQL API for your SQL database.
-
-The `@ginjou/with-directus` package provides the necessary providers to integrate Ginjou with a Directus backend, enabling seamless data management and authentication.
+[Directus](https://directus.io/) is an instant Headless CMS that turns your SQL database into a flexible API. The `@ginjou/with-directus` package integrates Ginjou with Directus, providing seamless data management and authentication.
 
 ## Installation
 
-Install the Directus provider along with the official Directus SDK:
+Install the provider and the official Directus SDK.
 
 ::code-group
+---
+sync: package-manager
+---
 
 ```bash [pnpm]
 pnpm add @ginjou/with-directus @directus/sdk
@@ -33,13 +34,14 @@ bun add @ginjou/with-directus @directus/sdk
 
 ## Setup
 
-To use the providers in your application, register them using the configuration hooks in your root component.
+Initialize the Directus client and register the providers in your root component (`App.vue` or `app.vue`).
 
-### Vue
+::code-group
+---
+sync: guide-example
+---
 
-In a Vue application, use `defineFetchersContext` and `defineAuthContext` within your `App.vue` setup.
-
-```vue [App.vue]
+```vue [Vue]
 <script setup lang="ts">
 import { authentication, createDirectus, rest } from '@directus/sdk'
 import { defineAuthContext, defineFetchersContext } from '@ginjou/vue'
@@ -61,55 +63,42 @@ defineAuthContext(createAuth({ client }))
 </template>
 ```
 
-### Nuxt
-
-For Nuxt applications, register the providers in your root `app.vue` component.
-
-```vue [app.vue]
-<script setup lang="ts">
-import { authentication, createDirectus, rest } from '@directus/sdk'
-import { defineAuthContext, defineFetchersContext } from '@ginjou/vue'
-import { createAuth, createFetcher } from '@ginjou/with-directus'
-
-const client = createDirectus('https://your-directus-url.com')
-	.with(rest())
-	.with(authentication())
-
-defineFetchersContext({
-	default: createFetcher({ client })
-})
-
-defineAuthContext(createAuth({ client }))
+```svelte [Svelte]
+<!-- WIP -->
+<script>
+  // ...
 </script>
-
-<template>
-	<NuxtLayout>
-		<NuxtPage />
-	</NuxtLayout>
-</template>
 ```
+
+::
 
 ## Fetcher
 
-The `createFetcher` function maps Ginjou data hooks to Directus API requests.
+The `createFetcher` function maps Ginjou's data operations to Directus API requests.
 
 ### Resource Mapping
 
-By default, the `resource` name maps to the corresponding Directus collection.
+By default, the `resource` name corresponds to the Directus collection name.
 
 ```typescript
 // Requests /items/posts
-const { data } = useList({ resource: 'posts' })
+const { records } = useList({ resource: 'posts' })
 ```
+
+### System Collections
+
+The provider automatically routes requests for system collections. Resources prefixed with `directus_` or `directus/` map to their respective system endpoints:
+
+- `directus_users` → `/users`
+- `directus_files` → `/files`
+- `directus_roles` → `/roles`
 
 ### Advanced Queries
 
-::tip
-The `meta.query` object is passed directly to the `@directus/sdk` rest methods, allowing you to use any standard Directus query parameters.
-::
+Pass standard Directus query parameters via the `meta.query` object.
 
 ```typescript
-const { data } = useList({
+const { records } = useList({
 	resource: 'posts',
 	meta: {
 		query: {
@@ -120,26 +109,19 @@ const { data } = useList({
 })
 ```
 
-### System Collections
-
-::note
-The provider automatically routes requests for system collections. Resources prefixed with `directus_` or `directus/` are mapped to their respective system endpoints:
-::
-
-- `directus_users` maps to `/users`
-- `directus_files` maps to `/files`
-- `directus_roles` maps to `/roles`
-
 ## Authentication
 
-The `createAuth` function facilitates integration with Directus authentication services.
+The `createAuth` function manages authentication state using the Directus SDK.
 
 ### Login Types
 
-The provider supports both standard password-based authentication and Single Sign-On (SSO).
+The provider supports password-based authentication and Single Sign-On (SSO).
+
+- `password`: Standard email/password login.
+- `sso`: Social login via configured providers (Google, GitHub, etc.).
 
 ```typescript
-const { login } = useAuth()
+const { mutateAsync: login } = useLogin()
 
 // Password Authentication
 await login({
@@ -151,28 +133,14 @@ await login({
 })
 
 // SSO Authentication
+// This will redirect to the configured provider
 await login({
 	type: 'sso',
 	params: {
 		provider: 'google',
 		options: {
-			redirect: 'https://your-app.com/callback',
+			mode: 'session',
 		},
 	},
 })
 ```
-
-::note
-This internally calls the Directus `/users/me` endpoint to fetch the full user profile.
-::
-
-```typescript
-const { data: user } = useIdentity()
-```
-
-### Session Management
-
-The Auth provider handles session verification and termination:
-
-- `useAuth().check()`: Verifies the existence of a valid authentication token.
-- `useAuth().logout()`: Terminates the current session and revokes the token.

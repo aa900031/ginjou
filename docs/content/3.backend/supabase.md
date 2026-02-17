@@ -1,17 +1,18 @@
 ---
 title: Supabase
-description: Complete integration for Database and AI.
+description: Connect Ginjou to your Supabase project for database and authentication features.
 ---
 
-[Supabase](https://supabase.com/) is an open-source Firebase alternative that provides a complete backend suite, including a Postgres database, authentication, instant APIs, and real-time subscriptions.
-
-The `@ginjou/with-supabase` package provides the necessary providers to connect Ginjou with your Supabase project.
+[Supabase](https://supabase.com/) is an open-source Firebase alternative offering a complete backend suite. The `@ginjou/with-supabase` package connects Ginjou to your Supabase project, enabling instant access to your Postgres database and authentication services.
 
 ## Installation
 
-Install the Supabase provider and the official Supabase SDK:
+Install the provider and the official Supabase SDK.
 
 ::code-group
+---
+sync: package-manager
+---
 
 ```bash [pnpm]
 pnpm add @ginjou/with-supabase @supabase/supabase-js
@@ -33,13 +34,14 @@ bun add @ginjou/with-supabase @supabase/supabase-js
 
 ## Setup
 
-To use Supabase with Ginjou, initialize the Supabase client and register the providers in your root component.
+Initialize the Supabase client and register the providers in your root component (`App.vue` or `app.vue`).
 
-### Vue
+::code-group
+---
+sync: guide-example
+---
 
-In a Vue application, use `defineFetchersContext` and `defineAuthContext` within your `App.vue` setup.
-
-```vue [App.vue]
+```vue [Vue]
 <script setup lang="ts">
 import { defineAuthContext, defineFetchersContext } from '@ginjou/vue'
 import { createAuth, createFetcher } from '@ginjou/with-supabase'
@@ -61,44 +63,25 @@ defineAuthContext(createAuth({ client }))
 </template>
 ```
 
-### Nuxt
-
-For Nuxt applications, register the providers in your root `app.vue` component.
-
-```vue [app.vue]
-<script setup lang="ts">
-import { defineAuthContext, defineFetchersContext } from '@ginjou/vue'
-import { createAuth, createFetcher } from '@ginjou/with-supabase'
-import { createClient } from '@supabase/supabase-js'
-
-const supabaseUrl = 'https://your-project.supabase.co'
-const supabaseKey = 'your-anon-key'
-const client = createClient(supabaseUrl, supabaseKey)
-
-defineFetchersContext({
-	default: createFetcher({ client })
-})
-
-defineAuthContext(createAuth({ client }))
+```svelte [Svelte]
+<!-- WIP -->
+<script>
+  // ...
 </script>
-
-<template>
-	<NuxtLayout>
-		<NuxtPage />
-	</NuxtLayout>
-</template>
 ```
+
+::
 
 ## Fetcher
 
 The `createFetcher` function integrates Ginjou's data hooks with Supabase's Postgrest API.
 
-::tip
-The `meta` object acts as a direct interface to Supabase's Postgrest syntax, enabling powerful joins and precise field control.
-::
+### Query Control
+
+Use the `meta` object to control the Supabase query directly. This maps to the `.select()` method in the SDK.
 
 ```typescript
-const { data } = useList({
+const { records } = useList({
 	resource: 'posts',
 	meta: {
 		// Maps directly to .select() in Supabase-js
@@ -110,10 +93,10 @@ const { data } = useList({
 
 ### Custom ID Column
 
-If your table uses a column other than `id` as the primary key, specify it using `idColumnName`:
+If your table uses a primary key other than `id`, specify it using `idColumnName`.
 
 ```typescript
-const { data } = useOne({
+const { record } = useGetOne({
 	resource: 'posts',
 	id: 'my-uuid',
 	meta: {
@@ -124,14 +107,21 @@ const { data } = useOne({
 
 ## Authentication
 
-The `createAuth` function provides a wrapper around Supabase Auth (GoTrue).
+The `createAuth` function wraps Supabase Auth (GoTrue) to manage user sessions.
 
 ### Login Types
 
-The provider supports various Supabase authentication methods, including password, OAuth, and OTP.
+The provider supports multiple authentication methods. The `type` determines which Supabase-js method is called.
+
+- `password`: Calls `signInWithPassword`
+- `oauth`: Calls `signInWithOAuth`
+- `otp`: Calls `signInWithOtp` (Magic Link or SMS)
+- `otp-token`: Calls `verifyOtp` (Verify code)
+- `idtoken`: Calls `signInWithIdToken`
+- `sso`: Calls `signInWithSSO`
 
 ```typescript
-const { login } = useAuth()
+const { mutateAsync: login } = useLogin()
 
 // Password Authentication
 await login({
@@ -147,6 +137,9 @@ await login({
 	type: 'oauth',
 	params: {
 		provider: 'github',
+		options: {
+			redirectTo: 'https://your-app.com/callback',
+		},
 	},
 })
 
@@ -155,23 +148,19 @@ await login({
 	type: 'otp',
 	params: {
 		email: 'user@example.com',
+		options: {
+			redirectTo: 'https://your-app.com/callback',
+		},
+	},
+})
+
+// OTP Token Verification
+await login({
+	type: 'otp-token',
+	params: {
+		email: 'user@example.com',
+		token: '123456',
+		type: 'magiclink',
 	},
 })
 ```
-
-::note
-Internally, this uses `client.auth.getUser()` to safely retrieve the current user's profile and metadata from the server.
-::
-
-```typescript
-const { data: user } = useIdentity()
-
-console.log(user.email, user.user_metadata)
-```
-
-### Session Management
-
-The Auth provider handles session lifecycle:
-
-- `useAuth().check()`: Checks if an active session exists using `client.auth.getSession()`.
-- `useAuth().logout()`: Terminates the current session.

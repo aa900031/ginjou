@@ -1,4 +1,7 @@
 export default defineAppConfig({
+	assets: {
+		logo: 'https://cdn.jsdelivr.net/gh/aa900031/ginjou/assets/logo.svg',
+	},
 	docus: {
 		locale: 'en',
 	},
