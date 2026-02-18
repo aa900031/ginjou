@@ -95,24 +95,24 @@ const { data, isLoading, isError } = useList({ resource: 'posts' })
 
 | Package | Version | Downloads |
 | --- | --- | --- |
-| [`@ginjou/core`](https://www.npmjs.com/package/@ginjou/core) | [![npm version](https://img.shields.io/npm/v/@ginjou/core?style=flat&colorA=18181B&colorB=F0DB4F)](https://www.npmjs.com/package/@ginjou/core) | [![npm downloads](https://img.shields.io/npm/dm/@ginjou/core?style=flat&colorA=18181B&colorB=F0DB4F)](https://www.npmjs.com/package/@ginjou/core) |
+| [`@ginjou/core`](./packages/core/) | [![npm version](https://img.shields.io/npm/v/@ginjou/core?style=flat&colorA=18181B&colorB=F0DB4F)](https://www.npmjs.com/package/@ginjou/core) | [![npm downloads](https://img.shields.io/npm/dm/@ginjou/core?style=flat&colorA=18181B&colorB=F0DB4F)](https://www.npmjs.com/package/@ginjou/core) |
 
 ### Vue
 
 | Package | Version | Downloads |
 | --- | --- | --- |
-| [`@ginjou/vue`](https://www.npmjs.com/package/@ginjou/vue) | [![npm version](https://img.shields.io/npm/v/@ginjou/vue?style=flat&colorA=18181B&colorB=F0DB4F)](https://www.npmjs.com/package/@ginjou/vue) | [![npm downloads](https://img.shields.io/npm/dm/@ginjou/vue?style=flat&colorA=18181B&colorB=F0DB4F)](https://www.npmjs.com/package/@ginjou/vue) |
-| [`@ginjou/nuxt`](https://www.npmjs.com/package/@ginjou/nuxt) | [![npm version](https://img.shields.io/npm/v/@ginjou/nuxt?style=flat&colorA=18181B&colorB=F0DB4F)](https://www.npmjs.com/package/@ginjou/nuxt) | [![npm downloads](https://img.shields.io/npm/dm/@ginjou/nuxt?style=flat&colorA=18181B&colorB=F0DB4F)](https://www.npmjs.com/package/@ginjou/nuxt)|
-| [`@ginjou/with-vue-i18n`](https://www.npmjs.com/package/@ginjou/with-vue-i18n) | [![npm version](https://img.shields.io/npm/v/@ginjou/with-vue-i18n?style=flat&colorA=18181B&colorB=F0DB4F)](https://www.npmjs.com/package/@ginjou/with-vue-i18n) | [![npm downloads](https://img.shields.io/npm/dm/@ginjou/with-vue-i18n?style=flat&colorA=18181B&colorB=F0DB4F)](https://www.npmjs.com/package/@ginjou/with-vue-i18n) |
-| [`@ginjou/with-vue-router`](https://www.npmjs.com/package/@ginjou/with-vue-router) | [![npm version](https://img.shields.io/npm/v/@ginjou/with-vue-router?style=flat&colorA=18181B&colorB=F0DB4F)](https://www.npmjs.com/package/@ginjou/with-vue-router) | [![npm downloads](https://img.shields.io/npm/dm/@ginjou/with-vue-router?style=flat&colorA=18181B&colorB=F0DB4F)](https://www.npmjs.com/package/@ginjou/with-vue-router) |
+| [`@ginjou/vue`](./packages/vue/) | [![npm version](https://img.shields.io/npm/v/@ginjou/vue?style=flat&colorA=18181B&colorB=F0DB4F)](https://www.npmjs.com/package/@ginjou/vue) | [![npm downloads](https://img.shields.io/npm/dm/@ginjou/vue?style=flat&colorA=18181B&colorB=F0DB4F)](https://www.npmjs.com/package/@ginjou/vue) |
+| [`@ginjou/nuxt`](./packages/nuxt/) | [![npm version](https://img.shields.io/npm/v/@ginjou/nuxt?style=flat&colorA=18181B&colorB=F0DB4F)](https://www.npmjs.com/package/@ginjou/nuxt) | [![npm downloads](https://img.shields.io/npm/dm/@ginjou/nuxt?style=flat&colorA=18181B&colorB=F0DB4F)](https://www.npmjs.com/package/@ginjou/nuxt)|
+| [`@ginjou/with-vue-i18n`](./packages/with-vue-i18n/) | [![npm version](https://img.shields.io/npm/v/@ginjou/with-vue-i18n?style=flat&colorA=18181B&colorB=F0DB4F)](https://www.npmjs.com/package/@ginjou/with-vue-i18n) | [![npm downloads](https://img.shields.io/npm/dm/@ginjou/with-vue-i18n?style=flat&colorA=18181B&colorB=F0DB4F)](https://www.npmjs.com/package/@ginjou/with-vue-i18n) |
+| [`@ginjou/with-vue-router`](./packages/with-vue-router/) | [![npm version](https://img.shields.io/npm/v/@ginjou/with-vue-router?style=flat&colorA=18181B&colorB=F0DB4F)](https://www.npmjs.com/package/@ginjou/with-vue-router) | [![npm downloads](https://img.shields.io/npm/dm/@ginjou/with-vue-router?style=flat&colorA=18181B&colorB=F0DB4F)](https://www.npmjs.com/package/@ginjou/with-vue-router) |
 
 ### Integrations
 
 | Package | Version | Downloads |
 | --- | --- | --- |
-| [`@ginjou/with-directus`](https://www.npmjs.com/package/@ginjou/with-directus) | [![npm version](https://img.shields.io/npm/v/@ginjou/with-directus?style=flat&colorA=18181B&colorB=F0DB4F)](https://www.npmjs.com/package/@ginjou/with-directus) | [![npm downloads](https://img.shields.io/npm/dm/@ginjou/with-directus?style=flat&colorA=18181B&colorB=F0DB4F)](https://www.npmjs.com/package/@ginjou/with-directus) |
-| [`@ginjou/with-rest-api`](https://www.npmjs.com/package/@ginjou/with-rest-api) | [![npm version](https://img.shields.io/npm/v/@ginjou/with-rest-api?style=flat&colorA=18181B&colorB=F0DB4F)](https://www.npmjs.com/package/@ginjou/with-rest-api) | [![npm downloads](https://img.shields.io/npm/dm/@ginjou/with-rest-api?style=flat&colorA=18181B&colorB=F0DB4F)](https://www.npmjs.com/package/@ginjou/with-rest-api) |
-| [`@ginjou/with-supabase`](https://www.npmjs.com/package/@ginjou/with-supabase) | [![npm version](https://img.shields.io/npm/v/@ginjou/with-supabase?style=flat&colorA=18181B&colorB=F0DB4F)](https://www.npmjs.com/package/@ginjou/with-supabase) | [![npm downloads](https://img.shields.io/npm/dm/@ginjou/with-supabase?style=flat&colorA=18181B&colorB=F0DB4F)](https://www.npmjs.com/package/@ginjou/with-supabase) |
+| [`@ginjou/with-directus`](./packages/with-directus/) | [![npm version](https://img.shields.io/npm/v/@ginjou/with-directus?style=flat&colorA=18181B&colorB=F0DB4F)](https://www.npmjs.com/package/@ginjou/with-directus) | [![npm downloads](https://img.shields.io/npm/dm/@ginjou/with-directus?style=flat&colorA=18181B&colorB=F0DB4F)](https://www.npmjs.com/package/@ginjou/with-directus) |
+| [`@ginjou/with-rest-api`](./packages/with-rest-api/) | [![npm version](https://img.shields.io/npm/v/@ginjou/with-rest-api?style=flat&colorA=18181B&colorB=F0DB4F)](https://www.npmjs.com/package/@ginjou/with-rest-api) | [![npm downloads](https://img.shields.io/npm/dm/@ginjou/with-rest-api?style=flat&colorA=18181B&colorB=F0DB4F)](https://www.npmjs.com/package/@ginjou/with-rest-api) |
+| [`@ginjou/with-supabase`](./packages/with-supabase/) | [![npm version](https://img.shields.io/npm/v/@ginjou/with-supabase?style=flat&colorA=18181B&colorB=F0DB4F)](https://www.npmjs.com/package/@ginjou/with-supabase) | [![npm downloads](https://img.shields.io/npm/dm/@ginjou/with-supabase?style=flat&colorA=18181B&colorB=F0DB4F)](https://www.npmjs.com/package/@ginjou/with-supabase) |
 
 ## License
 
