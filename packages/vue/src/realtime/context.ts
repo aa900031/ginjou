@@ -14,12 +14,12 @@ export function defineRealtimeContext<
 	return value
 }
 
-export interface UseRealtimeContextFormProps {
+export interface UseRealtimeContextFromProps {
 	realtime?: Realtime
 }
 
 export type UseRealtimeContextProps = Simplify<
-	& UseRealtimeContextFormProps
+	& UseRealtimeContextFromProps
 	& {
 		strict?: boolean
 	}

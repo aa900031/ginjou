@@ -1,6 +1,6 @@
 import type { Simplify } from 'type-fest'
 import type { ToMaybeRefs } from '../utils/refs'
-import type { UseRealtimeContextFormProps } from './context'
+import type { UseRealtimeContextFromProps } from './context'
 import { Subscribe } from '@ginjou/core'
 import { computed, unref, watch } from 'vue-demi'
 import { useRealtimeContext } from './context'
@@ -13,7 +13,7 @@ export type UseSubscribeProps<
 >
 
 export type UseSubscribeContext = Simplify<
-	& UseRealtimeContextFormProps
+	& UseRealtimeContextFromProps
 >
 
 export interface UseSubscribeResult {

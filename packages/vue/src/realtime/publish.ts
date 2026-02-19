@@ -1,10 +1,10 @@
 import type { Simplify } from 'type-fest'
-import type { UseRealtimeContextFormProps } from './context'
+import type { UseRealtimeContextFromProps } from './context'
 import { Publish } from '@ginjou/core'
 import { useRealtimeContext } from './context'
 
 export type UsePublishContext = Simplify<
-	& UseRealtimeContextFormProps
+	& UseRealtimeContextFromProps
 >
 
 export function usePublish<
