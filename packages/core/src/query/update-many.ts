@@ -311,7 +311,7 @@ export function createSuccessHandler<
 		getProps,
 		onSuccess: onSuccessFromProp,
 	}: CreateSuccessHandlerProps<TData, TError, TParams>,
-): NonNullable<MutationOptions<TData, unknown, TParams>['onSuccess']> {
+): NonNullable<MutationOptions<TData, TError, TParams>['onSuccess']> {
 	return async function onSuccess(
 		data,
 		props,
