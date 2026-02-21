@@ -9,7 +9,7 @@
 	},
 	"devDependencies": {
 		"@ginjou/tsconfig": "workspace:*",
-		"@types/node": "^22.19.10",
+		"@types/node": "^22.19.11",
 		"tsdown": "^0.20.3"
 	}
 }

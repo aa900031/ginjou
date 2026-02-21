@@ -69,8 +69,8 @@
 		"@ginjou/tsconfig": "workspace:*",
 		"@ginjou/tsdown-config": "workspace:*",
 		"@ginjou/vite-config": "workspace:*",
-		"@tanstack/vue-query": "^5.92.1",
+		"@tanstack/vue-query": "^5.92.9",
 		"@testing-library/vue": "^8.1.0",
-		"vue": "^3.5.25"
+		"vue": "^3.5.28"
 	}
 }
