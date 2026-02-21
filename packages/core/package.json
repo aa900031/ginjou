@@ -50,7 +50,7 @@
 	"dependencies": {
 		"es-toolkit": "^1.42.0",
 		"regexparam": "^3.0.0",
-		"tanstack-query-callbacks": "^0.2.2",
+		"tanstack-query-callbacks": "^0.3.0",
 		"type-fest": "^4.41.0"
 	},
 	"devDependencies": {
