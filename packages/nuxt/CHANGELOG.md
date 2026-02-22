@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.13
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/nuxt@0.1.0-beta.12...${npm.name}@0.1.0-beta.13)
+
+### 📖 Documentation
+
+-  Add README for packages ([7e12cb5](https://github.com/aa900031/ginjou/commit/7e12cb53db41c5c2f42df6041d9cc39c95fecfd4))
+
+### 🏡 Chore
+
+-  **deps:** Update dev deps ([2fc7ec5](https://github.com/aa900031/ginjou/commit/2fc7ec5c4eca41a72dde0171d05b36a66779c3bd))
+-  **format, deps:** Update eslint config ([1ef7c3e](https://github.com/aa900031/ginjou/commit/1ef7c3efa98b034cfd00f222f181bb3bcfef7651))
+-  **nuxt:** Move @nuxt/kit to peer deps ([6786f16](https://github.com/aa900031/ginjou/commit/6786f1645e62faa4c297b6e390088782ec1b8515))
+-  Use tsdown replace unbuild ([bef2367](https://github.com/aa900031/ginjou/commit/bef2367e49fa0389167628e47ce74b9bcc15b043))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.12
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/nuxt@0.1.0-beta.11...${npm.name}@0.1.0-beta.12)
