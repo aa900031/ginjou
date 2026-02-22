@@ -3,6 +3,32 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.17
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/core@0.1.0-beta.16...${npm.name}@0.1.0-beta.17)
+
+### 🩹 Fixes
+
+-  **core:** Types failed of props.queryOptions for edit controller ([99d4ebf](https://github.com/aa900031/ginjou/commit/99d4ebf281560ccfba020bc39cb024d24a2076ff))
+-  Correct type for onSuccess in createSuccessHandler ([b86f818](https://github.com/aa900031/ginjou/commit/b86f8184a65f2b5d2a95f9087c4b3185c0032634))
+
+### 📖 Documentation
+
+-  Add README for packages ([7e12cb5](https://github.com/aa900031/ginjou/commit/7e12cb53db41c5c2f42df6041d9cc39c95fecfd4))
+-  Improve document content with ai (#103) ([378dfbd](https://github.com/aa900031/ginjou/commit/378dfbd390c161339ec9ec829d8d009314f0a92e))
+
+### 🏡 Chore
+
+-  **deps:** Update dev deps ([2fc7ec5](https://github.com/aa900031/ginjou/commit/2fc7ec5c4eca41a72dde0171d05b36a66779c3bd))
+-  **deps:** Use latest tanstack-query-callbacks ([0e2225e](https://github.com/aa900031/ginjou/commit/0e2225e846de34b820fccb0aa3d3fb8d42dd906f))
+-  Use tsdown replace unbuild ([bef2367](https://github.com/aa900031/ginjou/commit/bef2367e49fa0389167628e47ce74b9bcc15b043))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.16
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/core@0.1.0-beta.15...${npm.name}@0.1.0-beta.16)
