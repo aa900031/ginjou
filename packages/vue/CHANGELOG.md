@@ -3,6 +3,31 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.15
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/vue@0.1.0-beta.14...${npm.name}@0.1.0-beta.15)
+
+### 🩹 Fixes
+
+-  Typo ([ade83ee](https://github.com/aa900031/ginjou/commit/ade83eeca00033689d2c9e6fb63b97bab845e624))
+
+### 📖 Documentation
+
+-  Add README for packages ([7e12cb5](https://github.com/aa900031/ginjou/commit/7e12cb53db41c5c2f42df6041d9cc39c95fecfd4))
+
+### 🏡 Chore
+
+-  **deps:** Update dev deps ([2fc7ec5](https://github.com/aa900031/ginjou/commit/2fc7ec5c4eca41a72dde0171d05b36a66779c3bd))
+-  **deps:** Update tanstack-query-callbacks ([1ded67c](https://github.com/aa900031/ginjou/commit/1ded67c992f811dc27fcda3363b20e5f137d2f49))
+-  **format, deps:** Update eslint config ([1ef7c3e](https://github.com/aa900031/ginjou/commit/1ef7c3efa98b034cfd00f222f181bb3bcfef7651))
+-  Use tsdown replace unbuild ([bef2367](https://github.com/aa900031/ginjou/commit/bef2367e49fa0389167628e47ce74b9bcc15b043))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.14
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/vue@0.1.0-beta.13...${npm.name}@0.1.0-beta.14)
