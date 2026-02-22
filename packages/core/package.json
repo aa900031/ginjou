@@ -48,7 +48,7 @@
 		"@tanstack/query-core": "^5.*.*"
 	},
 	"dependencies": {
-		"es-toolkit": "^1.42.0",
+		"es-toolkit": "^1.44.0",
 		"regexparam": "^3.0.0",
 		"tanstack-query-callbacks": "^0.3.0",
 		"type-fest": "^4.41.0"
