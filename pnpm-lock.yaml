@@ -173,8 +173,8 @@ importers:
         specifier: ^10.11.1
         version: 10.11.1(vue@3.5.28(typescript@5.9.3))
       tanstack-query-callbacks:
-        specifier: ^0.2.2
-        version: 0.2.2(@tanstack/query-core@5.90.20)(@tanstack/vue-query@5.92.9(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3))
+        specifier: ^0.3.0
+        version: 0.3.0(@tanstack/query-core@5.90.20)(@tanstack/vue-query@5.92.9(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3))
       type-fest:
         specifier: ^4.41.0
         version: 4.41.0
@@ -9508,27 +9508,6 @@ packages:
 
   tailwindcss@4.1.18:
     resolution: {integrity: sha512-4+Z+0yiYyEtUVCScyfHCxOYP06L5Ne+JiHhY2IjR2KWMIWhJOYZKLSGZaP5HkZ8+bY0cxfzwDE5uOmzFXyIwxw==}
-
-  tanstack-query-callbacks@0.2.2:
-    resolution: {integrity: sha512-NKYa83m883Cc4636oFC8bbmn5m8E9r0FvBM5nZPN3wAHWpOSwDsxh64AjXiWCXWkJFv6ci2YHG5YvXCOJmfLxw==}
-    peerDependencies:
-      '@tanstack/query-core': ^4.* || ^5.*
-      '@tanstack/react-query': ^4.* || ^5.*
-      '@tanstack/vue-query': ^4.* || ^5.*
-      '@vue/composition-api': ^1.1.0
-      react: ^18.0.0
-      vue: ^2.6.12 || ^3.2.0
-    peerDependenciesMeta:
-      '@tanstack/react-query':
-        optional: true
-      '@tanstack/vue-query':
-        optional: true
-      '@vue/composition-api':
-        optional: true
-      react:
-        optional: true
-      vue:
-        optional: true
 
   tanstack-query-callbacks@0.3.0:
     resolution: {integrity: sha512-zD4Lwid7NGyKt/We4I9yCWEpF4cKcpa99x0baFMtgiV0YPLv3MZioC525Y9bj/Tfv7O8AKJJ5EjUiy9ApXrkug==}
@@ -21532,13 +21511,6 @@ snapshots:
       tailwind-merge: 3.4.0
 
   tailwindcss@4.1.18: {}
-
-  tanstack-query-callbacks@0.2.2(@tanstack/query-core@5.90.20)(@tanstack/vue-query@5.92.9(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3)):
-    dependencies:
-      '@tanstack/query-core': 5.90.20
-    optionalDependencies:
-      '@tanstack/vue-query': 5.92.9(vue@3.5.28(typescript@5.9.3))
-      vue: 3.5.28(typescript@5.9.3)
 
   tanstack-query-callbacks@0.3.0(@tanstack/query-core@5.90.20)(@tanstack/vue-query@5.92.9(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3)):
     dependencies:
