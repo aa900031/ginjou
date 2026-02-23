@@ -74,6 +74,9 @@ importers:
 
   internals/tsdown-config:
     devDependencies:
+      '@aa900031/tsdown-config':
+        specifier: ^0.1.0
+        version: 0.1.0(tsdown@0.20.3(synckit@0.11.12)(typescript@5.9.3))
       '@ginjou/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
@@ -451,6 +454,11 @@ packages:
 
   '@aa900031/release-it-config@0.1.1':
     resolution: {integrity: sha512-3a9TosL5tqghVggqhNK4WxTgKiK/ufpLHigQpRQawkUuzh6rZ2Zk/8+GsXyKgGX+ny6CpXRdRH5ed/KYrc3uEQ==}
+
+  '@aa900031/tsdown-config@0.1.0':
+    resolution: {integrity: sha512-fMd+sTGn1a03xX6luQnw+lgbNaGfHQkFotNR+kd/HLAGOBwhwOi0b0Ro3kGn69hZ5zers+ztW6cLlRcDZmNdVw==}
+    peerDependencies:
+      tsdown: ^0.0.0
 
   '@adobe/css-tools@4.4.4':
     resolution: {integrity: sha512-Elp+iwUx5rN5+Y8xLt5/GRoG20WGoDCQ/1Fb+1LiGtvwbDavuSk0jhD/eZdckHAuzcDzccnkv+rEjyWfRx18gg==}
@@ -10628,6 +10636,10 @@ snapshots:
       - conventional-commits-filter
       - conventional-commits-parser
       - release-it
+
+  '@aa900031/tsdown-config@0.1.0(tsdown@0.20.3(synckit@0.11.12)(typescript@5.9.3))':
+    dependencies:
+      tsdown: 0.20.3(synckit@0.11.12)(typescript@5.9.3)
 
   '@adobe/css-tools@4.4.4': {}
 
