@@ -1,4 +1,4 @@
-import type { MutationObserverOptions, QueryClient } from '@tanstack/query-core'
+import type { MutationFunctionContext, MutationObserverOptions, QueryClient } from '@tanstack/query-core'
 import type { OverrideProperties, Simplify } from 'type-fest'
 import type { CheckError } from '../auth'
 import type { TranslateFn } from '../i18n'
@@ -134,9 +134,9 @@ export function createMutationFn<
 		getProps,
 	}: CreateMutationFnProps<TData, TError, TParams>,
 ): NonNullable<MutationOptions<TData, TError, TParams>['mutationFn']> {
-	return async function mutationFn(props) {
+	return async function mutationFn(props, context) {
 		const resolvedProps = resolveMutationProps(getProps(), props)
-		const executeFn = createExecuteFn(resolvedProps)
+		const executeFn = createExecuteFn(resolvedProps, context)
 
 		switch (resolvedProps.mutationMode) {
 			case MutationMode.Undoable: {
@@ -164,12 +164,13 @@ export function createMutationFn<
 
 	function createExecuteFn(
 		resolvedProps: ResolvedMutationProps<TData, TError, TParams>,
+		context: MutationFunctionContext,
 	) {
-		const deleteMany = getSafeFetcherFn(resolvedProps, fetchers, 'deleteMany')
+		const deleteMany = getSafeFetcherFn(resolvedProps, fetchers, 'deleteMany') as DeleteManyFn<TData, TParams>
 		if (deleteMany != null)
-			return () => (deleteMany as DeleteManyFn<TData, TParams>)(resolvedProps)
+			return () => deleteMany(resolvedProps, context)
 		const deleteOne = getFetcherFn(resolvedProps, fetchers, 'deleteOne') as DeleteOneFn<TData, TParams>
-		return () => fakeMany(resolvedProps.ids.map(id => deleteOne({ ...resolvedProps, id })))
+		return () => fakeMany(resolvedProps.ids.map(id => deleteOne({ ...resolvedProps, id }, context)))
 	}
 }
 

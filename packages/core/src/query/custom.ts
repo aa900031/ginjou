@@ -135,10 +135,10 @@ export function createQueryFn<
 		fetchers,
 	}: CreateQueryFnProps<TQuery, TPayload>,
 ): NonNullable<QueryOptions<TData, TError, TResultData>['queryFn']> {
-	return async function queryFn() {
+	return async function queryFn(context) {
 		const props = getProps()
 		const custom = getFetcherFn(props, fetchers, 'custom') as CustomFn<TData, TQuery, TPayload>
-		const result = await custom(props)
+		const result = await custom(props, context)
 
 		return result
 	}

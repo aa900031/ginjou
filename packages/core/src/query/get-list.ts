@@ -150,10 +150,10 @@ export function createQueryFn<
 		getProps,
 	}: CreateQueryFnProps<TPageParam>,
 ): NonNullable<QueryOptions<TData, TError, TResultData, TPageParam>['queryFn']> {
-	return async function queryFn() {
+	return async function queryFn(context) {
 		const props = getProps()
 		const getList = getFetcherFn(props, fetchers, 'getList') as GetListFn<TData, TPageParam>
-		const result = await getList(props)
+		const result = await getList(props, context)
 		updateCache(queryClient, props, result)
 
 		return result

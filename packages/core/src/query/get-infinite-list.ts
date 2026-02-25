@@ -121,7 +121,7 @@ export function createQueryFn<
 		const result = await getList({
 			...props,
 			pagination: resolvedPagination,
-		})
+		}, context)
 		const resolved: GetInfiniteListResult<TData, TPageParam> = {
 			pagination: resolvedPagination,
 			...result,
