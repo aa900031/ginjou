@@ -111,10 +111,10 @@ export function createMutationFn<
 		getProps,
 	}: CreateMutationFnProps<TData, TError, TParams>,
 ): NonNullable<MutationOptions<TData, TError, TParams>['mutationFn']> {
-	return async function mutationFn(props) {
+	return async function mutationFn(props, context) {
 		const resolvedProps = resolveMutationProps(getProps(), props)
 		const createOne = getFetcherFn(resolvedProps, fetchers, 'createOne') as CreateOneFn<TData, TParams>
-		const result = await createOne(resolvedProps)
+		const result = await createOne(resolvedProps, context)
 		return result
 	}
 }

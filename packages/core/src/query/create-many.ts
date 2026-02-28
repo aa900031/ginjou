@@ -112,15 +112,15 @@ export function createMutationFn<
 		getProps,
 	}: CreateMutationFnProps<TData, TError, TParams>,
 ): NonNullable<MutationOptions<TData, TError, TParams>['mutationFn']> {
-	return async function mutationFn(props) {
+	return async function mutationFn(props, context) {
 		const resolvedProps = resolveMutationProps(getProps(), props)
 
-		const createMany = getSafeFetcherFn(resolvedProps, fetchers, 'createMany')
+		const createMany = getSafeFetcherFn(resolvedProps, fetchers, 'createMany') as CreateManyFn<TData, TParams>
 		if (createMany != null)
-			return await (createMany as CreateManyFn<TData, TParams>)(resolvedProps)
+			return await createMany(resolvedProps, context)
 
 		const createOne = getFetcherFn(resolvedProps, fetchers, 'createOne') as CreateOneFn<TData, TParams>
-		return await fakeMany(resolvedProps.params.map(val => createOne({ ...resolvedProps, params: val })))
+		return await fakeMany(resolvedProps.params.map(val => createOne({ ...resolvedProps, params: val }, context)))
 	}
 }
 

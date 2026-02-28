@@ -133,10 +133,10 @@ export function createMutationFn<
 		getProps,
 	}: CreateMutationFnProps<TData, TError, TParams>,
 ): NonNullable<MutationOptions<TData, TError, TParams>['mutationFn']> {
-	return async function mutationFn(props) {
+	return async function mutationFn(props, context) {
 		const resolvedProps = resolveMutationProps(getProps(), props)
 		const updateOne = getFetcherFn(resolvedProps, fetchers, 'updateOne') as UpdateOneFn<TData, TParams>
-		const executeFn = (): Promise<UpdateResult<TData>> => updateOne(resolvedProps)
+		const executeFn = (): Promise<UpdateResult<TData>> => updateOne(resolvedProps, context)
 
 		switch (resolvedProps.mutationMode) {
 			case MutationMode.Undoable: {

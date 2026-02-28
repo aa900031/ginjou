@@ -109,10 +109,10 @@ export function createQueryFn<
 		getProps,
 	}: CreateQueryFnProps,
 ): QueryFunction<GetOneResult<TData>> {
-	return async function queryFn() {
+	return async function queryFn(context) {
 		const props = getProps()
 		const getOne = getFetcherFn(props, fetchers, 'getOne') as GetOneFn<TData>
-		const result = await getOne(props)
+		const result = await getOne(props, context)
 
 		return result
 	}

@@ -129,10 +129,10 @@ export function createMutationFn<
 		getProps,
 	}: CreateMutationFnProps<TData, TError, TQuery, TPayload, TMutateResult>,
 ): NonNullable<MutationOptions<TData, TError, TQuery, TPayload, TMutateResult>['mutationFn']> {
-	return async function mutationFn(props) {
+	return async function mutationFn(props, context) {
 		const resolvedProps = resolveMutationProps(getProps(), props)
 		const custom = getFetcherFn(resolvedProps, fetchers, 'custom') as CustomFn<TData, TQuery, TPayload>
-		const result = await custom(resolvedProps)
+		const result = await custom(resolvedProps, context)
 
 		return result
 	}

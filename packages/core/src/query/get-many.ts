@@ -1,4 +1,4 @@
-import type { PlaceholderDataFunction, QueryClient, QueryKey, QueryObserverOptions } from '@tanstack/query-core'
+import type { PlaceholderDataFunction, QueryClient, QueryFunctionContext, QueryKey, QueryObserverOptions } from '@tanstack/query-core'
 import type { QueryCallbacks } from 'tanstack-query-callbacks'
 import type { SetOptional, Simplify } from 'type-fest'
 import type { CheckError } from '../auth'
@@ -142,15 +142,15 @@ export function createQueryFn<
 		getProps,
 	}: CreateQueryFnProps,
 ): NonNullable<QueryOptions<TData, TError, TResultData>['queryFn']> {
-	return async function queryFn() {
+	return async function queryFn(context) {
 		const props = getProps()
 		if (!props.ids || !props.ids.length)
 			return EMPTY_RESULT
 
 		const result = props.aggregate
 			// eslint-disable-next-line ts/no-use-before-define
-			? await aggregExecGetMany(props, fetchers)
-			: await execGetMany(props, fetchers)
+			? await aggregExecGetMany(props, fetchers, context)
+			: await execGetMany(props, fetchers, context)
 
 		updateCache(queryClient, props, result)
 
@@ -341,12 +341,13 @@ function execGetMany<
 >(
 	props: ResolvedQueryProps,
 	fetchers: Fetchers,
+	context: QueryFunctionContext,
 ): Promise<GetManyResult<TData>> {
 	const getMany = getSafeFetcherFn(props, fetchers, 'getMany')
 	if (getMany != null)
-		return (getMany as GetManyFn<TData>)(props)
+		return (getMany as GetManyFn<TData>)(props, context)
 	const getOne = getFetcherFn(props, fetchers, 'getOne')
-	return fakeMany(props.ids.map(id => getOne({ ...props, id })))
+	return fakeMany(props.ids.map(id => (getOne as any)({ ...props, id }, context)))
 }
 
 const aggregExecGetMany = createAggregrateFn(
