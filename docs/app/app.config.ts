@@ -7,6 +7,9 @@ export default defineAppConfig({
 	},
 	header: {
 		title: 'Ginjou',
+		logo: {
+			light: 'https://cdn.jsdelivr.net/gh/aa900031/ginjou/assets/logo.svg',
+		},
 	},
 	ui: {
 		colors: {
