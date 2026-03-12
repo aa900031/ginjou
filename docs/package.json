@@ -8,9 +8,9 @@
 		"preview": "sirv ./dist --host -p 3000"
 	},
 	"dependencies": {
-		"@barzhsieh/nuxt-content-mermaid": "^2.2.1",
+		"@barzhsieh/nuxt-content-mermaid": "^2.2.3",
 		"better-sqlite3": "^12.6.2",
-		"docus": "^5.6.1",
+		"docus": "^5.7.0",
 		"nuxt": "^4.3.1"
 	}
 }
