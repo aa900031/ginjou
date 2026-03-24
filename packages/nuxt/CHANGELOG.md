@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.14
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/nuxt@0.1.0-beta.13...${npm.name}@0.1.0-beta.14)
+
+### 🚀 Enhancements
+
+-  **nuxt:** Drop auto import for echo system adapter and functions (#107) ([cf53f13](https://github.com/aa900031/ginjou/commit/cf53f1339442eeeb72ed67f740713a7b086749c0))
+
+### 🏡 Chore
+
+-  **deps:** Update npm non-major develop dependencies (#94) ([966a0a8](https://github.com/aa900031/ginjou/commit/966a0a823d6300d89c0287ca52a4df3d93c0aff8))
+
+
+
+#### ❤️ Contributors
+
+- Renovate[bot] 
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.13
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/nuxt@0.1.0-beta.12...${npm.name}@0.1.0-beta.13)
