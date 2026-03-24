@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.8
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/with-vue-i18n@0.1.0-beta.7...${npm.name}@0.1.0-beta.8)
+
+### 🏡 Chore
+
+-  **deps:** Update npm non-major develop dependencies (#94) ([966a0a8](https://github.com/aa900031/ginjou/commit/966a0a823d6300d89c0287ca52a4df3d93c0aff8))
+-  Update field exports at package.json ([06c5c15](https://github.com/aa900031/ginjou/commit/06c5c154074bf5ee80c03826695668e26aae2066))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+- Renovate[bot]
+
 ## v0.1.0-beta.7
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/with-vue-i18n@0.1.0-beta.6...${npm.name}@0.1.0-beta.7)
