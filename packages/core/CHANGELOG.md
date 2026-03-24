@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.18
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/core@0.1.0-beta.17...${npm.name}@0.1.0-beta.18)
+
+### 🚀 Enhancements
+
+-  Pass query context, mutation context to fetcher functions (#106) ([8e81cd9](https://github.com/aa900031/ginjou/commit/8e81cd97764b9b24a7c96b8a682b42ee3fd542bb))
+
+### 🏡 Chore
+
+-  **deps:** Update tanstack-query-callbacks ([f74d349](https://github.com/aa900031/ginjou/commit/f74d3498a95486d020b4dcb694314c2b933ac54b))
+-  Update field exports at package.json ([06c5c15](https://github.com/aa900031/ginjou/commit/06c5c154074bf5ee80c03826695668e26aae2066))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.17
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/core@0.1.0-beta.16...${npm.name}@0.1.0-beta.17)
