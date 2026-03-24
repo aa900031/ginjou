@@ -102,8 +102,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       tanstack-query-callbacks:
-        specifier: ^0.3.0
-        version: 0.3.0(@tanstack/query-core@5.90.20)(@tanstack/vue-query@5.92.9(vue@3.5.30(typescript@5.9.3)))(vue@3.5.30(typescript@5.9.3))
+        specifier: ^0.3.1
+        version: 0.3.1(@tanstack/query-core@5.90.20)(@tanstack/vue-query@5.92.9(vue@3.5.30(typescript@5.9.3)))(vue@3.5.30(typescript@5.9.3))
       type-fest:
         specifier: ^4.41.0
         version: 4.41.0
@@ -176,8 +176,8 @@ importers:
         specifier: ^10.11.1
         version: 10.11.1(vue@3.5.30(typescript@5.9.3))
       tanstack-query-callbacks:
-        specifier: ^0.3.0
-        version: 0.3.0(@tanstack/query-core@5.90.20)(@tanstack/vue-query@5.92.9(vue@3.5.30(typescript@5.9.3)))(vue@3.5.30(typescript@5.9.3))
+        specifier: ^0.3.1
+        version: 0.3.1(@tanstack/query-core@5.90.20)(@tanstack/vue-query@5.92.9(vue@3.5.30(typescript@5.9.3)))(vue@3.5.30(typescript@5.9.3))
       type-fest:
         specifier: ^4.41.0
         version: 4.41.0
@@ -6884,8 +6884,8 @@ packages:
   h3@1.15.10:
     resolution: {integrity: sha512-YzJeWSkDZxAhvmp8dexjRK5hxziRO7I9m0N53WhvYL5NiWfkUkzssVzY9jvGu0HBoLFW6+duYmNSn6MaZBCCtg==}
 
-  h3@2.0.1-rc.14:
-    resolution: {integrity: sha512-163qbGmTr/9rqQRNuqMqtgXnOUAkE4KTdauiC9y0E5iG1I65kte9NyfWvZw5RTDMt6eY+DtyoNzrQ9wA2BfvGQ==}
+  h3@2.0.1-rc.19:
+    resolution: {integrity: sha512-47er/mh8eGA7+0nvNUloalj+yTJ1ku8M0BVzA2I1ZHSlpfbUNdBK4LpWztfH7TwW6kuhF8MfAvl0AwB+X9B+2w==}
     engines: {node: '>=20.11.1'}
     hasBin: true
     peerDependencies:
@@ -9680,8 +9680,8 @@ packages:
   tailwindcss@4.2.1:
     resolution: {integrity: sha512-/tBrSQ36vCleJkAOsy9kbNTgaxvGbyOamC30PRePTQe/o1MFwEKHQk4Cn7BNGaPtjp+PuUrByJehM1hgxfq4sw==}
 
-  tanstack-query-callbacks@0.3.0:
-    resolution: {integrity: sha512-zD4Lwid7NGyKt/We4I9yCWEpF4cKcpa99x0baFMtgiV0YPLv3MZioC525Y9bj/Tfv7O8AKJJ5EjUiy9ApXrkug==}
+  tanstack-query-callbacks@0.3.1:
+    resolution: {integrity: sha512-7V4kJeYrb2udhX2Zci8mq4YOn2fBEL+bwSCJa7k2qzUd7+2jViNgeNJg99sJMto7zWYMawEuhVjs6eU/kyOzDQ==}
     peerDependencies:
       '@tanstack/query-core': ^4.* || ^5.*
       '@tanstack/react-query': ^4.* || ^5.*
@@ -12600,7 +12600,7 @@ snapshots:
       fake-indexeddb: 6.2.5
       get-port-please: 3.2.0
       h3: 1.15.10
-      h3-next: h3@2.0.1-rc.14
+      h3-next: h3@2.0.1-rc.19
       local-pkg: 1.1.2
       magic-string: 0.30.21
       node-fetch-native: 1.6.7
@@ -17667,9 +17667,9 @@ snapshots:
       ufo: 1.6.3
       uncrypto: 0.1.3
 
-  h3@2.0.1-rc.14:
+  h3@2.0.1-rc.19:
     dependencies:
-      rou3: 0.7.12
+      rou3: 0.8.1
       srvx: 0.11.13
 
   hachure-fill@0.5.2: {}
@@ -21595,7 +21595,7 @@ snapshots:
 
   tailwindcss@4.2.1: {}
 
-  tanstack-query-callbacks@0.3.0(@tanstack/query-core@5.90.20)(@tanstack/vue-query@5.92.9(vue@3.5.30(typescript@5.9.3)))(vue@3.5.30(typescript@5.9.3)):
+  tanstack-query-callbacks@0.3.1(@tanstack/query-core@5.90.20)(@tanstack/vue-query@5.92.9(vue@3.5.30(typescript@5.9.3)))(vue@3.5.30(typescript@5.9.3)):
     dependencies:
       '@tanstack/query-core': 5.90.20
     optionalDependencies:
