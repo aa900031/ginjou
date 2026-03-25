@@ -127,7 +127,7 @@ export type CreateOneFn<
 	TParams extends Params,
 > = (
 	props: CreateProps<TParams>,
-	context: MutationFunctionContext,
+	context?: MutationFunctionContext,
 ) => Promise<CreateResult<TData>>
 
 export interface CreateManyProps<
@@ -149,7 +149,7 @@ export type CreateManyFn<
 	TParams extends Params,
 > = (
 	props: CreateManyProps<TParams>,
-	context: MutationFunctionContext,
+	context?: MutationFunctionContext,
 ) => Promise<CreateManyResult<TData>>
 
 export interface DeleteManyProps<
@@ -172,7 +172,7 @@ export type DeleteManyFn<
 	TParams extends Params,
 > = (
 	props: DeleteManyProps<TParams>,
-	context: MutationFunctionContext,
+	context?: MutationFunctionContext,
 ) => Promise<DeleteManyResult<TData>>
 
 export interface DeleteOneProps<
@@ -195,7 +195,7 @@ export type DeleteOneFn<
 	TParams extends Params,
 > = (
 	props: DeleteOneProps<TParams>,
-	context: MutationFunctionContext,
+	context?: MutationFunctionContext,
 ) => Promise<DeleteOneResult<TData>>
 
 export interface CustomProps<
@@ -231,7 +231,7 @@ export type CustomFn<
 	TPayload extends Params,
 > = (
 	props: CustomProps<TQuery, TPayload>,
-	context: QueryFunctionContext | MutationFunctionContext,
+	context?: QueryFunctionContext | MutationFunctionContext,
 ) => Promise<CustomResult<TData>>
 
 export interface UpdateResult<
@@ -254,7 +254,7 @@ export type UpdateOneFn<
 	TParams extends Params,
 > = (
 	props: UpdateProps<TParams>,
-	context: MutationFunctionContext,
+	context?: MutationFunctionContext,
 ) => Promise<UpdateResult<TData>>
 
 export interface UpdateManyProps<
@@ -277,7 +277,7 @@ export type UpdateManyFn<
 	TParams extends Params,
 > = (
 	props: UpdateManyProps<TParams>,
-	context: MutationFunctionContext,
+	context?: MutationFunctionContext,
 ) => Promise<UpdateManyResult<TData>>
 
 export interface GetOneProps {
@@ -296,7 +296,7 @@ export type GetOneFn<
 	TData extends BaseRecord,
 > = (
 	props: GetOneProps,
-	context: QueryFunctionContext,
+	context?: QueryFunctionContext,
 ) => Promise<GetOneResult<TData>>
 
 export interface GetManyProps {
@@ -315,7 +315,7 @@ export type GetManyFn<
 	TData extends BaseRecord,
 > = (
 	props: GetManyProps,
-	context: QueryFunctionContext,
+	context?: QueryFunctionContext,
 ) => Promise<GetManyResult<TData>>
 
 export interface GetListProps<
@@ -355,7 +355,7 @@ export type GetListFn<
 	TPageParam,
 > = (
 	props: GetListProps<TPageParam>,
-	context: QueryFunctionContext,
+	context?: QueryFunctionContext,
 ) => Promise<GetListResult<TData, TPageParam>>
 
 export interface Fetcher {
