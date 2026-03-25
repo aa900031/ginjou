@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.9
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/with-vue-router@0.1.0-beta.8...${npm.name}@0.1.0-beta.9)
+
+### 🏡 Chore
+
+-  **vue-router:** Support vue-router v5 ([a9cbbf7](https://github.com/aa900031/ginjou/commit/a9cbbf7591c7bcb7f4a42f4a5ea763f7f4e607bd))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.8
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/with-vue-router@0.1.0-beta.7...${npm.name}@0.1.0-beta.8)
