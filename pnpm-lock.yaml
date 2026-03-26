@@ -272,7 +272,7 @@ importers:
         specifier: workspace:*
         version: link:../../internals/vite-config
       '@supabase/supabase-js':
-        specifier: ^2.99.2
+        specifier: ^2.99.3
         version: 2.100.0
 
   packages/with-vue-i18n:
@@ -331,10 +331,10 @@ importers:
   stories/root:
     devDependencies:
       '@storybook/addon-docs':
-        specifier: ^10.3.0
+        specifier: ^10.3.1
         version: 10.3.3(@types/react@19.2.14)(esbuild@0.27.3)(rollup@4.59.0)(storybook@10.3.3(@testing-library/dom@9.3.4)(prettier@3.8.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(vite@7.3.1(@types/node@22.19.15)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.46.0)(yaml@2.8.2))
       '@storybook/react-vite':
-        specifier: ^10.3.0
+        specifier: ^10.3.1
         version: 10.3.3(esbuild@0.27.3)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(rollup@4.59.0)(storybook@10.3.3(@testing-library/dom@9.3.4)(prettier@3.8.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(typescript@5.9.3)(vite@7.3.1(@types/node@22.19.15)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.46.0)(yaml@2.8.2))
       '@types/react':
         specifier: ^19.2.14
@@ -358,7 +358,7 @@ importers:
         specifier: ^4.0.1
         version: 4.0.1
       storybook:
-        specifier: ^10.3.0
+        specifier: ^10.3.1
         version: 10.3.3(@testing-library/dom@9.3.4)(prettier@3.8.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       vite:
         specifier: ^7.3.1
@@ -397,13 +397,13 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2
       '@storybook/addon-docs':
-        specifier: ^10.3.0
+        specifier: ^10.3.1
         version: 10.3.3(@types/react@19.2.14)(esbuild@0.27.3)(rollup@4.59.0)(storybook@10.3.3(@testing-library/dom@9.3.4)(prettier@3.8.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(vite@7.3.1(@types/node@22.19.15)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.46.0)(yaml@2.8.2))
       '@storybook/addon-links':
-        specifier: ^10.3.0
+        specifier: ^10.3.1
         version: 10.3.3(react@19.2.4)(storybook@10.3.3(@testing-library/dom@9.3.4)(prettier@3.8.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))
       '@storybook/vue3-vite':
-        specifier: ^10.3.0
+        specifier: ^10.3.1
         version: 10.3.3(esbuild@0.27.3)(rollup@4.59.0)(storybook@10.3.3(@testing-library/dom@9.3.4)(prettier@3.8.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(vite@7.3.1(@types/node@22.19.15)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.46.0)(yaml@2.8.2))(vue@3.5.30(typescript@5.9.3))
       '@tanstack/vue-query':
         specifier: ^5.92.12
@@ -424,7 +424,7 @@ importers:
         specifier: ^2.9.2
         version: 2.9.2(vue@3.5.30(typescript@5.9.3))
       storybook:
-        specifier: ^10.3.0
+        specifier: ^10.3.1
         version: 10.3.3(@testing-library/dom@9.3.4)(prettier@3.8.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       storybook-vue3-router:
         specifier: ^7.0.0
