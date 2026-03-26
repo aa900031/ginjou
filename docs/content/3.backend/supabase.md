@@ -34,7 +34,7 @@ bun add @ginjou/with-supabase @supabase/supabase-js
 
 ## Setup
 
-Initialize the Supabase client and register the providers in your root component (`App.vue` or `app.vue`).
+Initialize the Supabase client and register the providers in your root component.
 
 ::code-group
 ---
@@ -63,14 +63,31 @@ defineAuthContext(createAuth({ client }))
 </template>
 ```
 
-```svelte [Svelte]
-<!-- WIP -->
-<script>
-  // ...
+```vue [Nuxt]
+<script setup lang="ts">
+import { defineAuthContext, defineFetchersContext } from '@ginjou/vue'
+import { createAuth, createFetcher } from '@ginjou/with-supabase'
+import { createClient } from '@supabase/supabase-js'
+
+const client = createClient('https://your-project.supabase.co', 'your-anon-key')
+
+defineFetchersContext({
+	default: createFetcher({ client }),
+})
+
+defineAuthContext(createAuth({ client }))
 </script>
+
+<template>
+	<NuxtLayout>
+		<NuxtPage />
+	</NuxtLayout>
+</template>
 ```
 
 ::
+
+The auth provider also exposes `getIdentity()` through Supabase Auth, so `useGetIdentity` returns the current user when a session exists.
 
 ## Fetcher
 

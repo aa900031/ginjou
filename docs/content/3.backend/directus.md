@@ -34,7 +34,7 @@ bun add @ginjou/with-directus @directus/sdk
 
 ## Setup
 
-Initialize the Directus client and register the providers in your root component (`App.vue` or `app.vue`).
+Initialize the Directus client and register the providers in your root component.
 
 ::code-group
 ---
@@ -63,14 +63,33 @@ defineAuthContext(createAuth({ client }))
 </template>
 ```
 
-```svelte [Svelte]
-<!-- WIP -->
-<script>
-  // ...
+```vue [Nuxt]
+<script setup lang="ts">
+import { authentication, createDirectus, rest } from '@directus/sdk'
+import { defineAuthContext, defineFetchersContext } from '@ginjou/vue'
+import { createAuth, createFetcher } from '@ginjou/with-directus'
+
+const client = createDirectus('https://your-directus-url.com')
+	.with(rest())
+	.with(authentication())
+
+defineFetchersContext({
+	default: createFetcher({ client }),
+})
+
+defineAuthContext(createAuth({ client }))
 </script>
+
+<template>
+	<NuxtLayout>
+		<NuxtPage />
+	</NuxtLayout>
+</template>
 ```
 
 ::
+
+The auth provider also implements `getIdentity()` by calling Directus `readMe()`, so `useGetIdentity` works out of the box after login.
 
 ## Fetcher
 

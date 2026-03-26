@@ -34,7 +34,7 @@ bun add @ginjou/with-rest-api
 
 ## Setup
 
-Initialize the fetcher and register it in your root component (`App.vue` or `app.vue`).
+Initialize the fetcher and register it in your root component.
 
 ::code-group
 ---
@@ -58,14 +58,28 @@ defineFetchersContext({
 </template>
 ```
 
-```svelte [Svelte]
-<!-- WIP -->
-<script>
-  // ...
+```vue [Nuxt]
+<script setup lang="ts">
+import { defineFetchersContext } from '@ginjou/vue'
+import { createFetcher } from '@ginjou/with-rest-api'
+
+defineFetchersContext({
+	default: createFetcher({
+		url: 'https://api.example.com',
+	}),
+})
 </script>
+
+<template>
+	<NuxtLayout>
+		<NuxtPage />
+	</NuxtLayout>
+</template>
 ```
 
 ::
+
+This package only provides a data fetcher. It does not ship a matching auth provider because REST authentication varies too much between projects.
 
 ## Fetcher Conventions
 
@@ -108,3 +122,9 @@ A filter with the field `q` sends a global search parameter (`?q=keyword`).
 ::warning
 This provider does not support `or` / `and` logical operators or filtering on nested objects, as `json-server` does not natively support them.
 ::
+
+### When to Use a Custom Fetcher Instead
+
+Use `@ginjou/with-rest-api` when your backend already follows json-server style pagination, sorting, and filtering conventions.
+
+Choose a custom fetcher when your API uses different parameter names, nested envelopes, cursor pagination, or custom authentication headers. In that case, keep the same Ginjou composables and replace only the fetcher implementation.
