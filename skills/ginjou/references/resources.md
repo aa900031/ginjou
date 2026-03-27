@@ -1,10 +1,16 @@
 # Resources Reference
 
-Use this reference when the task needs resource definitions, URL mapping, route-aware context, nested resources, or multiple fetchers.
+Use this reference only when the task needs resource definitions, URL mapping, route-aware context, nested resources, or multiple fetchers.
+
+## Resources Are Optional
+
+Do not treat resources as mandatory application setup. Bring them in only when the application needs route-aware context resolution, route-derived IDs, navigation helpers, or fetcher binding at the resource level.
+
+When the task does not depend on those behaviors, it is acceptable to work with lower-level composables or explicit arguments without introducing resources.
 
 ## Core Rule
 
-Resource definitions are the structural contract between browser routes, Ginjou context resolution, and fetcher selection. If resource patterns do not match real routes, controllers that rely on route context will behave incorrectly.
+When resources are used, they become the structural contract between browser routes, Ginjou context resolution, and fetcher selection. If resource patterns do not match real routes, route-aware behavior will be incorrect.
 
 ## Define Resources Early
 
@@ -34,7 +40,7 @@ Map them directly to the real route patterns used by the app.
 - Use `meta.parent` for nested resources.
 - Use `meta.hide` for resolvable resources that should stay out of generated navigation.
 - Use `meta.fetcherName` when a resource should use a non-default backend.
-- Use `meta.deletable` only when the app wants delete behavior surfaced as resource metadata.
+- Use `meta.deletable: true` to mark a resource as deletable. Ginjou uses this flag to determine whether to surface delete actions in generated navigation or breadcrumb components — it does not affect mutation behavior directly.
 
 ## Flat Resources
 
@@ -104,6 +110,7 @@ const resources = [
 ## When Not To Over-Customize
 
 - Do not add custom parsing if standard route patterns already fit.
+- Do not add resources just because the app uses Ginjou.
 - Do not hardcode resource names in page components when route resolution is already available.
 - Do not let router paths drift from resource patterns.
 
@@ -116,6 +123,4 @@ const resources = [
 
 ## Authority
 
-- `docs/content/1.guides/8.resources.md`
-- `docs/content/2.integrations/0.vue.md`
-- `docs/content/2.integrations/1.nuxt.md`
+- https://ginjou.pages.dev/guides/resources

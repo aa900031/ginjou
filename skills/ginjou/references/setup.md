@@ -2,6 +2,34 @@
 
 Use this reference when the task starts with installation, root wiring, provider registration, or choosing the correct Ginjou package.
 
+## Minimal Setup Examples
+
+**Vue (`App.vue`):**
+```vue
+<script setup lang="ts">
+import { defineFetchersContext, defineQueryClientContext, defineRouterContext } from '@ginjou/vue'
+import { createRouter } from '@ginjou/with-vue-router'
+import { QueryClient } from '@tanstack/vue-query'
+
+defineQueryClientContext(new QueryClient())
+defineFetchersContext({ default: myFetcher() }) // e.g. restFetcher(), supabaseFetcher()
+defineRouterContext(createRouter())             // omit if no route-aware behavior needed
+</script>
+<template><RouterView /></template>
+```
+
+**Nuxt (`app.vue` or `app/app.vue`):**
+```vue
+<script setup lang="ts">
+import { defineFetchersContext, defineQueryClientContext } from '@ginjou/vue'
+import { QueryClient } from '@tanstack/vue-query'
+
+defineQueryClientContext(new QueryClient())
+defineFetchersContext({ default: myFetcher() }) // router auto-registered by @ginjou/nuxt module
+</script>
+<template><NuxtLayout><NuxtPage /></NuxtLayout></template>
+```
+
 ## Framework Split
 
 ### Vue
@@ -23,9 +51,9 @@ Use this reference when the task starts with installation, root wiring, provider
 
 1. Create a single TanStack Query client at the app root.
 2. Register fetchers with `defineFetchersContext`.
-3. Register resources with `defineResourceContext` as soon as route-aware behavior is needed.
+3. Register resources with `defineResourceContext` only if route-aware behavior, route-derived IDs, navigation helpers, or per-resource fetcher binding are needed.
 4. Register optional providers only when the app uses them: auth, authz, i18n, notification, realtime.
-5. Keep provider registration unconditional at the root. Do not gate it by route, auth state, or client-only checks.
+5. Keep provider registration unconditional at the root. Do not gate it by route, auth state, or client-only checks. Conditional registration creates context gaps that break SSR hydration and cause runtime errors when child components access context before it is provided.
 
 ## Fetcher Choice
 
@@ -40,6 +68,7 @@ Use this reference when the task starts with installation, root wiring, provider
 - Keep query client creation stable; do not recreate it inside feature components.
 - In Nuxt, prefer root-component setup over plugins for Ginjou provider registration.
 - In Vue, do not skip router integration if the task depends on route-derived IDs, route sync, or automatic navigation helpers.
+- Do not assume every Ginjou app needs resources. Add them only when the app actually depends on route-aware resource behavior.
 
 ## Common Mistakes
 
@@ -51,6 +80,8 @@ Use this reference when the task starts with installation, root wiring, provider
 
 ## Authority
 
-- `docs/content/2.integrations/0.vue.md`
-- `docs/content/2.integrations/1.nuxt.md`
-- `docs/content/3.backend/*.md`
+- https://ginjou.pages.dev/integrations/vue
+- https://ginjou.pages.dev/integrations/nuxt
+- https://ginjou.pages.dev/backend/rest-api
+- https://ginjou.pages.dev/backend/supabase
+- https://ginjou.pages.dev/backend/directus

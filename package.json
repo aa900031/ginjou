@@ -14,6 +14,7 @@
 		"test": "vitest run",
 		"bench": "vitest bench --run --project benchmark",
 		"dev:sb": "turbo run dev --filter='./stories/*'",
+		"dev:dashboard": "turbo run dev --filter=@ginjou/example-dashboard",
 		"dev:nuxt": "turbo run dev --filter=@ginjou/nuxt",
 		"dev:docs": "turbo run dev --filter=@ginjou/docs",
 		"release:pkgs": "turbo run release --concurrency=1 --filter='./packages/*'",

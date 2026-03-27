@@ -1,0 +1,29 @@
+{
+	"name": "@ginjou/example-dashboard",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"build": "nuxt build",
+		"dev": "nuxt dev",
+		"preview": "nuxt preview",
+		"postinstall": "nuxt prepare",
+		"test": "vitest run",
+		"typecheck": "nuxt typecheck"
+	},
+	"dependencies": {
+		"@ginjou/nuxt": "workspace:^",
+		"@ginjou/with-rest-api": "workspace:^",
+		"@iconify-json/lucide": "^1.2.98",
+		"@nuxt/ui": "^4.5.1",
+		"@tanstack/vue-query": "^5.92.9",
+		"date-fns": "^4.1.0",
+		"nuxt": "^4.4.2",
+		"tailwindcss": "^4.2.1",
+		"zod": "^4.3.6"
+	},
+	"devDependencies": {
+		"@nuxt/eslint": "^1.15.2",
+		"typescript": "^5.9.3",
+		"vitest": "^3.2.4"
+	}
+}
