@@ -70,6 +70,7 @@ Use `useDeleteOne` for destructive actions, but always pair it with explicit use
 
 - Use `useAsyncEdit` when the edit screen should SSR the initial record.
 - `useCreate` remains a normal mutation-first controller because there is no initial query to hydrate.
+- `useAsyncCreate` does not exist; verify async export names in `packages/nuxt/src/imports/async.ts`.
 
 ## Common Mistakes
 
@@ -77,6 +78,7 @@ Use `useDeleteOne` for destructive actions, but always pair it with explicit use
 - Using low-level mutations for a standard create or edit page without any need for custom control.
 - Binding form inputs directly to cached query data.
 - Forgetting that `undoable` depends on notifications.
+- Using `useAsyncCreate` by symmetry with other async controllers; for create flows, use `useCreate`.
 - Triggering `useDeleteOne` without a confirmation flow.
 
 ## Authority

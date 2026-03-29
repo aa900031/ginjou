@@ -17,24 +17,13 @@ Implement Ginjou in consumer applications by following the official integration 
 
 ## When to Use
 
-Use this skill when:
 - Installing or configuring Ginjou in a Vue or Nuxt app
-- Wiring root-level `define*Context` providers
-- Building list, detail, create, or edit pages backed by Ginjou data
-- Choosing between page controllers and lower-level composables
-- Adding authentication, authorization, notifications, or realtime
+- Wiring `define*Context` providers (`defineFetcherContext`, `defineQueryContext`, `defineAuthContext`, etc.)
+- Building list, detail, create, or edit pages with Ginjou composables
+- Choosing between page controllers and lower-level data composables
+- Adding auth, authorization, notifications, realtime, or i18n via Ginjou
 
-Do **not** use this skill for:
-- Modifying Ginjou's own monorepo packages or writing upstream documentation
-- Apps that have no connection to a Ginjou fetcher (pure Vue/Nuxt with no Ginjou integration)
-
-## Workflow
-
-1. Inspect the app framework, router, existing provider setup, backend choice, and whether route-to-resource binding is needed at all.
-2. Pick the dominant task type from the routing table below and read that reference before editing code.
-3. For clearly CRUD page flows, consult the controllers or forms reference. When in doubt, ask rather than assume.
-4. Register providers only at the app root: `App.vue` for Vue, `app.vue` or `app/app.vue` for Nuxt.
-5. Bring in resource definitions only when route patterns, navigation helpers, route-derived IDs, or per-resource fetcher binding require them.
+Do **not** use for modifying the Ginjou monorepo itself, or apps with no Ginjou fetcher.
 
 ## Reference Routing
 
