@@ -15,18 +15,18 @@ Authorization is separate from authentication. Register it with `defineAuthzCont
 
 ```typescript
 interface Authz {
-  access?: (params: AccessCanParams) => AccessCanResult | Promise<AccessCanResult>
-  getPermissions?: (params?: any)           => Promise<any>
+	access?: (params: AccessCanParams) => AccessCanResult | Promise<AccessCanResult>
+	getPermissions?: (params?: any) => Promise<any>
 }
 
 interface AccessCanParams {
-  action:    string    // 'list' | 'create' | 'edit' | 'delete' | 'show' | any custom string
-  resource?: string
-  params?:   { id?: string | number; [key: string]: any }
-  meta?:     Record<string, any>
+	action: string // 'list' | 'create' | 'edit' | 'delete' | 'show' | any custom string
+	resource?: string
+	params?: { id?: string | number, [key: string]: any }
+	meta?: Record<string, any>
 }
 
-interface AccessCanResult { can: boolean; reason?: string }
+interface AccessCanResult { can: boolean, reason?: string }
 ```
 
 ## Composable Usage

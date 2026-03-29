@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const resource = ref('posts')
 const id = ref('1')
-const { record } = useGetOne({
+const { record } = await useAsyncGetOne({
 	resource,
 	id,
 })

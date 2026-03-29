@@ -13,9 +13,12 @@ import { QueryClient } from '@tanstack/vue-query'
 
 defineQueryClientContext(new QueryClient())
 defineFetchersContext({ default: myFetcher() }) // e.g. restFetcher(), supabaseFetcher()
-defineRouterContext(createRouter())             // omit if no route-aware behavior needed
+defineRouterContext(createRouter()) // omit if no route-aware behavior needed
 </script>
-<template><RouterView /></template>
+
+<template>
+	<RouterView />
+</template>
 ```
 
 **Nuxt (`app.vue` or `app/app.vue`):**
@@ -27,7 +30,10 @@ import { QueryClient } from '@tanstack/vue-query'
 defineQueryClientContext(new QueryClient())
 defineFetchersContext({ default: myFetcher() }) // router auto-registered by @ginjou/nuxt module
 </script>
-<template><NuxtLayout><NuxtPage /></NuxtLayout></template>
+
+<template>
+	<NuxtLayout><NuxtPage /></NuxtLayout>
+</template>
 ```
 
 ## Framework Split

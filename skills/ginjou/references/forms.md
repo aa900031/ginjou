@@ -20,12 +20,12 @@ If the task involves custom orchestration, unusual navigation, embedded workflow
 
 // useCreate — exposes save(), NOT mutateAsync
 const { save, isLoading } = useCreate({ resource: 'posts', mutationMode: 'pessimistic' })
-await save({ title: 'Hello' })    // pass mutation data directly, no params wrapper
+await save({ title: 'Hello' }) // pass mutation data directly, no params wrapper
 
 // useEdit — id resolved from route; record available for form initialization
 const { record, save, isLoading } = useEdit({ resource: 'posts' })
 // initialize form from record.value, but do NOT bind inputs directly to record
-await save({ title: 'Updated' })  // pass mutation data directly, no params wrapper
+await save({ title: 'Updated' }) // pass mutation data directly, no params wrapper
 
 // useDeleteOne (from data composables, not a controller)
 const { mutateAsync: deleteOne } = useDeleteOne()

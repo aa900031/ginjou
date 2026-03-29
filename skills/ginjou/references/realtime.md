@@ -17,10 +17,10 @@ Realtime is an app-level integration. Register it once with `defineRealtimeConte
 
 ```typescript
 interface Realtime {
-  subscribe:    SubscribeFn<any, any>      // returns UnsubscribeKey (a string, not a function)
-  unsubscribe?: (key: UnsubscribeKey) => void  // call with the key returned by subscribe
-  publish?:     (event: RealtimeEvent) => void
-  options?:     RealtimeContextOptions<any>
+	subscribe: SubscribeFn<any, any> // returns UnsubscribeKey (a string, not a function)
+	unsubscribe?: (key: UnsubscribeKey) => void // call with the key returned by subscribe
+	publish?: (event: RealtimeEvent) => void
+	options?: RealtimeContextOptions<any>
 }
 // UnsubscribeKey = string
 // Unsubscribe flow: const key = subscribe(...); unsubscribe(key)
@@ -40,20 +40,20 @@ const { records } = useGetList({ resource: 'posts' })
 ## Manual Mode Example
 
 ```typescript
+import { RealtimeMode } from '@ginjou/core'
 // Manual mode — handle events yourself instead of auto-invalidation
 import { useGetOne } from '@ginjou/vue'
-import { RealtimeMode } from '@ginjou/core'
 
 const { record } = useGetOne({
-  resource: 'posts',
-  id: '1',
-  realtime: {
-    mode: RealtimeMode.Manual,
-    callback: (event) => {
-      // event: { channel, action, payload: { ids }, date }
-      console.log('Server event:', event)
-    },
-  },
+	resource: 'posts',
+	id: '1',
+	realtime: {
+		mode: RealtimeMode.Manual,
+		callback: (event) => {
+			// event: { channel, action, payload: { ids }, date }
+			console.log('Server event:', event)
+		},
+	},
 })
 ```
 

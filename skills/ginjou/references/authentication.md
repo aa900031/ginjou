@@ -20,37 +20,37 @@ Implement these methods in your auth adapter passed to `defineAuthContext`:
 
 ```typescript
 interface Auth {
-  login:      (params?: any) => Promise<LoginResult | void>
-  logout:     (params?: any) => Promise<LogoutResult | void>
-  check:      (params?: any) => Promise<CheckAuthResult>
-  checkError: (error: any)   => Promise<CheckAuthErrorResult>
-  getIdentity?: (params?: any) => Promise<any>
+	login: (params?: any) => Promise<LoginResult | void>
+	logout: (params?: any) => Promise<LogoutResult | void>
+	check: (params?: any) => Promise<CheckAuthResult>
+	checkError: (error: any) => Promise<CheckAuthErrorResult>
+	getIdentity?: (params?: any) => Promise<any>
 }
 
-interface LoginResult  {
-  redirectTo?:       false | string | RouterGoParams
-  ignoreInvalidate?: boolean
+interface LoginResult {
+	redirectTo?: false | string | RouterGoParams
+	ignoreInvalidate?: boolean
 }
 interface LogoutResult {
-  redirectTo?:       false | string | RouterGoParams
-  ignoreInvalidate?: boolean
+	redirectTo?: false | string | RouterGoParams
+	ignoreInvalidate?: boolean
 }
-interface CheckAuthResult           { authenticated: boolean }
+interface CheckAuthResult { authenticated: boolean }
 interface CheckAuthErrorResult<E = any> {
-  logout?:     boolean
-  redirectTo?: false | string | RouterGoParams
-  error?:      E
+	logout?: boolean
+	redirectTo?: false | string | RouterGoParams
+	error?: E
 }
 ```
 
 ## Composable Usage
 
 ```typescript
-const { mutateAsync: login, isPending }  = useLogin()
-const { mutateAsync: logout }            = useLogout()
-const { data, isLoading }               = useAuthenticated()  // data.value?.authenticated: boolean (undefined before query resolves)
-const { data: identity }                = useGetIdentity()
-const { mutateAsync: checkError }       = useCheckError()
+const { mutateAsync: login, isPending } = useLogin()
+const { mutateAsync: logout } = useLogout()
+const { data, isLoading } = useAuthenticated() // data.value?.authenticated: boolean (undefined before query resolves)
+const { data: identity } = useGetIdentity()
+const { mutateAsync: checkError } = useCheckError()
 ```
 
 ## Guidance

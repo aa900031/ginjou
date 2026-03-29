@@ -15,14 +15,13 @@ Notifications are an app-level integration. Register them once with `defineNotif
 ```typescript
 // Implement both open AND close — close is required for undoable mutations to cancel
 interface Notification {
-  open:  (params: OpenNotificationParams) => void
-  close: (key: string) => void
+	open: (params: OpenNotificationParams) => void
+	close: (key: string) => void
 }
 
-type OpenNotificationParams =
-  | { type: 'success' | 'error'; message: string; description?: string; key?: string }
-  | { type: 'progress'; message: string; key?: string; timeout: number;
-      onFinish: () => void; onCancel: () => void }  // required for undoable mutations
+type OpenNotificationParams
+	= | { type: 'success' | 'error', message: string, description?: string, key?: string }
+		| { type: 'progress', message: string, key?: string, timeout: number, onFinish: () => void, onCancel: () => void } // required for undoable mutations
 ```
 
 ## Composable Usage
