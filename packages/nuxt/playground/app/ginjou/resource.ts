@@ -5,6 +5,7 @@ export default () => defineResourceContext({
 	resources: [
 		{
 			name: 'posts',
+			create: '/posts/create',
 			show: '/posts/:id',
 			list: '/posts',
 			edit: '/posts/:id/edit',

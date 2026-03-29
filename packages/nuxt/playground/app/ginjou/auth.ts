@@ -2,26 +2,48 @@ import { defineAuthContext } from '@ginjou/vue'
 
 // eslint-disable-next-line ts/explicit-function-return-type
 export default () => defineAuthContext({
-	login: async () => {
-		;(globalThis as any)._AUTH = {
-			name: 'foo',
-		}
-		return {
-			redirectTo: false,
-		}
+	login: async (params: any) => {
+		const headers = useRequestHeaders()
+
+		await $fetch('/api/auth/login', {
+			method: 'POST',
+			body: params,
+			headers,
+		})
+		return {}
 	},
 	logout: async () => {
-		delete (globalThis as any)._AUTH
+		const headers = useRequestHeaders()
+
+		await $fetch('/api/auth/logout', {
+			method: 'POST',
+			headers,
+		})
 		return {
-			redirectTo: false,
+			redirectTo: '/login',
 		}
 	},
-	getIdentity: () => {
-		return (globalThis as any)._AUTH
+	getIdentity: async () => {
+		const headers = useRequestHeaders()
+		try {
+			return await $fetch('/api/auth/me', {
+				headers,
+			})
+		}
+		catch {
+			return null
+		}
 	},
 	check: async () => {
-		return {
-			authenticated: !!(globalThis as any)._AUTH,
+		const headers = useRequestHeaders()
+		try {
+			await $fetch('/api/auth/me', {
+				headers,
+			})
+			return { authenticated: true }
+		}
+		catch {
+			return { authenticated: false }
 		}
 	},
 	checkError: async () => ({
