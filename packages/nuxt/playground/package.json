@@ -10,6 +10,8 @@
 	},
 	"dependencies": {
 		"@ginjou/nuxt": "workspace:^",
-		"nuxt": "^3.21.1"
+		"@ginjou/vue": "workspace:^",
+		"@ginjou/with-rest-api": "workspace:^",
+		"nuxt": "^4.3.1"
 	}
 }

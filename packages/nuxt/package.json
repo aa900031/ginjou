@@ -59,6 +59,6 @@
 		"@nuxt/schema": "^3.21.2",
 		"@nuxt/test-utils": "^3.23.0",
 		"npm-run-all2": "^8.0.4",
-		"nuxt": "^3.21.2"
+		"nuxt": "^4.3.1"
 	}
 }

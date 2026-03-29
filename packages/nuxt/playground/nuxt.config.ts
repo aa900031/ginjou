@@ -9,5 +9,5 @@ export default defineNuxtConfig({
 		'@ginjou/vue': fileURLToPath(new URL('../../vue/src', import.meta.url)),
 		'@ginjou/core': fileURLToPath(new URL('../../core/src', import.meta.url)),
 	},
-	compatibilityDate: '2024-12-24',
+	compatibilityDate: 'latest',
 })
