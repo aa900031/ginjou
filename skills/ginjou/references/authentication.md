@@ -1,6 +1,6 @@
 # Authentication Reference
 
-Use this reference when the task includes login, logout, sign-in or sign-out flows, session checks, identity loading, protected sessions, or auth error handling in a Ginjou app.
+Use this reference when the task includes login, logout, sign-in or sign-out flows, checking whether the current user is authenticated, session checks, identity loading, protected sessions, or auth error handling in a Ginjou app.
 
 ## Provider Rule
 
@@ -60,6 +60,15 @@ const { mutateAsync: checkError } = useCheckError()
 - `@ginjou/with-rest-api` does not provide a matching auth provider, so REST projects usually need a custom auth implementation.
 - Keep `401` and `403` distinct. `401` means the session is invalid and the user must re-authenticate; `403` means authenticated but unauthorized — logging the user out on a `403` destroys a valid session and confuses users.
 - Treat `useCheckError` as the place where auth-related API failures are normalized.
+
+## Nuxt SSR Variants
+
+For Nuxt views that need server-hydrated auth state, use:
+
+- `useAsyncAuthenticated` — SSR-aware counterpart of `useAuthenticated`
+- `useAsyncGetIdentity` — SSR-aware counterpart of `useGetIdentity`
+
+`useLogin`, `useLogout`, and `useCheckError` are mutation-first and do not have async variants.
 
 ## Common Mistakes
 

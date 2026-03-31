@@ -1,6 +1,6 @@
 # Notifications Reference
 
-Use this reference when the task includes toast messages, progress notifications, or undoable mutation UX in a Ginjou app.
+Use this reference when the task includes wiring toast or notification systems into Ginjou, using `useNotify`, progress notifications, or undoable mutation UX in a Ginjou app.
 
 ## Provider Rule
 

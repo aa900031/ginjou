@@ -1,6 +1,6 @@
 # Controllers Reference
 
-Use this reference for standard list pages, table screens, detail pages, infinite list or load-more flows, and select inputs that clearly match high-level CRUD page behavior.
+Use this reference for standard list pages, table screens, detail pages, infinite list or load-more flows, and select or autocomplete option loading that clearly match high-level CRUD behavior.
 
 ## Use Controllers Only For Clear CRUD Flows
 
@@ -86,7 +86,7 @@ Use for create pages. Returns `save()` and `isPending`. There is no `id` paramet
 
 ### `useSelect`
 
-Use when the UI needs option loading, including the common pattern of combining current page results and preselected values.
+Use when the UI needs select or autocomplete option loading, including the common pattern of combining current page results and preselected values.
 
 ## Nuxt Counterparts
 

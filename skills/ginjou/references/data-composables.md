@@ -21,10 +21,12 @@ Use these to fetch data directly:
 - `useGetInfiniteList`
 - `useGetOne`
 - `useGetMany`
+- `useCustom` — arbitrary GET-style fetch to any URL outside the standard resource contract
 
 In Nuxt, use the SSR-aware counterparts when the initial render should be server hydrated:
 
 - `useAsyncGetList`
+- `useAsyncGetInfiniteList`
 - `useAsyncGetOne`
 - `useAsyncGetMany`
 
@@ -52,6 +54,18 @@ await deleteOne({ resource: 'posts', id: '1' })
 
 // Filter operator string literals (from @ginjou/core)
 // 'eq' | 'ne' | 'lt' | 'gt' | 'lte' | 'gte' | 'in' | 'nin' | 'contains' | 'ncontains' (partial list — import FilterOperator from '@ginjou/core' for full set)
+
+// useCustom — arbitrary GET-style fetcher call (not tied to a resource)
+const { record, isFetching } = useCustom({
+	url: '/stats/summary',
+	method: 'get',
+	query: { period: '30d' },
+	// fetcherName defaults to 'default'
+})
+
+// useCustomMutation — arbitrary mutation (POST/PUT/DELETE) to a custom endpoint
+const { mutateAsync: callApi } = useCustomMutation()
+await callApi({ url: '/actions/publish', method: 'post', payload: { id: '1' } })
 ```
 
 ## Mutation Composables
@@ -64,6 +78,7 @@ Use these when you need direct control over mutation flows:
 - `useUpdateMany`
 - `useDeleteOne`
 - `useDeleteMany`
+- `useCustomMutation` — arbitrary mutation to any URL outside the standard resource contract
 
 These are the right tools for bulk operations, custom mutation pipelines, non-page interactions, and advanced orchestration.
 
@@ -73,6 +88,8 @@ These are the right tools for bulk operations, custom mutation pipelines, non-pa
 - Choose `useGetOne` instead of `useShow` when the ID comes from props, local state, or another query.
 - Choose `useUpdateMany` or `useDeleteMany` for batch actions instead of looping manual one-by-one mutations.
 - Choose `useCreateOne` or `useUpdateOne` when navigation after success must be handled by app-specific logic.
+- Choose `useCustom` when you need to query a non-standard endpoint that does not map to a Ginjou resource.
+- Choose `useCustomMutation` when you need to call a non-standard endpoint as a mutation with side effects.
 
 ## Composition Rules
 

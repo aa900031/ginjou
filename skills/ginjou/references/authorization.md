@@ -1,6 +1,6 @@
 # Authorization Reference
 
-Use this reference when the task includes access checks, permission loading, hiding or disabling actions by role, or action-level UI gating in a Ginjou app.
+Use this reference when the task includes access checks, permission loading, permission management, hiding or disabling actions by role, or action-level access control in a Ginjou app.
 
 ## Provider Rule
 
@@ -44,6 +44,13 @@ const { data: permissions, isLoading } = usePermissions()
 - Use `useCanAccess` for action-level checks such as edit or delete buttons.
 - Use `usePermissions` for broader UI states such as menus, sections, or role-driven layouts.
 - Keep ownership, role, and policy checks inside the provider.
+
+## Nuxt SSR Variants
+
+For Nuxt views that need server-hydrated permission state, use:
+
+- `useAsyncCanAccess` — SSR-aware counterpart of `useCanAccess`
+- `useAsyncPermissions` — SSR-aware counterpart of `usePermissions`
 
 ## Common Mistakes
 
