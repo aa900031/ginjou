@@ -13,11 +13,11 @@ import { QueryClient } from '@tanstack/vue-query'
 
 defineQueryClientContext(new QueryClient())
 defineFetchersContext({ default: myFetcher() }) // e.g. restFetcher(), supabaseFetcher()
-defineRouterContext(createRouter()) // omit if no route-aware behavior needed
+defineRouterContext(createRouter())              // omit if no route-aware behavior needed
 </script>
 
 <template>
-	<RouterView />
+  <RouterView />
 </template>
 ```
 
@@ -32,7 +32,7 @@ defineFetchersContext({ default: myFetcher() }) // router auto-registered by @gi
 </script>
 
 <template>
-	<NuxtLayout><NuxtPage /></NuxtLayout>
+  <NuxtLayout><NuxtPage /></NuxtLayout>
 </template>
 ```
 
@@ -42,8 +42,9 @@ defineFetchersContext({ default: myFetcher() }) // router auto-registered by @gi
 
 - Install `@ginjou/vue` and `@tanstack/vue-query`.
 - Register providers in `App.vue` inside `script setup`.
-- Add `defineRouterContext(createRouter())` when using router-aware controllers, route syncing, or resource resolution from URL state.
-- Prefer `@ginjou/with-vue-router` for router integration and `@ginjou/with-vue-i18n` for localization.
+- `defineRouterContext` comes from `@ginjou/vue`; the router adapter itself comes from `@ginjou/with-vue-router`.
+- Add `defineRouterContext(createRouter())` when using route-aware controllers, route syncing, or resource resolution from URL state.
+- Use `@ginjou/with-vue-i18n` for localization.
 
 ### Nuxt
 
@@ -52,6 +53,20 @@ defineFetchersContext({ default: myFetcher() }) // router auto-registered by @gi
 - Register providers in `app.vue` or `app/app.vue`.
 - Do not call `defineRouterContext`; the Nuxt module owns router integration.
 - Prefer async query/controller composables such as `useAsyncGetList`, `useAsyncList`, `useAsyncShow`, and `useAsyncEdit` when the view should hydrate from SSR.
+
+## Provider Reference
+
+| Provider | Import | Purpose |
+| --- | --- | --- |
+| `defineQueryClientContext` | `@ginjou/vue` | TanStack Query client (required) |
+| `defineFetchersContext` | `@ginjou/vue` | Data fetcher(s) (required) |
+| `defineRouterContext` | `@ginjou/vue` | Router adapter — Vue only |
+| `defineResourceContext` | `@ginjou/vue` | Resource definitions (optional) |
+| `defineAuthContext` | `@ginjou/vue` | Auth adapter (optional) |
+| `defineAuthzContext` | `@ginjou/vue` | Authorization adapter (optional) |
+| `defineI18nContext` | `@ginjou/vue` | I18n adapter (optional) |
+| `defineNotificationContext` | `@ginjou/vue` | Notification / toast adapter (optional) |
+| `defineRealtimeContext` | `@ginjou/vue` | Realtime subscription adapter (optional) |
 
 ## Root Wiring Checklist
 
@@ -63,10 +78,14 @@ defineFetchersContext({ default: myFetcher() }) // router auto-registered by @gi
 
 ## Fetcher Choice
 
-- Use `@ginjou/with-rest-api` when the backend is a generic REST API.
-- Use `@ginjou/with-supabase` when the app should lean on Supabase data access and auth.
-- Use `@ginjou/with-directus` when the app should lean on Directus data access and auth.
-- If the app uses multiple backends, configure multiple fetchers and bind them per resource through `meta.fetcherName`.
+| Package | When to use |
+| --- | --- |
+| `@ginjou/with-rest-api` | Generic REST API backend |
+| `@ginjou/with-supabase` | Supabase (includes both fetcher and auth adapter) |
+| `@ginjou/with-directus` | Directus (includes both fetcher and auth adapter) |
+| Custom | Any other backend — implement the fetcher interface |
+
+If the app uses multiple backends, configure multiple named fetchers and bind them per resource through `meta.fetcherName`.
 
 ## Setup Rules
 
@@ -83,6 +102,7 @@ defineFetchersContext({ default: myFetcher() }) // router auto-registered by @gi
 - Forgetting `defineRouterContext` in Vue when using route-aware controllers.
 - Adding `defineRouterContext` in Nuxt even though the module already provides router integration.
 - Using sync query composables in Nuxt pages that should be SSR hydrated.
+- Calling `createRouter()` (from `@ginjou/with-vue-router`) outside of a Vue setup function.
 
 ## Authority
 

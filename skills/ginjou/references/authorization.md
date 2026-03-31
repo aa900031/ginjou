@@ -8,55 +8,65 @@ Authorization is separate from authentication. Register it with `defineAuthzCont
 
 ## Main Composables
 
-- `useCanAccess`
-- `usePermissions`
+- `useCanAccess` — reactive access check for a specific action on a resource
+- `usePermissions` — loads all permissions (for broader UI state like menus or role-driven layouts)
 
 ## Provider Contract
 
 ```typescript
-interface Authz {
-	access?: (params: AccessCanParams) => AccessCanResult | Promise<AccessCanResult>
-	getPermissions?: (params?: any) => Promise<any>
-}
+import { defineAuthz } from '@ginjou/core'
+import { defineAuthzContext } from '@ginjou/vue'
 
-interface AccessCanParams {
-	action: string // 'list' | 'create' | 'edit' | 'delete' | 'show' | any custom string
-	resource?: string
-	params?: { id?: string | number, [key: string]: any }
-	meta?: Record<string, any>
-}
-
-interface AccessCanResult { can: boolean, reason?: string }
+defineAuthzContext(defineAuthz({
+  access: async (params) => {
+    // params: { action, resource?, params?: { id?, ... }, meta? }
+    // return { can: boolean, reason?: string }
+    return { can: true }
+  },
+  getPermissions: async (params?) => {
+    // return any permission structure your app uses
+    return ['admin', 'editor']
+  },
+}))
 ```
 
 ## Composable Usage
 
 ```typescript
-const { data } = useCanAccess({ resource: 'posts', action: 'edit', params: { id: '1' } })
-// data.value: AccessCanResult — check data.value?.can === true before showing edit UI
+import { useCanAccess, usePermissions } from '@ginjou/vue'
 
-const { data: permissions, isLoading } = usePermissions()
+// Action-level check (e.g., show/hide an edit button)
+const { data } = useCanAccess({ resource: 'posts', action: 'edit', params: { id: '1' } })
+// data.value?.can === true  → show the button
+
+// Broader permission check (e.g., role-driven menu visibility)
+const { data: permissions, isLoading } = usePermissions<string[]>()
+// permissions.value → ['admin', 'editor']
 ```
 
 ## Guidance
 
-- Return `{ can: boolean }` from `authz.access` as the base contract.
-- Use `useCanAccess` for action-level checks such as edit or delete buttons.
-- Use `usePermissions` for broader UI states such as menus, sections, or role-driven layouts.
-- Keep ownership, role, and policy checks inside the provider.
+- Return `{ can: boolean }` from `authz.access` as the base contract. `reason` is optional.
+- Use `useCanAccess` for action-level checks such as edit, delete, or create buttons.
+- Use `usePermissions` for broader UI states such as menu items, sections, or role-driven layout toggles.
+- Keep ownership, role, and policy logic inside the provider — do not scatter it across components.
+- Authz is **not** responsible for redirecting unauthenticated users; that is auth's responsibility.
 
 ## Nuxt SSR Variants
 
 For Nuxt views that need server-hydrated permission state, use:
 
-- `useAsyncCanAccess` — SSR-aware counterpart of `useCanAccess`
-- `useAsyncPermissions` — SSR-aware counterpart of `usePermissions`
+| Vue | Nuxt SSR |
+| --- | --- |
+| `useCanAccess` | `useAsyncCanAccess` |
+| `usePermissions` | `useAsyncPermissions` |
 
 ## Common Mistakes
 
 - Treating authz as part of auth instead of a separate provider.
-- Repeating permission logic inside individual components.
-- Using raw permissions where an action-level `useCanAccess` check would be clearer.
+- Repeating permission logic inside individual components instead of the provider.
+- Using raw permissions where a focused `useCanAccess` check would be clearer.
+- Registering `defineAuthzContext` conditionally instead of at the app root.
 
 ## Authority
 

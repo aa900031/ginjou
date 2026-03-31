@@ -1,13 +1,21 @@
 ---
 title: Directus
-description: Connect Directus to Ginjou for instant Headless CMS capabilities.
+description: Use Directus as both a Ginjou fetcher and an auth provider.
 ---
 
-[Directus](https://directus.io/) is an instant Headless CMS that turns your SQL database into a flexible API. The `@ginjou/with-directus` package integrates Ginjou with Directus, providing seamless data management and authentication.
+`@ginjou/with-directus` integrates Ginjou with the Directus SDK. It covers both data access and authentication, which makes it a good fit when Directus is the main backend for your admin application.
+
+## Mental Model
+
+The Directus package is a combined backend integration.
+
+1. The fetcher maps resources to Directus collections.
+2. `meta.query` passes Directus-specific query options.
+3. The auth provider handles login and identity with the same Directus client.
+
+Use it when Directus is the system of record instead of only one auxiliary service.
 
 ## Installation
-
-Install the provider and the official Directus SDK.
 
 ::code-group
 ---
@@ -34,12 +42,9 @@ bun add @ginjou/with-directus @directus/sdk
 
 ## Setup
 
-Initialize the Directus client and register the providers in your root component.
+### Vue
 
 ::code-group
----
-sync: guide-example
----
 
 ```vue [Vue]
 <script setup lang="ts">
@@ -52,7 +57,7 @@ const client = createDirectus('https://your-directus-url.com')
 	.with(authentication())
 
 defineFetchersContext({
-	default: createFetcher({ client })
+	default: createFetcher({ client }),
 })
 
 defineAuthContext(createAuth({ client }))
@@ -62,6 +67,16 @@ defineAuthContext(createAuth({ client }))
 	<RouterView />
 </template>
 ```
+
+```svelte [Svelte]
+<!-- WIP -->
+```
+
+::
+
+### Nuxt
+
+::code-group
 
 ```vue [Nuxt]
 <script setup lang="ts">
@@ -87,62 +102,60 @@ defineAuthContext(createAuth({ client }))
 </template>
 ```
 
+```svelte [Svelte]
+<!-- WIP -->
+```
+
 ::
 
-The auth provider also implements `getIdentity()` by calling Directus `readMe()`, so `useGetIdentity` works out of the box after login.
+## Mapping
 
-## Fetcher
+### Resource Names
 
-The `createFetcher` function maps Ginjou's data operations to Directus API requests.
+By default, the Ginjou resource name maps to the Directus collection name.
 
-### Resource Mapping
-
-By default, the `resource` name corresponds to the Directus collection name.
-
-```typescript
-// Requests /items/posts
-const { records } = useList({ resource: 'posts' })
+```ts
+useGetList({ resource: 'posts' })
 ```
+
+That resolves against the `posts` collection.
 
 ### System Collections
 
-The provider automatically routes requests for system collections. Resources prefixed with `directus_` or `directus/` map to their respective system endpoints:
+System collections are mapped when the resource name starts with `directus_` or `directus/`.
 
-- `directus_users` → `/users`
-- `directus_files` → `/files`
-- `directus_roles` → `/roles`
+Examples:
+
+- `directus_users` maps to the Directus users endpoint
+- `directus_files` maps to the Directus files endpoint
+- `directus_roles` maps to the Directus roles endpoint
 
 ### Advanced Queries
 
-Pass standard Directus query parameters via the `meta.query` object.
+Use `meta.query` to pass Directus query options.
 
-```typescript
-const { records } = useList({
+```ts
+const { records } = useGetList({
 	resource: 'posts',
 	meta: {
 		query: {
 			fields: ['*', 'author.*'],
 			sort: ['-date_created'],
-		}
-	}
+		},
+	},
 })
 ```
 
-## Authentication
+That keeps the generic Ginjou API stable while still exposing Directus-specific power where needed.
 
-The `createAuth` function manages authentication state using the Directus SDK.
+## Auth Support
 
-### Login Types
+The Directus auth provider supports these login types:
 
-The provider supports password-based authentication and Single Sign-On (SSO).
+- `password`
+- `sso`
 
-- `password`: Standard email/password login.
-- `sso`: Social login via configured providers (Google, GitHub, etc.).
-
-```typescript
-const { mutateAsync: login } = useLogin()
-
-// Password Authentication
+```ts
 await login({
 	type: 'password',
 	params: {
@@ -150,9 +163,9 @@ await login({
 		password: 'password',
 	},
 })
+```
 
-// SSO Authentication
-// This will redirect to the configured provider
+```ts
 await login({
 	type: 'sso',
 	params: {
@@ -163,3 +176,15 @@ await login({
 	},
 })
 ```
+
+The provider also implements `getIdentity()` via Directus `readMe()`, so `useGetIdentity` works after login.
+
+## When This Provider Fits
+
+Use this provider when:
+
+- Directus owns most of the application data
+- you want one SDK client for data and auth
+- collection-based CRUD is the dominant access pattern
+
+Choose [Custom Fetcher](/backend/custom-fetcher) instead when the normal application flow depends more on custom endpoints than on Directus collection access.

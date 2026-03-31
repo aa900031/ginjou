@@ -19,15 +19,19 @@ If the task involves custom orchestration, unusual navigation, embedded workflow
 // 'pessimistic' (default) | 'optimistic' | 'undoable'
 
 // useCreate — exposes save(), NOT mutateAsync
-const { save, isLoading } = useCreate({ resource: 'posts', mutationMode: 'pessimistic' })
+const { save, isPending } = useCreate({ resource: 'posts', mutationMode: 'pessimistic' })
 await save({ title: 'Hello' }) // pass mutation data directly, no params wrapper
 
-// useEdit — id resolved from route; record available for form initialization
-const { record, save, isLoading } = useEdit({ resource: 'posts' })
-// initialize form from record.value, but do NOT bind inputs directly to record
+// useEdit — id resolved from route when resource routing is active;
+// otherwise read from route.params and pass explicitly:
+const route = useRoute()
+const id = toRef(() => route.params.id as string)
+const { record, save, isPending } = useEdit({ resource: 'posts', id })
+// record.value contains the fetched data for form initialization
+// initialize local form data from record, but do NOT bind inputs directly to record
 await save({ title: 'Updated' }) // pass mutation data directly, no params wrapper
 
-// useDeleteOne (from data composables, not a controller)
+// useDeleteOne (from data composables, not a separate controller)
 const { mutateAsync: deleteOne } = useDeleteOne()
 await deleteOne({ resource: 'posts', id: '1' })
 ```
@@ -42,8 +46,8 @@ Use `useCreate` when the page should create a record and then transition to the 
 
 ### Mutation Modes
 
-- `pessimistic`: safest default, navigate after success
-- `optimistic`: navigate immediately while the request continues
+- `pessimistic` (default): navigate after the request succeeds
+- `optimistic`: navigate immediately before the request completes
 - `undoable`: delay the mutation and expose undo through notifications
 
 Use `pessimistic` unless the user or product flow explicitly requires a faster or reversible experience. Use `undoable` only when a notification provider exists.
@@ -53,33 +57,51 @@ Use `pessimistic` unless the user or product flow explicitly requires a faster o
 Use `useEdit` when the page needs both the existing record and the update mutation.
 
 - It composes `useGetOne` and `useUpdateOne`.
-- It exposes a combined loading state.
+- It exposes `record`, `save()`, `isPending`, and `isLoading`.
 - It fits route-driven edit pages well.
 
-Keep fetched server state separate from local form state. Initialize form data from `record`, but do not bind inputs directly to the query result. Direct binding creates two-way coupling where typing in the form mutates the TanStack Query cache, causing the form to reset or flicker whenever the query refetches in the background.
+**Form initialization pattern:** Watch `record` to copy values into a local reactive form state. Do **not** bind form inputs directly to `record` or any other TanStack Query cache ref — doing so creates two-way coupling where typing in the form mutates the cache, causing the form to reset or flicker whenever the query refetches in the background.
+
+```typescript
+const { record, save } = useEdit({ resource: 'posts', id })
+const formData = reactive({})
+watch(record, (val) => { Object.assign(formData, val) }, { immediate: true, deep: true })
+```
 
 ## `useDeleteOne`
 
 Use `useDeleteOne` for destructive actions, but always pair it with explicit user confirmation.
 
-- show a modal or confirmation step first
-- execute the mutation only after confirmation
-- rely on the built-in cache invalidation and notification behavior
+- Show a modal or confirmation step first.
+- Execute the mutation only after confirmation.
+- Rely on the built-in cache invalidation and notification behavior.
+
+`useDeleteOne` is a data composable, not a controller. Its `resource` and `id` can be passed either at setup time or at call time:
+
+```typescript
+// Option A — pass args at call time (typical for list-row delete buttons)
+const { mutateAsync: del } = useDeleteOne()
+await del({ resource: 'posts', id: record.id, mutationMode: 'pessimistic' })
+
+// Option B — pass resource/id at setup time (when only one record will be deleted)
+const { mutateAsync: del } = useDeleteOne({ resource: 'posts', id: '1' })
+await del({}) // only override or extra params needed at call time
+```
 
 ## Nuxt Guidance
 
 - Use `useAsyncEdit` when the edit screen should SSR the initial record.
 - `useCreate` remains a normal mutation-first controller because there is no initial query to hydrate.
-- `useAsyncCreate` does not exist; verify async export names in `packages/nuxt/src/imports/async.ts`.
+- `useAsyncCreate` does not exist; verify async export names in `packages/nuxt/src/imports/async.ts` if unsure.
 
 ## Common Mistakes
 
 - Assuming every form should use `useCreate` or `useEdit` before confirming it is a standard CRUD flow.
 - Using low-level mutations for a standard create or edit page without any need for custom control.
-- Binding form inputs directly to cached query data.
-- Forgetting that `undoable` depends on notifications.
-- Using `useAsyncCreate` by symmetry with other async controllers; for create flows, use `useCreate`.
-- Triggering `useDeleteOne` without a confirmation flow.
+- **Binding form inputs directly to `record` or cached query data** — always copy into local reactive state first.
+- Forgetting that `undoable` depends on a notification provider.
+- Using `useAsyncCreate` — it does not exist.
+- Triggering `useDeleteOne` without a confirmation step.
 
 ## Authority
 

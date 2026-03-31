@@ -1,13 +1,21 @@
 ---
 title: Supabase
-description: Connect Ginjou to your Supabase project for database and authentication features.
+description: Use Supabase as a fetcher and auth provider for Ginjou.
 ---
 
-[Supabase](https://supabase.com/) is an open-source Firebase alternative offering a complete backend suite. The `@ginjou/with-supabase` package connects Ginjou to your Supabase project, enabling instant access to your Postgres database and authentication services.
+`@ginjou/with-supabase` connects Ginjou to Supabase PostgREST and Supabase Auth. It is a strong fit when your application wants SQL-backed data access plus a built-in authentication system.
+
+## Mental Model
+
+The Supabase package combines query translation with auth integration.
+
+1. Resources map to PostgREST tables or views.
+2. `meta` carries Supabase-specific query controls.
+3. The auth provider exposes the supported Supabase sign-in methods.
+
+Use it when your app wants Ginjou's generic data model on top of Supabase's query builder and auth flows.
 
 ## Installation
-
-Install the provider and the official Supabase SDK.
 
 ::code-group
 ---
@@ -34,12 +42,9 @@ bun add @ginjou/with-supabase @supabase/supabase-js
 
 ## Setup
 
-Initialize the Supabase client and register the providers in your root component.
+### Vue
 
 ::code-group
----
-sync: guide-example
----
 
 ```vue [Vue]
 <script setup lang="ts">
@@ -47,12 +52,10 @@ import { defineAuthContext, defineFetchersContext } from '@ginjou/vue'
 import { createAuth, createFetcher } from '@ginjou/with-supabase'
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = 'https://your-project.supabase.co'
-const supabaseKey = 'your-anon-key'
-const client = createClient(supabaseUrl, supabaseKey)
+const client = createClient('https://your-project.supabase.co', 'your-anon-key')
 
 defineFetchersContext({
-	default: createFetcher({ client })
+	default: createFetcher({ client }),
 })
 
 defineAuthContext(createAuth({ client }))
@@ -62,6 +65,16 @@ defineAuthContext(createAuth({ client }))
 	<RouterView />
 </template>
 ```
+
+```svelte [Svelte]
+<!-- WIP -->
+```
+
+::
+
+### Nuxt
+
+::code-group
 
 ```vue [Nuxt]
 <script setup lang="ts">
@@ -85,62 +98,56 @@ defineAuthContext(createAuth({ client }))
 </template>
 ```
 
+```svelte [Svelte]
+<!-- WIP -->
+```
+
 ::
 
-The auth provider also exposes `getIdentity()` through Supabase Auth, so `useGetIdentity` returns the current user when a session exists.
-
-## Fetcher
-
-The `createFetcher` function integrates Ginjou's data hooks with Supabase's Postgrest API.
+## Mapping
 
 ### Query Control
 
-Use the `meta` object to control the Supabase query directly. This maps to the `.select()` method in the SDK.
+Use `meta` to pass Supabase-specific query details.
 
-```typescript
-const { records } = useList({
+```ts
+const { records } = useGetList({
 	resource: 'posts',
 	meta: {
-		// Maps directly to .select() in Supabase-js
 		select: 'id, title, author(name)',
 		count: 'exact',
-	}
+	},
 })
 ```
+
+These values are mapped into the underlying Supabase query builder.
 
 ### Custom ID Column
 
-If your table uses a primary key other than `id`, specify it using `idColumnName`.
+If the table uses a primary key other than `id`, specify `idColumnName`.
 
-```typescript
+```ts
 const { record } = useGetOne({
 	resource: 'posts',
-	id: 'my-uuid',
+	id: 'post-42',
 	meta: {
-		idColumnName: 'post_id'
-	}
+		idColumnName: 'post_id',
+	},
 })
 ```
 
-## Authentication
+## Auth Support
 
-The `createAuth` function wraps Supabase Auth (GoTrue) to manage user sessions.
+The Supabase auth provider supports these login types:
 
-### Login Types
+- `password`
+- `oauth`
+- `idtoken`
+- `otp`
+- `sso`
+- `otp-token`
 
-The provider supports multiple authentication methods. The `type` determines which Supabase-js method is called.
-
-- `password`: Calls `signInWithPassword`
-- `oauth`: Calls `signInWithOAuth`
-- `otp`: Calls `signInWithOtp` (Magic Link or SMS)
-- `otp-token`: Calls `verifyOtp` (Verify code)
-- `idtoken`: Calls `signInWithIdToken`
-- `sso`: Calls `signInWithSSO`
-
-```typescript
-const { mutateAsync: login } = useLogin()
-
-// Password Authentication
+```ts
 await login({
 	type: 'password',
 	params: {
@@ -148,8 +155,9 @@ await login({
 		password: 'password',
 	},
 })
+```
 
-// OAuth Authentication
+```ts
 await login({
 	type: 'oauth',
 	params: {
@@ -159,8 +167,9 @@ await login({
 		},
 	},
 })
+```
 
-// OTP (Magic Link)
+```ts
 await login({
 	type: 'otp',
 	params: {
@@ -170,14 +179,16 @@ await login({
 		},
 	},
 })
-
-// OTP Token Verification
-await login({
-	type: 'otp-token',
-	params: {
-		email: 'user@example.com',
-		token: '123456',
-		type: 'magiclink',
-	},
-})
 ```
+
+The provider also exposes identity data through Supabase Auth, so `useGetIdentity` can return the current user when a session exists.
+
+## When This Provider Fits
+
+Use this provider when:
+
+- your main data access goes through Supabase PostgREST
+- you want built-in auth without adding a separate auth backend
+- table and relation queries can still fit the Ginjou fetcher contract with `meta` extensions
+
+Choose [Custom Fetcher](/backend/custom-fetcher) instead when the application relies on non-PostgREST endpoints as the normal path.

@@ -17,18 +17,22 @@ If the task does not clearly fit that shape, stop and ask the user before defaul
 
 ```typescript
 // useList — currentPage and perPage are WRITABLE refs (assign .value to paginate)
-const { records, isFetching, currentPage, perPage, total, filters, sorters } = useList({
-	resource: 'posts',
-	pagination: { current: 1, perPage: 10, mode: 'server' }, // mode: 'server' | 'client' | 'off'
+const { records, isFetching, currentPage, perPage, total, pageCount, filters, sorters } = useList({
+  resource: 'posts',
+  pagination: { current: 1, perPage: 10, mode: 'server' }, // mode: 'server' | 'client' | 'off'
+  syncRoute: true, // syncs pagination/filters/sorters with URL query string
 })
-currentPage.value = 2 // paginate by writing to the ref, not a setter function
-filters.value = [{ field: 'status', operator: 'eq', value: 'published' }]
+currentPage.value = 2  // paginate by assigning to the ref
+filters.value = [{ field: 'status', operator: FilterOperator.eq, value: 'published' }]
+sorters.value = [{ field: 'createdAt', order: 'desc' }]
 
 // useInfiniteList — records is NESTED array of pages, NOT a flat array
-const { records, hasNextPage, fetchNextPage } = useInfiniteList({ resource: 'posts' })
+const { records, hasNextPage, fetchNextPage, perPage } = useInfiniteList({ resource: 'posts' })
 // records.value = [ [...page1items], [...page2items] ]
-// Correct iteration: v-for="(page, i) in records" then v-for="item in page"
-// WRONG:            v-for="item in records"  ← iterates over page arrays, not items
+// Correct iteration:
+// v-for="(page, i) in records"
+//   v-for="item in page"
+// WRONG: v-for="item in records"  ← iterates over page arrays, not items
 
 // useShow — resource and id are optional ONLY when Ginjou resource routing is active
 // (i.e. the route is registered under a Ginjou resource with action 'show').
@@ -48,31 +52,49 @@ await save({ title: 'New title' })
 // otherwise pass it explicitly. Returns a save() function (no id needed).
 const { save, isPending } = useCreate({ resource: 'posts' })
 await save({ title: 'New post' })
+
+// useSelect — for select/autocomplete option loading
+const value = ref<string>()
+const { options, search } = useSelect({
+  resource: 'posts',
+  value, // pre-selected value — ensures its option is always present in the list
+})
+// search is writable: search.value = 'keyword' to filter options
 ```
 
-### `useList`
+## `useList`
 
 Use for standard list pages. It manages:
 
-- pagination state
-- filters
-- sorters
-- route synchronization when enabled
-- `useGetList` composition under the hood
+- pagination state (`currentPage`, `perPage`, `total`, `pageCount`)
+- filters (`filters` — writable ref)
+- sorters (`sorters` — writable ref)
+- route synchronization when `syncRoute: true`
+- composes `useGetList` under the hood
 
-Prefer `pagination.mode: 'server'` unless the dataset is intentionally small and stable. Client-mode loads all records up front, which breaks performance and perceived responsiveness for any real dataset.
+Prefer `pagination.mode: 'server'` unless the dataset is intentionally small and stable. Client-mode loads all records up front, which breaks performance for any real dataset.
 
-### `useInfiniteList`
+Use `FilterOperator` from `@ginjou/core` for filter operator constants (`eq`, `ne`, `contains`, `in`, etc.).
 
-Use for load-more or infinite-scroll interfaces. Keep in mind that `records` is page-grouped rather than fully flattened.
+## `useInfiniteList`
 
-### `useShow`
+Use for load-more or infinite-scroll interfaces. `records` is page-grouped, not flat. Always use a nested `v-for` to iterate:
 
-Use for detail pages when the record ID comes from the route. `resource` and `id` are technically optional — they fall back to `useResource()` which reads from Ginjou's resource routing context. **This auto-resolution only works when the route is registered as a Ginjou resource with `action: 'show'`.** When Ginjou resource routing is not configured for the current route, always pass both `resource` and `id` explicitly.
+```vue
+<template v-for="(page, i) in records" :key="i">
+  <tr v-for="item in page" :key="item.id">
+    ...
+  </tr>
+</template>
+```
 
-### `useEdit`
+## `useShow`
 
-Use for edit pages. Returns `record` (the current data), `save()` (triggers the update mutation), and `isPending`. Like `useShow`, `resource` and `id` fall back to `useResource()` — **this only works when the route has Ginjou resource routing with `action: 'edit'`**. When that is not the case, read the id from the route params and pass both `resource` and `id` explicitly:
+Use for detail pages when the record ID comes from the route. `resource` and `id` are **optional** — they fall back to `useResource()` which reads from Ginjou's resource routing context. **This auto-resolution only works when the route is registered as a Ginjou resource with `action: 'show'`.** When Ginjou resource routing is not configured for the current route, always pass both `resource` and `id` explicitly.
+
+## `useEdit`
+
+Use for edit pages. Returns `record` (fetched data), `save()` (triggers the update mutation), `isPending`, and `isLoading`. Like `useShow`, `resource` and `id` will fall back to `useResource()` **only when Ginjou resource routing is active with `action: 'edit'`**. When that is not set up, read the id from route params and pass both explicitly:
 
 ```typescript
 const route = useRoute()
@@ -80,43 +102,53 @@ const id = toRef(() => route.params.id as string)
 const { record, save, isPending } = useEdit({ resource: 'orders', id })
 ```
 
-### `useCreate`
+## `useCreate`
 
 Use for create pages. Returns `save()` and `isPending`. There is no `id` parameter. `resource` falls back to `useResource()` when Ginjou resource routing is active; otherwise pass it explicitly.
 
-### `useSelect`
+## `useSelect`
 
-Use when the UI needs select or autocomplete option loading, including the common pattern of combining current page results and preselected values.
+Use when the UI needs select or autocomplete option loading, including the pattern where a current selection must remain visible even when it falls outside the current page of results. Pass `value` to ensure the selected option is always present.
+
+```typescript
+const { options, search, currentPage, perPage } = useSelect({
+  resource: 'posts',
+  value,
+  labelKey: 'title', // default label field
+  valueKey: 'id',    // default value field
+})
+```
 
 ## Nuxt Counterparts
 
 For SSR-backed Nuxt views, prefer:
 
-- `useAsyncList`
-- `useAsyncInfiniteList`
-- `useAsyncShow`
-- `useAsyncEdit`
-- `useAsyncSelect`
+| Vue | Nuxt SSR |
+| --- | --- |
+| `useList` | `useAsyncList` |
+| `useInfiniteList` | `useAsyncInfiniteList` |
+| `useShow` | `useAsyncShow` |
+| `useEdit` | `useAsyncEdit` |
+| `useSelect` | `useAsyncSelect` |
 
-These preserve the same conceptual behavior while integrating with Nuxt SSR hydration. `useAsyncCreate` does not exist; use `useCreate` directly in Nuxt as well.
+`useAsyncCreate` does **not** exist. Use `useCreate` directly in Nuxt as well.
 
 ## Controller Decision Rules
 
-- If the page is tied to a route and clearly follows standard CRUD behavior, use a controller.
+- If the page follows standard list behavior with pagination/filters/sort, use `useList`.
 - If the page is a detail view, use `useShow`.
 - If the page is an edit form, use `useEdit`.
 - If the page is a create form, use `useCreate`.
-- If the page needs standard list state and URL sync, use `useList`.
-- If the task says infinite scroll, feed, or load more, use `useInfiniteList`.
-- If the component is not a page and only needs raw data, consider the lower-level data composable reference instead.
+- If the task says "infinite scroll", "feed", or "load more", use `useInfiniteList`.
+- If the component is not a page and only needs raw data, use lower-level data composables instead.
 - If you are not sure whether the user wants CRUD automation, ask before choosing a controller.
 
 ## Common Mistakes
 
 - Defaulting to controllers for every page-shaped request without checking whether the workflow is truly standard CRUD.
 - Rebuilding pagination, filters, and sorting manually instead of using `useList`.
-- **Omitting `resource` and `id` on `useShow` or `useEdit`** and expecting them to be auto-resolved. Auto-resolution requires Ginjou resource routing to be configured (route registered under a Ginjou resource with the matching `action`). When that is not the case, always read the id from `route.params` and pass both `resource` and `id` explicitly.
-- Forgetting that `useInfiniteList` returns nested pages.
+- **Omitting `resource` and `id` on `useShow` or `useEdit`** and expecting auto-resolution when Ginjou resource routing is not configured.
+- Forgetting that `useInfiniteList` returns nested pages — iterating `records` directly gives pages, not items.
 - Using sync controllers in Nuxt when SSR hydration is part of the requirement.
 - Using `useAsyncCreate` — it does not exist. Use `useCreate` directly.
 
