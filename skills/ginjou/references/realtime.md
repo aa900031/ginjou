@@ -1,6 +1,6 @@
 # Realtime Reference
 
-Use this reference when the task includes subscriptions, live updates, or query invalidation driven by server events in a Ginjou app.
+Use this reference when the task includes subscriptions, live updates, auto-refreshing lists or tables, or query invalidation driven by server events in a Ginjou app.
 
 ## Provider Rule
 

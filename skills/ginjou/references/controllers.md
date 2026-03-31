@@ -1,6 +1,6 @@
 # Controllers Reference
 
-Use this reference for standard list, detail, infinite list, and select flows that clearly match high-level CRUD page behavior.
+Use this reference for standard list pages, table screens, detail pages, infinite list or load-more flows, and select inputs that clearly match high-level CRUD page behavior.
 
 ## Use Controllers Only For Clear CRUD Flows
 

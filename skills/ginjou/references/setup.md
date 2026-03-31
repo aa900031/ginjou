@@ -1,6 +1,6 @@
 # Setup Reference
 
-Use this reference when the task starts with installation, root wiring, provider registration, or choosing the correct Ginjou package.
+Use this reference when the task starts with installation, root wiring, provider registration, choosing the correct Ginjou package, starting a new Ginjou app, or integrating Ginjou into an existing Vue or Nuxt project.
 
 ## Minimal Setup Examples
 

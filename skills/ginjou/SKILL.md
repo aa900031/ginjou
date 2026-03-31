@@ -1,6 +1,6 @@
 ---
 name: ginjou
-description: Use when the user is working with Ginjou (@ginjou/vue, @ginjou/nuxt) or building a Ginjou-powered admin panel. Trigger for installing or wiring Ginjou providers, building list/detail/form pages, auth flows, or realtime sync using Ginjou composables. Also trigger on "Ginjou fetcher", "Ginjou controller", or "wire Ginjou".
+description: Use when the user is working with Ginjou (@ginjou/vue, @ginjou/nuxt), starting a Ginjou app, or integrating Ginjou into an existing project. Trigger for login or sign-in pages, logout flows, create/edit forms, list or table pages, permission-gated UI, CRUD actions, and live or auto-refreshing data with Ginjou. Also trigger on "Ginjou fetcher", "Ginjou controller", "wire Ginjou", "access control", "useList", "useCreate", or "useEdit".
 ---
 
 # Ginjou
@@ -12,14 +12,38 @@ Implement Ginjou in consumer applications by following the official integration 
 ## Quick Start
 
 1. Identify the framework (Vue or Nuxt) and backend (REST, Supabase, Directus, or custom).
-2. Find the matching row in the Reference Routing table and read that reference.
+2. Match the task to the closest feature area below, then read the matching reference.
 3. Register providers at the app root; skip any provider the app does not use.
+
+## Common Tasks
+
+- Setting up Ginjou providers or connecting a backend -> [references/setup.md](references/setup.md)
+- Building a list page, detail page, or infinite list -> [references/controllers.md](references/controllers.md)
+- Building a create form, edit form, or delete action -> [references/forms.md](references/forms.md)
+- Building custom CRUD logic with lower-level query/mutation composables -> [references/data-composables.md](references/data-composables.md)
+- Adding login/logout, session checks, or identity loading -> [references/authentication.md](references/authentication.md)
+- Adding permission checks or access control -> [references/authorization.md](references/authorization.md)
+- Adding realtime or live-updating lists -> [references/realtime.md](references/realtime.md)
+
+## Common User Phrasing
+
+- "Build a login page" or "add sign in and sign out"
+- "Make a table page for orders" or "show a list of users"
+- "Create a new record form" or "edit an existing item"
+- "Hide the edit or delete button unless the user has permission"
+- "Make the list update by itself when data changes"
+- "Connect Ginjou to Supabase, Directus, or a REST API"
+- "Should I use `useList` or `useGetList`?"
 
 ## When to Use
 
 - Installing or configuring Ginjou in a Vue or Nuxt app
 - Wiring `define*Context` providers (`defineFetcherContext`, `defineQueryContext`, `defineAuthContext`, etc.)
-- Building list, detail, create, or edit pages with Ginjou composables
+- Building CRUD pages with Ginjou composables: list pages, detail pages, create forms, edit forms, and delete actions
+- Building login/logout flows, session checks, or identity loading
+- Building permission checks or access control with `useCanAccess` or `usePermissions`
+- Building realtime or live-updating pages, especially lists that refresh from server events
+- Building form workflows for creating or editing records
 - Choosing between page controllers and lower-level data composables
 - Adding auth, authorization, notifications, realtime, or i18n via Ginjou
 
@@ -31,13 +55,13 @@ Do **not** use for modifying the Ginjou monorepo itself, or apps with no Ginjou 
 | --- | --- |
 | Installation, root wiring, fetchers, SSR hydration, or framework setup | [references/setup.md](references/setup.md) |
 | Optional resource definitions, nested routes, route-aware context, multiple fetchers | [references/resources.md](references/resources.md) |
-| `useList`, `useInfiniteList`, `useShow`, `useSelect`, or clearly CRUD page-level list/detail flows | [references/controllers.md](references/controllers.md) |
-| `useCreate`, `useEdit`, `useDeleteOne`, or clearly CRUD mutation-driven form flows | [references/forms.md](references/forms.md) |
+| List pages, infinite lists, detail pages, `useList`, `useInfiniteList`, `useShow`, or `useSelect` | [references/controllers.md](references/controllers.md) |
+| Create forms, edit forms, delete actions, `useCreate`, `useEdit`, or `useDeleteOne` | [references/forms.md](references/forms.md) |
 | `useGetList`, `useGetOne`, `useGetMany`, `useCreateOne`, `useUpdateMany`, `useUpdateOne`, `useDeleteMany`, `useDeleteOne`, error handling, or custom composition | [references/data-composables.md](references/data-composables.md) |
-| Login, session checks, identity, or auth error handling | [references/authentication.md](references/authentication.md) |
+| Login, logout, session checks, identity, or auth error handling | [references/authentication.md](references/authentication.md) |
 | Access control, permission checks, `useCanAccess`, or `usePermissions` | [references/authorization.md](references/authorization.md) |
 | Toasts, progress messages, or undoable notifications | [references/notifications.md](references/notifications.md) |
-| Live updates, subscriptions, or query invalidation from server events | [references/realtime.md](references/realtime.md) |
+| Live updates, realtime lists, subscriptions, or query invalidation from server events | [references/realtime.md](references/realtime.md) |
 | I18n setup, translation keys, locale switching | [references/i18n.md](references/i18n.md) |
 
 ## Decision Rules
@@ -46,7 +70,7 @@ Do **not** use for modifying the Ginjou monorepo itself, or apps with no Ginjou 
 - Nuxt apps use `@ginjou/nuxt`; do not add `defineRouterContext`, and prefer async query/controller composables for SSR-backed views.
 - If the backend is not specified, inspect existing dependencies, fetchers, and environment first. Do not guess between REST, Supabase, or Directus.
 - Resources are optional. Use `defineResourceContext` only when route-aware resolution, navigation helpers, or per-resource fetcher binding are actually needed.
-- For route-level page views that clearly match CRUD behavior, use page controllers (`useList`, `useShow`, `useCreate`, `useEdit`). For sub-components, widgets, or non-page components, prefer lower-level data composables. If you are not sure which applies, ask the user.
+- For route-level page views that clearly match CRUD behavior, use page controllers (`useList`, `useShow`, `useCreate`, `useEdit`). For sub-components, widgets, delete buttons, or non-page components, prefer lower-level data composables. If you are not sure which applies, ask the user.
 - Custom dashboards, batch operations, or non-standard route/ID sources should start with lower-level data composables.
 - Default mutation flows to `pessimistic` unless the product explicitly needs optimistic or undoable behavior.
 - `undoable` mutations require a notification provider.

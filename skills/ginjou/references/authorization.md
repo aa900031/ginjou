@@ -1,6 +1,6 @@
 # Authorization Reference
 
-Use this reference when the task includes access checks, permission loading, or action-level UI gating in a Ginjou app.
+Use this reference when the task includes access checks, permission loading, hiding or disabling actions by role, or action-level UI gating in a Ginjou app.
 
 ## Provider Rule
 

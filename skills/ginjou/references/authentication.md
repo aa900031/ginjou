@@ -1,6 +1,6 @@
 # Authentication Reference
 
-Use this reference when the task includes login, logout, session checks, identity loading, or auth error handling in a Ginjou app.
+Use this reference when the task includes login, logout, sign-in or sign-out flows, session checks, identity loading, protected sessions, or auth error handling in a Ginjou app.
 
 ## Provider Rule
 
