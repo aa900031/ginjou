@@ -1,5 +1,5 @@
 ---
-title: Custom Fetcher
+title: Custom
 description: Implement your own fetcher when the built-in providers do not match your backend.
 ---
 

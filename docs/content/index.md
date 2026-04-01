@@ -23,10 +23,10 @@ Ginjou is a headless framework for admin panels, internal tools, and data-heavy 
   :::u-button
   ---
   size: xl
-  to: /guides
+  to: /guides/introduction
   icon: i-lucide-arrow-right
   ---
-  Browse the guides
+  Get Started
   :::
 
   :::u-button
@@ -47,50 +47,10 @@ Ginjou is a headless framework for admin panels, internal tools, and data-heavy 
 ::u-page-section
 
 #title
-Choose Your Starting Path
+Features
 
 #description
-If you already know what you need, start from the path that matches the job.
-
-#features
-  :::u-page-feature
-  ---
-  title: I am wiring a first CRUD app
-  icon: i-lucide-rocket
-  to: /guides
-  ---
-  Start with the mental model, then move through data, forms, and list controllers in order.
-  :::
-
-  :::u-page-feature
-  ---
-  title: I need auth and access control
-  icon: i-lucide-key-round
-  to: /guides/authentication
-  ---
-  Go straight to authentication, then continue with authorization to control pages, buttons, and menus.
-  :::
-
-  :::u-page-feature
-  ---
-  title: I need to connect a backend
-  icon: i-lucide-plug-zap
-  to: /backend/rest-api
-  ---
-  Start with a built-in provider, then switch to the custom fetcher guide if your API contract needs translation.
-  :::
-
-  :::u-page-feature
-  ---
-  title: I need route-aware page logic
-  icon: i-lucide-route
-  to: /guides/resources
-  ---
-  Read resources, then use list, edit, and show controllers on top of that route model.
-  :::
-::
-
-::u-page-section
+Ginjou stays focused on the parts that data-heavy applications need most.
 
 #features
   :::u-page-feature
@@ -99,148 +59,10 @@ If you already know what you need, start from the path that matches the job.
   orientation: vertical
   ---
   #title
-  Start With Composables, Add Controllers Later
+  Headless By Default
 
   #description
-  Build directly with low-level queries and mutations, or adopt higher-level controllers like list, edit, and show when they save time.
-  :::
-
-  :::u-page-feature
-  ---
-  icon: i-lucide-database-zap
-  orientation: vertical
-  ---
-  #title
-  Use Any Backend
-
-  #description
-  Register one or many fetchers. Ginjou ships providers for REST APIs, Supabase, and Directus, and the fetcher contract is small enough to implement yourself.
-  :::
-
-  :::u-page-feature
-  ---
-  icon: i-lucide-shield-check
-  orientation: vertical
-  ---
-  #title
-  Add Auth, Realtime, and Routing Incrementally
-
-  #description
-  Context-based setup keeps each capability explicit. Register only what your app needs, then expand without rewriting the foundation.
-  :::
-::
-
-::u-page-section
-
-#title
-Learn Ginjou In Three Steps
-
-#description
-The documentation follows the same progression as the codebase: understand the model, wire the framework into your app, then choose or build a backend provider.
-
-#features
-  :::u-page-feature
-  ---
-  title: Guides
-  icon: i-lucide-book-open
-  to: /guides
-  ---
-  Start with the core mental model, then move into data, controllers, auth, authorization, notifications, realtime, and resources.
-  :::
-
-  :::u-page-feature
-  ---
-  title: Integrations
-  icon: i-lucide-blocks
-  to: /integrations
-  ---
-  See how Ginjou is wired into Vue and Nuxt, including root-level context registration and Nuxt SSR helpers.
-  :::
-
-  :::u-page-feature
-  ---
-  title: Backend
-  icon: i-lucide-server
-  to: /backend
-  ---
-  Use the built-in providers for REST APIs, Supabase, and Directus, or write a custom fetcher when your API shape does not match the defaults.
-  :::
-::
-
-::u-page-section
-
-#title
-Core Guides At A Glance
-
-#description
-The guides are ordered to match the way most applications are built.
-
-#features
-  :::u-page-feature
-  ---
-  title: Introduction and Mental Model
-  icon: i-lucide-compass
-  to: /guides/introduction
-  ---
-  Learn how providers, composables, controllers, and resources fit together.
-  :::
-
-  :::u-page-feature
-  ---
-  title: Data Queries and Mutations
-  icon: i-lucide-database
-  to: /guides/data
-  ---
-  Work directly with fetchers, queries, mutations, meta, and custom backend requests.
-  :::
-
-  :::u-page-feature
-  ---
-  title: Create, Edit, and Show
-  icon: i-lucide-square-pen
-  to: /guides/form
-  ---
-  Use page controllers for common CRUD flows, then drop to low-level composables when workflows become custom.
-  :::
-
-  :::u-page-feature
-  ---
-  title: List Pages and Infinite Loading
-  icon: i-lucide-table-properties
-  to: /guides/list
-  ---
-  Build route-aware list screens with pagination, filters, sorters, and load-more patterns.
-  :::
-::
-
-::u-page-section
-
-#title
-What Ginjou Handles
-
-#features
-  :::u-page-feature
-  ---
-  icon: i-lucide-list-tree
-  orientation: vertical
-  ---
-  #title
-  Resource-aware data flows
-
-  #description
-  Query and mutation composables understand resources, route state, cache invalidation, and optional realtime events.
-  :::
-
-  :::u-page-feature
-  ---
-  icon: i-lucide-form-input
-  orientation: vertical
-  ---
-  #title
-  Page-level CRUD controllers
-
-  #description
-  Controllers such as useCreate, useEdit, useShow, useList, and useInfiniteList compose the lower-level pieces into reusable page logic.
+  Keep full control over your UI layer. Ginjou gives you data, auth, routing, and controller building blocks without forcing a component library.
   :::
 
   :::u-page-feature
@@ -249,46 +71,107 @@ What Ginjou Handles
   orientation: vertical
   ---
   #title
-  Progressive architecture
+  Composables First, Controllers When Useful
 
   #description
-  Nothing is locked behind a monolithic provider. You can replace fetchers, auth, notifications, or routing one capability at a time.
+  Start with low-level queries and mutations, then adopt higher-level controllers like list, edit, and show only where they reduce page complexity.
+  :::
+
+  :::u-page-feature
+  ---
+  icon: i-lucide-database-zap
+  orientation: vertical
+  ---
+  #title
+  Multi-Backend Ready
+
+  #description
+  Use one fetcher or many. Built-in providers cover common backends, and custom fetchers stay small enough to own without framework lock-in.
+  :::
+
+  :::u-page-feature
+  ---
+  icon: i-lucide-shield-check
+  orientation: vertical
+  ---
+  #title
+  Add Capabilities Incrementally
+
+  #description
+  Register only what the app needs today. Fetchers, auth, notifications, realtime, and routing can be added one capability at a time.
   :::
 ::
 
 ::u-page-section
 
 #title
-Recommended Reading Order
+Integrations
 
 #description
-If you are new to the project, start here.
+Start with the framework integration that matches your application shell.
 
-#features
-  :::u-page-feature
+#default
+:::card-group
+---
+ui: {
+  base: md:grid-cols-3
+}
+---
+  ::::card
   ---
-  title: 1. Understand the model
-  icon: i-lucide-compass
-  to: /guides
+  title: Vue
+  icon: i-logos-vue
+  to: /integrations/vue
   ---
-  Read the introduction to see how providers, composables, and controllers fit together.
-  :::
+  ::::
+  ::::card
+  ---
+  title: Nuxt
+  icon: i-logos-nuxt-icon
+  to: /integrations/nuxt
+  ---
+  ::::
+:::
+::
 
-  :::u-page-feature
-  ---
-  title: 2. Wire your app
-  icon: i-lucide-plug-2
-  to: /integrations
-  ---
-  Pick the integration that matches your stack and register the root contexts.
-  :::
+::u-page-section
 
-  :::u-page-feature
+#title
+Backends
+
+#description
+Choose a backend provider when the existing API shape is already close, or use it as a reference for your own fetcher.
+
+#default
+:::card-group
+---
+ui: {
+  base: md:grid-cols-3
+}
+---
+  ::::card
   ---
-  title: 3. Choose a fetcher
-  icon: i-lucide-cable
-  to: /backend
+  title: RESTful API
+  icon: i-lucide-waypoints
+  to: /backend/rest-api
   ---
-  Start with a built-in backend provider, or implement a custom fetcher when your API contract is unique.
-  :::
+  ::::
+  ::::card
+  ---
+  title: Directus
+  icon: i-simple-icons-directus
+  to: /backend/directus
+  ui: {
+    icon: 'text-[#6F4EFF]',
+  }
+  ---
+  ::::
+  ::::card
+  ---
+  title: Supabase
+  icon: i-logos-supabase-icon
+  to: /backend/supabase
+  ---
+  ::::
+:::
 ::
