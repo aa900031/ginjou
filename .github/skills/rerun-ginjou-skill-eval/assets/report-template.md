@@ -12,7 +12,7 @@ Scenario version: v1
 ## Scenario Set
 
 - Source: `./references/skill-eval-scenarios.v1.yaml`
-- Scenario ids: `S01-S09`
+- Scenario ids: `S01-S18`
 
 ## Scoring Table
 
@@ -27,13 +27,22 @@ Scenario version: v1
 | S07 |  |  |  |  |
 | S08 |  |  |  |  |
 | S09 |  |  |  |  |
+| S10 |  |  |  |  |
+| S11 |  |  |  |  |
+| S12 |  |  |  |  |
+| S13 |  |  |  |  |
+| S14 |  |  |  |  |
+| S15 |  |  |  |  |
+| S16 |  |  |  |  |
+| S17 |  |  |  |  |
+| S18 |  |  |  |  |
 
 ## Aggregate
 
-- Candidate A total: `x/45`
-- Candidate B total: `x/45`
-- Candidate A hit count: `x/9`
-- Candidate B hit count: `x/9`
+- Candidate A total: `x/90`
+- Candidate B total: `x/90`
+- Candidate A hit count: `x/18`
+- Candidate B hit count: `x/18`
 
 ## Findings
 

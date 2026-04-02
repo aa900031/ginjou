@@ -1,6 +1,6 @@
 ---
 name: using-ginjou-lists
-description: Use when building list-oriented and read-side page flows with Ginjou controllers, including pagination, filters, sorters, infinite list, detail pages, and select option loading.
+description: Use when building list-oriented and read-side page flows with Ginjou controllers, or when deciding useSelect versus useList for autocomplete, remote option loading, current-value retention, detail pages, pagination, filters, or sorters.
 ---
 
 # Using Ginjou Lists
@@ -37,6 +37,8 @@ This includes:
 - If the UI is not a standard page flow (dialogs/widgets/custom orchestration), switch to `using-ginjou-data`.
 - If the requirement is arbitrary query results for widgets or dialogs, switch to `using-ginjou-data` instead of forcing `useSelect`.
 - If the task is create/edit page submit behavior, switch to `using-ginjou-forms`.
+- Do not model select/autocomplete option loading as a normal resource list page. Keep it in this skill unless the prompt explicitly becomes widget or dialog orchestration.
+- If the current selection must stay visible even when it is not in the latest search results, keep routing here and use the dedicated option-loading pattern instead of generic list-page reasoning.
 - `useInfiniteList` returns page-grouped records; render with nested loops.
 - `syncRoute: true` requires router integration in Vue setups.
 
