@@ -1,32 +1,19 @@
 # Resources Reference
 
-Use this reference only when the task needs resource definitions, URL mapping, route-aware context, nested resources, or multiple fetchers.
+Use this reference when registering resource definitions, mapping browser routes to Ginjou context, using nested resources, or binding different fetchers per resource.
 
-## Resources Are Optional
+## Concept
 
-Do not treat resources as mandatory application setup. Bring them in only when the application needs:
+Resources are optional. They map resource names to route patterns and enable:
 
-- route-aware context resolution (e.g., `useShow()` or `useEdit()` resolving resource/id from the current route)
-- navigation helpers that depend on resource actions
-- breadcrumbs or hierarchy that track parent-child resource relationships
-- per-resource fetcher binding for multi-backend apps
+- Auto-resolution of `resource`, `id`, and `action` from the current URL in `useShow`, `useEdit`, etc.
+- Navigation helpers that know how to go to `/posts/new` or `/posts/:id/edit`
+- Breadcrumb and hierarchy support
+- Per-resource fetcher binding for multi-backend apps
 
-When none of the above applies, use lower-level composables with explicit `resource` and `id` arguments without introducing resources.
+If none of these is needed, skip `defineResourceContext` and pass `resource` and `id` explicitly to each composable.
 
-## Core Rule
-
-When resources are used, they become the structural contract between browser routes, Ginjou context resolution, and fetcher selection. If resource patterns do not match real routes, route-aware behavior will silently produce wrong results.
-
-## When to Register Resources
-
-Add `defineResourceContext` once the app needs any of the following:
-
-- Route-based auto-resolution for `useShow`, `useEdit`, or `useCreate`
-- Navigation helpers that depend on resource actions
-- Breadcrumbs or route hierarchy
-- Multiple backends bound per resource via `meta.fetcherName`
-
-## Standard Shape
+## Standard Setup
 
 ```typescript
 import { defineResourceContext } from '@ginjou/vue'
@@ -44,90 +31,112 @@ defineResourceContext({
 })
 ```
 
-### Resource Action Keys
+With this in place, `useShow()` on the `/posts/:id` route auto-resolves `resource: 'posts'` and `id` from the URL parameter.
 
-- `list` — list page route
-- `create` — create form route
-- `edit` — edit form route
-- `show` — detail view route
-- `meta` — extra metadata (see below)
+## Nested Resources
 
-## Hierarchical Resources
-
-Use `meta.parent` for nested route trees:
+Use `meta.parent` for nested route hierarchies:
 
 ```typescript
 defineResourceContext({
   resources: [
+    { name: 'posts', list: '/posts', show: '/posts/:id' },
     {
-      name: 'posts',
-      list: '/posts',
-      show: '/posts/:id',
-    },
-    {
-      name: 'post-comments',
+      name: 'comments',
       list: '/posts/:postId/comments',
       show: '/posts/:postId/comments/:id',
-      meta: {
-        parent: 'posts',
-      },
+      meta: { parent: 'posts' },
     },
   ],
 })
 ```
-
-Use this pattern when the UI needs breadcrumbs, nested ownership, or route-derived parent context.
 
 ## Multiple Fetchers
 
-For mixed backends, bind fetchers at the resource layer:
+Bind different fetchers per resource using `meta.fetcherName`. The key must match a fetcher registered in `defineFetchersContext`.
+
+```typescript
+defineFetchersContext({
+  'rest-api': createFetcher({ url: 'https://api.example.com' }),
+  'supabase': createFetcher({ client: supabaseClient }),
+})
+
+defineResourceContext({
+  resources: [
+    { name: 'posts', list: '/posts', meta: { fetcherName: 'rest-api' } },
+    { name: 'analytics', list: '/analytics', meta: { fetcherName: 'supabase' } },
+  ],
+})
+```
+
+`meta.fetcherName` only selects which fetcher handles the resource. It does not normalize backend-specific request options. Keep using the matching backend reference for each fetcher's `meta` shape:
+
+- REST API: [backend-rest-api.md](./backend-rest-api.md)
+- Supabase: [backend-supabase.md](./backend-supabase.md)
+- Directus: [backend-directus.md](./backend-directus.md)
+
+## Nested Routes + Multi-Backend (Worked Example)
+
+Use this pattern for S18-style prompts where nested routes and multi-backend bindings must stay consistent.
 
 ```typescript
 defineResourceContext({
   resources: [
     {
-      name: 'posts',
-      list: '/posts',
-      show: '/posts/:id',
-      meta: { fetcherName: 'rest-api' },
+      name: 'accounts',
+      list: '/accounts',
+      show: '/accounts/:id',
+      meta: { fetcherName: 'supabase' },
     },
     {
-      name: 'analytics',
-      list: '/analytics',
-      show: '/analytics/:id',
-      meta: { fetcherName: 'graphql' },
+      name: 'orders',
+      list: '/accounts/:accountId/orders',
+      show: '/accounts/:accountId/orders/:id',
+      meta: { parent: 'accounts', fetcherName: 'rest-api' },
+    },
+    {
+      name: 'reports',
+      list: '/reports',
+      meta: { fetcherName: 'directus' },
     },
   ],
 })
 ```
 
-Ensure the matching `fetcherName` keys are registered in `defineFetchersContext`.
+Boundary reminder:
 
-## `meta` Fields
+- setup registers fetcher instances (`defineFetchersContext`)
+- resources bind route metadata and `meta.fetcherName`
+- backend references define adapter-specific `meta` query/auth rules
+
+## Route ID Compatibility Checklist (S11)
+
+When relying on route-driven `resource`/`id` inference for detail/edit flows, verify id compatibility with the active backend:
+
+- REST API: route `:id` should map to the documented endpoint shape `/{resource}/{id}`.
+- Supabase: if the primary key is not `id`, use documented `meta.idColumnName` where needed.
+- Directus: route `:id` should match the collection id expectation used by your Directus resource.
+
+If the route contract and backend id contract do not match, pass `resource` and `id` explicitly instead of relying on auto-inference.
+
+## Resource `meta` Fields
 
 | Field | Type | Purpose |
 | --- | --- | --- |
-| `parent` | `string` | Parent resource name — enables hierarchy/breadcrumbs |
+| `parent` | `string` | Parent resource name for hierarchy/breadcrumbs |
 | `fetcherName` | `string` | Which fetcher to use for this resource |
-| `hide` | `boolean` | Exclude from generated navigation while keeping route resolution active |
-| `deletable` | `boolean` | Signals that delete actions should surface in generated navigation/breadcrumbs; does not affect mutation behavior |
+| `hide` | `boolean` | Exclude from generated navigation while keeping route resolution |
+| `deletable` | `boolean` | Signal that delete actions should surface in generated navigation |
 
-## Resource Rules
+## Rules
 
+- Resources are optional — add them only when route-aware resolution or navigation is actually needed.
+- Route patterns must exactly match the router configuration.
 - Keep resource names stable and semantic: `posts`, `post-comments`, not ad-hoc strings.
-- Match URL patterns exactly to the router configuration.
-- Do not add resources just because the app uses Ginjou.
-- Do not hardcode resource names in page components when route resolution is already available via resources.
-- Do not let router paths drift from resource patterns.
+- When resources are configured, `useShow`, `useEdit`, `useCreate` can omit `resource` and `id` — they are resolved from the URL.
+- When resources are **not** configured, always pass `resource` and `id` explicitly.
+- Multi-backend routing is a two-step setup: register named fetchers in `defineFetchersContext`, then bind them per resource with `meta.fetcherName`.
 
-## Common Mistakes
+## Further Reading
 
-- Defining resources after pages are already built around hardcoded assumptions — add them early when they are needed.
-- Using route paths that do not match the resource patterns, leading to broken auto-resolution.
-- Forgetting `meta.fetcherName` in multi-backend apps.
-- Adding nested routes without `meta.parent` and then manually rebuilding hierarchy everywhere.
-- Expecting `useShow()` or `useEdit()` to auto-resolve resource/id without having registered matching resource entries.
-
-## Authority
-
-- https://ginjou.pages.dev/guides/resources
+- https://ginjou.pages.dev/guides/introduction

@@ -63,7 +63,7 @@ useGetList({
 | `meta` field | Type | Purpose |
 | --- | --- | --- |
 | `query` | `Record<string, any>` | Directus query override (fields, filter, sort, etc.) |
-| `aggregate` | `string[]` | Aggregation fields |
+| `aggregate` | `Record<string, any>` | Aggregation descriptor passed to Directus (for example `{ count: '*' }`) |
 | `groupBy` | `string[]` | Group-by fields |
 
 ## Authentication Login Types

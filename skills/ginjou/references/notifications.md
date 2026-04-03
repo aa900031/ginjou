@@ -1,16 +1,12 @@
 # Notifications Reference
 
-Use this reference when the task includes wiring toast or notification systems into Ginjou, using `useNotify`, progress notifications, or undoable mutation UX in a Ginjou app.
+Use this reference when wiring a toast/notification system into Ginjou, using `useNotify`, or when implementing undoable mutations.
 
-## Provider Rule
+## Concept
 
-Notifications are an app-level integration. Register them once with `defineNotificationContext` and let components trigger them through `useNotify` or built-in mutation flows.
+Ginjou triggers notifications automatically on mutation success/error, and uses a progress notification for undoable mutations. Register a provider with `defineNotificationContext` that maps these events to your toast library.
 
-## Main Composable
-
-- `useNotify` — imperatively fire a notification
-
-## Provider Contract
+## Provider Setup
 
 ```typescript
 import { NotificationType } from '@ginjou/core'
@@ -20,30 +16,30 @@ defineNotificationContext({
   open: (params) => {
     switch (params.type) {
       case NotificationType.Success:
+        toast.success(params.message)
+        break
       case NotificationType.Error:
-        // show a toast with params.message and optional params.description
+        toast.error(params.message, { description: params.description })
         break
       case NotificationType.Progress:
-        // show a progress notification
-        // params.timeout — milliseconds before auto-finish
-        // params.onFinish() — called when timeout expires
-        // params.onCancel() — called when user cancels (undo)
+        // Show a progress/undo notification.
+        // params.timeout — ms before mutation is committed
+        // params.onFinish() — commit the mutation (called when timeout expires)
+        // params.onCancel() — cancel and undo the mutation
+        toast.progress(params.message, {
+          key: params.key,
+          timeout: params.timeout,
+          onFinish: params.onFinish,
+          onCancel: params.onCancel,
+        })
         break
     }
   },
-  // close is REQUIRED for undoable mutations — called with the key to dismiss
+  // close is REQUIRED for undoable mutations
   close: (key) => {
-    // dismiss the notification identified by key
+    toast.dismiss(key)
   },
 })
-```
-
-### `OpenNotificationParams` Shape
-
-```typescript
-type OpenNotificationParams
-  = | { type: 'success' | 'error', message: string, description?: string, key?: string }
-    | { type: 'progress', message: string, key?: string, timeout: number, onFinish: () => void, onCancel: () => void }
 ```
 
 ## Composable Usage
@@ -52,26 +48,49 @@ type OpenNotificationParams
 import { useNotify } from '@ginjou/vue'
 
 const notify = useNotify()
-notify({ type: 'success', message: 'Saved.' })
-notify({ type: 'error', message: 'Failed.', description: err.message })
-// The 'progress' type is triggered automatically by undoable mutations — rarely called manually
+notify({ type: 'success', message: 'Record saved.' })
+notify({ type: 'error', message: 'Save failed.', description: err.message })
 ```
 
-## Guidance
+## Notification Types Shape
 
-- Implement both `open` **and** `close`. `close` is required for undoable mutations to function — it dismisses the progress notification when the mutation settles or is cancelled.
-- Support `progress` notifications when the UX includes undo windows or long-running actions.
-- `undoable` mutations require a notification provider — see the forms reference for the full undoable mutation setup.
-- Keep notification rendering concerns inside the notification adapter, not inside business logic.
+```typescript
+// Success / Error
+{ type: 'success' | 'error', message: string, description?: string, key?: string }
 
-## Common Mistakes
+// Progress (undoable mutation window)
+{ type: 'progress', message: string, key: string, timeout: number, onFinish: () => void, onCancel: () => void }
+```
 
-- Using `undoable` mutation flows without registering a notification provider.
-- Implementing only `open` and omitting `close` — this breaks undoable mutations.
-- Treating notifications as page-local state instead of an app-level capability.
-- Registering `defineNotificationContext` conditionally instead of at the app root.
+## Undoable Mutations
 
-## Authority
+Setting `mutationMode: 'undoable'` on a form controller or mutation composable triggers a progress notification. The mutation is not committed until `onFinish` is called. The user can cancel via `onCancel`.
+
+```typescript
+const { save } = useCreate({
+  resource: 'posts',
+  mutationMode: 'undoable', // requires notification provider
+})
+```
+
+Adapter safety note:
+
+- Do not assume undoable mutation behavior is identical across REST API, Supabase, and Directus.
+- If backend mutation guarantees are unclear, recommend `pessimistic` mode first.
+
+| Backend | Undoable validation focus |
+| --- | --- |
+| REST API | Confirm endpoint/error contract and rollback assumptions are acceptable |
+| Supabase | Confirm id mapping and mutation assumptions before enabling undoable |
+| Directus | Confirm permission/query assumptions before enabling undoable |
+
+## Rules
+
+- Implement both `open` and `close`. `close` is required for undoable mutations to work — it dismisses the in-progress notification.
+- `undoable` mutations will silently fail without a notification provider.
+- Register `defineNotificationContext` unconditionally at the app root.
+
+## Further Reading
 
 - https://ginjou.pages.dev/guides/notifications
 - https://ginjou.pages.dev/guides/form

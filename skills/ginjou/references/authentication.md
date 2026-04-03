@@ -1,114 +1,125 @@
 # Authentication Reference
 
-Use this reference when the task includes login, logout, sign-in or sign-out flows, checking whether the current user is authenticated, session checks, identity loading, explicit auth error handling, or protected sessions in a Ginjou app.
+Use this reference for login, logout, session checks, identity loading, and auth error handling.
 
-## Provider Rule
+## Concept
 
-Authentication is an app-level integration. Register it once at the root with `defineAuthContext` and keep auth logic inside the provider instead of scattering it across pages.
+Ginjou auth is powered by a provider registered with `defineAuthContext`. The provider implements `login`, `logout`, `check`, `checkError`, and optionally `getIdentity`. Composables in components then call the provider through a stable interface.
 
-## Main Composables
-
-- `useLogin` — triggers login mutation
-- `useLogout` — triggers logout mutation
-- `useAuthenticated` — query for current auth status
-- `useGetIdentity` — query for current user identity data
-- `useCheckError` — mutation to explicitly handle an API error (triggers logout/redirect on auth failure)
-
-## Provider Contract
+## Provider Setup
 
 ```typescript
 import { defineAuth } from '@ginjou/core'
 import { defineAuthContext } from '@ginjou/vue'
 
 defineAuthContext(defineAuth({
-  login: async (params?) => {
-    // authenticate, return { redirectTo? } or void
+  login: async (params) => {
+    // Authenticate. Return { redirectTo? } or void.
     return {}
   },
-  logout: async (params?) => {
-    // clear session, return { redirectTo? } or void
+  logout: async (params) => {
+    // Clear session. Return { redirectTo? } or void.
     return {}
   },
-  check: async (params?) => {
-    // return { authenticated: boolean }
+  check: async () => {
+    // Return { authenticated: boolean }
     return { authenticated: false }
   },
   checkError: async (error) => {
-    // inspect the error, return { logout?: boolean, redirectTo?, error? }
-    if ((error as any).isAuthError) return { logout: true }
+    // Inspect errors from failed data fetches.
+    // Return { logout?: boolean, redirectTo?, error? }
+    if ((error as any).status === 401) return { logout: true }
     return {}
   },
-  getIdentity: async (params?) => {
-    // return user data or null
+  getIdentity: async () => {
+    // Return user data or null
     return null
   },
 }))
 ```
 
-### Return Type Reference
-
-| Method | Return type | Key fields |
-| --- | --- | --- |
-| `login` | `LoginResult \| void` | `redirectTo?: false \| string`, `ignoreInvalidate?: boolean` |
-| `logout` | `LogoutResult \| void` | `redirectTo?: false \| string`, `ignoreInvalidate?: boolean` |
-| `check` | `CheckAuthResult` | `authenticated: boolean` |
-| `checkError` | `CheckAuthErrorResult` | `logout?: boolean`, `redirectTo?: false \| string`, `error?` |
-| `getIdentity` | `any` | user-defined shape |
+Supabase and Directus each provide a ready-made auth adapter. See their dedicated backend references.
 
 ## Composable Usage
 
-```typescript
-import { useAuthenticated, useCheckError, useGetIdentity, useLogin, useLogout } from '@ginjou/vue'
+```vue
+<!-- From stories/vue/src/Auth.vue -->
+<script setup lang="ts">
+import { useAuthenticated, useLogin, useLogout } from '@ginjou/vue'
 
-// Check auth status — data.value is undefined until the query resolves
 const { data: authenticated, isLoading } = useAuthenticated()
-// authenticated.value?.authenticated === true | false
+const { mutateAsync: login, isPending: isLoginLoading } = useLogin()
+const { mutateAsync: logout, isPending: isLogoutLoading } = useLogout()
+</script>
 
-// User identity
-const { data: identity } = useGetIdentity()
-
-// Login / logout — these are mutations
-const { mutateAsync: login, isPending: isLoginPending } = useLogin()
-const { mutateAsync: logout, isPending: isLogoutPending } = useLogout()
-
-await login({ username: 'user', password: 'pass' }) // params depend on your provider
-await logout()
-
-// Explicitly handle an API error (e.g., from a failed data fetch)
-const { mutateAsync: checkError } = useCheckError()
-await checkError(thrownError) // provider decides whether to logout/redirect
+<template>
+  <template v-if="isLoading || authenticated == null">
+    Checking auth…
+  </template>
+  <template v-else-if="authenticated.authenticated === true">
+    Logged in
+    <button :disabled="isLogoutLoading" @click="logout()">Logout</button>
+  </template>
+  <template v-else>
+    <button :disabled="isLoginLoading" @click="login({ email: 'user@example.com', password: '…' })">Login</button>
+  </template>
+</template>
 ```
 
-## Guidance
+```vue
+<!-- From stories/vue/src/AuthGetIdentity.vue -->
+<script setup lang="ts">
+import { useGetIdentity } from '@ginjou/vue'
 
-- The login payload shape depends entirely on the backend provider.
-- `@ginjou/with-supabase` and `@ginjou/with-directus` each expose their own predefined auth adapters.
-- `@ginjou/with-rest-api` does **not** provide a matching auth adapter — REST projects need a custom auth implementation.
-- Keep `401` and `403` distinct: `401` means the session is invalid and the user must re-authenticate; `403` means authenticated but unauthorized — logging out on a `403` destroys a valid session.
-- `useCheckError` is the canonical place to normalize auth-related API failures. Call it when a data fetch or mutation throws an error that may indicate an expired session.
+const { data: identity, isLoading } = useGetIdentity<{ username: string }>()
+</script>
+
+<template>
+  <template v-if="isLoading || identity == null">Loading…</template>
+  <template v-else>Hi! {{ identity.username }}</template>
+</template>
+```
+
+```typescript
+// Handle an API error that may indicate an expired session
+import { useCheckError } from '@ginjou/vue'
+
+const { mutateAsync: checkError } = useCheckError()
+try {
+  await someDataFetch()
+} catch (err) {
+  await checkError(err)
+}
+```
+
+## Composable Reference
+
+| Composable | What it does |
+| --- | --- |
+| `useAuthenticated` | Query — returns `{ authenticated: boolean }` |
+| `useLogin` | Mutation — triggers `auth.login` |
+| `useLogout` | Mutation — triggers `auth.logout` |
+| `useGetIdentity` | Query — returns user identity data |
+| `useCheckError` | Mutation — passes an error to `auth.checkError` |
 
 ## Nuxt SSR Variants
-
-For Nuxt views that need server-hydrated auth state, use:
 
 | Vue | Nuxt SSR |
 | --- | --- |
 | `useAuthenticated` | `useAsyncAuthenticated` |
 | `useGetIdentity` | `useAsyncGetIdentity` |
 
-`useLogin`, `useLogout`, and `useCheckError` are mutation-first and do not have async variants.
+`useLogin`, `useLogout`, and `useCheckError` have no async variants.
 
-## Common Mistakes
+## Rules
 
-- Expecting `@ginjou/with-rest-api` to solve auth automatically.
-- Mixing login UI concerns with provider implementation details.
-- Treating `403` as a forced logout case — it is not.
-- Registering auth conditionally instead of at the app root.
-- Not handling the case where `authenticated.value` is `undefined` while the initial check query is still loading.
+- `authenticated.value` is `undefined` while the initial check is pending — always guard against it.
+- Distinguish `401` (session expired → logout) from `403` (forbidden → do not log out).
+- Register `defineAuthContext` unconditionally at the app root.
+- The login payload shape depends on your provider. Supabase and Directus have typed `LoginParams` unions.
 
-## Authority
+## Further Reading
 
 - https://ginjou.pages.dev/guides/authentication
-- https://ginjou.pages.dev/backend/rest-api
 - https://ginjou.pages.dev/backend/supabase
 - https://ginjou.pages.dev/backend/directus

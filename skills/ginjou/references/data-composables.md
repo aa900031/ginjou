@@ -1,139 +1,217 @@
 # Data Composables Reference
 
-Use this reference when the task needs finer-grained control than the page-level controllers provide.
+Use this reference when you need direct control over queries and mutations — for dialogs, widgets, bulk actions, custom endpoints, or any non-page CRUD flow.
 
-## When To Choose Data Composables
+## Concept
 
-Drop to lower-level composables when one of these is true:
+Data composables are the lower-level building blocks that controllers use internally. Choose them when:
 
-- the component is not a standard CRUD page
-- the record ID does not come from normal route resolution
-- the page needs custom query composition or batch operations
-- mutation timing, navigation, or cache handling must be orchestrated manually
-- the app is progressively adopting Ginjou inside an existing screen
-- it is not clear that the user wants controller-style CRUD automation
+- The component is not a standard CRUD page
+- The record ID does not come from route resolution
+- You need custom mutation timing, navigation, or cache behavior
+- The task involves batch operations or custom API endpoints
+- You are unsure whether the user wants full controller automation — ask first
 
 ## Query Composables
 
-Use these to fetch data directly:
+| Composable | Use for |
+| --- | --- |
+| `useGetList` | Fetch a list without page-state management |
+| `useGetOne` | Fetch a single record by ID |
+| `useGetMany` | Fetch multiple records by ID array |
+| `useGetInfiniteList` | Infinite pagination without URL sync |
+| `useCustom` | GET request to any non-resource endpoint |
 
-- `useGetList` — list of records with pagination, filters, and sorters
-- `useGetInfiniteList` — infinite/paginated list with `fetchNextPage`
-- `useGetOne` — single record by id
-- `useGetMany` — multiple records by id array
-- `useCustom` — arbitrary GET-style call to any URL outside the standard resource contract
+```vue
+<!-- From stories/vue/src/GetList.vue -->
+<script setup lang="ts">
+import type { Post } from './api/posts'
+import { useGetList } from '@ginjou/vue'
 
-In Nuxt, use the SSR-aware counterparts when the initial render should be server hydrated:
-
-- `useAsyncGetList`
-- `useAsyncGetInfiniteList`
-- `useAsyncGetOne`
-- `useAsyncGetMany`
-
-## Mutation Composables
-
-Use these when you need direct control over mutation flows:
-
-- `useCreateOne`
-- `useCreateMany`
-- `useUpdateOne`
-- `useUpdateMany`
-- `useDeleteOne`
-- `useDeleteMany`
-- `useCustomMutation` — arbitrary mutation to any URL outside the standard resource contract
-
-## Key Shapes
-
-```typescript
-// Queries — resource and options set at composable creation
-const { records, isFetching, data } = useGetList({
+const { records, isFetching } = useGetList<Post>({
   resource: 'posts',
   pagination: { current: 1, perPage: 10 },
   filters: [{ field: 'status', operator: 'eq', value: 'published' }],
   sorters: [{ field: 'createdAt', order: 'desc' }],
 })
-const { record, isFetching } = useGetOne({ resource: 'posts', id: '1' })
-const { records } = useGetMany({ resource: 'posts', ids: ['1', '2', '3'] })
+</script>
+```
 
-// Mutations — resource/id/params can be passed at SETUP TIME (composable props)
-// OR at CALL TIME (mutateAsync args). Call-time args override setup-time args.
+```vue
+<!-- From stories/vue/src/GetOne.vue -->
+<script setup lang="ts">
+import type { Post } from './api/posts'
+import { useGetOne } from '@ginjou/vue'
 
-// Pattern A: resource and id at SETUP TIME, only params at call time
-const { mutateAsync: updateOne } = useUpdateOne({
+const { record, isFetching } = useGetOne<Post>({
   resource: 'posts',
   id: '6c6d3a48-8eef-4c96-a1ba-156bdfd3d389',
 })
-await updateOne({ params: { title: 'Updated' } })
+</script>
+```
 
-// Pattern B: all args at CALL TIME (better for list-row actions or dynamic targets)
-const { mutateAsync: deleteOne } = useDeleteOne()
-await deleteOne({ resource: 'posts', id: record.id, mutationMode: 'pessimistic' })
+```typescript
+// Custom GET endpoint
+import { useCustom } from '@ginjou/vue'
 
-// Pattern C: basic create at call time
-const { mutateAsync: create } = useCreateOne()
-await create({ resource: 'posts', params: { title: 'Hello' } })
-
-// useCustom — arbitrary GET-style fetcher call (not tied to a resource)
 const { record, isFetching } = useCustom({
   url: '/stats/summary',
   method: 'get',
   query: { period: '30d' },
-  // fetcherName defaults to 'default'
+})
+```
+
+## Mutation Composables
+
+| Composable | Use for |
+| --- | --- |
+| `useCreateOne` | Create a single record |
+| `useCreateMany` | Batch create |
+| `useUpdateOne` | Update a single record |
+| `useUpdateMany` | Batch update |
+| `useDeleteOne` | Delete a single record |
+| `useDeleteMany` | Batch delete |
+| `useCustomMutation` | POST/PUT/DELETE to any non-resource endpoint |
+
+```vue
+<!-- From stories/vue/src/UpdateOne.vue -->
+<script setup lang="ts">
+import type { Post, PostFormData } from './api/posts'
+import { useUpdateOne } from '@ginjou/vue'
+import { reactive, shallowRef } from 'vue'
+
+// Setup-time: resource and id are fixed
+const { mutateAsync: updateOne, isPending } = useUpdateOne<Post, PostFormData>({
+  resource: 'posts',
+  id: '6c6d3a48-8eef-4c96-a1ba-156bdfd3d389',
 })
 
-// useCustomMutation — arbitrary mutation (POST/PUT/DELETE) to a custom endpoint
-const { mutateAsync: callApi } = useCustomMutation()
-await callApi({ url: '/actions/publish', method: 'post', payload: { id: '1' } })
+const formData = reactive({ title: 'Next title' })
+const result = shallowRef<Post>()
+
+async function handleSubmit() {
+  await updateOne({ params: formData as PostFormData }, {
+    onSuccess: (data) => { result.value = data.data },
+  })
+}
+</script>
 ```
-
-## Mutation Parameter Rules
-
-All mutation composables (`useCreateOne`, `useUpdateOne`, `useDeleteOne`, etc.) accept `resource`, `id`, and operation-specific fields **either as setup-time props** (passed to the composable constructor) **or as call-time args** (passed to `mutateAsync`). Call-time args take precedence when both are present.
-
-- Use **setup-time** props when the resource and id are fixed for this component instance.
-- Use **call-time** args when the target record varies (e.g., list-row delete buttons, dynamic dialogs).
-
-## Selection Guidance
-
-- Choose `useGetList` instead of `useList` when you only need fetched data, not page state management.
-- Choose `useGetOne` instead of `useShow` when the ID comes from props, local state, or another query.
-- Choose `useUpdateMany` or `useDeleteMany` for batch actions instead of looping one-by-one mutations.
-- Choose `useCreateOne` or `useUpdateOne` when navigation after success must be handled by custom logic.
-- Choose `useCustom` when you need to query a non-standard endpoint that does not map to a Ginjou resource.
-- Choose `useCustomMutation` when you need to call a non-standard endpoint as a mutation.
-
-## Filter Operators
-
-Import `FilterOperator` from `@ginjou/core` for type-safe filter operator constants:
 
 ```typescript
-import { FilterOperator } from '@ginjou/core'
-
-filters.value = [
-  { field: 'title', operator: FilterOperator.contains, value: searchTerm },
-  { field: 'status', operator: FilterOperator.eq, value: 'published' },
-]
+// Call-time: resource and id passed with each call (e.g. list-row actions)
+const { mutateAsync: deleteOne } = useDeleteOne()
+await deleteOne({ resource: 'posts', id: record.id, mutationMode: 'pessimistic' })
 ```
 
-## Composition Rules
+### Row Delete Modal Pattern (S06)
 
-- Compose with resource definitions instead of hardcoding fetcher differences in components.
-- Let each composable keep a single responsibility.
-- Add your own orchestration around composables rather than rewriting the underlying fetcher contract.
-- Always pair `useDeleteOne` with an explicit confirmation step before calling `mutateAsync`.
+Use a dialog-confirm flow with call-time args for row actions.
 
-## Common Mistakes
+```typescript
+import { useDeleteOne } from '@ginjou/vue'
 
-- Forgetting to ask the user before choosing controllers when the workflow is not obviously standard CRUD.
-- Replacing a controller with multiple low-level composables when the page is still standard CRUD.
-- Looping `useUpdateOne` or `useDeleteOne` for bulk actions instead of using the `*Many` variants.
-- Mixing route resolution, form state, and raw query logic in one large component.
-- Forgetting Nuxt async counterparts on SSR-first pages.
-- Triggering delete without a confirmation flow.
+const { mutateAsync: deleteOne } = useDeleteOne()
 
-## Authority
+async function confirmDelete(recordId: string) {
+  // Called after user confirms in your custom modal
+  await deleteOne({
+    resource: 'posts',
+    id: recordId,
+    mutationMode: 'pessimistic',
+  })
+}
+```
 
-- https://ginjou.pages.dev/guides/introduction
+Prefer this over page-level controllers for row-level modal actions.
+
+### Side-Panel Inline Edit Pattern (S17)
+
+Use lower-level query plus mutation composables when editing in place without navigation.
+
+```typescript
+import { useGetOne, useUpdateOne } from '@ginjou/vue'
+
+const { record } = useGetOne({ resource: 'posts', id: selectedId })
+const { mutateAsync: updateOne } = useUpdateOne({ resource: 'posts', id: selectedId })
+
+async function saveInline(params: { title: string }) {
+  await updateOne({ params, mutationMode: 'pessimistic' })
+}
+```
+
+Keep this flow non-page and avoid switching to `useEdit` unless route-level CRUD behavior is required.
+
+```typescript
+// Custom mutation endpoint
+import { useCustomMutation } from '@ginjou/vue'
+
+const { mutateAsync: publish } = useCustomMutation()
+await publish({ url: '/actions/publish', method: 'post', payload: { id: '1' } })
+```
+
+## Call-time vs Setup-time Args
+
+All mutation composables accept `resource`, `id`, and params either at setup time (composable constructor) or at call time (`mutateAsync` argument). Call-time args override setup-time args.
+
+- **Setup-time**: preferred when resource and id are fixed for this component instance
+- **Call-time**: preferred for dynamic targets (list-row buttons, dialog-driven flows)
+
+## Backend Safety Checks For Non-Page Mutations
+
+Before using `useDeleteOne`, `useUpdateOne`, or `useCustomMutation` in row actions, dialogs, or side panels:
+
+| Backend | What to confirm before mutation |
+| --- | --- |
+| REST API | Endpoint exists for the action, HTTP method/headers are correct, and auth contract is configured in fetcher/auth setup |
+| Supabase | Resource/id mapping and relevant meta fields are valid for the table; auth/session context is already registered at app root |
+| Directus | Collection/query shape is valid and permission-sensitive fields are handled by current role/auth context |
+
+This check is especially important for S06/S17-style flows where mutation happens outside page controllers.
+
+## Mutation Mode Safety Gate
+
+Before selecting mutation mode in non-page flows:
+
+1. Confirm backend mutation reliability and error shape.
+2. Default to `pessimistic` when backend behavior is uncertain.
+3. Use `undoable` only when notification provider prerequisites are already satisfied.
+
+Do not assume optimistic or undoable guarantees are identical across REST API, Supabase, and Directus adapters.
+
+## Adapter Mutation Safety Matrix
+
+Use this matrix before finalizing non-page mutation guidance:
+
+| Backend | Validate before mutation | Safe default when uncertain |
+| --- | --- | --- |
+| REST API | Endpoint path, HTTP method, headers, and error response contract | `pessimistic` |
+| Supabase | Table/id mapping (`idColumnName` when needed) and documented meta usage | `pessimistic` |
+| Directus | Collection/query shape and permission-sensitive field behavior | `pessimistic` |
+
+Use `undoable` only when notification prerequisites are met and backend mutation assumptions are clear.
+
+## Nuxt SSR Counterparts
+
+For server-hydrated Nuxt pages, use:
+
+| Vue | Nuxt SSR |
+| --- | --- |
+| `useGetList` | `useAsyncGetList` |
+| `useGetOne` | `useAsyncGetOne` |
+| `useGetMany` | `useAsyncGetMany` |
+| `useGetInfiniteList` | `useAsyncGetInfiniteList` |
+
+## Rules
+
+- Use `useGetList` instead of `useList` when you only need data, not page-state management.
+- Use `useGetOne` instead of `useShow` when the ID comes from props or another query.
+- For bulk operations, use `*Many` variants instead of looping single mutations.
+- Always confirm before calling `useDeleteOne` or `useDeleteMany`.
+- For non-page mutations, verify backend-specific safety checks before selecting mutation mode.
+- For S06/S17-style prompts, include at least one concrete non-page mutation example in the recommendation.
+- Import `FilterOperator` from `@ginjou/core` for type-safe filter operators.
+
+## Further Reading
+
 - https://ginjou.pages.dev/guides/data
 - https://ginjou.pages.dev/guides/list
-- https://ginjou.pages.dev/guides/form

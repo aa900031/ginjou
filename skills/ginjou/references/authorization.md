@@ -1,17 +1,12 @@
 # Authorization Reference
 
-Use this reference when the task includes access checks, permission loading, permission management, hiding or disabling actions by role, or action-level access control in a Ginjou app.
+Use this reference for permission checks, access control, and role-based UI visibility.
 
-## Provider Rule
+## Concept
 
-Authorization is separate from authentication. Register it with `defineAuthzContext` and keep business rules inside the authz provider instead of duplicating them in components.
+Ginjou authorization is separate from authentication. It answers the question: "Can the current user perform this action?" Register an authz provider with `defineAuthzContext` and use `useCanAccess` or `usePermissions` in components.
 
-## Main Composables
-
-- `useCanAccess` — reactive access check for a specific action on a resource
-- `usePermissions` — loads all permissions (for broader UI state like menus or role-driven layouts)
-
-## Provider Contract
+## Provider Setup
 
 ```typescript
 import { defineAuthz } from '@ginjou/core'
@@ -20,11 +15,12 @@ import { defineAuthzContext } from '@ginjou/vue'
 defineAuthzContext(defineAuthz({
   access: async (params) => {
     // params: { action, resource?, params?: { id?, ... }, meta? }
-    // return { can: boolean, reason?: string }
-    return { can: true }
+    // Return { can: boolean, reason?: string }
+    const userRole = await getCurrentUserRole()
+    return { can: userRole === 'admin' }
   },
-  getPermissions: async (params?) => {
-    // return any permission structure your app uses
+  getPermissions: async () => {
+    // Return any permission structure your app uses
     return ['admin', 'editor']
   },
 }))
@@ -32,42 +28,55 @@ defineAuthzContext(defineAuthz({
 
 ## Composable Usage
 
-```typescript
-import { useCanAccess, usePermissions } from '@ginjou/vue'
+```vue
+<!-- From stories/vue/src/AuthPermissions.vue -->
+<script setup lang="ts">
+import { usePermissions } from '@ginjou/vue'
 
-// Action-level check (e.g., show/hide an edit button)
-const { data } = useCanAccess({ resource: 'posts', action: 'edit', params: { id: '1' } })
-// data.value?.can === true  → show the button
-
-// Broader permission check (e.g., role-driven menu visibility)
 const { data: permissions, isLoading } = usePermissions<string[]>()
-// permissions.value → ['admin', 'editor']
+</script>
+
+<template>
+  <template v-if="isLoading || permissions == null">Loading…</template>
+  <template v-else>
+    Permissions: {{ permissions }}
+  </template>
+</template>
 ```
 
-## Guidance
+```typescript
+// Action-level check — e.g. show/hide an edit button
+import { useCanAccess } from '@ginjou/vue'
 
-- Return `{ can: boolean }` from `authz.access` as the base contract. `reason` is optional.
-- Use `useCanAccess` for action-level checks such as edit, delete, or create buttons.
-- Use `usePermissions` for broader UI states such as menu items, sections, or role-driven layout toggles.
-- Keep ownership, role, and policy logic inside the provider — do not scatter it across components.
-- Authz is **not** responsible for redirecting unauthenticated users; that is auth's responsibility.
+const { data } = useCanAccess({
+  resource: 'posts',
+  action: 'edit',
+  params: { id: '1' },
+})
+// data.value?.can === true  →  show the button
+```
+
+## Composable Reference
+
+| Composable | Use for |
+| --- | --- |
+| `useCanAccess` | Single action check — edit/delete/create button visibility |
+| `usePermissions` | Broad permission loading — role-driven menus, layout sections |
 
 ## Nuxt SSR Variants
-
-For Nuxt views that need server-hydrated permission state, use:
 
 | Vue | Nuxt SSR |
 | --- | --- |
 | `useCanAccess` | `useAsyncCanAccess` |
 | `usePermissions` | `useAsyncPermissions` |
 
-## Common Mistakes
+## Rules
 
-- Treating authz as part of auth instead of a separate provider.
-- Repeating permission logic inside individual components instead of the provider.
-- Using raw permissions where a focused `useCanAccess` check would be clearer.
-- Registering `defineAuthzContext` conditionally instead of at the app root.
+- Use `useCanAccess` for action-level checks. Use `usePermissions` for broader role-driven UI.
+- Keep ownership and policy logic inside the provider — do not spread it across components.
+- Authorization does not redirect unauthenticated users — that is auth's job.
+- Register `defineAuthzContext` unconditionally at the app root.
 
-## Authority
+## Further Reading
 
 - https://ginjou.pages.dev/guides/authorization
