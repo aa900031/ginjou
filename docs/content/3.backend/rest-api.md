@@ -1,13 +1,21 @@
 ---
 title: RESTful API
-description: Connect Ginjou to any RESTful API using json-server conventions.
+description: Use the RESTful API provider when your backend follows json-server style query conventions.
 ---
 
-The `@ginjou/with-rest-api` package connects Ginjou to standard RESTful APIs. It follows the query parameter and header conventions established by [json-server v0.x.x](https://github.com/typicode/json-server/tree/v0.17.4), making it compatible with many existing mocking tools and API standards.
+`@ginjou/with-rest-api` is the fastest way to connect Ginjou to a conventional REST API. It is designed around the request and response conventions popularized by `json-server`.
+
+## Mental Model
+
+This provider assumes the backend is already close to Ginjou's generic CRUD model.
+
+1. Resources map to REST endpoints.
+2. Pagination, sorting, and filtering become query parameters.
+3. The provider translates Ginjou request shapes into common REST conventions.
+
+Use it when your backend mostly needs parameter mapping, not business-specific request orchestration.
 
 ## Installation
-
-Install the provider.
 
 ::code-group
 ---
@@ -34,12 +42,9 @@ bun add @ginjou/with-rest-api
 
 ## Setup
 
-Initialize the fetcher and register it in your root component (`App.vue` or `app.vue`).
+### Vue
 
 ::code-group
----
-sync: guide-example
----
 
 ```vue [Vue]
 <script setup lang="ts">
@@ -48,8 +53,8 @@ import { createFetcher } from '@ginjou/with-rest-api'
 
 defineFetchersContext({
 	default: createFetcher({
-		url: 'https://api.example.com'
-	})
+		url: 'https://api.example.com',
+	}),
 })
 </script>
 
@@ -60,51 +65,81 @@ defineFetchersContext({
 
 ```svelte [Svelte]
 <!-- WIP -->
-<script>
-  // ...
-</script>
 ```
 
 ::
 
-## Fetcher Conventions
+### Nuxt
 
-The `createFetcher` implementation relies on specific query parameters and headers to handle data operations.
+::code-group
+
+```vue [Nuxt]
+<script setup lang="ts">
+import { defineFetchersContext } from '@ginjou/vue'
+import { createFetcher } from '@ginjou/with-rest-api'
+
+defineFetchersContext({
+	default: createFetcher({
+		url: 'https://api.example.com',
+	}),
+})
+</script>
+
+<template>
+	<NuxtLayout>
+		<NuxtPage />
+	</NuxtLayout>
+</template>
+```
+
+```svelte [Svelte]
+<!-- WIP -->
+```
+
+::
+
+This package only provides a fetcher. Authentication is intentionally left to the application because REST auth schemes vary too much between projects.
+
+## Mapping
 
 ### Pagination
 
-The fetcher translates Ginjou's pagination state into `_start` and `_end` query parameters.
+Pagination is mapped to `_start` and `_end` query parameters.
 
-- `_start`: Zero-based index of the first item.
-- `_end`: Zero-based index of the last item (exclusive).
+- `_start` is the zero-based offset
+- `_end` is the exclusive upper bound
 
-::note
-The API must return the total number of records in the `x-total-count` HTTP header. If missing, Ginjou defaults to the length of the returned array.
-::
+The provider reads the total count from the `x-total-count` response header. If the header is missing, it falls back to the returned array length.
 
 ### Sorting
 
-Sorting uses `_sort` and `_order` parameters.
+Sorters map to `_sort` and `_order`.
 
-- `_sort`: Comma-separated list of fields.
-- `_order`: Comma-separated list of directions (`asc` or `desc`).
+- `_sort` is a comma-separated field list
+- `_order` is a comma-separated direction list
 
 ### Filtering
 
-Filters map to query parameters using field suffixes.
+Common operators are encoded as field suffixes.
 
-| Operator | Parameter Suffix | Example |
-| :--- | :--- | :--- |
-| `eq` | (none) | `title=hello` |
-| `ne` | `_ne` | `id_ne=1` |
-| `gte` | `_gte` | `views_gte=10` |
-| `lte` | `_lte` | `views_lte=20` |
-| `contains` | `_like` | `title_like=ginjou` |
+| Operator | Query pattern |
+| :--- | :--- |
+| `eq` | `title=hello` |
+| `ne` | `title_ne=hello` |
+| `gte` | `views_gte=10` |
+| `lte` | `views_lte=20` |
+| `contains` | `title_like=ginjou` |
 
-::tip
-A filter with the field `q` sends a global search parameter (`?q=keyword`).
-::
+If the filter field is `q`, the provider sends a global search parameter.
 
-::warning
-This provider does not support `or` / `and` logical operators or filtering on nested objects, as `json-server` does not natively support them.
-::
+## When This Provider Fits
+
+Use this provider when your backend already looks like a simple resource-oriented REST API.
+
+Choose [Custom Fetcher](/backend/custom-fetcher) instead when you need:
+
+- different parameter names
+- custom response envelopes
+- cursor pagination
+- complex auth headers or request signing
+- backend-specific custom endpoints as the normal path, not the exception
