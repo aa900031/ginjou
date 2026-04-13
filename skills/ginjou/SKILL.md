@@ -1,14 +1,16 @@
 ---
 name: ginjou
 description: >
-  Use when a developer is integrating Ginjou in Vue or Nuxt and needs guidance on
-  provider wiring, backend selection, route-aware resources, multi-backend binding,
-  page controllers versus non-page data composables, undoable prerequisites,
-  realtime fallback, auth or authorization, or backend-specific REST API,
-  Supabase, or Directus meta and auth behavior. Trigger on mentions of
-  @ginjou/*, define*Context, meta.fetcherName, useSelect, useEdit,
-  useDeleteOne, useCanAccess, useNotify, useLogin, useLogout, or Nuxt useAsync*
-  patterns.
+  Use when a developer is building a CRUD/admin/dashboard experience with Ginjou
+  in Vue or Nuxt and needs guidance on provider wiring, backend selection,
+  route-aware resources, multi-backend binding, page controllers versus non-page
+  data composables, undoable prerequisites, realtime fallback, auth or
+  authorization, or backend-specific REST API, Supabase, or Directus meta and auth
+  behavior. Trigger on mentions of Ginjou-specific terms or intent-based CRUD
+  requests such as list pages, tables, pagination, filters, sort, edit forms,
+  create forms, delete buttons, row actions, search boxes, autocomplete fields,
+  side panels, dashboard widgets, admin panels, or generic CRUD requests that
+  imply those flows.
 ---
 
 # Using Ginjou
@@ -19,6 +21,18 @@ Use this skill as a routing-first guide for Ginjou usage work.
 
 Load the matching reference files before answering. Do not invent provider placement, API shapes, route inference rules, or backend adapter behavior from memory.
 
+## Generic CRUD Intake
+
+When the prompt is an intent-based CRUD/admin request rather than a Ginjou-specific one, map it to the same routing flow:
+
+1. Detect whether the prompt mentions more than one surface or action, such as list + edit + delete, show + edit + delete, or page + dialog + row action.
+2. State the most likely Ginjou pattern in the first sentence, even if context is missing. Examples: useList for standard lists, useSelect for remote search, useEdit or useCreate for page CRUD, useDeleteOne for row or dialog deletes.
+3. If the flow location is unclear, ask exactly one question first: "Is this a standard page, a dialog, a row action, a side panel, or an embedded form?"
+4. Detect the framework. If Vue versus Nuxt changes the answer and the prompt does not say it, ask exactly one combined question: "Is this Vue or Nuxt, and which backend are you using: REST, Supabase, Directus, or mixed?"
+5. Detect the backend. If the answer depends on adapter behavior and the backend is missing, include the compact triage block from the backend rules in the same first response before recommending syntax.
+6. Detect whether the flow is a standard CRUD page or a custom UI flow. If the prompt mixes page and non-page behavior, separate them before answering.
+7. For mutation flows, check notification wiring before recommending undoable behavior.
+
 ## Routing Workflow
 
 1. Detect the framework: Vue or Nuxt.
@@ -28,11 +42,14 @@ Load the matching reference files before answering. Do not invent provider place
 5. Load the smallest complete reference chain from the map below.
 6. If backend details affect safety or syntax, include an adapter-specific check before recommending an implementation pattern.
 7. If one branch is still ambiguous after routing, ask one minimal clarifying question.
+8. If the prompt is generic CRUD/admin intent with missing framework or backend context, keep the first response short, ask the minimum necessary question, and do not skip the safety checks that can already be inferred.
+9. When both framework and backend are missing, prefer one combined question: ask whether the target is Vue or Nuxt and whether the backend is REST, Supabase, Directus, or mixed.
 
 ## Trigger Cues
 
 Use this skill when the request mentions one or more of these Ginjou-specific problems:
 
+- generic CRUD or admin UI requests such as "list page", "table", "pagination", "filter", "sort", "create form", "edit form", "delete button", "row action", "search box", "autocomplete", "sidebar", "dashboard", "admin panel", or "CRUD"
 - provider registration, app-root wiring, or moving setup out of feature pages
 - backend choice or backend-specific syntax for REST API, Supabase, or Directus
 - named fetchers, per-resource backend binding, or meta.fetcherName
@@ -191,6 +208,8 @@ Run one of these checks before recommending a UI pattern when backend behavior m
 ## Unknown-Backend Triage
 
 When the backend is not specified and the answer depends on adapter behavior, do not stop at "backend unknown". Give a compact triage block first.
+
+If the prompt also lacks framework or surface context, still keep the triage block in the first response and keep the follow-up question to one combined clarification.
 
 - For option-loading fields:
   - REST API: confirm the search and filter query contract used by the project.
