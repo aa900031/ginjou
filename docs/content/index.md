@@ -1,7 +1,7 @@
 ---
 seo:
   title: Ginjou
-  description: Headless building blocks for Vue and Nuxt data applications.
+  description: TODO: 請重新想 description，Ginjou 是可以在任何前端 lib 下，快速建立 App 的框架。(可以參考 refine: `Implement Refine documentation in Refine v5. Learn the key steps. Explore guides, tutorials, and API reference for real-world React admin panels.`, ra-core: `The Headless SPA Framework for React`, react-admin: `A frontend Framework for building B2B applications running in the browser on top of REST/GraphQL APIs, using ES6, React and Material Design`)
 ---
 
 ::u-page-hero
@@ -14,10 +14,10 @@ orientation: horizontal
   :::
 
 #title
-Build Data Applications Without Giving Up Control
+<!-- TODO: 請重新想一個 title -->
 
 #description
-Ginjou is a headless framework for admin panels, internal tools, and data-heavy products. Keep your own UI, connect the backend you already have, and compose only the features you need.
+<!-- TODO: 請重新想一個 description -->
 
 #links
   :::u-button
@@ -44,134 +44,6 @@ Ginjou is a headless framework for admin panels, internal tools, and data-heavy 
   :::
 ::
 
-::u-page-section
+<!-- TODO: 新的 Section 名叫：Features，指出六個左右的特色，請以簡單的名稱 + 描述呈現  -->
 
-#title
-Features
-
-#description
-Ginjou stays focused on the parts that data-heavy applications need most.
-
-#features
-  :::u-page-feature
-  ---
-  icon: i-lucide-layers-3
-  orientation: vertical
-  ---
-  #title
-  Headless By Default
-
-  #description
-  Keep full control over your UI layer. Ginjou gives you data, auth, routing, and controller building blocks without forcing a component library.
-  :::
-
-  :::u-page-feature
-  ---
-  icon: i-lucide-workflow
-  orientation: vertical
-  ---
-  #title
-  Composables First, Controllers When Useful
-
-  #description
-  Start with low-level queries and mutations, then adopt higher-level controllers like list, edit, and show only where they reduce page complexity.
-  :::
-
-  :::u-page-feature
-  ---
-  icon: i-lucide-database-zap
-  orientation: vertical
-  ---
-  #title
-  Multi-Backend Ready
-
-  #description
-  Use one fetcher or many. Built-in providers cover common backends, and custom fetchers stay small enough to own without framework lock-in.
-  :::
-
-  :::u-page-feature
-  ---
-  icon: i-lucide-shield-check
-  orientation: vertical
-  ---
-  #title
-  Add Capabilities Incrementally
-
-  #description
-  Register only what the app needs today. Fetchers, auth, notifications, realtime, and routing can be added one capability at a time.
-  :::
-::
-
-::u-page-section
-
-#title
-Integrations
-
-#description
-Start with the framework integration that matches your application shell.
-
-#default
-:::card-group
----
-ui: {
-  base: md:grid-cols-3
-}
----
-  ::::card
-  ---
-  title: Vue
-  icon: i-logos-vue
-  to: /integrations/vue
-  ---
-  ::::
-  ::::card
-  ---
-  title: Nuxt
-  icon: i-logos-nuxt-icon
-  to: /integrations/nuxt
-  ---
-  ::::
-:::
-::
-
-::u-page-section
-
-#title
-Backends
-
-#description
-Choose a backend provider when the existing API shape is already close, or use it as a reference for your own fetcher.
-
-#default
-:::card-group
----
-ui: {
-  base: md:grid-cols-3
-}
----
-  ::::card
-  ---
-  title: RESTful API
-  icon: i-lucide-waypoints
-  to: /backend/rest-api
-  ---
-  ::::
-  ::::card
-  ---
-  title: Directus
-  icon: i-simple-icons-directus
-  to: /backend/directus
-  ui: {
-    icon: 'text-[#6F4EFF]',
-  }
-  ---
-  ::::
-  ::::card
-  ---
-  title: Supabase
-  icon: i-logos-supabase-icon
-  to: /backend/supabase
-  ---
-  ::::
-:::
-::
+<!-- TODO: 新的 section 名叫：Integrations，用 UMarquee (ref: https://ui.nuxt.com/raw/docs/components/marquee.md) 形式輪播 Supabase, Directus, RESTful, Nuxt 等 Icon + 名稱 -->
