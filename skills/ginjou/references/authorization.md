@@ -13,16 +13,16 @@ import { defineAuthz } from '@ginjou/core'
 import { defineAuthzContext } from '@ginjou/vue'
 
 defineAuthzContext(defineAuthz({
-  access: async (params) => {
-    // params: { action, resource?, params?: { id?, ... }, meta? }
-    // Return { can: boolean, reason?: string }
-    const userRole = await getCurrentUserRole()
-    return { can: userRole === 'admin' }
-  },
-  getPermissions: async () => {
-    // Return any permission structure your app uses
-    return ['admin', 'editor']
-  },
+	access: async (params) => {
+		// params: { action, resource?, params?: { id?, ... }, meta? }
+		// Return { can: boolean, reason?: string }
+		const userRole = await getCurrentUserRole()
+		return { can: userRole === 'admin' }
+	},
+	getPermissions: async () => {
+		// Return any permission structure your app uses
+		return ['admin', 'editor']
+	},
 }))
 ```
 
@@ -37,10 +37,12 @@ const { data: permissions, isLoading } = usePermissions<string[]>()
 </script>
 
 <template>
-  <template v-if="isLoading || permissions == null">Loading…</template>
-  <template v-else>
-    Permissions: {{ permissions }}
-  </template>
+	<template v-if="isLoading || permissions == null">
+		Loading…
+	</template>
+	<template v-else>
+		Permissions: {{ permissions }}
+	</template>
 </template>
 ```
 
@@ -49,9 +51,9 @@ const { data: permissions, isLoading } = usePermissions<string[]>()
 import { useCanAccess } from '@ginjou/vue'
 
 const { data } = useCanAccess({
-  resource: 'posts',
-  action: 'edit',
-  params: { id: '1' },
+	resource: 'posts',
+	action: 'edit',
+	params: { id: '1' },
 })
 // data.value?.can === true  →  show the button
 ```

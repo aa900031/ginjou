@@ -20,24 +20,26 @@ import { reactive, shallowRef, toRef } from 'vue'
 const props = defineProps<{ redirect?: any }>()
 
 const { save } = useCreate<Post, PostFormData>({
-  resource: 'posts',
-  redirect: toRef(props, 'redirect'),
+	resource: 'posts',
+	redirect: toRef(props, 'redirect'),
 })
 
 const formData = reactive({ title: '', status: 'draft' })
 const result = shallowRef<Post>()
 
 async function handleSubmit() {
-  const resp = await save(formData as PostFormData)
-  result.value = resp.data
+	const resp = await save(formData as PostFormData)
+	result.value = resp.data
 }
 </script>
 
 <template>
-  <form @submit.prevent="handleSubmit">
-    <input v-model="formData.title" type="text" placeholder="Title">
-    <button type="submit">Submit</button>
-  </form>
+	<form @submit.prevent="handleSubmit">
+		<input v-model="formData.title" type="text" placeholder="Title">
+		<button type="submit">
+			Submit
+		</button>
+	</form>
 </template>
 ```
 
@@ -54,24 +56,24 @@ import { useEdit } from '@ginjou/vue'
 import { reactive, toRef, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
-const props = defineProps<{ mutationMode: MutationModeValues; redirect?: any }>()
+const props = defineProps<{ mutationMode: MutationModeValues, redirect?: any }>()
 const route = useRoute()
 
 const { record, save } = useEdit<Post, PostFormData>({
-  resource: 'posts',
-  id: toRef(() => route.params.id as string),
-  mutationMode: toRef(props, 'mutationMode'),
-  redirect: toRef(props, 'redirect'),
+	resource: 'posts',
+	id: toRef(() => route.params.id as string),
+	mutationMode: toRef(props, 'mutationMode'),
+	redirect: toRef(props, 'redirect'),
 })
 
 // Copy into local state — never bind inputs to record directly
 const formData = reactive({})
 watch(record, (val) => {
-  Object.assign(formData, val)
+	Object.assign(formData, val)
 }, { immediate: true, deep: true })
 
 async function handleSubmit() {
-  await save(formData as PostFormData)
+	await save(formData as PostFormData)
 }
 </script>
 ```
@@ -90,13 +92,14 @@ const { records } = useList<Post>({ resource: 'posts' })
 const { mutateAsync: del } = useDeleteOne()
 
 async function handleDeleteClick(record: Post) {
-  // Always confirm first
-  if (!confirm(`Delete "${record.title}"?`)) return
-  await del({
-    id: record.id,
-    resource: 'posts',
-    mutationMode: 'pessimistic',
-  })
+	// Always confirm first
+	if (!confirm(`Delete "${record.title}"?`))
+		return
+	await del({
+		id: record.id,
+		resource: 'posts',
+		mutationMode: 'pessimistic',
+	})
 }
 </script>
 ```

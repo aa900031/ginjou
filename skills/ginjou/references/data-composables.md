@@ -29,10 +29,10 @@ import type { Post } from './api/posts'
 import { useGetList } from '@ginjou/vue'
 
 const { records, isFetching } = useGetList<Post>({
-  resource: 'posts',
-  pagination: { current: 1, perPage: 10 },
-  filters: [{ field: 'status', operator: 'eq', value: 'published' }],
-  sorters: [{ field: 'createdAt', order: 'desc' }],
+	resource: 'posts',
+	pagination: { current: 1, perPage: 10 },
+	filters: [{ field: 'status', operator: 'eq', value: 'published' }],
+	sorters: [{ field: 'createdAt', order: 'desc' }],
 })
 </script>
 ```
@@ -44,8 +44,8 @@ import type { Post } from './api/posts'
 import { useGetOne } from '@ginjou/vue'
 
 const { record, isFetching } = useGetOne<Post>({
-  resource: 'posts',
-  id: '6c6d3a48-8eef-4c96-a1ba-156bdfd3d389',
+	resource: 'posts',
+	id: '6c6d3a48-8eef-4c96-a1ba-156bdfd3d389',
 })
 </script>
 ```
@@ -55,9 +55,9 @@ const { record, isFetching } = useGetOne<Post>({
 import { useCustom } from '@ginjou/vue'
 
 const { record, isFetching } = useCustom({
-  url: '/stats/summary',
-  method: 'get',
-  query: { period: '30d' },
+	url: '/stats/summary',
+	method: 'get',
+	query: { period: '30d' },
 })
 ```
 
@@ -82,17 +82,17 @@ import { reactive, shallowRef } from 'vue'
 
 // Setup-time: resource and id are fixed
 const { mutateAsync: updateOne, isPending } = useUpdateOne<Post, PostFormData>({
-  resource: 'posts',
-  id: '6c6d3a48-8eef-4c96-a1ba-156bdfd3d389',
+	resource: 'posts',
+	id: '6c6d3a48-8eef-4c96-a1ba-156bdfd3d389',
 })
 
 const formData = reactive({ title: 'Next title' })
 const result = shallowRef<Post>()
 
 async function handleSubmit() {
-  await updateOne({ params: formData as PostFormData }, {
-    onSuccess: (data) => { result.value = data.data },
-  })
+	await updateOne({ params: formData as PostFormData }, {
+		onSuccess: (data) => { result.value = data.data },
+	})
 }
 </script>
 ```
@@ -113,12 +113,12 @@ import { useDeleteOne } from '@ginjou/vue'
 const { mutateAsync: deleteOne } = useDeleteOne()
 
 async function confirmDelete(recordId: string) {
-  // Called after user confirms in your custom modal
-  await deleteOne({
-    resource: 'posts',
-    id: recordId,
-    mutationMode: 'pessimistic',
-  })
+	// Called after user confirms in your custom modal
+	await deleteOne({
+		resource: 'posts',
+		id: recordId,
+		mutationMode: 'pessimistic',
+	})
 }
 ```
 
@@ -135,7 +135,7 @@ const { record } = useGetOne({ resource: 'posts', id: selectedId })
 const { mutateAsync: updateOne } = useUpdateOne({ resource: 'posts', id: selectedId })
 
 async function saveInline(params: { title: string }) {
-  await updateOne({ params, mutationMode: 'pessimistic' })
+	await updateOne({ params, mutationMode: 'pessimistic' })
 }
 ```
 

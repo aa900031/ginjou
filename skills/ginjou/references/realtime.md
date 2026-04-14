@@ -62,18 +62,18 @@ Treat transport availability as resource/surface-specific, not backend-global.
 import { defineRealtimeContext } from '@ginjou/vue'
 
 defineRealtimeContext({
-  subscribe: (channel, params, callback) => {
-    // Subscribe and return a string key
-    const id = mySocket.on(channel, callback)
-    return String(id) // must be a string — used by unsubscribe
-  },
-  unsubscribe: (key) => {
-    mySocket.off(key)
-  },
-  publish: (event) => {
-    // Optional — emit a local event to trigger subscriptions
-    mySocket.emit(event.channel, event)
-  },
+	subscribe: (channel, params, callback) => {
+		// Subscribe and return a string key
+		const id = mySocket.on(channel, callback)
+		return String(id) // must be a string — used by unsubscribe
+	},
+	unsubscribe: (key) => {
+		mySocket.off(key)
+	},
+	publish: (event) => {
+		// Optional — emit a local event to trigger subscriptions
+		mySocket.emit(event.channel, event)
+	},
 })
 ```
 
@@ -95,16 +95,16 @@ import { RealtimeMode } from '@ginjou/core'
 import { useGetOne } from '@ginjou/vue'
 
 const { record } = useGetOne({
-  resource: 'posts',
-  id: '1',
-  realtime: {
-    mode: RealtimeMode.Manual,
-    callback: (event) => {
-      // event: { channel, action, payload: { ids }, date }
-      console.log('Realtime event:', event.action, event.payload)
-      // Apply custom side effects here
-    },
-  },
+	resource: 'posts',
+	id: '1',
+	realtime: {
+		mode: RealtimeMode.Manual,
+		callback: (event) => {
+			// event: { channel, action, payload: { ids }, date }
+			console.log('Realtime event:', event.action, event.payload)
+			// Apply custom side effects here
+		},
+	},
 })
 ```
 

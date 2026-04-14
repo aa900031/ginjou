@@ -15,11 +15,11 @@ pnpm add @ginjou/with-rest-api
 ## Setup
 
 ```typescript
-import { createFetcher } from '@ginjou/with-rest-api'
 import { defineFetchersContext } from '@ginjou/vue'
+import { createFetcher } from '@ginjou/with-rest-api'
 
 defineFetchersContext({
-  default: createFetcher({ url: 'https://api.example.com' }),
+	default: createFetcher({ url: 'https://api.example.com' }),
 })
 ```
 
@@ -29,10 +29,10 @@ You can also provide a custom `ofetch` instance:
 import { createFetch } from 'ofetch'
 
 const client = createFetch({
-  defaults: { headers: { Authorization: `Bearer ${token}` } },
+	defaults: { headers: { Authorization: `Bearer ${token}` } },
 })
 defineFetchersContext({
-  default: createFetcher({ url: 'https://api.example.com', client }),
+	default: createFetcher({ url: 'https://api.example.com', client }),
 })
 ```
 
@@ -75,23 +75,24 @@ import { defineAuth } from '@ginjou/core'
 import { defineAuthContext } from '@ginjou/vue'
 
 defineAuthContext(defineAuth({
-  login: async ({ username, password }) => {
-    const res = await fetch('/auth/login', { method: 'POST', body: JSON.stringify({ username, password }) })
-    const { token } = await res.json()
-    localStorage.setItem('token', token)
-    return {}
-  },
-  logout: async () => {
-    localStorage.removeItem('token')
-    return {}
-  },
-  check: async () => {
-    return { authenticated: !!localStorage.getItem('token') }
-  },
-  checkError: async (error) => {
-    if ((error as any)?.status === 401) return { logout: true }
-    return {}
-  },
+	login: async ({ username, password }) => {
+		const res = await fetch('/auth/login', { method: 'POST', body: JSON.stringify({ username, password }) })
+		const { token } = await res.json()
+		localStorage.setItem('token', token)
+		return {}
+	},
+	logout: async () => {
+		localStorage.removeItem('token')
+		return {}
+	},
+	check: async () => {
+		return { authenticated: !!localStorage.getItem('token') }
+	},
+	checkError: async (error) => {
+		if ((error as any)?.status === 401)
+			return { logout: true }
+		return {}
+	},
 }))
 ```
 

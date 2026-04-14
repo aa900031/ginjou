@@ -13,28 +13,29 @@ import { defineAuth } from '@ginjou/core'
 import { defineAuthContext } from '@ginjou/vue'
 
 defineAuthContext(defineAuth({
-  login: async (params) => {
-    // Authenticate. Return { redirectTo? } or void.
-    return {}
-  },
-  logout: async (params) => {
-    // Clear session. Return { redirectTo? } or void.
-    return {}
-  },
-  check: async () => {
-    // Return { authenticated: boolean }
-    return { authenticated: false }
-  },
-  checkError: async (error) => {
-    // Inspect errors from failed data fetches.
-    // Return { logout?: boolean, redirectTo?, error? }
-    if ((error as any).status === 401) return { logout: true }
-    return {}
-  },
-  getIdentity: async () => {
-    // Return user data or null
-    return null
-  },
+	login: async (params) => {
+		// Authenticate. Return { redirectTo? } or void.
+		return {}
+	},
+	logout: async (params) => {
+		// Clear session. Return { redirectTo? } or void.
+		return {}
+	},
+	check: async () => {
+		// Return { authenticated: boolean }
+		return { authenticated: false }
+	},
+	checkError: async (error) => {
+		// Inspect errors from failed data fetches.
+		// Return { logout?: boolean, redirectTo?, error? }
+		if ((error as any).status === 401)
+			return { logout: true }
+		return {}
+	},
+	getIdentity: async () => {
+		// Return user data or null
+		return null
+	},
 }))
 ```
 
@@ -53,16 +54,20 @@ const { mutateAsync: logout, isPending: isLogoutLoading } = useLogout()
 </script>
 
 <template>
-  <template v-if="isLoading || authenticated == null">
-    Checking auth…
-  </template>
-  <template v-else-if="authenticated.authenticated === true">
-    Logged in
-    <button :disabled="isLogoutLoading" @click="logout()">Logout</button>
-  </template>
-  <template v-else>
-    <button :disabled="isLoginLoading" @click="login({ email: 'user@example.com', password: '…' })">Login</button>
-  </template>
+	<template v-if="isLoading || authenticated == null">
+		Checking auth…
+	</template>
+	<template v-else-if="authenticated.authenticated === true">
+		Logged in
+		<button :disabled="isLogoutLoading" @click="logout()">
+			Logout
+		</button>
+	</template>
+	<template v-else>
+		<button :disabled="isLoginLoading" @click="login({ email: 'user@example.com', password: '…' })">
+			Login
+		</button>
+	</template>
 </template>
 ```
 
@@ -75,8 +80,12 @@ const { data: identity, isLoading } = useGetIdentity<{ username: string }>()
 </script>
 
 <template>
-  <template v-if="isLoading || identity == null">Loading…</template>
-  <template v-else>Hi! {{ identity.username }}</template>
+	<template v-if="isLoading || identity == null">
+		Loading…
+	</template>
+	<template v-else>
+		Hi! {{ identity.username }}
+	</template>
 </template>
 ```
 
@@ -86,9 +95,10 @@ import { useCheckError } from '@ginjou/vue'
 
 const { mutateAsync: checkError } = useCheckError()
 try {
-  await someDataFetch()
-} catch (err) {
-  await checkError(err)
+	await someDataFetch()
+}
+catch (err) {
+	await checkError(err)
 }
 ```
 

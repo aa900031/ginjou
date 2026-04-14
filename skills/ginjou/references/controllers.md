@@ -17,20 +17,20 @@ Manages pagination, filters, and sorters for a list page. `currentPage` and `per
 import type { Post } from './types'
 import { FilterOperator } from '@ginjou/core'
 import { useList } from '@ginjou/vue'
-import { reactive, watch, unref } from 'vue'
+import { reactive, unref, watch } from 'vue'
 
 const {
-  records,
-  isFetching,
-  currentPage,
-  perPage,
-  total,
-  pageCount,
-  filters,
-  sorters,
+	records,
+	isFetching,
+	currentPage,
+	perPage,
+	total,
+	pageCount,
+	filters,
+	sorters,
 } = useList<Post>({
-  resource: 'posts',
-  syncRoute: true, // syncs pagination/filters/sorters to URL query string
+	resource: 'posts',
+	syncRoute: true, // syncs pagination/filters/sorters to URL query string
 })
 
 // Paginate by assigning to the ref
@@ -39,10 +39,10 @@ currentPage.value = 2
 // Apply filters
 const formData = reactive({ title: '', status: '' })
 watch(() => unref(formData), (data) => {
-  filters.value = [
-    data.title ? { field: 'title', operator: FilterOperator.contains, value: data.title } : undefined,
-    data.status ? { field: 'status', operator: FilterOperator.eq, value: data.status } : undefined,
-  ].filter(Boolean)
+	filters.value = [
+		data.title ? { field: 'title', operator: FilterOperator.contains, value: data.title } : undefined,
+		data.status ? { field: 'status', operator: FilterOperator.eq, value: data.status } : undefined,
+	].filter(Boolean)
 }, { flush: 'post', deep: true, immediate: true })
 </script>
 ```
@@ -57,19 +57,21 @@ import type { Post } from './types'
 import { useInfiniteList } from '@ginjou/vue'
 
 const { records, hasNextPage, fetchNextPage, perPage } = useInfiniteList<Post>({
-  resource: 'posts',
-  syncRoute: true,
+	resource: 'posts',
+	syncRoute: true,
 })
 </script>
 
 <template>
-  <!-- CORRECT: nested v-for for page groups -->
-  <template v-for="(page, i) in records" :key="i">
-    <tr v-for="item in page" :key="item.id">
-      <td>{{ item.title }}</td>
-    </tr>
-  </template>
-  <button :disabled="!hasNextPage" @click="fetchNextPage">More</button>
+	<!-- CORRECT: nested v-for for page groups -->
+	<template v-for="(page, i) in records" :key="i">
+		<tr v-for="item in page" :key="item.id">
+			<td>{{ item.title }}</td>
+		</tr>
+	</template>
+	<button :disabled="!hasNextPage" @click="fetchNextPage">
+		More
+	</button>
 </template>
 ```
 
@@ -81,23 +83,25 @@ Loads a single record. `resource` and `id` are optional **only** when Ginjou res
 <script setup lang="ts">
 import type { Post } from './types'
 import { useShow } from '@ginjou/vue'
-import { useRoute } from 'vue-router'
 import { toRef } from 'vue'
+import { useRoute } from 'vue-router'
 
 const route = useRoute()
 // Pass explicitly when resource routing is not configured
 const { record, isFetching } = useShow<Post>({
-  resource: 'posts',
-  id: toRef(() => route.params.id as string),
+	resource: 'posts',
+	id: toRef(() => route.params.id as string),
 })
 </script>
 
 <template>
-  <div v-if="isFetching">Loading...</div>
-  <div v-else-if="record">
-    <p>{{ record.title }}</p>
-    <p>{{ record.status }}</p>
-  </div>
+	<div v-if="isFetching">
+		Loading...
+	</div>
+	<div v-else-if="record">
+		<p>{{ record.title }}</p>
+		<p>{{ record.status }}</p>
+	</div>
 </template>
 ```
 
@@ -112,7 +116,7 @@ import { useCreate } from '@ginjou/vue'
 const { save, isPending } = useCreate({ resource: 'posts' })
 
 async function handleSubmit(formData) {
-  await save(formData)
+	await save(formData)
 }
 </script>
 ```
@@ -125,13 +129,13 @@ Returns `record` (the fetched data) and `save()`. Like `useShow`, pass `resource
 <script setup lang="ts">
 import type { Post } from './types'
 import { useEdit } from '@ginjou/vue'
-import { useRoute } from 'vue-router'
 import { toRef } from 'vue'
+import { useRoute } from 'vue-router'
 
 const route = useRoute()
 const { record, save, isPending } = useEdit<Post>({
-  resource: 'posts',
-  id: toRef(() => route.params.id as string),
+	resource: 'posts',
+	id: toRef(() => route.params.id as string),
 })
 </script>
 ```
@@ -150,22 +154,22 @@ import { ref } from 'vue'
 
 const value = ref<string>()
 const { options, search } = useSelect<Post>({
-  resource: 'posts',
-  value,           // keeps current selection in the list
-  labelKey: 'title', // default
-  valueKey: 'id',    // default
+	resource: 'posts',
+	value, // keeps current selection in the list
+	labelKey: 'title', // default
+	valueKey: 'id', // default
 })
 
 search.value = 'alice' // triggers remote filtering
 </script>
 
 <template>
-  <input v-model="search" placeholder="Search…">
-  <select v-model="value">
-    <option v-for="opt in options" :key="opt.value" :value="opt.value">
-      {{ opt.label }}
-    </option>
-  </select>
+	<input v-model="search" placeholder="Search…">
+	<select v-model="value">
+		<option v-for="opt in options" :key="opt.value" :value="opt.value">
+			{{ opt.label }}
+		</option>
+	</select>
 </template>
 ```
 
@@ -175,15 +179,15 @@ When search results change, preserve the currently selected option separately fr
 
 ```vue
 <script setup lang="ts">
-import { ref } from 'vue'
 import { useSelect } from '@ginjou/vue'
+import { ref } from 'vue'
 
 const selectedUserId = ref<string | undefined>()
 const { options, search } = useSelect({
-  resource: 'users',
-  value: selectedUserId,
-  labelKey: 'name',
-  valueKey: 'id',
+	resource: 'users',
+	value: selectedUserId,
+	labelKey: 'name',
+	valueKey: 'id',
 })
 
 // User types; option list updates, but selectedUserId remains stable.

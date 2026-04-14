@@ -19,15 +19,15 @@ If none of these is needed, skip `defineResourceContext` and pass `resource` and
 import { defineResourceContext } from '@ginjou/vue'
 
 defineResourceContext({
-  resources: [
-    {
-      name: 'posts',
-      list: '/posts',
-      create: '/posts/new',
-      edit: '/posts/:id/edit',
-      show: '/posts/:id',
-    },
-  ],
+	resources: [
+		{
+			name: 'posts',
+			list: '/posts',
+			create: '/posts/new',
+			edit: '/posts/:id/edit',
+			show: '/posts/:id',
+		},
+	],
 })
 ```
 
@@ -39,15 +39,15 @@ Use `meta.parent` for nested route hierarchies:
 
 ```typescript
 defineResourceContext({
-  resources: [
-    { name: 'posts', list: '/posts', show: '/posts/:id' },
-    {
-      name: 'comments',
-      list: '/posts/:postId/comments',
-      show: '/posts/:postId/comments/:id',
-      meta: { parent: 'posts' },
-    },
-  ],
+	resources: [
+		{ name: 'posts', list: '/posts', show: '/posts/:id' },
+		{
+			name: 'comments',
+			list: '/posts/:postId/comments',
+			show: '/posts/:postId/comments/:id',
+			meta: { parent: 'posts' },
+		},
+	],
 })
 ```
 
@@ -57,15 +57,15 @@ Bind different fetchers per resource using `meta.fetcherName`. The key must matc
 
 ```typescript
 defineFetchersContext({
-  'rest-api': createFetcher({ url: 'https://api.example.com' }),
-  'supabase': createFetcher({ client: supabaseClient }),
+	'rest-api': createFetcher({ url: 'https://api.example.com' }),
+	'supabase': createFetcher({ client: supabaseClient }),
 })
 
 defineResourceContext({
-  resources: [
-    { name: 'posts', list: '/posts', meta: { fetcherName: 'rest-api' } },
-    { name: 'analytics', list: '/analytics', meta: { fetcherName: 'supabase' } },
-  ],
+	resources: [
+		{ name: 'posts', list: '/posts', meta: { fetcherName: 'rest-api' } },
+		{ name: 'analytics', list: '/analytics', meta: { fetcherName: 'supabase' } },
+	],
 })
 ```
 
@@ -81,25 +81,25 @@ Use this pattern for S18-style prompts where nested routes and multi-backend bin
 
 ```typescript
 defineResourceContext({
-  resources: [
-    {
-      name: 'accounts',
-      list: '/accounts',
-      show: '/accounts/:id',
-      meta: { fetcherName: 'supabase' },
-    },
-    {
-      name: 'orders',
-      list: '/accounts/:accountId/orders',
-      show: '/accounts/:accountId/orders/:id',
-      meta: { parent: 'accounts', fetcherName: 'rest-api' },
-    },
-    {
-      name: 'reports',
-      list: '/reports',
-      meta: { fetcherName: 'directus' },
-    },
-  ],
+	resources: [
+		{
+			name: 'accounts',
+			list: '/accounts',
+			show: '/accounts/:id',
+			meta: { fetcherName: 'supabase' },
+		},
+		{
+			name: 'orders',
+			list: '/accounts/:accountId/orders',
+			show: '/accounts/:accountId/orders/:id',
+			meta: { parent: 'accounts', fetcherName: 'rest-api' },
+		},
+		{
+			name: 'reports',
+			list: '/reports',
+			meta: { fetcherName: 'directus' },
+		},
+	],
 })
 ```
 

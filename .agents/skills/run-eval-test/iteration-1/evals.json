@@ -1,73 +1,73 @@
 {
-  "skill_name": "run-eval-test",
-  "evals": [
-    {
-      "id": 1,
-      "dir_name": "list-filters-rest",
-      "prompt": "我想在 Vue 應用中建立一個顯示所有貼文的列表頁面，支援分頁和篩選，後端用 REST API",
-      "expected_output": "Trigger on generic CRUD intent, identify a standard list page, choose the list topic, recommend the correct controllers path, and include a REST-specific pagination/filter safety check without asking for extra context.",
-      "files": [
-        "/Users/zhong666/Developer/ginjou/skills/ginjou/SKILL.md",
-        "/Users/zhong666/Developer/ginjou/skills/run-eval-test/references/topic-registry.md"
-      ],
-      "expectations": [
-        "Must trigger without mentioning ginjou",
-        "Must classify as a standard list page",
-        "Must route to controllers.md and backend-rest-api.md",
-        "Must mention the REST query contract for pagination and filters",
-        "Must not confuse the case with search/select or row actions"
-      ]
-    },
-    {
-      "id": 2,
-      "dir_name": "nuxt-modal-edit-delete-supabase",
-      "prompt": "建立 Nuxt 訂單管理頁面，允許透過 modal 編輯和刪除訂單，row delete 走 confirmation modal，後端用 Supabase",
-      "expected_output": "Trigger on generic CRUD intent, treat the list as a page flow and the edit/delete actions as non-page modal flows, choose the correct page and data-composable references, and include Supabase mutation safety checks.",
-      "files": [
-        "/Users/zhong666/Developer/ginjou/skills/ginjou/SKILL.md",
-        "/Users/zhong666/Developer/ginjou/skills/run-eval-test/references/topic-registry.md"
-      ],
-      "expectations": [
-        "Must trigger without mentioning ginjou",
-        "Must state Nuxt root guidance if needed",
-        "Must split page list behavior from modal edit/delete behavior",
-        "Must route to controllers.md, data-composables.md, and backend-supabase.md",
-        "Must mention Supabase id mapping and mutation safety checks"
-      ]
-    },
-    {
-      "id": 3,
-      "dir_name": "nuxt-remote-search-select-supabase",
-      "prompt": "我的 Nuxt 應用需要一個使用者搜尋欄位，當使用者輸入時遠端過濾 Supabase API",
-      "expected_output": "Trigger on remote search intent, classify the flow as option-loading, choose useSelect, preserve the selected value separately from fetched options, and include the Supabase filter contract.",
-      "files": [
-        "/Users/zhong666/Developer/ginjou/skills/ginjou/SKILL.md",
-        "/Users/zhong666/Developer/ginjou/skills/run-eval-test/references/topic-registry.md"
-      ],
-      "expectations": [
-        "Must trigger without mentioning ginjou",
-        "Must route to controllers.md and backend-supabase.md",
-        "Must prefer useSelect over useList",
-        "Must mention selected-value persistence outside the latest result set",
-        "Must mention the backend query/filter contract"
-      ]
-    },
-    {
-      "id": 4,
-      "dir_name": "nuxt-inventory-single-page-supabase",
-      "prompt": "我在 Nuxt 想做一個庫存管理頁，單頁包含列表、編輯抽屜、row delete confirmation，後端用 Supabase",
-      "expected_output": "Trigger on generic CRUD intent, recognize a mixed single-page flow, split list, drawer edit, and row delete concerns, and produce a Supabase-safe answer with the right page and non-page references.",
-      "files": [
-        "/Users/zhong666/Developer/ginjou/skills/ginjou/SKILL.md",
-        "/Users/zhong666/Developer/ginjou/skills/run-eval-test/references/topic-registry.md"
-      ],
-      "expectations": [
-        "Must trigger without mentioning ginjou",
-        "Must classify the prompt as a single-page mixed surface",
-        "Must route to setup.md, controllers.md, data-composables.md, and backend-supabase.md",
-        "Must include drawer edit and row delete confirmation as separate concerns",
-        "Must mention Supabase mutation safety and id mapping checks"
-      ]
-    }
-  ]
+	"skill_name": "run-eval-test",
+	"evals": [
+		{
+			"id": 1,
+			"dir_name": "list-filters-rest",
+			"prompt": "我想在 Vue 應用中建立一個顯示所有貼文的列表頁面，支援分頁和篩選，後端用 REST API",
+			"expected_output": "Trigger on generic CRUD intent, identify a standard list page, choose the list topic, recommend the correct controllers path, and include a REST-specific pagination/filter safety check without asking for extra context.",
+			"files": [
+				"/Users/zhong666/Developer/ginjou/skills/ginjou/SKILL.md",
+				"/Users/zhong666/Developer/ginjou/skills/run-eval-test/references/topic-registry.md"
+			],
+			"expectations": [
+				"Must trigger without mentioning ginjou",
+				"Must classify as a standard list page",
+				"Must route to controllers.md and backend-rest-api.md",
+				"Must mention the REST query contract for pagination and filters",
+				"Must not confuse the case with search/select or row actions"
+			]
+		},
+		{
+			"id": 2,
+			"dir_name": "nuxt-modal-edit-delete-supabase",
+			"prompt": "建立 Nuxt 訂單管理頁面，允許透過 modal 編輯和刪除訂單，row delete 走 confirmation modal，後端用 Supabase",
+			"expected_output": "Trigger on generic CRUD intent, treat the list as a page flow and the edit/delete actions as non-page modal flows, choose the correct page and data-composable references, and include Supabase mutation safety checks.",
+			"files": [
+				"/Users/zhong666/Developer/ginjou/skills/ginjou/SKILL.md",
+				"/Users/zhong666/Developer/ginjou/skills/run-eval-test/references/topic-registry.md"
+			],
+			"expectations": [
+				"Must trigger without mentioning ginjou",
+				"Must state Nuxt root guidance if needed",
+				"Must split page list behavior from modal edit/delete behavior",
+				"Must route to controllers.md, data-composables.md, and backend-supabase.md",
+				"Must mention Supabase id mapping and mutation safety checks"
+			]
+		},
+		{
+			"id": 3,
+			"dir_name": "nuxt-remote-search-select-supabase",
+			"prompt": "我的 Nuxt 應用需要一個使用者搜尋欄位，當使用者輸入時遠端過濾 Supabase API",
+			"expected_output": "Trigger on remote search intent, classify the flow as option-loading, choose useSelect, preserve the selected value separately from fetched options, and include the Supabase filter contract.",
+			"files": [
+				"/Users/zhong666/Developer/ginjou/skills/ginjou/SKILL.md",
+				"/Users/zhong666/Developer/ginjou/skills/run-eval-test/references/topic-registry.md"
+			],
+			"expectations": [
+				"Must trigger without mentioning ginjou",
+				"Must route to controllers.md and backend-supabase.md",
+				"Must prefer useSelect over useList",
+				"Must mention selected-value persistence outside the latest result set",
+				"Must mention the backend query/filter contract"
+			]
+		},
+		{
+			"id": 4,
+			"dir_name": "nuxt-inventory-single-page-supabase",
+			"prompt": "我在 Nuxt 想做一個庫存管理頁，單頁包含列表、編輯抽屜、row delete confirmation，後端用 Supabase",
+			"expected_output": "Trigger on generic CRUD intent, recognize a mixed single-page flow, split list, drawer edit, and row delete concerns, and produce a Supabase-safe answer with the right page and non-page references.",
+			"files": [
+				"/Users/zhong666/Developer/ginjou/skills/ginjou/SKILL.md",
+				"/Users/zhong666/Developer/ginjou/skills/run-eval-test/references/topic-registry.md"
+			],
+			"expectations": [
+				"Must trigger without mentioning ginjou",
+				"Must classify the prompt as a single-page mixed surface",
+				"Must route to setup.md, controllers.md, data-composables.md, and backend-supabase.md",
+				"Must include drawer edit and row delete confirmation as separate concerns",
+				"Must mention Supabase mutation safety and id mapping checks"
+			]
+		}
+	]
 }

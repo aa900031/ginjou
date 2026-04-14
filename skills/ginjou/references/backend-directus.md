@@ -15,13 +15,13 @@ pnpm add @ginjou/with-directus @directus/sdk
 ## Setup
 
 ```typescript
-import { createFetcher, createAuth } from '@ginjou/with-directus'
-import { createDirectus, rest, authentication } from '@directus/sdk'
-import { defineFetchersContext, defineAuthContext } from '@ginjou/vue'
+import { authentication, createDirectus, rest } from '@directus/sdk'
+import { defineAuthContext, defineFetchersContext } from '@ginjou/vue'
+import { createAuth, createFetcher } from '@ginjou/with-directus'
 
 const directus = createDirectus('https://your-directus.example.com')
-  .with(rest())
-  .with(authentication())
+	.with(rest())
+	.with(authentication())
 
 defineFetchersContext({ default: createFetcher({ client: directus }) })
 defineAuthContext(createAuth({ client: directus }))
@@ -34,29 +34,29 @@ Pass these in the `meta` prop to control Directus queries:
 ```typescript
 // Pass Directus query fields and filters
 useGetList({
-  resource: 'posts',
-  meta: {
-    query: {
-      fields: ['id', 'title', 'status', 'user_created.name'],
-      filter: { status: { _eq: 'published' } },
-    },
-  },
+	resource: 'posts',
+	meta: {
+		query: {
+			fields: ['id', 'title', 'status', 'user_created.name'],
+			filter: { status: { _eq: 'published' } },
+		},
+	},
 })
 
 // Override only specific query fields
 useGetOne({
-  resource: 'posts',
-  id: '1',
-  meta: { query: { fields: ['*', 'tags.*'] } },
+	resource: 'posts',
+	id: '1',
+	meta: { query: { fields: ['*', 'tags.*'] } },
 })
 
 // Aggregation
 useGetList({
-  resource: 'posts',
-  meta: {
-    aggregate: { count: '*' },
-    groupBy: ['status'],
-  },
+	resource: 'posts',
+	meta: {
+		aggregate: { count: '*' },
+		groupBy: ['status'],
+	},
 })
 ```
 
@@ -72,18 +72,19 @@ useGetList({
 
 ```typescript
 import { useLogin } from '@ginjou/vue'
+
 const { mutateAsync: login } = useLogin()
 
 // Password
 await login({
-  type: 'password',
-  params: { email: 'user@example.com', password: '…' },
+	type: 'password',
+	params: { email: 'user@example.com', password: '…' },
 })
 
 // SSO
 await login({
-  type: 'sso',
-  params: { provider: 'google' },
+	type: 'sso',
+	params: { provider: 'google' },
 })
 ```
 

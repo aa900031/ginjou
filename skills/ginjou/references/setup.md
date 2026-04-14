@@ -29,7 +29,7 @@ defineRouterContext(createRouter()) // omit if no route-aware behavior is needed
 </script>
 
 <template>
-  <RouterView />
+	<RouterView />
 </template>
 ```
 
@@ -45,7 +45,7 @@ Add to `nuxt.config.ts`:
 
 ```ts
 export default defineNuxtConfig({
-  modules: ['@ginjou/nuxt'],
+	modules: ['@ginjou/nuxt'],
 })
 ```
 
@@ -63,7 +63,7 @@ defineFetchersContext({ default: createFetcher({ url: 'https://api.example.com' 
 </script>
 
 <template>
-  <NuxtLayout><NuxtPage /></NuxtLayout>
+	<NuxtLayout><NuxtPage /></NuxtLayout>
 </template>
 ```
 
@@ -82,22 +82,22 @@ Example wiring order:
 ```vue
 <script setup lang="ts">
 import { defineFetchersContext, defineQueryClientContext, defineResourceContext } from '@ginjou/vue'
-import { QueryClient } from '@tanstack/vue-query'
 import { createFetcher as createRestFetcher } from '@ginjou/with-rest-api'
 import { createFetcher as createSupabaseFetcher } from '@ginjou/with-supabase'
+import { QueryClient } from '@tanstack/vue-query'
 
 defineQueryClientContext(new QueryClient())
 
 defineFetchersContext({
-  'rest-api': createRestFetcher({ url: 'https://api.example.com' }),
-  'supabase': createSupabaseFetcher({ client: supabaseClient }),
+	'rest-api': createRestFetcher({ url: 'https://api.example.com' }),
+	'supabase': createSupabaseFetcher({ client: supabaseClient }),
 })
 
 defineResourceContext({
-  resources: [
-    { name: 'users', list: '/users', meta: { fetcherName: 'supabase' } },
-    { name: 'products', list: '/products', meta: { fetcherName: 'rest-api' } },
-  ],
+	resources: [
+		{ name: 'users', list: '/users', meta: { fetcherName: 'supabase' } },
+		{ name: 'products', list: '/products', meta: { fetcherName: 'rest-api' } },
+	],
 })
 </script>
 ```

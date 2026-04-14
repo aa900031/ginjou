@@ -13,32 +13,32 @@ import { NotificationType } from '@ginjou/core'
 import { defineNotificationContext } from '@ginjou/vue'
 
 defineNotificationContext({
-  open: (params) => {
-    switch (params.type) {
-      case NotificationType.Success:
-        toast.success(params.message)
-        break
-      case NotificationType.Error:
-        toast.error(params.message, { description: params.description })
-        break
-      case NotificationType.Progress:
-        // Show a progress/undo notification.
-        // params.timeout — ms before mutation is committed
-        // params.onFinish() — commit the mutation (called when timeout expires)
-        // params.onCancel() — cancel and undo the mutation
-        toast.progress(params.message, {
-          key: params.key,
-          timeout: params.timeout,
-          onFinish: params.onFinish,
-          onCancel: params.onCancel,
-        })
-        break
-    }
-  },
-  // close is REQUIRED for undoable mutations
-  close: (key) => {
-    toast.dismiss(key)
-  },
+	open: (params) => {
+		switch (params.type) {
+			case NotificationType.Success:
+				toast.success(params.message)
+				break
+			case NotificationType.Error:
+				toast.error(params.message, { description: params.description })
+				break
+			case NotificationType.Progress:
+				// Show a progress/undo notification.
+				// params.timeout — ms before mutation is committed
+				// params.onFinish() — commit the mutation (called when timeout expires)
+				// params.onCancel() — cancel and undo the mutation
+				toast.progress(params.message, {
+					key: params.key,
+					timeout: params.timeout,
+					onFinish: params.onFinish,
+					onCancel: params.onCancel,
+				})
+				break
+		}
+	},
+	// close is REQUIRED for undoable mutations
+	close: (key) => {
+		toast.dismiss(key)
+	},
 })
 ```
 
@@ -56,10 +56,22 @@ notify({ type: 'error', message: 'Save failed.', description: err.message })
 
 ```typescript
 // Success / Error
-{ type: 'success' | 'error', message: string, description?: string, key?: string }
+interface Notification {
+	type: 'success' | 'error'
+	message: string
+	description?: string
+	key?: string
+}
 
 // Progress (undoable mutation window)
-{ type: 'progress', message: string, key: string, timeout: number, onFinish: () => void, onCancel: () => void }
+interface Notification {
+	type: 'progress'
+	message: string
+	key: string
+	timeout: number
+	onFinish: () => void
+	onCancel: () => void
+}
 ```
 
 ## Undoable Mutations
@@ -68,8 +80,8 @@ Setting `mutationMode: 'undoable'` on a form controller or mutation composable t
 
 ```typescript
 const { save } = useCreate({
-  resource: 'posts',
-  mutationMode: 'undoable', // requires notification provider
+	resource: 'posts',
+	mutationMode: 'undoable', // requires notification provider
 })
 ```
 

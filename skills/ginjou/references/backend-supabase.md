@@ -15,9 +15,9 @@ pnpm add @ginjou/with-supabase @supabase/supabase-js
 ## Setup
 
 ```typescript
-import { createFetcher, createAuth } from '@ginjou/with-supabase'
+import { defineAuthContext, defineFetchersContext } from '@ginjou/vue'
+import { createAuth, createFetcher } from '@ginjou/with-supabase'
 import { createClient } from '@supabase/supabase-js'
-import { defineFetchersContext, defineAuthContext } from '@ginjou/vue'
 
 const supabase = createClient('https://your-project.supabase.co', 'your-anon-key')
 
@@ -55,6 +55,7 @@ useGetList({ resource: 'posts', meta: { count: 'exact' } })
 
 ```typescript
 import { useLogin } from '@ginjou/vue'
+
 const { mutateAsync: login } = useLogin()
 
 // Password
