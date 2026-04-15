@@ -1,13 +1,13 @@
 ---
 title: Supabase
-description: Connect Ginjou to your Supabase project for database and authentication features.
+description: TODO: 簡介這頁要做什麼
 ---
 
-[Supabase](https://supabase.com/) is an open-source Firebase alternative offering a complete backend suite. The `@ginjou/with-supabase` package connects Ginjou to your Supabase project, enabling instant access to your Postgres database and authentication services.
+<!-- TODO: 寫介紹 -->
 
 ## Installation
 
-Install the provider and the official Supabase SDK.
+<!-- TODO: 寫介紹，提示必須要安裝 supabase js client -->
 
 ::code-group
 ---
@@ -30,137 +30,53 @@ npm install @ginjou/with-supabase @supabase/supabase-js
 bun add @ginjou/with-supabase @supabase/supabase-js
 ```
 
-::
-
-## Setup
-
-Initialize the Supabase client and register the providers in your root component (`App.vue` or `app.vue`).
-
-::code-group
----
-sync: guide-example
----
-
-```vue [Vue]
-<script setup lang="ts">
-import { defineAuthContext, defineFetchersContext } from '@ginjou/vue'
-import { createAuth, createFetcher } from '@ginjou/with-supabase'
-import { createClient } from '@supabase/supabase-js'
-
-const supabaseUrl = 'https://your-project.supabase.co'
-const supabaseKey = 'your-anon-key'
-const client = createClient(supabaseUrl, supabaseKey)
-
-defineFetchersContext({
-	default: createFetcher({ client })
-})
-
-defineAuthContext(createAuth({ client }))
-</script>
-
-<template>
-	<RouterView />
-</template>
-```
-
-```svelte [Svelte]
-<!-- WIP -->
-<script>
-  // ...
-</script>
-```
+<!-- TODO: supabase js client 支援版本對應表 -->
 
 ::
 
 ## Fetcher
 
-The `createFetcher` function integrates Ginjou's data hooks with Supabase's Postgrest API.
+<!-- TODO: 介紹要如何與 Ginjou 的 Fetcher 結合 -->
+<!-- TODO: 介紹 createFetcher 的 params 分別做什麼 -->
+<!-- TODO: 範例: 用 CodeGroup 實做 Vue, Nuxt 該怎麼引入 @injou/with-supabase 的 createFetcher  -->
 
-### Query Control
+### Pagination
 
-Use the `meta` object to control the Supabase query directly. This maps to the `.select()` method in the SDK.
+<!-- TODO: 介紹如何轉換成 supabase 的格式 -->
 
-```typescript
-const { records } = useList({
-	resource: 'posts',
-	meta: {
-		// Maps directly to .select() in Supabase-js
-		select: 'id, title, author(name)',
-		count: 'exact',
-	}
-})
-```
+### Filters
 
-### Custom ID Column
+<!-- TODO: 請寫 mapping 表格，表示 operator 如何轉換成 supabase 的格式 -->
 
-If your table uses a primary key other than `id`, specify it using `idColumnName`.
+### Sorts
 
-```typescript
-const { record } = useGetOne({
-	resource: 'posts',
-	id: 'my-uuid',
-	meta: {
-		idColumnName: 'post_id'
-	}
-})
-```
+<!-- TODO: 介紹如何轉換成 supabase 的格式 -->
 
-## Authentication
+### Meta
 
-The `createAuth` function wraps Supabase Auth (GoTrue) to manage user sessions.
+<!-- TODO: 介紹 meta 使用方式 -->
+<!-- TODO: 範例：meta.idColumnName -->
+<!-- TODO: 範例：meta.select -->
 
-### Login Types
+## Auth
 
-The provider supports multiple authentication methods. The `type` determines which Supabase-js method is called.
+<!-- TODO: 介紹要如何與 Ginjou 的 Auth 結合 -->
 
-- `password`: Calls `signInWithPassword`
-- `oauth`: Calls `signInWithOAuth`
-- `otp`: Calls `signInWithOtp` (Magic Link or SMS)
-- `otp-token`: Calls `verifyOtp` (Verify code)
-- `idtoken`: Calls `signInWithIdToken`
-- `sso`: Calls `signInWithSSO`
+### Login
 
-```typescript
-const { mutateAsync: login } = useLogin()
+<!-- TODO: 介紹 auth.login 對應的 supabase js client function -->
+<!-- TODO: 範例：帳號密碼登入 -->
+<!-- TODO: 範例：OAuth 登入 -->
+<!-- TODO: 用表格列出目前支援的登入方式，和對應的 supabase js client function -->
 
-// Password Authentication
-await login({
-	type: 'password',
-	params: {
-		email: 'user@example.com',
-		password: 'password',
-	},
-})
+### Logout
 
-// OAuth Authentication
-await login({
-	type: 'oauth',
-	params: {
-		provider: 'github',
-		options: {
-			redirectTo: 'https://your-app.com/callback',
-		},
-	},
-})
+<!-- TODO: 介紹 auth.logout 對應的 supabase js client function -->
 
-// OTP (Magic Link)
-await login({
-	type: 'otp',
-	params: {
-		email: 'user@example.com',
-		options: {
-			redirectTo: 'https://your-app.com/callback',
-		},
-	},
-})
+### Identity
 
-// OTP Token Verification
-await login({
-	type: 'otp-token',
-	params: {
-		email: 'user@example.com',
-		token: '123456',
-		type: 'magiclink',
-	},
-})
-```
+<!-- TODO: 介紹 auth.getIdentity 對應的 supabase js client function -->
+
+### Check
+
+<!-- TODO: 介紹 auth.check 對應的 supabase js client function -->

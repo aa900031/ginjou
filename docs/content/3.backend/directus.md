@@ -1,13 +1,13 @@
 ---
 title: Directus
-description: Connect Directus to Ginjou for instant Headless CMS capabilities.
+description: TODO: 簡介這頁要做什麼
 ---
 
-[Directus](https://directus.io/) is an instant Headless CMS that turns your SQL database into a flexible API. The `@ginjou/with-directus` package integrates Ginjou with Directus, providing seamless data management and authentication.
+<!-- TODO: 寫介紹 -->
 
 ## Installation
 
-Install the provider and the official Directus SDK.
+<!-- TODO: 寫介紹，提示必須要安裝 directus/sdk -->
 
 ::code-group
 ---
@@ -30,117 +30,54 @@ npm install @ginjou/with-directus @directus/sdk
 bun add @ginjou/with-directus @directus/sdk
 ```
 
-::
-
-## Setup
-
-Initialize the Directus client and register the providers in your root component (`App.vue` or `app.vue`).
-
-::code-group
----
-sync: guide-example
----
-
-```vue [Vue]
-<script setup lang="ts">
-import { authentication, createDirectus, rest } from '@directus/sdk'
-import { defineAuthContext, defineFetchersContext } from '@ginjou/vue'
-import { createAuth, createFetcher } from '@ginjou/with-directus'
-
-const client = createDirectus('https://your-directus-url.com')
-	.with(rest())
-	.with(authentication())
-
-defineFetchersContext({
-	default: createFetcher({ client })
-})
-
-defineAuthContext(createAuth({ client }))
-</script>
-
-<template>
-	<RouterView />
-</template>
-```
-
-```svelte [Svelte]
-<!-- WIP -->
-<script>
-  // ...
-</script>
-```
+<!-- TODO: directus 支援版本對應表 -->
 
 ::
 
 ## Fetcher
 
-The `createFetcher` function maps Ginjou's data operations to Directus API requests.
+<!-- TODO: 介紹要如何與 Ginjou 的 Fetcher 結合 -->
+<!-- TODO: 介紹 createFetcher 的 params 分別做什麼 -->
+<!-- TODO: 新增 resource 對照 Collections 和 System Collections 如何做轉換 -->
 
-### Resource Mapping
+### Pagination
 
-By default, the `resource` name corresponds to the Directus collection name.
+<!-- TODO: 介紹如何轉換成 directus 的格式 -->
 
-```typescript
-// Requests /items/posts
-const { records } = useList({ resource: 'posts' })
-```
+### Filters
 
-### System Collections
+<!-- TODO: 請寫 mapping 表格，表示 operator 如何轉換成 directus 的格式 -->
 
-The provider automatically routes requests for system collections. Resources prefixed with `directus_` or `directus/` map to their respective system endpoints:
+### Sorts
 
-- `directus_users` → `/users`
-- `directus_files` → `/files`
-- `directus_roles` → `/roles`
+<!-- TODO: 介紹如何轉換成 directus 的格式 -->
 
-### Advanced Queries
+### Meta
 
-Pass standard Directus query parameters via the `meta.query` object.
+<!-- TODO: 介紹 meta 使用方式 -->
+<!-- TODO: 範例：meta.query -->
+<!-- TODO: 範例：meta.aggregate -->
+<!-- TODO: 範例：meta.groupBy -->
 
-```typescript
-const { records } = useList({
-	resource: 'posts',
-	meta: {
-		query: {
-			fields: ['*', 'author.*'],
-			sort: ['-date_created'],
-		}
-	}
-})
-```
+## Auth
 
-## Authentication
+<!-- TODO: 介紹要如何與 Ginjou 的 Auth 結合 -->
 
-The `createAuth` function manages authentication state using the Directus SDK.
+### Login
 
-### Login Types
+<!-- TODO: 介紹 auth.login 對應的 directus client function -->
+<!-- TODO: 範例：帳號密碼登入 -->
+<!-- TODO: 範例：SSO 登入 -->
+<!-- TODO: 用表格列出目前支援的登入方式，和對應的 directus client function -->
 
-The provider supports password-based authentication and Single Sign-On (SSO).
+### Logout
 
-- `password`: Standard email/password login.
-- `sso`: Social login via configured providers (Google, GitHub, etc.).
+<!-- TODO: 介紹 auth.logout 對應的 directus client function -->
 
-```typescript
-const { mutateAsync: login } = useLogin()
+### Identity
 
-// Password Authentication
-await login({
-	type: 'password',
-	params: {
-		email: 'admin@example.com',
-		password: 'password',
-	},
-})
+<!-- TODO: 介紹 auth.getIdentity 對應的 directus client function -->
 
-// SSO Authentication
-// This will redirect to the configured provider
-await login({
-	type: 'sso',
-	params: {
-		provider: 'google',
-		options: {
-			mode: 'session',
-		},
-	},
-})
-```
+### Check
+
+<!-- TODO: 介紹 auth.check 對應的 directus client function -->

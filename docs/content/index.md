@@ -1,7 +1,7 @@
 ---
 seo:
-  title: Ginjou - Simple Data Application Framework
-  description: Create data-heavy applications easily. Connect APIs, manage state, and build interfaces quickly.
+  title: Ginjou
+  description: TODO: 請重新想 description，Ginjou 是可以在任何前端 lib 下，快速建立 App 的框架。(可以參考 refine: `Implement Refine documentation in Refine v5. Learn the key steps. Explore guides, tutorials, and API reference for real-world React admin panels.`, ra-core: `The Headless SPA Framework for React`, react-admin: `A frontend Framework for building B2B applications running in the browser on top of REST/GraphQL APIs, using ES6, React and Material Design`)
 ---
 
 ::u-page-hero
@@ -14,10 +14,10 @@ orientation: horizontal
   :::
 
 #title
-Data Applications Made Simple
+<!-- TODO: 請重新想一個 title -->
 
 #description
-Connect to any API and build powerful apps in minutes. No complex setup, just clean and simple code.
+<!-- TODO: 請重新想一個 description -->
 
 #links
   :::u-button
@@ -26,7 +26,7 @@ Connect to any API and build powerful apps in minutes. No complex setup, just cl
   to: /guides/introduction
   icon: i-lucide-arrow-right
   ---
-  Get started
+  Get Started
   :::
 
   :::u-button
@@ -39,51 +39,11 @@ Connect to any API and build powerful apps in minutes. No complex setup, just cl
   target: _blank
   class: after:content-['↗']
   rel: noreferrer noopener
-  ui: {
-    base: 'group',
-    leadingIcon: 'group-hover:text-pink-500',
-  }
   ---
   Storybook
   :::
 ::
 
-::u-page-section
+<!-- TODO: 新的 Section 名叫：Features，指出六個左右的特色，請以簡單的名稱 + 描述呈現  -->
 
-#features
-  :::u-page-feature
-  ---
-  icon: i-lucide-plug
-  orientation: vertical
-  ---
-  #title
-  Use Any API
-
-  #description
-  Connect to REST, GraphQL, or custom backends effortlessly. You can even mix multiple sources in one app.
-  :::
-
-  :::u-page-feature
-  ---
-  icon: i-lucide-refresh-ccw
-  orientation: vertical
-  ---
-  #title
-  Auto State Management
-
-  #description
-  Loading states, error handling, and caching are built-in. Stop writing repetitive code and focus on features.
-  :::
-
-  :::u-page-feature
-  ---
-  icon: i-lucide-rocket
-  orientation: vertical
-  ---
-  #title
-  Build Faster
-
-  #description
-  Powerful tools for Creating, Reading, Updating, and Deleting data. Build complex data flows in minutes, not days.
-  :::
-::
+<!-- TODO: 新的 section 名叫：Integrations，用 UMarquee (ref: https://ui.nuxt.com/raw/docs/components/marquee.md) 形式輪播 Supabase, Directus, RESTful, Nuxt 等 Icon + 名稱 -->
