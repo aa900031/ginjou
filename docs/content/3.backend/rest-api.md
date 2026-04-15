@@ -1,9 +1,9 @@
 ---
 title: RESTful API
-description: TODO: 簡介這頁要做什麼
+description: 說明 @ginjou/with-rest-api 的 fetcher 映射與支援範圍。
 ---
 
-<!-- TODO: 寫介紹，需要和使用者說 spec 是照著 [json-server](https://github.com/typicode/json-server) 實作 -->
+<!-- TODO: 寫介紹，需要和使用者說這個 package 採用 json-server 風格的 query conventions，主要提供 fetcher 而非 auth bridge -->
 
 ## Installation
 
@@ -30,11 +30,16 @@ bun add @ginjou/with-rest-api
 
 ::
 
+## Scope
+
+<!-- TODO: 明確說明這個 package 只提供 fetcher，不包含 auth、realtime 或其他 provider contract -->
+<!-- TODO: 補一張支援範圍表，明確列出目前已支援 getList、getOne、createOne、updateOne、deleteOne、custom，未支援 getMany、createMany、deleteMany、customMutation -->
+
 ## Fetcher
 
 <!-- TODO: 介紹要如何與 Ginjou 的 Fetcher 結合 -->
 <!-- TODO: 介紹 createFetcher 的 params 分別做什麼 -->
-<!-- TODO: 範例: 用 CodeGroup 實做 Vue, Nuxt 該怎麼引入 @injou/with-rest-api 的 createFetcher  -->
+<!-- TODO: 範例：用 CodeGroup 實做 Vue、Nuxt 該怎麼引入 @ginjou/with-rest-api 的 createFetcher -->
 
 ### URLs
 
@@ -47,8 +52,9 @@ bun add @ginjou/with-rest-api
 ### Filters
 
 <!-- TODO: 請寫 mapping 表格，表示 operator 如何轉換成 json-server 的格式，和會有哪些限制 -->
+<!-- TODO: 明確列出目前不支援的 logical filters，例如 or / and -->
 
-### Sorts
+### Sorters
 
 <!-- TODO: 如何轉換成 json-server 的格式 -->
 
