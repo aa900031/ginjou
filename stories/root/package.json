@@ -18,17 +18,17 @@
 		"preview": "sirv ./dist --host -p 7006"
 	},
 	"devDependencies": {
-		"@storybook/addon-docs": "^10.3.2",
-		"@storybook/react-vite": "^10.3.2",
+		"@storybook/addon-docs": "^10.3.5",
+		"@storybook/react-vite": "^10.3.5",
 		"@types/react": "^19.2.14",
 		"@types/react-dom": "^19.2.3",
 		"@vitejs/plugin-react": "^5.2.0",
 		"npm-run-all2": "^8.0.4",
-		"react": "^19.2.4",
-		"react-dom": "^19.2.4",
+		"react": "^19.2.5",
+		"react-dom": "^19.2.5",
 		"remark-gfm": "^4.0.1",
-		"storybook": "^10.3.2",
-		"vite": "^7.3.1",
-		"wait-on": "^9.0.4"
+		"storybook": "^10.3.5",
+		"vite": "^7.3.2",
+		"wait-on": "^9.0.5"
 	}
 }
