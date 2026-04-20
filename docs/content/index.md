@@ -105,7 +105,7 @@ title: Features
 ::u-page-section
 ---
 title: Integrations
-description: Move between frontend adapters and backend bridges without rewriting your app model.
+description: Move between frontend adapters and backend adapters without rewriting your app model.
 ---
 #default
   <div class="flex flex-col min-w-0 gap-2">
