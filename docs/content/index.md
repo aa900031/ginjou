@@ -1,7 +1,7 @@
 ---
 seo:
-  title: Ginjou
-  description: Build data-heavy frontends on a framework-agnostic core with shared contracts for data, auth, authz, routing, i18n, notifications, realtime, and resources.
+  title: Build Data-Driven Apps with Ease
+  description: Ginjou organizes common data-driven workflows into a flexible core that's easy to start with and adapt as your app grows.
 ---
 
 ::u-page-hero
@@ -14,10 +14,10 @@ orientation: horizontal
   :::
 
 #title
-A Headless App Framework for Data-Heavy Frontends
+Build Data-Driven Apps with Ease
 
 #description
-Build on a framework-agnostic core with shared contracts, cache-aware data flows, and page-level controllers.
+Common data-driven workflows are already organized in a flexible core that's easy to start with and adapt as your app grows.
 
 #links
   :::u-button
@@ -55,59 +55,52 @@ title: Features
   ---
   title: Headless Core
   icon: i-lucide-layers-3
-  to: /guides/introduction
   ---
-  Start from `@ginjou/core` and keep data, auth, router, and resource contracts independent from any single framework.
+  Keep data, auth, router, and resources outside any single framework.
   ::
 
   ::card
   ---
   title: Query-Driven Data Layer
   icon: i-lucide-database-zap
-  to: /guides/data
   ---
-  Use one shared model for lists, detail views, mutations, and custom requests on top of TanStack Query.
+  Run lists, detail views, mutations, and custom requests on one TanStack Query model.
   ::
 
   ::card
   ---
-  title: Route-Aware Controllers
+  title: Controller-Driven Pages
   icon: i-lucide-route
-  to: /guides/router
   ---
-  Let resources, router context, and controllers work together so list, show, create, and edit flows stay aligned.
+  Keep routes, resource state, and page actions aligned across every CRUD screen.
   ::
 
   ::card
   ---
-  title: Optional App Contracts
-  icon: i-lucide-plug-zap
-  to: /integrations/vue
+  title: Human + AI Workflows
+  icon: i-lucide-bot
   ---
-  Add auth, authz, i18n, notifications, realtime, and resources only when your app actually needs them.
+  Give users and AI one skill-guided playbook for CRUD and admin workflows.
   ::
 
   ::card
   ---
   title: Frontend Adapters
   icon: i-lucide-blocks
-  to: /integrations/vue
   ---
-  Use the same contracts across frontend adapters. Today's docs cover Vue and Nuxt, and the core model is built to grow into more framework integrations over time.
+  Reuse the same contracts across frontend adapters as the ecosystem grows.
   ::
 
   ::card
   ---
   title: Backend Adapters
   icon: i-lucide-server-cog
-  to: /backend/rest-api
   ---
-  Connect REST-style APIs, Directus, and Supabase through adapters that preserve the same Ginjou hook surface.
+  Connect different backends through one app model.
   ::
 
   :::
 ::
-
 
 ::u-page-section
 ---
@@ -122,7 +115,7 @@ description: Move between frontend adapters and backend bridges without rewritin
     class: not-prose
     pauseOnHover: true
     overlay: false
-    repeat: 10
+    repeat: 8
     ui:
       root: "[--gap:--spacing(4)]"
       content: "w-auto py-1"
