@@ -10,8 +10,8 @@ Register the notification provider once at the app root.
 import { defineNotificationContext } from '@ginjou/vue'
 
 defineNotificationContext({
-	open: (params) => toast(params.type, params.message, params),
-	close: (key) => toast.dismiss(key),
+	open: params => toast(params.type, params.message, params),
+	close: key => toast.dismiss(key),
 })
 ```
 

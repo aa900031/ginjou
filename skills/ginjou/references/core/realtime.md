@@ -25,7 +25,7 @@ Start with conservative polling intervals and add a visible refresh or last-upda
 
 ## Subscription Model
 
-```ts
+```
 subscribe({ channel, actions, callback, params, meta }) => string
 ```
 

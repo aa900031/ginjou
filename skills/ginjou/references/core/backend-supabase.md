@@ -17,6 +17,7 @@ pnpm add @ginjou/with-supabase @supabase/supabase-js
 ```typescript
 import { createAuth, createFetcher } from '@ginjou/with-supabase'
 import { createClient } from '@supabase/supabase-js'
+
 const supabase = createClient('https://your-project.supabase.co', 'your-anon-key')
 const fetcher = createFetcher({ client: supabase })
 const auth = createAuth({ client: supabase })
@@ -36,7 +37,7 @@ These limitations are specific to the official `@ginjou/with-supabase` adapter.
 
 ## `meta` Options
 
-```typescript
+```
 { resource: 'posts', meta: { select: 'id, title, status' } }
 { resource: 'posts', id: '1', meta: { select: '*, author:users(id, name)' } }
 { resource: 'orders', id: 'order-001', meta: { idColumnName: 'order_id' } }
@@ -54,7 +55,7 @@ These limitations are specific to the official `@ginjou/with-supabase` adapter.
 
 > ⚠️ **Warning:** `@ginjou/with-supabase`'s `createAuth` is a **framework-agnostic** adapter. It works at the core level and does not depend on Vue or Nuxt.
 
-```typescript
+```
 { type: 'password', params: { email: 'user@example.com', password: '…' } }
 { type: 'oauth', params: { provider: 'github' } }
 { type: 'otp', params: { email: 'user@example.com' } }

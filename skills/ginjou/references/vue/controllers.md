@@ -64,6 +64,7 @@ When `defineRouterContext()` and `defineResourceContext()` are registered, `useS
 <script setup lang="ts">
 import type { Post } from './types'
 import { useShow } from '@ginjou/vue'
+
 const { record } = useShow<Post>({
 	resource: 'posts',
 	id: '1',

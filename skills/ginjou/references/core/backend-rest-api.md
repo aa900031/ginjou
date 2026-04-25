@@ -21,6 +21,7 @@ If the app needs shared headers, retry policy, or request interceptors, pass a c
 ```typescript
 import { createFetcher } from '@ginjou/with-rest-api'
 import { createFetch } from 'ofetch'
+
 const client = createFetch({
 	defaults: { headers: { Authorization: `Bearer ${token}` } },
 })
@@ -62,7 +63,7 @@ Compared with the official `@ginjou/with-supabase` adapter, the pagination input
 
 For the standard resource methods, use `meta.method` and `meta.headers` to customize the request.
 
-```typescript
+```
 { resource: 'posts', id: '1', meta: { method: 'POST' } }
 { resource: 'posts', meta: { headers: { 'X-Custom': 'value' } } }
 ```
@@ -74,7 +75,7 @@ For the standard resource methods, use `meta.method` and `meta.headers` to custo
 
 For `custom`, use the top-level `method` and `headers` props instead of `meta.method` and `meta.headers`.
 
-```typescript
+```
 {
 	url: '/actions/publish',
 	method: 'post',

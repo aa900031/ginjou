@@ -13,8 +13,8 @@ import { defineRealtimeContext } from '@ginjou/vue'
 
 defineRealtimeContext({
 	subscribe: ({ channel, actions, callback, params, meta }) => String(mySocket.on({ channel, actions, params, meta }, callback)),
-	unsubscribe: (key) => mySocket.off(key),
-	publish: (event) => mySocket.emit(event.channel, event),
+	unsubscribe: key => mySocket.off(key),
+	publish: event => mySocket.emit(event.channel, event),
 	options: { mode: 'auto', params: { tenantId: 'team-a' } },
 })
 ```
@@ -34,7 +34,7 @@ import { useSubscribe } from '@ginjou/vue'
 const { stop } = useSubscribe({
 	channel: 'posts',
 	actions: [RealtimeAction.Any],
-	callback: (event) => console.log(event.action),
+	callback: event => console.log(event.action),
 	params: { type: 'list', resource: 'posts' },
 })
 ```

@@ -17,6 +17,7 @@ pnpm add @ginjou/with-directus @directus/sdk
 ```typescript
 import { authentication, createDirectus, rest } from '@directus/sdk'
 import { createAuth, createFetcher } from '@ginjou/with-directus'
+
 const directus = createDirectus('https://your-directus.example.com')
 	.with(rest())
 	.with(authentication())
@@ -27,7 +28,7 @@ Register `fetcher` in the active adapter's fetcher context and `auth` in the mat
 
 ## `meta` Options
 
-```typescript
+```
 {
 	resource: 'posts',
 	meta: {
@@ -58,7 +59,7 @@ Register `fetcher` in the active adapter's fetcher context and `auth` in the mat
 
 `createAuth` supports password and SSO login.
 
-```typescript
+```
 { type: 'password', params: { email: 'user@example.com', password: '…' } }
 { type: 'sso', params: { provider: 'google' } }
 ```

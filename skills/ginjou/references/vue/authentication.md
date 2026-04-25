@@ -14,7 +14,7 @@ defineAuthContext(defineAuth({
 	login: async () => ({}),
 	logout: async () => ({}),
 	check: async () => ({ authenticated: false }),
-	checkError: async (error) => ((error as any).status === 401 ? { logout: true } : {}),
+	checkError: async error => ((error as any).status === 401 ? { logout: true } : {}),
 	getIdentity: async () => null,
 }))
 ```
