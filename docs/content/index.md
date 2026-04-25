@@ -1,7 +1,7 @@
 ---
 seo:
-  title: Ginjou - Simple Data Application Framework
-  description: Create data-heavy applications easily. Connect APIs, manage state, and build interfaces quickly.
+  title: Build Data-Driven Apps with Ease
+  description: Ginjou organizes common data-driven workflows into a flexible core that's easy to start with and adapt as your app grows.
 ---
 
 ::u-page-hero
@@ -14,10 +14,10 @@ orientation: horizontal
   :::
 
 #title
-Data Applications Made Simple
+Build Data-Driven Apps with Ease
 
 #description
-Connect to any API and build powerful apps in minutes. No complex setup, just clean and simple code.
+Common data-driven workflows are already organized in a flexible core that's easy to start with and adapt as your app grows.
 
 #links
   :::u-button
@@ -26,7 +26,7 @@ Connect to any API and build powerful apps in minutes. No complex setup, just cl
   to: /guides/introduction
   icon: i-lucide-arrow-right
   ---
-  Get started
+  Get Started
   :::
 
   :::u-button
@@ -39,51 +39,156 @@ Connect to any API and build powerful apps in minutes. No complex setup, just cl
   target: _blank
   class: after:content-['↗']
   rel: noreferrer noopener
-  ui: {
-    base: 'group',
-    leadingIcon: 'group-hover:text-pink-500',
-  }
   ---
   Storybook
   :::
 ::
 
 ::u-page-section
+---
+title: Features
+---
+#default
+  :::card-group
 
-#features
-  :::u-page-feature
+  ::card
   ---
-  icon: i-lucide-plug
-  orientation: vertical
+  title: Headless Core
+  icon: i-lucide-layers-3
   ---
-  #title
-  Use Any API
+  Keep data, auth, router, and resources outside any single framework.
+  ::
 
-  #description
-  Connect to REST, GraphQL, or custom backends effortlessly. You can even mix multiple sources in one app.
+  ::card
+  ---
+  title: Query-Driven Data Layer
+  icon: i-lucide-database-zap
+  ---
+  Run lists, detail views, mutations, and custom requests on one TanStack Query model.
+  ::
+
+  ::card
+  ---
+  title: Controller-Driven Pages
+  icon: i-lucide-route
+  ---
+  Keep routes, resource state, and page actions aligned across every CRUD screen.
+  ::
+
+  ::card
+  ---
+  title: Human + AI Workflows
+  icon: i-lucide-bot
+  ---
+  Give users and AI one skill-guided playbook for CRUD and admin workflows.
+  ::
+
+  ::card
+  ---
+  title: Frontend Adapters
+  icon: i-lucide-blocks
+  ---
+  Reuse the same contracts across frontend adapters as the ecosystem grows.
+  ::
+
+  ::card
+  ---
+  title: Backend Adapters
+  icon: i-lucide-server-cog
+  ---
+  Connect different backends through one app model.
+  ::
+
   :::
+::
 
-  :::u-page-feature
-  ---
-  icon: i-lucide-refresh-ccw
-  orientation: vertical
-  ---
-  #title
-  Auto State Management
+::u-page-section
+---
+title: Integrations
+description: Move between frontend adapters and backend adapters without rewriting your app model.
+---
+#default
+  <div class="flex flex-col min-w-0 gap-2">
 
-  #description
-  Loading states, error handling, and caching are built-in. Stop writing repetitive code and focus on features.
-  :::
+    ::u-marquee
+    ---
+    class: not-prose
+    pauseOnHover: true
+    overlay: false
+    repeat: 8
+    ui:
+      root: "[--gap:--spacing(4)]"
+      content: "w-auto py-1"
+    ---
+    :::u-button
+    ---
+    class: flex shrink-0
+    label: Vue
+    icon: i-logos-vue
+    size: xl
+    variant: outline
+    color: neutral
+    to: /integrations/vue
+    ---
+    :::
+    :::u-button
+    ---
+    class: flex shrink-0
+    label: Nuxt
+    icon: i-logos-nuxt-icon
+    size: xl
+    variant: outline
+    color: neutral
+    to: /integrations/nuxt
+    ---
+    :::
+    ::
 
-  :::u-page-feature
-  ---
-  icon: i-lucide-rocket
-  orientation: vertical
-  ---
-  #title
-  Build Faster
+    ::u-marquee
+    ---
+    class: not-prose
+    pauseOnHover: true
+    reverse: true
+    overlay: false
+    repeat: 6
+    ui:
+      root: "[--gap:--spacing(4)]"
+      content: "w-auto py-1"
+    ---
+    :::u-button
+    ---
+    class: flex shrink-0
+    label: RESTful API
+    icon: i-lucide-server
+    size: xl
+    variant: outline
+    color: neutral
+    to: /backend/rest-api
+    ---
+    :::
+    :::u-button
+    ---
+    class: flex shrink-0
+    label: Directus
+    icon: i-simple-icons-directus
+    size: xl
+    variant: outline
+    color: neutral
+    to: /backend/directus
+    ---
+    :::
+    :::u-button
+    ---
+    class: flex shrink-0
+    label: Supabase
+    icon: i-logos-supabase-icon
+    size: xl
+    variant: outline
+    color: neutral
+    to: /backend/supabase
+    ---
+    :::
+    ::
 
-  #description
-  Powerful tools for Creating, Reading, Updating, and Deleting data. Build complex data flows in minutes, not days.
-  :::
+  </div>
 ::
