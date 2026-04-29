@@ -1,6 +1,6 @@
 # Vue Realtime
 
-Use this reference for Vue realtime wiring and realtime helpers. See [Realtime](docs/content/1.guides/7.realtime.md) for guide-level usage. See [core/realtime.md](../core/realtime.md) for contract, mode selection, and no-transport fallback rules.
+Use this reference for Vue realtime wiring and realtime helpers. See [Realtime](https://ginjou.pages.dev/raw/guides/realtime.md) for guide-level usage. See [core/realtime.md](../core/realtime.md) for contract, mode selection, and no-transport fallback rules.
 
 > ⚠️ **Warning:** For explicit subscription to data changes, use `useSubscribe()`. Do not rely solely on built-in realtime in data composables — `useSubscribe` is the primary composable for manual subscription control.
 

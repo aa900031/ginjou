@@ -47,7 +47,7 @@ Use `resolve` when the UI needs the final path string first, such as an `href`, 
 
 ## Resource-Intent Navigation
 
-See [Router](docs/content/1.guides/8.router.md) and [Resources](docs/content/1.guides/99.resources.md) for route-aware navigation flow.
+See [Router](https://ginjou.pages.dev/raw/guides/router.md) and [Resources](https://ginjou.pages.dev/raw/guides/resources.md) for route-aware navigation flow.
 
 If no resource definitions exist, keep navigation path-based instead of assuming route inference.
 

@@ -1,6 +1,6 @@
 # Vue Setup
 
-Use this reference for Vue 3 root wiring. See [Vue](docs/content/2.integrations/0.vue.md) for the full setup walkthrough. See [core/setup.md](../core/setup.md) for provider-model, optional-capability, and multi-backend rules.
+Use this reference for Vue 3 root wiring. See [Vue](https://ginjou.pages.dev/raw/integrations/vue.md) for the full setup walkthrough. See [core/setup.md](../core/setup.md) for provider-model, optional-capability, and multi-backend rules.
 
 ## Installation
 

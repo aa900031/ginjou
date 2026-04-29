@@ -2,7 +2,7 @@
 
 ## Concept
 
-See [Supabase](docs/content/3.backend/0.supabase.md) for adapter overview and supported flows.
+See [Supabase](https://ginjou.pages.dev/raw/backend/supabase.md) for adapter overview and supported flows.
 
 `@ginjou/with-supabase` provides a data fetcher plus auth, supports Postgrest `select` syntax through `meta`, and does not implement `custom`.
 

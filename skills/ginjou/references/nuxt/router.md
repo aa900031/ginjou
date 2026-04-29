@@ -1,6 +1,6 @@
 # Nuxt Router
 
-Use this reference for the Nuxt router boundary only. See [Router](docs/content/1.guides/8.router.md) for helper behavior and [Nuxt](docs/content/2.integrations/1.nuxt.md) for module setup.
+Use this reference for the Nuxt router boundary only. See [Router](https://ginjou.pages.dev/raw/guides/router.md) for helper behavior and [Nuxt](https://ginjou.pages.dev/raw/integrations/nuxt.md) for module setup.
 
 ## Module-Owned Router Integration
 

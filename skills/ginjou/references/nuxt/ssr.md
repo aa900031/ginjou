@@ -2,7 +2,7 @@
 
 > ⚠️ **Warning:** There is **no** `useAsyncCreate` or `useAsyncCustom`. Create and custom write flows are client-only — use `useCreate` or `useCustomMutation` on the client side.
 
-Use this reference for the Nuxt SSR-only surface. See [Nuxt](docs/content/2.integrations/1.nuxt.md) for the integration walkthrough.
+Use this reference for the Nuxt SSR-only surface. See [Nuxt](https://ginjou.pages.dev/raw/integrations/nuxt.md) for the integration walkthrough.
 ## SSR Composables
 
 These composables are auto-imported by the `@ginjou/nuxt` module:

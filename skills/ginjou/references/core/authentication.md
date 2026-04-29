@@ -29,7 +29,7 @@ interface Auth {
 
 ## Session And Error Boundary
 
-See [Authentication](docs/content/1.guides/4.authentication.md) for the full auth model.
+See [Authentication](https://ginjou.pages.dev/raw/guides/authentication.md) for the full auth model.
 
 Keep expired-session handling in `checkError`; a common boundary is to log out on `401` but not on `403`.
 

@@ -2,7 +2,7 @@
 
 ## Create Flow Pattern
 
-See [Forms](docs/content/1.guides/2.form.md) for create-page behavior.
+See [Forms](https://ginjou.pages.dev/raw/guides/form.md) for create-page behavior.
 
 Use [data-flow.md](./data-flow.md) instead for dialogs, inline tools, and other non-page create actions.
 

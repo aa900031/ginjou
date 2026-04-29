@@ -2,7 +2,7 @@
 
 ## Query Patterns
 
-See [Data](docs/content/1.guides/1.data.md) for the lower-level query model behind controllers.
+See [Data](https://ginjou.pages.dev/raw/guides/data.md) for the lower-level query model behind controllers.
 
 | Query pattern | Use it for |
 | --- | --- |

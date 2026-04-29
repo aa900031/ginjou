@@ -1,6 +1,6 @@
 # Vue Router
 
-Use this reference for Vue router wiring and router helper composables. See [Router](docs/content/1.guides/8.router.md) for guide-level usage. See [core/router.md](../core/router.md) for contract semantics, location shape, and `keepQuery` / `keepHash`.
+Use this reference for Vue router wiring and router helper composables. See [Router](https://ginjou.pages.dev/raw/guides/router.md) for guide-level usage. See [core/router.md](../core/router.md) for contract semantics, location shape, and `keepQuery` / `keepHash`.
 
 ## Register Router Context
 
@@ -58,7 +58,7 @@ navigateTo({ action: ResourceActionType.Show, id: 42 })
 </script>
 ```
 
-Action-based navigation depends on registered resources. Pair this file with [Resources](docs/content/1.guides/99.resources.md) and [core/resources.md](../core/resources.md) when inference matters.
+Action-based navigation depends on registered resources. Pair this file with [Resources](https://ginjou.pages.dev/raw/guides/resources.md) and [core/resources.md](../core/resources.md) when inference matters.
 
 ```ts
 import { useGo, useNavigateTo } from '@ginjou/vue'

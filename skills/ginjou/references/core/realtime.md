@@ -2,7 +2,7 @@
 
 ## Realtime Contract
 
-See [Realtime](docs/content/1.guides/7.realtime.md) for contract walkthroughs and query-integration examples.
+See [Realtime](https://ginjou.pages.dev/raw/guides/realtime.md) for contract walkthroughs and query-integration examples.
 
 ```ts
 interface Realtime {

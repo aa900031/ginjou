@@ -1,6 +1,6 @@
 # Vue Authorization
 
-Use this reference for Vue authz wiring and authz composables. See [Authorization](docs/content/1.guides/5.authorization.md) for guide-level usage. See [core/authorization.md](../core/authorization.md) for contract and policy boundaries.
+Use this reference for Vue authz wiring and authz composables. See [Authorization](https://ginjou.pages.dev/raw/guides/authorization.md) for guide-level usage. See [core/authorization.md](../core/authorization.md) for contract and policy boundaries.
 
 ## `defineAuthzContext`
 

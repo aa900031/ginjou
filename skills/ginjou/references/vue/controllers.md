@@ -1,6 +1,6 @@
 # Vue Controllers
 
-Use this reference for Vue read-side page controllers. See [List](docs/content/1.guides/3.list.md) for list walkthroughs, [Forms](docs/content/1.guides/2.form.md) for show/select page flows, and [core/controllers.md](../core/controllers.md) for controller-state rules.
+Use this reference for Vue read-side page controllers. See [List](https://ginjou.pages.dev/raw/guides/list.md) for list walkthroughs, [Forms](https://ginjou.pages.dev/raw/guides/form.md) for show/select page flows, and [core/controllers.md](../core/controllers.md) for controller-state rules.
 
 ## `useList`
 

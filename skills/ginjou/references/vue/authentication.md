@@ -1,6 +1,6 @@
 # Vue Authentication
 
-Use this reference for Vue auth wiring and auth composables. See [Authentication](docs/content/1.guides/4.authentication.md) for guide-level flows. See [core/authentication.md](../core/authentication.md) for auth contract, redirect results, and session/error boundaries.
+Use this reference for Vue auth wiring and auth composables. See [Authentication](https://ginjou.pages.dev/raw/guides/authentication.md) for guide-level flows. See [core/authentication.md](../core/authentication.md) for auth contract, redirect results, and session/error boundaries.
 
 ## `defineAuthContext`
 

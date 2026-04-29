@@ -1,6 +1,6 @@
 # Vue Resources
 
-Use this reference for Vue resource registration and resource helper composables. See [Resources](docs/content/1.guides/99.resources.md) for guide-level usage. See [core/resources.md](../core/resources.md) for definition shape, nested resources, and route-id compatibility.
+Use this reference for Vue resource registration and resource helper composables. See [Resources](https://ginjou.pages.dev/raw/guides/resources.md) for guide-level usage. See [core/resources.md](../core/resources.md) for definition shape, nested resources, and route-id compatibility.
 
 ## `defineResourceContext`
 

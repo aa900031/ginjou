@@ -57,7 +57,7 @@ sorters.
 
 ## Select Pattern
 
-See [Forms](docs/content/1.guides/2.form.md) for select-controller walkthroughs.
+See [Forms](https://ginjou.pages.dev/raw/guides/form.md) for select-controller walkthroughs.
 
 Keep the selected value separate from transient search text and transient search results so the current selection does not disappear when the option list changes.
 

@@ -1,6 +1,6 @@
 # Nuxt Setup
 
-Use this reference for the Nuxt-specific setup boundary. See [Nuxt](docs/content/2.integrations/1.nuxt.md) for the full integration walkthrough.
+Use this reference for the Nuxt-specific setup boundary. See [Nuxt](https://ginjou.pages.dev/raw/integrations/nuxt.md) for the full integration walkthrough.
 
 ## Module Configuration
 
@@ -53,7 +53,7 @@ order:
 import { useBack, useGo, useLocation, useResolvePath } from '@ginjou/vue'
 ```
 
-See [Router](docs/content/1.guides/8.router.md) for router helper behavior and [Nuxt](docs/content/2.integrations/1.nuxt.md) for the full Nuxt integration guide.
+See [Router](https://ginjou.pages.dev/raw/guides/router.md) for router helper behavior and [Nuxt](https://ginjou.pages.dev/raw/integrations/nuxt.md) for the full Nuxt integration guide.
 
 ## Rules
 

@@ -2,7 +2,7 @@
 
 ## Concept
 
-See [Directus](docs/content/3.backend/0.directus.md) for adapter overview and Directus-specific setup.
+See [Directus](https://ginjou.pages.dev/raw/backend/directus.md) for adapter overview and Directus-specific setup.
 
 `@ginjou/with-directus` provides a data fetcher plus auth, implements `custom`, uses `meta.query` for Directus-specific query options, and uses `meta.aggregate` only to override the `getList()` total-count aggregate. The runtime default is `{ countDistinct: 'id' }`.
 

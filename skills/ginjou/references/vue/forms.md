@@ -1,6 +1,6 @@
 # Vue Forms
 
-Use this reference for Vue create and edit page controllers. See [Forms](docs/content/1.guides/2.form.md) for page walkthroughs. See [core/mutation-flows.md](../core/mutation-flows.md) for redirect timing, local form state, and mutation-mode boundaries.
+Use this reference for Vue create and edit page controllers. See [Forms](https://ginjou.pages.dev/raw/guides/form.md) for page walkthroughs. See [core/mutation-flows.md](../core/mutation-flows.md) for redirect timing, local form state, and mutation-mode boundaries.
 
 ## `useCreate`
 

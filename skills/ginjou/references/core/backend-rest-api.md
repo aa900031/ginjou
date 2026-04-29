@@ -1,6 +1,6 @@
 # Core REST API Backend
 
-See [RESTful API](docs/content/3.backend/9.rest-api.md) for backend overview and json-server-style conventions.
+See [RESTful API](https://ginjou.pages.dev/raw/backend/rest-api.md) for backend overview and json-server-style conventions.
 
 ## Concept
 
@@ -98,7 +98,7 @@ That means `post`, `put`, and `patch` are all sent as `PUT` in the current imple
 
 ## Authentication
 
-See [Authentication](docs/content/1.guides/4.authentication.md) for the auth contract.
+See [Authentication](https://ginjou.pages.dev/raw/guides/authentication.md) for the auth contract.
 
 Register auth separately through the active adapter's authentication context during app initialization. If the app also needs authz, realtime, notifications, or i18n, implement those through the matching Ginjou contexts separately.
 

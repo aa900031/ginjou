@@ -19,7 +19,7 @@ At least one fetcher contract is required for data operations. Add everything el
 | Notifications | No | Toasts, progress feedback, or undoable flows. |
 | Realtime | No | Subscription, publish, or live-refresh behavior. |
 
-Adapter-specific query-client wiring stays in [Vue](docs/content/2.integrations/0.vue.md) and is not part of the core contract.
+Adapter-specific query-client wiring stays in [Vue](https://ginjou.pages.dev/raw/integrations/vue.md) and is not part of the core contract.
 
 ## Multi-Backend Boundary
 

@@ -2,7 +2,7 @@
 
 ## Notification Contract
 
-See [Notifications](docs/content/1.guides/6.notifications.md) for provider examples and built-in notify behavior.
+See [Notifications](https://ginjou.pages.dev/raw/guides/notifications.md) for provider examples and built-in notify behavior.
 
 ```ts
 interface Notification {

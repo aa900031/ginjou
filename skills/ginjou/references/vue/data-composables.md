@@ -1,6 +1,6 @@
 # Vue Data Composables
 
-Use this reference for non-page reads and writes in Vue. See [Data](docs/content/1.guides/1.data.md) for workflow guidance. See [core/data-flow.md](../core/data-flow.md) for non-page boundaries, invalidation, and mutation-mode safety.
+Use this reference for non-page reads and writes in Vue. See [Data](https://ginjou.pages.dev/raw/guides/data.md) for workflow guidance. See [core/data-flow.md](../core/data-flow.md) for non-page boundaries, invalidation, and mutation-mode safety.
 
 ## Query Composables
 

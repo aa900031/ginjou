@@ -2,7 +2,7 @@
 
 ## Resource Definition
 
-See [Resources](docs/content/1.guides/99.resources.md) for the route-aware model behind these definitions.
+See [Resources](https://ginjou.pages.dev/raw/guides/resources.md) for the route-aware model behind these definitions.
 
 | Field | Purpose |
 | --- | --- |

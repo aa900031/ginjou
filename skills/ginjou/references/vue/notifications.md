@@ -1,6 +1,6 @@
 # Vue Notifications
 
-Use this reference for Vue notification wiring and manual notification helpers. See [Notifications](docs/content/1.guides/6.notifications.md) for workflow guidance. See [core/notifications.md](../core/notifications.md) for message shapes and undoable requirements.
+Use this reference for Vue notification wiring and manual notification helpers. See [Notifications](https://ginjou.pages.dev/raw/guides/notifications.md) for workflow guidance. See [core/notifications.md](../core/notifications.md) for message shapes and undoable requirements.
 
 ## `defineNotificationContext`
 

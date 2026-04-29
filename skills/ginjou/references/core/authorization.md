@@ -30,7 +30,7 @@ Use permission snapshots for broader UI decisions such as menus, layouts, or rol
 
 ## Boundary With Authentication
 
-See [Authorization](docs/content/1.guides/5.authorization.md) and [Authentication](docs/content/1.guides/4.authentication.md) for the contract boundary.
+See [Authorization](https://ginjou.pages.dev/raw/guides/authorization.md) and [Authentication](https://ginjou.pages.dev/raw/guides/authentication.md) for the contract boundary.
 
 Do not use authorization to handle session expiry or login redirects. That stays in the auth layer.
 
