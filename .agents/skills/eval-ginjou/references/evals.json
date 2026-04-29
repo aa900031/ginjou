@@ -1,0 +1,162 @@
+{
+	"skill_name": "ginjou",
+	"notes": "Iteration 1 — application-layer evals usable as a regression suite. Each prompt mimics how a real developer would ask: 'I want to build X' or 'integrate Y with ginjou'. Cases 1–5 cover setup/controllers/auth/nuxt-ssr/realtime; cases 6–10 cover authorization, i18n, notifications, infinite list, and edit form / optimistic update. Run the full pipeline whenever skill or references change: dispatch with_skill + without_skill subagents per case → grader subagents → aggregate-benchmark.mjs → generate-review.mjs. Baseline strategy: no skill at all (measures the ginjou skill's overall value vs. raw model knowledge).",
+	"baseline_strategy": "no-skill",
+	"evals": [
+		{
+			"id": 1,
+			"dir_name": "vue-posts-list-rest",
+			"prompt": "我用 Vue 3 + Vue Router + 一般 REST API 後端 (json-server 風格) 開發 admin 後台，後端 base URL 是 `https://api.example.com`。我想做一個 `/posts` 列表頁：\n\n- 支援分頁（每頁 10 筆）\n- 支援欄位排序（`createdAt` desc 預設）\n- 支援以 `q` 做關鍵字模糊搜尋\n- 顯示 loading / error / empty 狀態\n\n請給我完整可運作的方式：root 註冊、resource 註冊、頁面 component 程式碼。",
+			"expected_output": "App-root setup of `@ginjou/vue` + `@ginjou/with-rest-api` + `@tanstack/vue-query`, page using `useList` (controller) or `useGetList` with `pagination.current` / `pagination.perPage` plus a `q` filter, mention of REST adapter producing `_start`/`_end` and `_sort`/`_order`.",
+			"files": [],
+			"expectations": [
+				"App-root setup registers `defineQueryClientContext`, `defineFetchersContext`, `defineRouterContext` with `createRouter()` from `@ginjou/with-vue-router`, plus `defineResourceContext` for the `posts` resource.",
+				"Page composable is `useList` (controller) or `useGetList` — NOT a fabricated `useGetPosts` / `usePostsList`.",
+				"Pagination uses `pagination.current` and `pagination.perPage` (NOT `page` / `pageSize` / `limit` / `offset`).",
+				"Search filter uses `{ field: 'q', operator: 'eq', value }` (json-server `q` form), not an invented `search` prop.",
+				"Mentions REST adapter produces `_start` / `_end` for pagination and `_sort` / `_order` for sorting (json-server-style).",
+				"Cites at least one of: `references/vue/setup.md`, `references/vue/controllers.md` or `references/vue/data-composables.md`, `references/core/backend-rest-api.md` (or their remote URLs)."
+			]
+		},
+		{
+			"id": 2,
+			"dir_name": "vue-users-crud-supabase",
+			"prompt": "Vue 3 + Vue Router + Supabase（用 `@ginjou/with-supabase`）。我要做 `users` 資源的完整 CRUD：list、show、create、edit 四頁。create / edit 用普通 HTML form（不用 UI library）。create / edit 成功後跳回 list 並保留原本的 query。請給 root 設定 + 四頁 component。",
+			"expected_output": "Root wiring with Supabase client + `createFetcher({ client })`, page-level controllers `useList` / `useShow` / `useCreate` / `useEdit`, awareness that Supabase adapter does NOT support `custom` / `updateMany` / `deleteMany`, correct redirect option shape on create/edit, raw router params for keepQuery on redirect.",
+			"files": [],
+			"expectations": [
+				"Page-level composables are the controllers `useList`, `useShow`, `useCreate`, `useEdit` (NOT raw `useGetList` + manual mutate, NOT a fabricated `useCRUD`).",
+				"Setup wires Supabase via `createFetcher({ client: supabase })` from `@ginjou/with-supabase` (NOT `createSupabaseFetcher` or other invented names).",
+				"Either explicitly mentions Supabase adapter does not implement `custom`, `updateMany`, or `deleteMany`, OR avoids using those methods anywhere.",
+				"For redirect after create/edit, uses `useCreate.redirect` / `useEdit.redirect` as `false`, a resource-action string, or a navigation object — does NOT pass a raw path string to redirect, AND does NOT invent a `redirectTo` prop on the controller.",
+				"For preserving query string on redirect to list, uses raw router-params navigation (e.g. `useGo` / `useNavigateTo` with raw `to` + `keepQuery: true`), not action-based redirect with `keepQuery`.",
+				"Cites at least one of `references/core/backend-supabase.md`, `references/vue/forms.md`, `references/vue/controllers.md`, `references/core/mutation-flows.md` (or their remote URLs)."
+			]
+		},
+		{
+			"id": 3,
+			"dir_name": "vue-basic-auth-login",
+			"prompt": "Vue 3 + Vue Router + 一般 REST API 後端。我要做 email / password 登入：\n\n- `POST /login` 拿到 token，存 cookie\n- 登入成功跳到 `/dashboard`\n- 任何 API 回 401 自動登出並跳回 `/login`\n- 但 403 不要登出（只是權限不足）\n- 提供 `useAuthenticated` 在 layout 判斷顯示登入/登出按鈕\n\n請完整接到 ginjou auth contract。",
+			"expected_output": "Root `defineAuthContext` implementing `login` / `logout` / `check` / `checkError`. `checkError` differentiates 401 (logout) from 403 (no force logout). UI uses `useLogin` / `useLogout` / `useAuthenticated`, treating `data?.authenticated` as source of truth instead of reading storage directly.",
+			"files": [],
+			"expectations": [
+				"Root registers `defineAuthContext` with an auth object that implements `login`, `logout`, `check`, `checkError`, and (optional) `getIdentity`.",
+				"`checkError` distinguishes 401 (returns `{ logout: true }` or `redirectTo`) from 403 (does NOT force logout) — they are not collapsed into the same branch.",
+				"`login` returns `{ redirectTo: '/dashboard' }` (or equivalent navigation object); the redirect lives inside the provider, not hardcoded on the button click handler.",
+				"Layout / button code reads auth state via `useAuthenticated()` and treats login state as `data?.authenticated`, NOT by directly reading `localStorage` or `document.cookie` to decide UI.",
+				"Form component uses `useLogin()` / `useLogout()` from `@ginjou/vue` (NOT a fabricated `useAuth` returning `{ login, logout }`).",
+				"Mentions that built-in data query/mutation composables already invoke `checkError` automatically (so feature pages do not need to re-wrap every fetch with `useCheckError`).",
+				"Cites at least one of `references/core/authentication.md`, `references/vue/authentication.md` (or their remote URLs)."
+			]
+		},
+		{
+			"id": 4,
+			"dir_name": "nuxt-ssr-directus-list",
+			"prompt": "Nuxt 4 + Directus 後端 (`@ginjou/with-directus`)。我要做 `/posts` 列表頁，要 SSR friendly：第一次伺服器渲染就要把列表資料拿到、hydration 後客戶端不再重新打 API；同時支援後續分頁切換。\n\n請告訴我：module 設定、provider wiring、頁面該用哪個 composable、需要注意什麼。",
+			"expected_output": "Add `'@ginjou/nuxt'` to `nuxt.config.ts`; root wiring in `app.vue` does NOT call `defineRouterContext`. Use `useAsyncList` (or `useAsyncGetList`) for SSR-friendly initial fetch. Mention Directus archived-default exclusion or `meta.aggregate` runtime default `{ countDistinct: 'id' }`.",
+			"files": [],
+			"expectations": [
+				"Adds `'@ginjou/nuxt'` to `modules` in `nuxt.config.ts` AND keeps `@ginjou/vue` + `@tanstack/vue-query` as explicit dependencies.",
+				"Explicitly states (or shows by example) that Nuxt apps must NOT call `defineRouterContext` manually because the Nuxt module owns router integration.",
+				"Directus fetcher is wired as `createFetcher({ client: directus })` from `@ginjou/with-directus`, where `directus` is built via `createDirectus(...).with(rest()).with(authentication())` from `@directus/sdk`.",
+				"Page uses `useAsyncList` (controller) or `useAsyncGetList` for SSR-friendly initial fetch — NOT a manual `useAsyncData` wrapping `useList`, NOT a fabricated `useNuxtList`.",
+				"Mentions that Directus `getList()` excludes archived records by default OR mentions `meta.aggregate` runtime default `{ countDistinct: 'id' }`.",
+				"Does NOT recommend `useAsyncCreate` / `useAsyncCreateOne` (they don't exist); mutations stay on the normal `useCreateOne` etc.",
+				"Cites at least one of `references/nuxt/setup.md`, `references/nuxt/ssr.md`, `references/core/backend-directus.md` (or their remote URLs)."
+			]
+		},
+		{
+			"id": 5,
+			"dir_name": "vue-realtime-orders-dashboard",
+			"prompt": "Vue 3 + Supabase。我要做訂單 dashboard：列表用 `useGetList({ resource: 'orders' })`，當其他人新增、更新、刪除訂單時，這個列表要自動反映變化（不一定要 push，但畫面要會更新）。我已經在後端有 Supabase Realtime 可用，請告訴我怎麼把它接進 ginjou。如果哪天 transport 拿掉了，又該 fallback 成什麼？",
+			"expected_output": "Root `defineRealtimeContext` with `subscribe` returning a string key. List-side composables (`useGetList` etc.) auto-subscribe. Differentiate `auto` vs `manual` mode. Fallback uses TanStack Query `refetchInterval` polling (no fabricated ginjou polling flag). Note `useCustom` is opt-in via `realtime.channel`.",
+			"files": [],
+			"expectations": [
+				"Root setup calls `defineRealtimeContext` and provides a `subscribe` function that returns a string key, plus a matching `unsubscribe(key)`.",
+				"Mentions that `useGetList`, `useGetOne`, `useGetMany`, `useGetInfiniteList` auto-subscribe when realtime context is present (so the page-level `useGetList({ resource: 'orders' })` needs no per-call wiring beyond passing realtime mode).",
+				"Distinguishes realtime modes: `auto` invalidates queries (refetch) and `manual` runs the callback only — they are not collapsed into the same behavior.",
+				"For the no-transport fallback, recommends polling via TanStack Query `refetchInterval` on `useGetList`, OR a manual refresh affordance / last-updated indicator. Does NOT invent a ginjou `polling`, `pollInterval`, or `mode: 'polling'` flag.",
+				"Either mentions that `useCustom` does NOT auto-subscribe and needs `realtime.channel` to opt in, OR avoids implying realtime is automatic for `useCustom`.",
+				"Cites at least one of `references/core/realtime.md`, `references/vue/realtime.md` (or their remote URLs)."
+			]
+		},
+		{
+			"id": 6,
+			"dir_name": "vue-authorization-rbac",
+			"prompt": "Vue 3 + Vue Router + REST API。我有 admin / editor / viewer 三種角色：\n\n- admin：對 `posts` 全部 action 都可以\n- editor：可以 list、show、edit；不能 create / delete\n- viewer：只能 list / show\n\n我要在 list 頁面動態決定要不要顯示 `Edit` / `Delete` 按鈕，在 router 層也要擋掉沒權限的 action。請告訴我怎麼接 ginjou 的 authorization 層。",
+			"expected_output": "Root registers `defineAuthzContext(defineAuthz({ access, getPermissions }))`. List page uses `useCanAccess({ resource, action, params })` per button, treats `data.value?.can` as boolean. Mention that authentication and authorization are independent providers (both `defineAuthContext` and `defineAuthzContext` may be needed). `usePermissions` for broader UI snapshot.",
+			"files": [],
+			"expectations": [
+				"Root registers `defineAuthzContext(defineAuthz({ access, getPermissions }))` from `@ginjou/vue` + `@ginjou/core` — NOT a fabricated `defineAuthorization` / `definePermissions` / `createAuthz`.",
+				"`access` returns `{ can: boolean, reason?: string }` — NOT just a raw boolean and NOT `{ allowed }` / `{ ok }`.",
+				"Per-button check uses `useCanAccess({ resource, action, params })` and consumes the boolean as `data.value?.can` — NOT a fabricated `useCan` / `useAuthz` / `useHasPermission`.",
+				"Either uses `usePermissions()` for broader UI snapshot or explicitly distinguishes action-level checks from permission snapshots — does NOT collapse them into one composable.",
+				"Explicitly states that `defineAuthContext` (authn) and `defineAuthzContext` (authz) are independent providers — does NOT confuse / merge them.",
+				"Does NOT route session expiry / login redirect through the authz layer (that stays in auth `checkError`).",
+				"Cites at least one of `references/core/authorization.md`, `references/vue/authorization.md` (or their remote URLs)."
+			]
+		},
+		{
+			"id": 7,
+			"dir_name": "vue-i18n-with-vue-i18n",
+			"prompt": "Vue 3 + vue-i18n（已經有 `vue-i18n` 安裝）。我要把 ginjou 的訊息（resource label、auth 錯誤、notification、validation 等等）都接到 vue-i18n，支援 zh-TW / en，並提供切換語系的下拉選單。請告訴我怎麼用 `@ginjou/with-vue-i18n` 串起來，並在 component 裡怎麼讀翻譯與切換語系。",
+			"expected_output": "Use `createI18n(vueI18n)` from `@ginjou/with-vue-i18n` and pass to `defineI18nContext`. Use `useTranslate()` (returns function directly, not `{ t }`) for translation, `useLocale()` (returns writable `Ref<string>`) for switching locale. The `vueI18n` instance is the standard `vue-i18n` `createI18n({ locale, messages })`.",
+			"files": [],
+			"expectations": [
+				"Adapter wired as `createI18n(vueI18n)` from `@ginjou/with-vue-i18n` then `defineI18nContext(adapter)` — NOT a fabricated `createGinjouI18n` / `i18nProvider` / direct `defineI18nContext(vueI18n)`.",
+				"The vue-i18n instance is the standard `createI18n({ locale, messages })` from the `vue-i18n` package (NOT confused with ginjou's `createI18n`).",
+				"`useTranslate()` is treated as a function return value (e.g. `const t = useTranslate(); t('key')`) — NOT destructured as `const { t } = useTranslate()`.",
+				"For locale switching, uses `useLocale()` and treats it as a writable `Ref<string>` (e.g. `locale.value = 'zh-TW'`) — NOT a fabricated `useSetLocale()` / `useChangeLocale()` returning a setter function.",
+				"Does NOT recommend reading vue-i18n's `useI18n()` directly inside ginjou-wired components when ginjou translation is the goal — ginjou composables are the boundary.",
+				"Cites at least one of `references/core/i18n.md`, `references/vue/i18n.md` (or their remote URLs)."
+			]
+		},
+		{
+			"id": 8,
+			"dir_name": "vue-notifications-toast",
+			"prompt": "Vue 3 + REST API。我用 `vue-sonner` 做 toast。我希望 ginjou 的 mutation（create/update/delete）成功失敗時自動跳 toast；另外某些 custom 操作（例如「重新計算」按鈕）也要手動發 toast。delete 我想用 undoable 模式，5 秒內可以撤銷。請完整接到 ginjou 的 notification provider。",
+			"expected_output": "Root `defineNotificationContext({ open, close })` mapping to vue-sonner. Use `useNotify()` for manual toasts. Note that built-in mutation helpers already emit notifications — feature code emits intent, not toast-library details. `mutationMode: 'undoable'` requires both `open` and `close` and depends on the progress-notification shape (`type: 'progress'`, `key`, `timeout`, `onFinish`, `onCancel`).",
+			"files": [],
+			"expectations": [
+				"Root registers `defineNotificationContext({ open, close })` from `@ginjou/vue` — implements BOTH `open` and `close` (close is required for undoable).",
+				"Manual toasts use `useNotify()` returning the notify function directly — NOT a fabricated `useToast` / `useNotification` (singular hook returning `{ success, error }`).",
+				"Mentions that built-in CRUD mutation composables already emit notifications when a provider is registered, so feature code should NOT manually call `notify` after every successful `useCreateOne` / `useUpdateOne`.",
+				"Undoable delete uses `useDeleteOne` (or `useEdit`) with `mutationMode: 'undoable'` — explicitly states `useCreate` does NOT support `mutationMode`.",
+				"Acknowledges progress-notification shape (`type: 'progress'`, `key`, `timeout`, `onFinish`, `onCancel`) is what the provider must render for undoable to work — NOT a fabricated `undoable: true` toast option.",
+				"Manual notify calls use the standard message shape `{ type: 'success' | 'error', message, description?, key? }` — NOT a fabricated `{ severity, summary, detail }` (PrimeVue) or `{ title, body }` (custom).",
+				"Cites at least one of `references/core/notifications.md`, `references/vue/notifications.md` (or their remote URLs)."
+			]
+		},
+		{
+			"id": 9,
+			"dir_name": "vue-infinite-list-rest",
+			"prompt": "Vue 3 + REST API。我要做一個無限捲動的 `/comments` 列表（intersection observer 觸發 load more），每頁 20 筆，按 `createdAt` desc 排序。這個 component 不是頁面 controller（它是 widget，被嵌在 dashboard 裡）。請給我 component 程式碼。",
+			"expected_output": "Use `useGetInfiniteList({ resource: 'comments', pagination: { perPage: 20 }, sorters: [{ field: 'createdAt', order: 'desc' }] })`, consume `records` (flattened) + `fetchNextPage` + `hasNextPage`. Explicitly NOT `useList` (page controller) for non-page widget. Pagination uses `pagination.perPage`, sorters as array of `{ field, order }`.",
+			"files": [],
+			"expectations": [
+				"Uses `useGetInfiniteList` from `@ginjou/vue` — NOT `useList` (page controller for widget context), NOT a fabricated `useInfiniteList` / `useInfiniteQuery`.",
+				"Consumes `records`, `fetchNextPage`, `hasNextPage` from the result — NOT a fabricated `loadMore()` / `next()` / `data.pages.flat()` path.",
+				"Pagination shape is `{ perPage: 20 }` (and optionally `current`) — NOT `pageSize` / `limit` / `take`.",
+				"Sorters are an array of `{ field, order }` (e.g. `[{ field: 'createdAt', order: 'desc' }]`) — NOT a string `'createdAt:desc'` and NOT `{ sortBy, sortOrder }`.",
+				"Explicitly explains why `useGetInfiniteList` (non-page) is preferred over `useList` here (widget vs. page controller) — does NOT recommend `useList` for an embedded widget.",
+				"Cites at least one of `references/vue/data-composables.md`, `references/vue/controllers.md`, `references/core/data-flow.md` (or their remote URLs)."
+			]
+		},
+		{
+			"id": 10,
+			"dir_name": "vue-edit-form-optimistic",
+			"prompt": "Vue 3 + REST API。`/posts/:id/edit` 編輯頁。表單用普通 reactive object，submit 時要樂觀更新（optimistic：UI 馬上更新，失敗 rollback），cancel 按鈕跳回 list。請給我完整 component 程式碼。",
+			"expected_output": "Use `useEdit({ resource, id, mutationMode: 'optimistic' })`. Read `record` reactive ref and copy into local `formData` via `watch` (with `immediate, deep`). Call `save(formData)` directly — not via params wrapper. Mention `useCreate` does NOT support `mutationMode` (only `useEdit`/update/delete do). For cancel keepQuery use `useGo` / `useNavigateTo` with `keepQuery: true` instead of built-in `redirect`.",
+			"files": [],
+			"expectations": [
+				"Uses `useEdit({ resource, id, mutationMode: 'optimistic' })` from `@ginjou/vue` — NOT a fabricated `useEditForm` / `useUpdateForm` and NOT raw `useUpdateOne` for a standard edit page.",
+				"Local form state is a separate reactive object that copies `record` via `watch(record, ..., { immediate: true, deep: true })` — does NOT bind `record` directly into form inputs.",
+				"`save()` is called with form data directly (e.g. `save(formData)`) — NOT `save({ values: formData })` / `save({ data: formData })`.",
+				"`mutationMode` values are `'optimistic' | 'pessimistic' | 'undoable'` — NOT a fabricated `'optimistic-update'` / `optimistic: true` flag.",
+				"Either explicitly states `useCreate` does not support `mutationMode` OR avoids ever pairing `useCreate` with `mutationMode` in this answer.",
+				"For the cancel/back navigation that preserves query string, uses `useGo` or `useNavigateTo` with `keepQuery: true` — does NOT add `keepQuery` to `useEdit`'s built-in `redirect` (which doesn't support it).",
+				"Cites at least one of `references/vue/forms.md`, `references/core/mutation-flows.md` (or their remote URLs)."
+			]
+		}
+	]
+}
