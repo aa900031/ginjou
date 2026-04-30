@@ -9,6 +9,8 @@ description: >
   has not regressed. Triggers: "/eval-ginjou", "run ginjou eval", "benchmark
   ginjou", "regression test ginjou", "rerun ginjou skill eval", "ginjou
   pass rate".
+metadata:
+  internal: true
 ---
 
 # eval-ginjou — ginjou skill regression eval
