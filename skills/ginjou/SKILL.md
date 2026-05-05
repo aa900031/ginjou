@@ -1,12 +1,16 @@
 ---
 name: ginjou
-description: >
+description: >-
   Use when the developer works with Ginjou (@ginjou/*). In a Ginjou workspace,
   also use for CRUD dashboards, admin panels, data tables, forms, provider
   wiring, backend adapters, mutation modes, optimistic updates, undoable
   mutations, realtime subscriptions, authentication, authorization,
   notifications, i18n, route-aware resources, or SSR data fetching. Also
   triggers when asking about Ginjou compatibility with other frameworks.
+license: MIT
+metadata:
+  author: zhong666
+  version: "0.1.0"
 ---
 
 # Using Ginjou

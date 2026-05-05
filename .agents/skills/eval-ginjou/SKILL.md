@@ -1,6 +1,6 @@
 ---
 name: eval-ginjou
-description: >
+description: >-
   Run the ginjou skill regression eval — prepare iteration prompts, dispatch
   with_skill / without_skill subagents, grade outputs, and produce a benchmark +
   HTML review. Use this skill whenever the user asks to evaluate, benchmark,
