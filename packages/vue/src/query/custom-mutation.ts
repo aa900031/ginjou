@@ -73,32 +73,34 @@ export function useCustomMutation<
 	const publish = usePublish(context)
 	const { mutateAsync: checkError } = useCheckError<TError>(undefined, context)
 
+	const mutationFn = CustomMutation.createMutationFn({
+		fetchers,
+		getProps,
+	})
+	const handleSuccess = CustomMutation.createSuccessHandler({
+		notify,
+		publish,
+		getProps,
+		onSuccess: (...args) => unref(props?.mutationOptions)?.onSuccess?.(...args),
+	})
+	const handleError = CustomMutation.createErrorHandler({
+		notify,
+		translate,
+		checkError,
+		getProps,
+		onError: (...args) => unref(props?.mutationOptions)?.onError?.(...args),
+	})
+
 	const mutation = useMutation<CustomResult<TData>, TError, CustomMutation.MutationProps<TData, TError, TQuery, TPayload>, any>(computed(() => ({
-		...unref(props?.mutationOptions) as any, // TODO:
-		mutationFn: CustomMutation.createMutationFn({
-			fetchers,
-			getProps,
-		}),
-		onSuccess: CustomMutation.createSuccessHandler({
-			notify,
-			publish,
-			getProps,
-			onSuccess: unref(props?.mutationOptions)?.onSuccess,
-		}),
-		onError: CustomMutation.createErrorHandler({
-			notify,
-			translate,
-			checkError,
-			getProps,
-			onError: unref(props?.mutationOptions)?.onError,
-		}),
-		queryClient,
-	})))
+		...unref(props?.mutationOptions),
+		mutationFn,
+		onSuccess: handleSuccess,
+		onError: handleError,
+	})), queryClient)
 
 	const mutate = CustomMutation.createMutateFn({
 		originFn: mutation.mutate,
 	})
-
 	const mutateAsync = CustomMutation.createMutateAsyncFn({
 		originFn: mutation.mutateAsync,
 	})

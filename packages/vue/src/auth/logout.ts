@@ -61,30 +61,34 @@ export function useLogout<
 	const notify = useNotify(context)
 	const translate = useTranslate(context)
 
+	const mutationKey = Logout.createMutationKey()
+	const mutationFn = Logout.createMutationFn<TParams>({
+		auth,
+	})
+	const handleSuccess = Logout.createSuccessHandler<TParams, TError>({
+		queryClient,
+		go,
+		getProps,
+		onSuccess: (...args) => unref(props?.mutationOptions)?.onSuccess?.(...args),
+	})
+	const handleError = Logout.createErrorHandler<TParams, TError>({
+		notify,
+		translate,
+		go,
+		onError: (...args) => unref(props?.mutationOptions)?.onError?.(...args),
+	})
+
 	const mutation = useMutation<LogoutResult, TError, TParams>(computed(() => ({
 		...unref(props?.mutationOptions),
-		mutationKey: Logout.createMutationKey(),
-		mutationFn: Logout.createMutationFn({
-			auth,
-		}),
-		onSuccess: Logout.createSuccessHandler({
-			queryClient,
-			go,
-			getProps,
-			onSuccess: unref(props?.mutationOptions)?.onSuccess,
-		}),
-		onError: Logout.createErrorHandler({
-			notify,
-			translate,
-			go,
-			onError: unref(props?.mutationOptions)?.onError,
-		}),
+		mutationKey,
+		mutationFn,
+		onSuccess: handleSuccess,
+		onError: handleError,
 	})), queryClient)
 
 	const mutate = Logout.createMutateFn({
 		originFn: mutation.mutate,
 	})
-
 	const mutateAsync = Logout.createMutateAsyncFn({
 		originFn: mutation.mutateAsync,
 	})

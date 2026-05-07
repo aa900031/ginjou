@@ -68,49 +68,53 @@ export function useUpdateMany<
 	const publish = usePublish(context)
 	const { mutateAsync: checkError } = useCheckError<TError>(undefined, context)
 
-	const mutation = useMutation<UpdateManyResult<TData>, TError, UpdateMany.MutationProps<TData, TError, TParams>, UpdateMany.MutationContext<TData>>(computed(() => ({
-		...unref(props?.mutationOptions) as any, // TODO:
-		mutationFn: UpdateMany.createMutationFn({
-			fetchers,
-			notify,
-			translate,
-			getProps,
-		}),
-		onMutate: UpdateMany.createMutateHandler({
-			queryClient,
-			notify,
-			translate,
-			getProps,
-			onMutate: unref(props?.mutationOptions)?.onMutate,
-		}),
-		onSettled: UpdateMany.createSettledHandler<TData, TError, TParams>({
-			queryClient,
-			getProps,
-			onSettled: unref(props?.mutationOptions)?.onSettled,
-		}),
-		onSuccess: UpdateMany.createSuccessHandler({
-			queryClient,
-			notify,
-			translate,
-			publish,
-			getProps,
-			onSuccess: unref(props?.mutationOptions)?.onSuccess,
-		}),
-		onError: UpdateMany.createErrorHandler({
-			queryClient,
-			notify,
-			translate,
-			checkError,
-			getProps,
-			onError: unref(props?.mutationOptions)?.onError,
-		}),
+	const mutationFn = UpdateMany.createMutationFn({
+		fetchers,
+		notify,
+		translate,
+		getProps,
+	})
+	const handleMutate = UpdateMany.createMutateHandler({
 		queryClient,
-	})))
+		notify,
+		translate,
+		getProps,
+		onMutate: (...args) => unref(props?.mutationOptions)?.onMutate?.(...args),
+	})
+	const handleSettled = UpdateMany.createSettledHandler<TData, TError, TParams>({
+		queryClient,
+		getProps,
+		onSettled: (...args) => unref(props?.mutationOptions)?.onSettled?.(...args),
+	})
+	const handleSuccess = UpdateMany.createSuccessHandler({
+		queryClient,
+		notify,
+		translate,
+		publish,
+		getProps,
+		onSuccess: (...args) => unref(props?.mutationOptions)?.onSuccess?.(...args),
+	})
+	const handleError = UpdateMany.createErrorHandler({
+		queryClient,
+		notify,
+		translate,
+		checkError,
+		getProps,
+		onError: (...args) => unref(props?.mutationOptions)?.onError?.(...args),
+	})
+
+	const mutation = useMutation<UpdateManyResult<TData>, TError, UpdateMany.MutationProps<TData, TError, TParams>, UpdateMany.MutationContext<TData>>(computed(() => ({
+		...unref(props?.mutationOptions),
+		mutationFn,
+		onMutate: handleMutate,
+		onSettled: handleSettled,
+		onSuccess: handleSuccess,
+		onError: handleError,
+	})), queryClient)
 
 	const mutate = UpdateMany.createMutateFn({
 		originFn: mutation.mutate,
 	})
-
 	const mutateAsync = UpdateMany.createMutateAsyncFn({
 		originFn: mutation.mutateAsync,
 	})

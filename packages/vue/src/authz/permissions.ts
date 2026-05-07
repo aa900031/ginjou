@@ -42,6 +42,7 @@ export function usePermissions<
 ): UsePermissionsResult<TData, TError> {
 	const authz = useAuthzContext(context)
 	const queryClient = useQueryClientContext(context)
+
 	const queryKey = computed(() => Permissions.createQueryKey<TParams>(getParams()))
 	const queryFn = Permissions.createQueryFn<TData, TParams>({
 		authz,

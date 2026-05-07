@@ -68,49 +68,53 @@ export function useUpdateOne<
 	const publish = usePublish(context)
 	const { mutateAsync: checkError } = useCheckError<TError>(undefined, context)
 
-	const mutation = useMutation<UpdateResult<TData>, TError, UpdateOne.MutationProps<TData, TError, TParams>, UpdateOne.MutationContext<TData>>(computed(() => ({
-		...unref(props?.mutationOptions) as any, // TODO:
-		mutationFn: UpdateOne.createMutationFn({
-			fetchers,
-			notify,
-			translate,
-			getProps,
-		}),
-		onMutate: UpdateOne.createMutateHandler({
-			queryClient,
-			notify,
-			translate,
-			getProps,
-			onMutate: unref(props?.mutationOptions)?.onMutate,
-		}),
-		onSettled: UpdateOne.createSettledHandler({
-			queryClient,
-			getProps,
-			onSettled: unref(props?.mutationOptions)?.onSettled,
-		}),
-		onSuccess: UpdateOne.createSuccessHandler({
-			queryClient,
-			notify,
-			translate,
-			publish,
-			getProps,
-			onSuccess: unref(props?.mutationOptions)?.onSuccess,
-		}),
-		onError: UpdateOne.createErrorHandler({
-			queryClient,
-			notify,
-			translate,
-			checkError,
-			getProps,
-			onError: unref(props?.mutationOptions)?.onError,
-		}),
+	const mutationFn = UpdateOne.createMutationFn({
+		fetchers,
+		notify,
+		translate,
+		getProps,
+	})
+	const handleMutate = UpdateOne.createMutateHandler({
 		queryClient,
-	})))
+		notify,
+		translate,
+		getProps,
+		onMutate: (...args) => unref(props?.mutationOptions)?.onMutate?.(...args),
+	})
+	const handleSettled = UpdateOne.createSettledHandler({
+		queryClient,
+		getProps,
+		onSettled: (...args) => unref(props?.mutationOptions)?.onSettled?.(...args),
+	})
+	const handleSuccess = UpdateOne.createSuccessHandler({
+		queryClient,
+		notify,
+		translate,
+		publish,
+		getProps,
+		onSuccess: (...args) => unref(props?.mutationOptions)?.onSuccess?.(...args),
+	})
+	const handleError = UpdateOne.createErrorHandler({
+		queryClient,
+		notify,
+		translate,
+		checkError,
+		getProps,
+		onError: (...args) => unref(props?.mutationOptions)?.onError?.(...args),
+	})
+
+	const mutation = useMutation<UpdateResult<TData>, TError, UpdateOne.MutationProps<TData, TError, TParams>, UpdateOne.MutationContext<TData>>(computed(() => ({
+		...unref(props?.mutationOptions),
+		mutationFn,
+		onMutate: handleMutate,
+		onSettled: handleSettled,
+		onSuccess: handleSuccess,
+		onError: handleError,
+	})), queryClient)
 
 	const mutate = UpdateOne.createMutateFn({
 		originFn: mutation.mutate,
 	})
-
 	const mutateAsync = UpdateOne.createMutateAsyncFn({
 		originFn: mutation.mutateAsync,
 	})

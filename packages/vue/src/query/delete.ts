@@ -68,49 +68,53 @@ export function useDeleteOne<
 	const publish = usePublish(context)
 	const { mutateAsync: checkError } = useCheckError<TError>(undefined, context)
 
-	const mutation = useMutation<DeleteOneResult<TData>, TError, DeleteOne.MutationProps<TData, TError, TParams>, DeleteOne.MutationContext<TData>>(computed(() => ({
-		...unref(props?.mutationOptions) as any, // TODO:
-		mutationFn: DeleteOne.createMutationFn({
-			fetchers,
-			notify,
-			translate,
-			getProps,
-		}),
-		onMutate: DeleteOne.createMutateHandler({
-			queryClient,
-			notify,
-			translate,
-			getProps,
-			onMutate: unref(props?.mutationOptions)?.onMutate,
-		}),
-		onSettled: DeleteOne.createSettledHandler<TData, TError, TParams>({
-			queryClient,
-			getProps,
-			onSettled: unref(props?.mutationOptions)?.onSettled,
-		}),
-		onSuccess: DeleteOne.createSuccessHandler({
-			queryClient,
-			notify,
-			translate,
-			publish,
-			getProps,
-			onSuccess: unref(props?.mutationOptions)?.onSuccess,
-		}),
-		onError: DeleteOne.createErrorHandler({
-			queryClient,
-			notify,
-			translate,
-			checkError,
-			getProps,
-			onError: unref(props?.mutationOptions)?.onError,
-		}),
+	const mutationFn = DeleteOne.createMutationFn({
+		fetchers,
+		notify,
+		translate,
+		getProps,
+	})
+	const handleMutate = DeleteOne.createMutateHandler({
 		queryClient,
-	})))
+		notify,
+		translate,
+		getProps,
+		onMutate: (...args) => unref(props?.mutationOptions)?.onMutate?.(...args),
+	})
+	const handleSettled = DeleteOne.createSettledHandler<TData, TError, TParams>({
+		queryClient,
+		getProps,
+		onSettled: (...args) => unref(props?.mutationOptions)?.onSettled?.(...args),
+	})
+	const handleSuccess = DeleteOne.createSuccessHandler({
+		queryClient,
+		notify,
+		translate,
+		publish,
+		getProps,
+		onSuccess: (...args) => unref(props?.mutationOptions)?.onSuccess?.(...args),
+	})
+	const handleError = DeleteOne.createErrorHandler({
+		queryClient,
+		notify,
+		translate,
+		checkError,
+		getProps,
+		onError: (...args) => unref(props?.mutationOptions)?.onError?.(...args),
+	})
+
+	const mutation = useMutation<DeleteOneResult<TData>, TError, DeleteOne.MutationProps<TData, TError, TParams>, DeleteOne.MutationContext<TData>>(computed(() => ({
+		...unref(props?.mutationOptions),
+		mutationFn,
+		onMutate: handleMutate,
+		onSettled: handleSettled,
+		onSuccess: handleSuccess,
+		onError: handleError,
+	})), queryClient)
 
 	const mutate = DeleteOne.createMutateFn({
 		originFn: mutation.mutate,
 	})
-
 	const mutateAsync = DeleteOne.createMutateAsyncFn({
 		originFn: mutation.mutateAsync,
 	})

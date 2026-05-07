@@ -68,34 +68,39 @@ export function useCreateMany<
 	const publish = usePublish(context)
 	const { mutateAsync: checkError } = useCheckError<TError>(undefined, context)
 
-	const mutation = useMutation<CreateManyResult<TData>, TError, CreateMany.MutationProps<TData, TError, TParams>, any>(computed(() => ({
-		...unref(props?.mutationOptions) as any, // TODO:
-		mutationFn: CreateMany.createMutationFn({
-			fetchers,
-			getProps,
-		}),
-		onSuccess: CreateMany.createSuccessHandler({
-			notify,
-			translate,
-			publish,
-			queryClient,
-			getProps,
-			onSuccess: unref(props?.mutationOptions)?.onSuccess,
-		}),
-		onError: CreateMany.createErrorHandler({
-			notify,
-			translate,
-			checkError,
-			getProps,
-			onError: unref(props?.mutationOptions)?.onError,
-		}),
+	const mutationFn = CreateMany.createMutationFn({
+		fetchers,
+		getProps,
+	})
+	const handleSuccess = CreateMany.createSuccessHandler({
+		notify,
+		translate,
+		publish,
 		queryClient,
-	})))
+		getProps,
+		onSuccess: (...args) => unref(props?.mutationOptions)?.onSuccess?.(...args),
+	})
+	const handleError = CreateMany.createErrorHandler({
+		notify,
+		translate,
+		checkError,
+		getProps,
+		onError: (...args) => unref(props?.mutationOptions)?.onError?.(...args),
+	})
+
+	const mutation = useMutation<CreateManyResult<TData>, TError, CreateMany.MutationProps<TData, TError, TParams>, any>(
+		computed(() => ({
+			...unref(props?.mutationOptions),
+			mutationFn,
+			onSuccess: handleSuccess,
+			onError: handleError,
+		})),
+		queryClient,
+	)
 
 	const mutate = CreateMany.createMutateFn({
 		originFn: mutation.mutate,
 	})
-
 	const mutateAsync = CreateMany.createMutateAsyncFn({
 		originFn: mutation.mutateAsync,
 	})

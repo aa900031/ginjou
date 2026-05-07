@@ -50,16 +50,20 @@ export function useCheckError<
 	const go = useGo(context)
 	const { mutateAsync: logout } = useLogout(undefined, context)
 
+	const mutationKey = CheckError.createMutationKey()
+	const mutationFn = CheckError.createMutationFn<TParams>({
+		auth,
+	})
+	const handleSuccess = CheckError.createSuccessHandler<TParams, TError>({
+		logout,
+		go,
+		onSuccess: (...args) => unref(props?.mutationOptions)?.onSuccess?.(...args),
+	})
+
 	return useMutation<CheckAuthErrorResult<TParams>, TError, TParams>(computed(() => ({
 		...unref(props?.mutationOptions),
-		mutationKey: CheckError.createMutationKey(),
-		mutationFn: CheckError.createMutationFn({
-			auth,
-		}),
-		onSuccess: CheckError.createSuccessHandler({
-			logout,
-			go,
-			onSuccess: unref(props?.mutationOptions)?.onSuccess,
-		}),
+		mutationKey,
+		mutationFn,
+		onSuccess: handleSuccess,
 	})), queryClient)
 }

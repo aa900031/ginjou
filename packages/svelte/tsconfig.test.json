@@ -1,0 +1,18 @@
+{
+	"extends": "./tsconfig.app.json",
+	"compilerOptions": {
+		"lib": [],
+		"types": [
+			"node"
+		]
+	},
+	"references": [
+		{ "path": "../core/tsconfig.app.json" }
+	],
+	"include": [
+		"src/**/*.ts",
+		"src/**/*.svelte.ts",
+		"test/**/*.ts"
+	],
+	"exclude": []
+}
