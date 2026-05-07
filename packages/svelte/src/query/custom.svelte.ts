@@ -15,7 +15,7 @@ import { useCheckError } from '../auth'
 import { useTranslate } from '../i18n'
 import { useNotify } from '../notification'
 import { useSubscribe } from '../realtime'
-import { extract } from '../utils'
+import { extract, withAccessors } from '../utils'
 import { useFetchersContext } from './fetchers'
 import { useQueryClientContext } from './query-client'
 
@@ -134,11 +134,7 @@ export function useCustom<
 		actions: [RealtimeAction.Any],
 	}), context)
 
-	Object.assign(query, {
-		get record() {
-			return query.data?.data
-		},
-	})
-
-	return query as UseCustomResult<TData, TError, TResultData>
+	return withAccessors(query, {
+		record: () => query.data?.data,
+	}) as UseCustomResult<TData, TError, TResultData>
 }

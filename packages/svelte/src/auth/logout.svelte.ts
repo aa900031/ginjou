@@ -13,7 +13,7 @@ import { useTranslate } from '../i18n'
 import { useNotify } from '../notification'
 import { useQueryClientContext } from '../query/query-client'
 import { useGo } from '../router'
-import { extract } from '../utils'
+import { extract, withAccessors } from '../utils'
 import { useAuthContext } from './auth'
 
 export type UseLogoutProps<
@@ -96,8 +96,8 @@ export function useLogout<
 		originFn: mutation.mutateAsync,
 	})
 
-	return Object.assign(mutation, {
-		mutate,
-		mutateAsync,
+	return withAccessors(mutation, {
+		mutate: () => mutate,
+		mutateAsync: () => mutateAsync,
 	})
 }

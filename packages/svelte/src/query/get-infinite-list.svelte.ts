@@ -15,7 +15,7 @@ import { useCheckError } from '../auth'
 import { useTranslate } from '../i18n'
 import { useNotify } from '../notification'
 import { useRealtimeOptions, useSubscribe } from '../realtime'
-import { extract } from '../utils'
+import { extract, withAccessors } from '../utils'
 import { useFetchersContext } from './fetchers'
 import { useQueryClientContext } from './query-client'
 
@@ -159,13 +159,9 @@ export function useGetInfiniteList<
 		enabled: enabledFn,
 	}), context)
 
-	Object.assign(query, {
-		get records() {
-			return records
-		},
+	return withAccessors(query, {
+		records: () => records,
 	})
-
-	return query as UseGetInfiniteListResult<TError, TResultData, TPageParam>
 
 	function getProps(): GetInfiniteList.ResolvedQueryProps<TPageParam> {
 		return queryProps

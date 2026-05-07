@@ -8,7 +8,7 @@ import { Edit, getFetcherName, getResourceIdentifier } from '@ginjou/core'
 import { useGetOne, useUpdateOne } from '../query'
 import { useResource } from '../resource'
 import { useNavigateTo } from '../router'
-import { extract } from '../utils'
+import { extract, withAccessors } from '../utils'
 
 export type UseEditProps<
 	TQueryData extends BaseRecord,
@@ -107,16 +107,10 @@ export function useEdit<
 		mutateFn: (variables, options) => mutation.mutateAsync(variables!, options),
 	})
 
-	Object.assign(mutation, {
-		get record() {
-			return query.record
-		},
-		get isLoading() {
-			return isLoading
-		},
-		query,
-		save,
+	return withAccessors(mutation, {
+		record: () => query.record,
+		isLoading: () => isLoading,
+		query: () => query,
+		save: () => save,
 	})
-
-	return mutation as UseEditResult<TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError>
 }

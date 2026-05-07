@@ -8,7 +8,7 @@ import { getFetcherName, getResourceIdentifier, List } from '@ginjou/core'
 import { useGetList } from '../query'
 import { useResource } from '../resource'
 import { useGo, useLocation } from '../router'
-import { extract, stateFallback, stateSub, watch } from '../utils'
+import { extract, stateFallback, stateSub, watch, withAccessors } from '../utils'
 
 export type UseListProps<
 	TData extends BaseRecord,
@@ -263,43 +263,15 @@ export function useList<
 		})
 	})
 
-	Object.assign(result, {
-		get currentPage() {
-			return currentPage.value
-		},
-		set currentPage(value) {
-			currentPage.value = value
-		},
-		get perPage() {
-			return perPage.value
-		},
-		set perPage(value) {
-			perPage.value = value
-		},
-		get sorters() {
-			return sortersState.value
-		},
-		set sorters(value) {
-			setSorters(value)
-		},
-		get filters() {
-			return filtersState.value
-		},
-		set filters(value) {
-			setFilters(value, List.SetFilterBehavior.Replace)
-		},
-		get total() {
-			return total
-		},
-		get pageCount() {
-			return pageCount
-		},
-		get records() {
-			return records
-		},
-		setSorters,
-		setFilters,
+	return withAccessors(result, {
+		currentPage: { get: () => currentPage.value, set: v => (currentPage.value = v) },
+		perPage: { get: () => perPage.value, set: v => (perPage.value = v) },
+		sorters: { get: () => sortersState.value, set: v => setSorters(v) },
+		filters: { get: () => filtersState.value, set: v => setFilters(v, List.SetFilterBehavior.Replace) },
+		total: () => total,
+		pageCount: () => pageCount,
+		records: () => records,
+		setSorters: () => setSorters,
+		setFilters: () => setFilters,
 	})
-
-	return result as UseListResult<TError, TResultData>
 }

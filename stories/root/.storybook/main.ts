@@ -30,6 +30,11 @@ export default {
 	refs: (config, { configType }) => {
 		const urls = getRefsUrl(configType)
 		return {
+			svelte: {
+				title: 'Svelte',
+				url: urls.svelte,
+				expanded: false,
+			},
 			vue: {
 				title: 'Vue',
 				url: urls.vue,
@@ -45,11 +50,13 @@ function getRefsUrl(
 	switch (type) {
 		case 'DEVELOPMENT':
 			return {
+				svelte: 'http://localhost:6008',
 				vue: 'http://localhost:6007',
 			}
 
 		default:
 			return {
+				svelte: '/svelte',
 				vue: '/vue',
 			}
 	}

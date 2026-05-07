@@ -23,6 +23,7 @@
 		"skipLibCheck": true,
 		"paths": {
 			"@ginjou/core": ["../../packages/core/src/index.ts"],
+			"@ginjou/svelte": ["../../packages/svelte/src/index.ts"],
 			"@ginjou/vue": ["../../packages/vue/src/index.ts"],
 			"@ginjou/vue/plugin": ["../../packages/vue/src/plugin.ts"],
 			"@ginjou/with-vue-router": ["../../packages/with-vue-router/src/index.ts"],

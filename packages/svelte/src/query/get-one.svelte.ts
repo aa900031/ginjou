@@ -15,7 +15,7 @@ import { useCheckError } from '../auth'
 import { useTranslate } from '../i18n'
 import { useNotify } from '../notification'
 import { useRealtimeOptions, useSubscribe } from '../realtime'
-import { extract } from '../utils'
+import { extract, withAccessors } from '../utils'
 import { useFetchersContext } from './fetchers'
 import { useQueryClientContext } from './query-client'
 
@@ -140,13 +140,9 @@ export function useGetOne<
 		enabled: enabledFn,
 	}), context)
 
-	Object.assign(query, {
-		get records() {
-			return query.data?.data
-		},
+	return withAccessors(query, {
+		record: () => query.data?.data,
 	})
-
-	return query as UseGetOneResult<TError, TResultData>
 
 	function getProps(): GetOne.ResolvedQueryProps {
 		return queryProps

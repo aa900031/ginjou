@@ -15,7 +15,7 @@ import { useCheckError } from '../auth'
 import { useTranslate } from '../i18n'
 import { useNotify } from '../notification'
 import { useRealtimeOptions, useSubscribe } from '../realtime'
-import { extract } from '../utils'
+import { extract, withAccessors } from '../utils'
 import { useFetchersContext } from './fetchers'
 import { useQueryClientContext } from './query-client'
 
@@ -146,13 +146,9 @@ export function useGetMany<
 		enabled: queryEnabled,
 	}), context)
 
-	Object.assign(query, {
-		get records() {
-			return query.data?.data
-		},
-	})
-
-	return query as UseGetManyResult<TData, TError, TResultData>
+	return withAccessors(query, {
+		records: () => query.data?.data,
+	}) as UseGetManyResult<TData, TError, TResultData>
 
 	function getProps(): GetMany.ResolvedQueryProps {
 		return queryProps

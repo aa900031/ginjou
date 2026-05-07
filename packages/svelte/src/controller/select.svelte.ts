@@ -6,7 +6,7 @@ import type { MaybeAccessor } from '../utils'
 import { getFetcherName, getResourceIdentifier, Select } from '@ginjou/core'
 import { useGetList, useGetMany } from '../query'
 import { useResource } from '../resource'
-import { extract, stateSub } from '../utils'
+import { extract, stateSub, withAccessors } from '../utils'
 
 export type UseSelectProps<
 	TData extends BaseRecord,
@@ -106,29 +106,10 @@ export function useSelect<
 		valueKey: resolvedProps?.valueKey,
 	}))
 
-	Object.assign(listResult, {
-		get options() {
-			return options
-		},
-		get search() {
-			return search
-		},
-		set search(value) {
-			search = value
-		},
-		get currentPage() {
-			return currentPage.value
-		},
-		set currentPage(value) {
-			currentPage.value = value
-		},
-		get perPage() {
-			return perPage.value
-		},
-		set perPage(value) {
-			perPage.value = value
-		},
+	return withAccessors(listResult, {
+		options: () => options,
+		search: { get: () => search, set: v => (search = v) },
+		currentPage: { get: () => currentPage.value, set: v => (currentPage.value = v) },
+		perPage: { get: () => perPage.value, set: v => (perPage.value = v) },
 	})
-
-	return listResult as UseSelectResult<TError, TResultData, TPageParam>
 }

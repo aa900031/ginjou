@@ -6,7 +6,7 @@ import type { MaybeAccessor } from '../utils'
 import { getFetcherName, getResourceIdentifier, Show } from '@ginjou/core'
 import { useGetOne } from '../query'
 import { useResource } from '../resource'
-import { extract, watch } from '../utils'
+import { extract, watch, withAccessors } from '../utils'
 
 export type UseShowProps<
 	TData extends BaseRecord,
@@ -59,10 +59,10 @@ export function useShow<
 		inferredResource: inferredResource.value,
 	}))
 
-	let id = $state<RecordKey | undefined>(defaultId)
+	let id = $state<RecordKey | undefined>()
 	watch(() => defaultId, (value) => {
 		id = value
-	})
+	}, { immediate: true }) // If remove `immediate` the svelte compiler will warning: `This reference only captures the initial value of `defaultId`. Did you mean to reference it inside a closure instead? https://svelte.dev/e/state_referenced_locally`
 
 	const result = useGetOne<TData, TError, TResultData>(() => ({
 		...resolvedProps,
@@ -71,14 +71,7 @@ export function useShow<
 		fetcherName,
 	}), context)
 
-	Object.assign(result, {
-		get id(): RecordKey | undefined {
-			return id
-		},
-		set id(value: RecordKey | undefined) {
-			id = value
-		},
+	return withAccessors(result, {
+		id: { get: () => id, set: v => (id = v) },
 	})
-
-	return result as UseShowResult<TError, TResultData>
 }

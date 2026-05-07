@@ -14,7 +14,7 @@ import { useCheckError } from '../auth'
 import { useTranslate } from '../i18n'
 import { useNotify } from '../notification'
 import { usePublish } from '../realtime'
-import { extract } from '../utils'
+import { extract, withAccessors } from '../utils'
 import { useFetchersContext } from './fetchers'
 import { useQueryClientContext } from './query-client'
 
@@ -128,9 +128,9 @@ export function useDeleteOne<
 		originFn: mutation.mutateAsync,
 	})
 
-	return Object.assign(mutation, {
-		mutate,
-		mutateAsync,
+	return withAccessors(mutation, {
+		mutate: () => mutate,
+		mutateAsync: () => mutateAsync,
 	})
 
 	function getProps(): DeleteOne.Props<TData, TError, TParams> | undefined {

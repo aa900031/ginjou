@@ -8,7 +8,7 @@ import { Create, getFetcherName, getResourceIdentifier } from '@ginjou/core'
 import { useCreateOne } from '../query'
 import { useResource } from '../resource'
 import { useNavigateTo } from '../router'
-import { extract } from '../utils'
+import { extract, withAccessors } from '../utils'
 
 export type UseCreateProps<
 	TMutationData extends BaseRecord,
@@ -76,12 +76,8 @@ export function useCreate<
 		mutateFn: (variables, options) => mutation.mutateAsync(variables!, options),
 	})
 
-	Object.assign(mutation, {
-		get isLoading() {
-			return isLoading
-		},
-		save,
+	return withAccessors(mutation, {
+		isLoading: () => isLoading,
+		save: () => save,
 	})
-
-	return mutation as UseCreateResult<TMutationData, TMutationParams, TMutationError>
 }

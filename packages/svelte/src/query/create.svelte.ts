@@ -14,7 +14,7 @@ import { useCheckError } from '../auth'
 import { useTranslate } from '../i18n'
 import { useNotify } from '../notification'
 import { usePublish } from '../realtime'
-import { extract } from '../utils'
+import { extract, withAccessors } from '../utils'
 import { useFetchersContext } from './fetchers'
 import { useQueryClientContext } from './query-client'
 
@@ -105,10 +105,10 @@ export function useCreateOne<
 		originFn: mutation.mutateAsync,
 	})
 
-	return Object.assign(mutation, {
-		mutate,
-		mutateAsync,
-	})
+	return withAccessors(mutation, {
+		mutate: () => mutate,
+		mutateAsync: () => mutateAsync,
+	}) as UseCreateOneResult<TData, TError, TParams>
 
 	function getProps(): CreateOne.Props<TData, TError, TParams> | undefined {
 		return resolvedProps
