@@ -19,7 +19,7 @@ const t = useTranslate()
 
 			<Card>
 				<Stack>
-					<JsonOutput :value="{ 'hi': t('hi'), 'msg': t('msg', { name: 'Mark' }) }" />
+					<JsonOutput :value="{ hi: t('hi'), msg: t('msg', { name: 'Mark' }) }" />
 					<FieldLabel>
 						<span>Locale</span>
 						<Select

@@ -3,6 +3,7 @@ import type { Post } from './api/posts'
 import { useList } from '@ginjou/vue'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import Button from './components/Button.vue'
 import FieldLabel from './components/FieldLabel.vue'
 import InlineActions from './components/InlineActions.vue'
 import Input from './components/Input.vue'
@@ -14,7 +15,6 @@ import Table from './components/Table.vue'
 import Td from './components/Td.vue'
 import Th from './components/Th.vue'
 import UrlBadge from './components/UrlBadge.vue'
-import Button from './components/Button.vue'
 
 const route = useRoute()
 

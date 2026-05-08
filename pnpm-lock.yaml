@@ -312,6 +312,24 @@ importers:
         specifier: ^2.100.0
         version: 2.100.0
 
+  packages/with-svelte-spa-router:
+    devDependencies:
+      '@ginjou/svelte':
+        specifier: workspace:^
+        version: link:../svelte
+      '@ginjou/tsconfig':
+        specifier: workspace:*
+        version: link:../../internals/tsconfig
+      '@ginjou/tsdown-config':
+        specifier: workspace:*
+        version: link:../../internals/tsdown-config
+      svelte:
+        specifier: ^5.25.0
+        version: 5.55.5(@typescript-eslint/types@8.56.0)
+      svelte-spa-router:
+        specifier: ^5.1.0
+        version: 5.1.0(svelte@5.55.5(@typescript-eslint/types@8.56.0))
+
   packages/with-vue-i18n:
     dependencies:
       vue-demi:
@@ -8829,6 +8847,10 @@ packages:
     resolution: {integrity: sha512-dYqgNSZbDwkaJ2ceRd9ojCGjBq+mOm9LmtXnAnEGyHhN/5R7iDW2TRw3h+o/jCFxus3P2LfWIIiwowAjANm7IA==}
     engines: {node: '>= 0.4'}
 
+  regexparam@2.0.2:
+    resolution: {integrity: sha512-A1PeDEYMrkLrfyOwv2jwihXbo9qxdGD3atBYQA9JJgreAx8/7rC6IUkWOw2NQlOxLp2wL0ifQbh1HuidDfYA6w==}
+    engines: {node: '>=8'}
+
   regexparam@3.0.0:
     resolution: {integrity: sha512-RSYAtP31mvYLkAHrOlh25pCNQ5hWnT106VukGaaFfuJrZFkGRX5GhUAdPqpSDXxOhA2c4akmRuplv1mRqnBn6Q==}
     engines: {node: '>=8'}
@@ -9424,6 +9446,11 @@ packages:
   supports-preserve-symlinks-flag@1.0.0:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
+
+  svelte-spa-router@5.1.0:
+    resolution: {integrity: sha512-YGtXOF+advJnQBvS4mvRnHVUF0qpSI2pUrSxidz4s7X9x80IKEgYzupx6j46gZcIcN3BYjmuLUbsgQv1S5bZzQ==}
+    peerDependencies:
+      svelte: ^5.0.0
 
   svelte2tsx@0.7.55:
     resolution: {integrity: sha512-JWzgeM3lqySRNfqcsesvVEh8LhTWBxQJ9RMjzJ+VepdmXtVnNd0SbtGctG6+/fbHq0N6mhwSd823gszw9JHeGQ==}
@@ -20117,6 +20144,8 @@ snapshots:
       gopd: 1.2.0
       set-function-name: 2.0.2
 
+  regexparam@2.0.2: {}
+
   regexparam@3.0.0: {}
 
   regjsparser@0.13.0:
@@ -20928,6 +20957,11 @@ snapshots:
       has-flag: 4.0.0
 
   supports-preserve-symlinks-flag@1.0.0: {}
+
+  svelte-spa-router@5.1.0(svelte@5.55.5(@typescript-eslint/types@8.56.0)):
+    dependencies:
+      regexparam: 2.0.2
+      svelte: 5.55.5(@typescript-eslint/types@8.56.0)
 
   svelte2tsx@0.7.55(svelte@5.55.5(@typescript-eslint/types@8.56.0))(typescript@5.9.3):
     dependencies:
