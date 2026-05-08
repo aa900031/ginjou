@@ -1,3 +1,5 @@
+const DEFAULT_HIGHLIGHT = ['bash', 'diff', 'json', 'js', 'ts', 'html', 'css', 'vue', 'shell', 'mdc', 'md', 'yaml'] as const
+
 export default defineNuxtConfig({
 	extends: [
 		'docus',
@@ -12,6 +14,7 @@ export default defineNuxtConfig({
 		build: {
 			markdown: {
 				highlight: {
+					langs: [...DEFAULT_HIGHLIGHT, 'svelte'],
 					theme: {
 						default: 'github-light',
 						dark: 'github-dark',
