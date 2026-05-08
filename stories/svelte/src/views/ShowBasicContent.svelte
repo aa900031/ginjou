@@ -1,24 +1,28 @@
 <script lang="ts">
 	import { useLocation, useShow } from '@ginjou/svelte'
 	import type { Post } from '../api/posts'
+	import Card from '../components/Card.svelte'
+	import PageTitle from '../components/PageTitle.svelte'
+	import Stack from '../components/Stack.svelte'
+	import UrlBadge from '../components/UrlBadge.svelte'
 	import { formatLocation } from '../utils/mock-router'
 
 	const show = useShow<Post>()
 	const location = useLocation()
 </script>
 
-<div class="stack">
-	<code>URL: {formatLocation(location.value)}</code>
+<Stack>
+	<UrlBadge url={formatLocation(location.value)} />
 
-	<h1>Posts Details</h1>
+	<PageTitle>Posts Details</PageTitle>
 
 	{#if show.isFetching}
-		<div class="card">Loading...</div>
+		<Card>Loading...</Card>
 	{:else}
-		<div class="card">
+		<Card>
 			<p>id: {show.record?.id}</p>
 			<p>title: {show.record?.title}</p>
 			<p>status: {show.record?.status}</p>
-		</div>
+		</Card>
 	{/if}
-</div>
+</Stack>

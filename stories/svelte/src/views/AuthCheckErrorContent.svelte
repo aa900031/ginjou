@@ -1,6 +1,10 @@
 <script lang="ts">
 	import { onMount } from 'svelte'
 	import { useAuthenticated, useCheckError, useLogin } from '@ginjou/svelte'
+	import Button from '../components/Button.svelte'
+	import Card from '../components/Card.svelte'
+	import PageTitle from '../components/PageTitle.svelte'
+	import Stack from '../components/Stack.svelte'
 
 	const authenticated = useAuthenticated()
 	const login = useLogin()
@@ -21,24 +25,28 @@
 	}
 </script>
 
-<div class="stack">
-	<h1>useCheckError</h1>
+<Stack>
+	<PageTitle>useCheckError</PageTitle>
 
 	{#if authenticated.data == null || authenticated.isLoading || login.isPending}
-		<div class="card">Loading ...</div>
+		<Card>Loading ...</Card>
 	{:else if authenticated.data.authenticated}
-		<div class="card stack">
-			<p>Check Auth Error</p>
-			<button type="button" onclick={handleCheckClick} disabled={checkError.isPending}>
-				{checkError.isPending ? 'Trigger ...' : 'Trigger'}
-			</button>
-		</div>
+		<Card>
+			<Stack>
+				<p>Check Auth Error</p>
+				<Button type="button" onclick={handleCheckClick} disabled={checkError.isPending}>
+					{checkError.isPending ? 'Trigger ...' : 'Trigger'}
+				</Button>
+			</Stack>
+		</Card>
 	{:else}
-		<div class="card stack">
-			<p>Please login again</p>
-			<button type="button" onclick={handleLoginClick} disabled={login.isPending}>
-				{login.isPending ? 'Login ...' : 'Login'}
-			</button>
-		</div>
+		<Card>
+			<Stack>
+				<p>Please login again</p>
+				<Button type="button" onclick={handleLoginClick} disabled={login.isPending}>
+					{login.isPending ? 'Login ...' : 'Login'}
+				</Button>
+			</Stack>
+		</Card>
 	{/if}
-</div>
+</Stack>

@@ -1,6 +1,18 @@
 <script lang="ts">
 	import { useList, useLocation } from '@ginjou/svelte'
 	import type { Post } from '../api/posts'
+	import Button from '../components/Button.svelte'
+	import Card from '../components/Card.svelte'
+	import FieldLabel from '../components/FieldLabel.svelte'
+	import InlineActions from '../components/InlineActions.svelte'
+	import Input from '../components/Input.svelte'
+	import PageTitle from '../components/PageTitle.svelte'
+	import Select from '../components/Select.svelte'
+	import Stack from '../components/Stack.svelte'
+	import Table from '../components/Table.svelte'
+	import Td from '../components/Td.svelte'
+	import Th from '../components/Th.svelte'
+	import UrlBadge from '../components/UrlBadge.svelte'
 	import { formatLocation } from '../utils/mock-router'
 
 	const list = useList<Post>({
@@ -8,90 +20,75 @@
 	})
 	const location = useLocation()
 
-	function hasPrev(): boolean {
-		return list.currentPage > 1
-	}
+	const hasPrev = $derived(list.currentPage > 1)
+	const hasNext = $derived(list.pageCount == null ? false : list.currentPage < list.pageCount)
 
-	function hasNext(): boolean {
-		return list.pageCount == null ? false : list.currentPage < list.pageCount
+	function handleFirstPage() {
+		list.currentPage = 1
+	}
+	function handlePrevPage() {
+		list.currentPage = list.currentPage - 1
+	}
+	function handleNextPage() {
+		list.currentPage = list.currentPage + 1
+	}
+	function handleLastPage() {
+		list.currentPage = list.pageCount ?? list.currentPage
 	}
 </script>
 
-<div class="stack">
-	<code>URL: {formatLocation(location.value)}</code>
+<Stack>
+	<UrlBadge url={formatLocation(location.value)} />
 
-	<h1>Posts</h1>
+	<PageTitle>Posts</PageTitle>
 
 	{#if list.isFetching}
-		<div class="card">Loading...</div>
+		<Card>Loading...</Card>
 	{:else}
-		<table>
+		<Table>
 			<thead>
 				<tr>
-					<th>ID</th>
-					<th>Title</th>
-					<th>Status</th>
+					<Th>ID</Th>
+					<Th>Title</Th>
+					<Th>Status</Th>
 				</tr>
 			</thead>
 			<tbody>
 				{#each list.records ?? [] as record}
 					<tr>
-						<td>{record.id}</td>
-						<td>{record.title}</td>
-						<td>{record.status}</td>
+						<Td>{record.id}</Td>
+						<Td>{record.title}</Td>
+						<Td>{record.status}</Td>
 					</tr>
 				{/each}
 			</tbody>
-		</table>
+		</Table>
 
-		<div class="card stack">
-			<div class="inline-actions">
-				<button onclick={() => { list.currentPage = 1 }} disabled={!hasPrev()}>
-					First
-				</button>
-				<button onclick={() => { list.currentPage = list.currentPage - 1 }} disabled={!hasPrev()}>
-					Previous
-				</button>
-				<button onclick={() => { list.currentPage = list.currentPage + 1 }} disabled={!hasNext()}>
-					Next
-				</button>
-				<button onclick={() => { list.currentPage = list.pageCount ?? list.currentPage }} disabled={!hasNext()}>
-					Last
-				</button>
-			</div>
+		<Card>
+			<Stack>
+				<InlineActions>
+					<Button onclick={handleFirstPage} disabled={!hasPrev}>First</Button>
+					<Button onclick={handlePrevPage} disabled={!hasPrev}>Previous</Button>
+					<Button onclick={handleNextPage} disabled={!hasNext}>Next</Button>
+					<Button onclick={handleLastPage} disabled={!hasNext}>Last</Button>
+				</InlineActions>
 
-			<div class="meta-row">
 				<span>Page {list.currentPage} / {list.pageCount ?? 1}</span>
-			</div>
 
-			<label>
-				<span>Go to page</span>
-				<input
-					type="number"
-					min="1"
-					max={list.pageCount ?? 1}
-					value={list.currentPage}
-					oninput={(event) => {
-						const value = Number((event.currentTarget as HTMLInputElement).value)
-						if (!Number.isNaN(value) && value >= 1)
-							list.currentPage = value
-					}}
-				/>
-			</label>
+				<FieldLabel>
+					<span>Go to page</span>
+					<Input type="number" min={1} max={list.pageCount ?? 1} bind:value={list.currentPage} />
+				</FieldLabel>
 
-			<label>
-				<span>Per page</span>
-				<select
-					value={list.perPage}
-					onchange={(event) => {
-						list.perPage = Number((event.currentTarget as HTMLSelectElement).value)
-					}}
-				>
-					{#each [10, 20, 30, 40] as count}
-						<option value={count}>{count}</option>
-					{/each}
-				</select>
-			</label>
-		</div>
+				<FieldLabel>
+					<span>Per page</span>
+					<Select bind:value={list.perPage}>
+						{#each [10, 20, 30, 40] as count}
+							<option value={count}>{count}</option>
+						{/each}
+					</Select>
+				</FieldLabel>
+			</Stack>
+		</Card>
 	{/if}
-</div>
+</Stack>

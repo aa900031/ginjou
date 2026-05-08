@@ -1,5 +1,9 @@
 <script lang="ts">
 	import { useAuthenticated, useLogin, useLogout } from '@ginjou/svelte'
+	import Button from '../components/Button.svelte'
+	import Card from '../components/Card.svelte'
+	import PageTitle from '../components/PageTitle.svelte'
+	import Stack from '../components/Stack.svelte'
 
 	const authenticated = useAuthenticated()
 	const login = useLogin()
@@ -14,24 +18,28 @@
 	}
 </script>
 
-<div class="stack">
-	<h1>useAuthenticated / useLogin / useLogout</h1>
+<Stack>
+	<PageTitle>useAuthenticated / useLogin / useLogout</PageTitle>
 
 	{#if authenticated.isLoading || authenticated.data == null}
-		<div class="card">Check Auth ...</div>
+		<Card>Check Auth ...</Card>
 	{:else if authenticated.data.authenticated === true}
-		<div class="card stack">
-			<p>Hi! You are authenticated.</p>
-			<button type="button" onclick={handleLogoutClick} disabled={logout.isPending}>
-				{logout.isPending ? 'Logout...' : 'Logout'}
-			</button>
-		</div>
+		<Card>
+			<Stack>
+				<p>Hi! You are authenticated.</p>
+				<Button type="button" onclick={handleLogoutClick} disabled={logout.isPending}>
+					{logout.isPending ? 'Logout...' : 'Logout'}
+				</Button>
+			</Stack>
+		</Card>
 	{:else}
-		<div class="card stack">
-			<p>You are unauthenticated. Please login first.</p>
-			<button type="button" onclick={handleLoginClick} disabled={login.isPending}>
-				{login.isPending ? 'Login...' : 'Login'}
-			</button>
-		</div>
+		<Card>
+			<Stack>
+				<p>You are unauthenticated. Please login first.</p>
+				<Button type="button" onclick={handleLoginClick} disabled={login.isPending}>
+					{login.isPending ? 'Login...' : 'Login'}
+				</Button>
+			</Stack>
+		</Card>
 	{/if}
-</div>
+</Stack>

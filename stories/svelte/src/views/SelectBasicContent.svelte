@@ -1,6 +1,12 @@
 <script lang="ts">
 	import { useSelect } from '@ginjou/svelte'
 	import type { Post } from '../api/posts'
+	import Card from '../components/Card.svelte'
+	import FieldLabel from '../components/FieldLabel.svelte'
+	import Input from '../components/Input.svelte'
+	import PageTitle from '../components/PageTitle.svelte'
+	import Select from '../components/Select.svelte'
+	import Stack from '../components/Stack.svelte'
 
 	let value = $state<string | undefined>()
 
@@ -10,35 +16,34 @@
 	}))
 </script>
 
-<div class="stack">
-	<h1>useSelect</h1>
+<Stack>
+	<PageTitle>useSelect</PageTitle>
 
-	<label>
+	<FieldLabel>
 		<span>Search</span>
-		<input
+		<Input
 			placeholder="Keyword for option list"
-			value={select.search ?? ''}
-			oninput={(event) => {
-				select.search = (event.currentTarget as HTMLInputElement).value || undefined
-			}}
+			bind:value={
+				() => select.search ?? '',
+				(v) => select.search = v || undefined
+			}
 		/>
-	</label>
+	</FieldLabel>
 
-	<label>
+	<FieldLabel>
 		<span>Post</span>
-		<select
-			value={value ?? ''}
-			onchange={(event) => {
-				const nextValue = (event.currentTarget as HTMLSelectElement).value
-				value = nextValue || undefined
-			}}
+		<Select
+			bind:value={
+				() => value ?? '',
+				(v) => value = v || undefined
+			}
 		>
 			<option value="">Select a post</option>
 			{#each select.options ?? [] as option}
 				<option value={`${option.value}`}>{option.label}</option>
 			{/each}
-		</select>
-	</label>
+		</Select>
+	</FieldLabel>
 
-	<div class="card">Selected value: {value ?? 'None'}</div>
-</div>
+	<Card>Selected value: {value ?? 'None'}</Card>
+</Stack>

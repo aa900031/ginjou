@@ -8,7 +8,7 @@ export function resolveStoryAuth(value: Auth | boolean | undefined): Auth | unde
 	if (value === true)
 		return createAuth()
 
-	if (value && value !== false)
+	if (value)
 		return value
 
 	return undefined
@@ -18,7 +18,7 @@ export function resolveStoryI18n(value: I18n | boolean | undefined): I18n | unde
 	if (value === true)
 		return createI18n()
 
-	if (value && value !== false)
+	if (value)
 		return value
 
 	return undefined
@@ -28,7 +28,7 @@ export function resolveStoryAuthz(value: Authz | boolean | undefined): Authz | u
 	if (value === true)
 		return createAuthz()
 
-	if (value && value !== false)
+	if (value)
 		return value
 
 	return undefined

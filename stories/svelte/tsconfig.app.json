@@ -9,7 +9,8 @@
 		"env.d.ts",
 		"src/**/*",
 		"src/**/*.svelte",
-		".storybook/preview.ts"
+		".storybook/preview.ts",
+		".storybook/decorators/*.ts"
 	],
 	"exclude": [
 		"src/**/*.test.ts",

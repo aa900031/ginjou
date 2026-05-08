@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { MutationModeValues } from '@ginjou/core'
 	import { MutationMode, ResourceActionType } from '@ginjou/core'
-	import StoryShell from './utils/StoryShell.svelte'
+	import StoryShell from './components/StoryShell.svelte'
 	import { DEFAULT_POST_ID } from './utils/posts'
 	import FormEditContent, { type FormRedirect } from './views/FormEditContent.svelte'
 

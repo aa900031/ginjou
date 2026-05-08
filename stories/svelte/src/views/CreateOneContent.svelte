@@ -1,6 +1,14 @@
 <script lang="ts">
 	import { useCreateOne } from '@ginjou/svelte'
 	import type { Post, PostRawFormData } from '../api/posts'
+	import Button from '../components/Button.svelte'
+	import FieldLabel from '../components/FieldLabel.svelte'
+	import Form from '../components/Form.svelte'
+	import Input from '../components/Input.svelte'
+	import JsonOutput from '../components/JsonOutput.svelte'
+	import PageTitle from '../components/PageTitle.svelte'
+	import Select from '../components/Select.svelte'
+	import Stack from '../components/Stack.svelte'
 
 	const mutation = useCreateOne<Post, PostRawFormData>({
 		resource: 'posts',
@@ -27,41 +35,31 @@
 	}
 </script>
 
-<div class="stack">
-	<h1>useCreateOne</h1>
+<Stack>
+	<PageTitle>useCreateOne</PageTitle>
 
-	<form onsubmit={handleSubmit}>
-		<label>
+	<Form onsubmit={handleSubmit}>
+		<FieldLabel>
 			<span>Title</span>
-			<input
-				value={formData.title ?? ''}
-				oninput={(event) => {
-					formData.title = (event.currentTarget as HTMLInputElement).value
-				}}
-			/>
-		</label>
+			<Input bind:value={formData.title} />
+		</FieldLabel>
 
-		<label>
+		<FieldLabel>
 			<span>Status</span>
-			<select
-				value={formData.status ?? 'draft'}
-				onchange={(event) => {
-					formData.status = (event.currentTarget as HTMLSelectElement).value
-				}}
-			>
+			<Select bind:value={formData.status}>
 				<option value="draft">draft</option>
 				<option value="published">published</option>
 				<option value="rejected">rejected</option>
-			</select>
-		</label>
+			</Select>
+		</FieldLabel>
 
-		<button type="submit" disabled={mutation.isPending}>
+		<Button type="submit" disabled={mutation.isPending}>
 			{mutation.isPending ? 'Submitting...' : 'Submit'}
-		</button>
-	</form>
+		</Button>
+	</Form>
 
-	<div class="stack">
-		<h1>Result</h1>
-		<pre>{JSON.stringify(result ?? null, null, 2)}</pre>
-	</div>
-</div>
+	<Stack>
+		<PageTitle>Result</PageTitle>
+		<JsonOutput value={result} />
+	</Stack>
+</Stack>

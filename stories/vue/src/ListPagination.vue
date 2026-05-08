@@ -3,6 +3,18 @@ import type { Post } from './api/posts'
 import { useList } from '@ginjou/vue'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import FieldLabel from './components/FieldLabel.vue'
+import InlineActions from './components/InlineActions.vue'
+import Input from './components/Input.vue'
+import PageTitle from './components/PageTitle.vue'
+import Select from './components/Select.vue'
+import Stack from './components/Stack.vue'
+import StoryShell from './components/StoryShell.vue'
+import Table from './components/Table.vue'
+import Td from './components/Td.vue'
+import Th from './components/Th.vue'
+import UrlBadge from './components/UrlBadge.vue'
+import Button from './components/Button.vue'
 
 const route = useRoute()
 
@@ -20,72 +32,62 @@ const hasPrev = computed(() => currentPage.value > 1)
 </script>
 
 <template>
-	<div>
-		<code class="text-sm">URL: {{ route.fullPath }}</code>
+	<StoryShell>
+		<Stack>
+			<UrlBadge :url="route.fullPath" />
+			<PageTitle>Posts</PageTitle>
 
-		<h1 class="text-2xl font-bold">
-			Posts
-		</h1>
-
-		<table class="table-auto w-full">
-			<thead>
-				<tr>
-					<th>ID</th>
-					<th>Title</th>
-					<th>Status</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr
-					v-for="record in records"
-					:key="record.id"
-				>
-					<td>
-						{{ record.id }}
-					</td>
-					<td>
-						{{ record.title }}
-					</td>
-					<td>
-						{{ record.status }}
-					</td>
-				</tr>
-			</tbody>
-		</table>
-		<div class="flex items-baseline space-x-4">
-			<div>
-				<button :disabled="!hasPrev" @click="currentPage = 1">
-					First
-				</button>
-				<button :disabled="!hasPrev" @click="currentPage = currentPage - 1">
-					Previous
-				</button>
-				<button :disabled="!hasNext" @click="currentPage = currentPage + 1">
-					Next
-				</button>
-				<button :disabled="!hasNext" @click="currentPage = pageCount!">
-					Last
-				</button>
-			</div>
-			<div>
-				Page {{ currentPage }} / {{ pageCount }}
-			</div>
-			<div>
-				Go to page:
-				<input v-model="currentPage" type="number" min="1" :max="pageCount">
-			</div>
-			<div>
-				Per page:
-				<select v-model="perPage">
-					<option
-						v-for="count in [10, 20, 30, 40]"
-						:key="count"
-						:value="count"
+			<Table>
+				<thead>
+					<tr>
+						<Th>ID</Th>
+						<Th>Title</Th>
+						<Th>Status</Th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr
+						v-for="record in records"
+						:key="record.id"
 					>
-						{{ count }}
-					</option>
-				</select>
-			</div>
-		</div>
-	</div>
+						<Td>{{ record.id }}</Td>
+						<Td>{{ record.title }}</Td>
+						<Td>{{ record.status }}</Td>
+					</tr>
+				</tbody>
+			</Table>
+
+			<InlineActions>
+				<Button :disabled="!hasPrev" @click="currentPage = 1">
+					First
+				</Button>
+				<Button :disabled="!hasPrev" @click="currentPage = currentPage - 1">
+					Previous
+				</Button>
+				<Button :disabled="!hasNext" @click="currentPage = currentPage + 1">
+					Next
+				</Button>
+				<Button :disabled="!hasNext" @click="currentPage = pageCount!">
+					Last
+				</Button>
+				<span class="text-sm text-slate-600 dark:text-slate-400">Page {{ currentPage }} / {{ pageCount }}</span>
+				<FieldLabel>
+					<span>Go to</span>
+					<Input v-model="currentPage" type="number" min="1" :max="pageCount" style="width: 5rem;" />
+				</FieldLabel>
+				<FieldLabel>
+					<span>Per page</span>
+					<Select v-model="perPage">
+						<option
+							v-for="count in [10, 20, 30, 40]"
+							:key="count"
+							:value="count"
+						>
+							{{ count }}
+						</option>
+					</Select>
+				</FieldLabel>
+			</InlineActions>
+		</Stack>
+	</StoryShell>
 </template>

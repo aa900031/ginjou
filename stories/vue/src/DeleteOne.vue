@@ -3,6 +3,14 @@ import type { MutationModeValues } from '@ginjou/core'
 import type { Post } from './api/posts'
 import { useDeleteOne, useList } from '@ginjou/vue'
 import { useRoute } from 'vue-router'
+import Button from './components/Button.vue'
+import PageTitle from './components/PageTitle.vue'
+import Stack from './components/Stack.vue'
+import StoryShell from './components/StoryShell.vue'
+import Table from './components/Table.vue'
+import Td from './components/Td.vue'
+import Th from './components/Th.vue'
+import UrlBadge from './components/UrlBadge.vue'
 
 const props = defineProps<{
 	mutationMode: MutationModeValues
@@ -10,11 +18,7 @@ const props = defineProps<{
 
 const route = useRoute()
 
-const {
-	records,
-} = useList<Post>({
-	syncRoute: false,
-})
+const { records } = useList<Post>({ syncRoute: false })
 const { mutateAsync: del } = useDeleteOne()
 
 async function handleDeleteClick(record: Post) {
@@ -27,46 +31,39 @@ async function handleDeleteClick(record: Post) {
 </script>
 
 <template>
-	<div>
-		<code class="text-sm">URL: {{ route.fullPath }}</code>
+	<StoryShell>
+		<Stack>
+			<UrlBadge :url="route.fullPath" />
+			<PageTitle>Posts</PageTitle>
 
-		<h1 class="text-2xl font-bold">
-			Posts
-		</h1>
-
-		<table class="table-auto w-full">
-			<thead>
-				<tr>
-					<th>ID</th>
-					<th>Title</th>
-					<th>Status</th>
-					<th>Actions</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr
-					v-for="record in records"
-					:key="record.id"
-				>
-					<td>
-						{{ record.id }}
-					</td>
-					<td>
-						{{ record.title }}
-					</td>
-					<td>
-						{{ record.status }}
-					</td>
-					<td>
-						<button
-							:data-testid="`delete--${record.id}`"
-							@click="handleDeleteClick(record)"
-						>
-							Delete
-						</button>
-					</td>
-				</tr>
-			</tbody>
-		</table>
-	</div>
+			<Table>
+				<thead>
+					<tr>
+						<Th>ID</Th>
+						<Th>Title</Th>
+						<Th>Status</Th>
+						<Th>Actions</Th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr
+						v-for="record in records"
+						:key="record.id"
+					>
+						<Td>{{ record.id }}</Td>
+						<Td>{{ record.title }}</Td>
+						<Td>{{ record.status }}</Td>
+						<Td>
+							<Button
+								:data-testid="`delete--${record.id}`"
+								@click="handleDeleteClick(record)"
+							>
+								Delete
+							</Button>
+						</Td>
+					</tr>
+				</tbody>
+			</Table>
+		</Stack>
+	</StoryShell>
 </template>

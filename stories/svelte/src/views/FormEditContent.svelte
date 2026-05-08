@@ -9,6 +9,16 @@
 	import { MutationMode } from '@ginjou/core'
 	import { useEdit, useLocation } from '@ginjou/svelte'
 	import type { Post, PostFormData, PostRawFormData } from '../api/posts'
+	import Button from '../components/Button.svelte'
+	import Card from '../components/Card.svelte'
+	import FieldLabel from '../components/FieldLabel.svelte'
+	import Form from '../components/Form.svelte'
+	import Input from '../components/Input.svelte'
+	import JsonOutput from '../components/JsonOutput.svelte'
+	import PageTitle from '../components/PageTitle.svelte'
+	import Select from '../components/Select.svelte'
+	import Stack from '../components/Stack.svelte'
+	import UrlBadge from '../components/UrlBadge.svelte'
 	import { formatLocation } from '../utils/mock-router'
 
 	let {
@@ -26,7 +36,7 @@
 		redirect,
 	}))
 
-	let formData = $state<PostRawFormData>({})
+	let formData = $state<PostRawFormData>({ title: '', status: 'draft' })
 	let hydratedRecordId = $state<string | undefined>()
 	let result = $state<Post | undefined>()
 
@@ -52,46 +62,36 @@
 	}
 </script>
 
-<div class="stack">
-	<code>URL: {formatLocation(location.value)}</code>
+<Stack>
+	<UrlBadge url={formatLocation(location.value)} />
 
-	<h1>useEdit</h1>
+	<PageTitle>useEdit</PageTitle>
 
 	{#if edit.isLoading && !edit.record}
-		<div class="card">Loading ...</div>
+		<Card>Loading ...</Card>
 	{:else}
-		<form onsubmit={handleSubmit}>
-			<label>
+		<Form onsubmit={handleSubmit}>
+			<FieldLabel>
 				<span>Title</span>
-				<input
-					value={formData.title ?? ''}
-					oninput={(event) => {
-						formData.title = (event.currentTarget as HTMLInputElement).value
-					}}
-				/>
-			</label>
+				<Input bind:value={formData.title} />
+			</FieldLabel>
 
-			<label>
+			<FieldLabel>
 				<span>Status</span>
-				<select
-					value={formData.status ?? 'draft'}
-					onchange={(event) => {
-						formData.status = (event.currentTarget as HTMLSelectElement).value
-					}}
-				>
+				<Select bind:value={formData.status}>
 					<option value="draft">Draft</option>
 					<option value="rejected">Rejected</option>
-				</select>
-			</label>
+				</Select>
+			</FieldLabel>
 
-			<button type="submit" disabled={edit.isLoading}>
+			<Button type="submit" disabled={edit.isLoading}>
 				{edit.isLoading ? 'Submitting...' : 'Submit'}
-			</button>
-		</form>
+			</Button>
+		</Form>
 
-		<div class="stack">
-			<h1>Result</h1>
-			<pre>{JSON.stringify(result ?? null, null, 2)}</pre>
-		</div>
+		<Stack>
+			<PageTitle>Result</PageTitle>
+			<JsonOutput value={result} />
+		</Stack>
 	{/if}
-</div>
+</Stack>

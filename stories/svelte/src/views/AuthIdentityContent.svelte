@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { onMount } from 'svelte'
 	import { useGetIdentity, useLogin } from '@ginjou/svelte'
+	import Card from '../components/Card.svelte'
+	import PageTitle from '../components/PageTitle.svelte'
+	import Stack from '../components/Stack.svelte'
 
 	let ready = $state(false)
 
@@ -17,12 +20,12 @@
 	})
 </script>
 
-<div class="stack">
-	<h1>useGetIdentity</h1>
+<Stack>
+	<PageTitle>useGetIdentity</PageTitle>
 
 	{#if !ready || login.isPending || identity.isLoading || identity.data == null}
-		<div class="card">Loading ...</div>
+		<Card>Loading ...</Card>
 	{:else}
-		<div class="card">Hi! {identity.data.username}</div>
+		<Card>Hi! {identity.data.username}</Card>
 	{/if}
-</div>
+</Stack>

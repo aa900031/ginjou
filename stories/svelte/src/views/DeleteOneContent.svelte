@@ -1,6 +1,13 @@
 <script lang="ts">
 	import { useDeleteOne, useList } from '@ginjou/svelte'
 	import type { Post } from '../api/posts'
+	import Button from '../components/Button.svelte'
+	import Card from '../components/Card.svelte'
+	import PageTitle from '../components/PageTitle.svelte'
+	import Stack from '../components/Stack.svelte'
+	import Table from '../components/Table.svelte'
+	import Td from '../components/Td.svelte'
+	import Th from '../components/Th.svelte'
 
 	const list = useList<Post>({
 		resource: 'posts',
@@ -16,35 +23,35 @@
 	}
 </script>
 
-<div class="stack">
-	<h1>useDeleteOne</h1>
+<Stack>
+	<PageTitle>useDeleteOne</PageTitle>
 
 	{#if list.isFetching}
-		<div class="card">Loading...</div>
+		<Card>Loading...</Card>
 	{:else}
-		<table>
+		<Table>
 			<thead>
 				<tr>
-					<th>ID</th>
-					<th>Title</th>
-					<th>Status</th>
-					<th>Actions</th>
+					<Th>ID</Th>
+					<Th>Title</Th>
+					<Th>Status</Th>
+					<Th>Actions</Th>
 				</tr>
 			</thead>
 			<tbody>
 				{#each list.records ?? [] as record}
 					<tr>
-						<td>{record.id}</td>
-						<td>{record.title}</td>
-						<td>{record.status}</td>
-						<td>
-							<button onclick={() => handleDelete(record)} disabled={mutation.isPending}>
+						<Td>{record.id}</Td>
+						<Td>{record.title}</Td>
+						<Td>{record.status}</Td>
+						<Td>
+							<Button onclick={() => handleDelete(record)} disabled={mutation.isPending}>
 								Delete
-							</button>
-						</td>
+							</Button>
+						</Td>
 					</tr>
 				{/each}
 			</tbody>
-		</table>
+		</Table>
 	{/if}
-</div>
+</Stack>

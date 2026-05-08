@@ -1,40 +1,41 @@
 <script lang="ts">
 	import { useGetList } from '@ginjou/svelte'
 	import type { Post } from '../api/posts'
+	import Card from '../components/Card.svelte'
+	import PageTitle from '../components/PageTitle.svelte'
+	import Stack from '../components/Stack.svelte'
+	import Table from '../components/Table.svelte'
+	import Td from '../components/Td.svelte'
+	import Th from '../components/Th.svelte'
 
 	const query = useGetList<Post>({
 		resource: 'posts',
 	})
-    $effect(() => {
-        console.log(query);
-
-        console.log(query.records);
-    })
 </script>
 
-<div class="stack">
-	<h1>useGetList</h1>
+<Stack>
+	<PageTitle>useGetList</PageTitle>
 
 	{#if query.isFetching}
-		<div class="card">Loading...</div>
+		<Card>Loading...</Card>
 	{:else}
-		<table>
+		<Table>
 			<thead>
 				<tr>
-					<th>ID</th>
-					<th>Title</th>
-					<th>Status</th>
+					<Th>ID</Th>
+					<Th>Title</Th>
+					<Th>Status</Th>
 				</tr>
 			</thead>
 			<tbody>
 				{#each query.records ?? [] as record}
 					<tr>
-						<td>{record.id}</td>
-						<td>{record.title}</td>
-						<td>{record.status}</td>
+						<Td>{record.id}</Td>
+						<Td>{record.title}</Td>
+						<Td>{record.status}</Td>
 					</tr>
 				{/each}
 			</tbody>
-		</table>
+		</Table>
 	{/if}
-</div>
+</Stack>

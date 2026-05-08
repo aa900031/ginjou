@@ -1,5 +1,5 @@
 <script lang="ts">
-	import StoryShell from './utils/StoryShell.svelte'
+	import StoryShell from './components/StoryShell.svelte'
 	import I18nLocaleContent from './views/I18nLocaleContent.svelte'
 </script>
 

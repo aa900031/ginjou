@@ -4,7 +4,7 @@ charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
 
-[*.{js,ts,jsx,tsx,cjs,mjs,cts,mts,json,json5,vue}]
+[*.{js,ts,jsx,tsx,cjs,mjs,cts,mts,json,json5,vue,svelte}]
 indent_style = tab
 indent_size = 2
 

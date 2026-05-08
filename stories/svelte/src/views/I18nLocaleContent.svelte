@@ -1,33 +1,34 @@
 <script lang="ts">
 	import { useLocale, useTranslate } from '@ginjou/svelte'
+	import Card from '../components/Card.svelte'
+	import FieldLabel from '../components/FieldLabel.svelte'
+	import PageTitle from '../components/PageTitle.svelte'
+	import Select from '../components/Select.svelte'
+	import Stack from '../components/Stack.svelte'
 
 	const locale = useLocale()
 	const t = useTranslate()
 </script>
 
-<div class="stack">
-	<h1>useLocale / useTranslate</h1>
+<Stack>
+	<PageTitle>useLocale / useTranslate</PageTitle>
 
-	<div class="card stack">
-		<p>Locale: {locale.value}</p>
+	<Card>
+		<Stack>
+			<p>Locale: {locale.value}</p>
 
-		<ul>
-			<li>'hi' >>> {t('hi')}</li>
-			<li>'msg' >>> {t('msg', { name: 'Mark' })}</li>
-		</ul>
+			<ul>
+				<li>'hi' >>> {t('hi')}</li>
+				<li>'msg' >>> {t('msg', { name: 'Mark' })}</li>
+			</ul>
 
-		<label>
-			<span>Locale</span>
-			<select
-				data-testid="locale-selector"
-				value={locale.value}
-				onchange={(event) => {
-					locale.value = (event.currentTarget as HTMLSelectElement).value
-				}}
-			>
-				<option value="en-US">en-US</option>
-				<option value="zh-TW">zh-TW</option>
-			</select>
-		</label>
-	</div>
-</div>
+			<FieldLabel>
+				<span>Locale</span>
+				<Select data-testid="locale-selector" bind:value={locale.value}>
+					<option value="en-US">en-US</option>
+					<option value="zh-TW">zh-TW</option>
+				</Select>
+			</FieldLabel>
+		</Stack>
+	</Card>
+</Stack>

@@ -1,5 +1,8 @@
+/* eslint-disable perfectionist/sort-imports */
+import 'uno.css'
 import type { Preview } from '@storybook/svelte-vite'
 import { mswLoader as MswLoader, initialize as setupMsw } from 'msw-storybook-addon'
+import { withBackgroundClass } from './decorators/background-class'
 
 setupMsw({
 	onUnhandledRequest: 'bypass',
@@ -11,6 +14,9 @@ setupMsw({
 export default {
 	loaders: [
 		MswLoader,
+	],
+	decorators: [
+		withBackgroundClass,
 	],
 	parameters: {
 		controls: {

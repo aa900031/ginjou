@@ -2,6 +2,17 @@
 import type { Post } from './api/posts'
 import { useInfiniteList } from '@ginjou/vue'
 import { useRoute } from 'vue-router'
+import Button from './components/Button.vue'
+import FieldLabel from './components/FieldLabel.vue'
+import InlineActions from './components/InlineActions.vue'
+import PageTitle from './components/PageTitle.vue'
+import Select from './components/Select.vue'
+import Stack from './components/Stack.vue'
+import StoryShell from './components/StoryShell.vue'
+import Table from './components/Table.vue'
+import Td from './components/Td.vue'
+import Th from './components/Th.vue'
+import UrlBadge from './components/UrlBadge.vue'
 
 const route = useRoute()
 
@@ -20,66 +31,60 @@ function handleMoreClick() {
 </script>
 
 <template>
-	<div>
-		<code class="text-sm">URL: {{ route.fullPath }}</code>
+	<StoryShell>
+		<Stack>
+			<UrlBadge :url="route.fullPath" />
+			<PageTitle>Posts</PageTitle>
 
-		<h1 class="text-2xl font-bold">
-			Posts
-		</h1>
-
-		<table class="table-auto w-full">
-			<thead>
-				<tr>
-					<th>ID</th>
-					<th>Title</th>
-					<th>Status</th>
-				</tr>
-			</thead>
-			<tbody>
-				<template
-					v-for="(record, i) in records"
-					:key="i"
-				>
-					<tr
-						v-for="item in record"
-						:key="item.id"
-					>
-						<td>
-							{{ item.id }}
-						</td>
-						<td>
-							{{ item.title }}
-						</td>
-						<td>
-							{{ item.status }}
-						</td>
+			<Table>
+				<thead>
+					<tr>
+						<Th>ID</Th>
+						<Th>Title</Th>
+						<Th>Status</Th>
 					</tr>
-				</template>
-				<tr>
-					<td>
-						<button
-							:disabled="!hasNextPage"
-							@click="handleMoreClick"
-						>
-							More
-						</button>
-					</td>
-				</tr>
-			</tbody>
-		</table>
-		<div class="flex items-baseline space-x-4">
-			<div>
-				Per page:
-				<select v-model="perPage">
-					<option
-						v-for="count in [10, 20, 30, 40]"
-						:key="count"
-						:value="count"
+				</thead>
+				<tbody>
+					<template
+						v-for="(record, i) in records"
+						:key="i"
 					>
-						{{ count }}
-					</option>
-				</select>
-			</div>
-		</div>
-	</div>
+						<tr
+							v-for="item in record"
+							:key="item.id"
+						>
+							<Td>{{ item.id }}</Td>
+							<Td>{{ item.title }}</Td>
+							<Td>{{ item.status }}</Td>
+						</tr>
+					</template>
+					<tr>
+						<Td colspan="3">
+							<Button
+								:disabled="!hasNextPage"
+								@click="handleMoreClick"
+							>
+								More
+							</Button>
+						</Td>
+					</tr>
+				</tbody>
+			</Table>
+
+			<InlineActions>
+				<FieldLabel>
+					<span>Per page</span>
+					<Select v-model="perPage">
+						<option
+							v-for="count in [10, 20, 30, 40]"
+							:key="count"
+							:value="count"
+						>
+							{{ count }}
+						</option>
+					</Select>
+				</FieldLabel>
+			</InlineActions>
+		</Stack>
+	</StoryShell>
 </template>

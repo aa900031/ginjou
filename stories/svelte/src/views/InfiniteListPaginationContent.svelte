@@ -1,6 +1,17 @@
 <script lang="ts">
 	import { useInfiniteList, useLocation } from '@ginjou/svelte'
 	import type { Post } from '../api/posts'
+	import Button from '../components/Button.svelte'
+	import Card from '../components/Card.svelte'
+	import FieldLabel from '../components/FieldLabel.svelte'
+	import PageTitle from '../components/PageTitle.svelte'
+	import Select from '../components/Select.svelte'
+	import Stack from '../components/Stack.svelte'
+	import Table from '../components/Table.svelte'
+	import Td from '../components/Td.svelte'
+	import Th from '../components/Th.svelte'
+	import UrlBadge from '../components/UrlBadge.svelte'
+	import InlineActions from '../components/InlineActions.svelte'
 	import { formatLocation } from '../utils/mock-router'
 
 	const list = useInfiniteList<Post>({
@@ -15,58 +26,51 @@
 	}
 </script>
 
-<div class="stack">
-	<code>URL: {formatLocation(location.value)}</code>
+<Stack>
+	<UrlBadge url={formatLocation(location.value)} />
 
-	<h1>useInfiniteList</h1>
+	<PageTitle>useInfiniteList</PageTitle>
 
 	{#if list.isFetching && (list.records == null || list.records.length === 0)}
-		<div class="card">Loading...</div>
+		<Card>Loading...</Card>
 	{:else}
-		<table>
+		<Table>
 			<thead>
 				<tr>
-					<th>ID</th>
-					<th>Title</th>
-					<th>Status</th>
+					<Th>ID</Th>
+					<Th>Title</Th>
+					<Th>Status</Th>
 				</tr>
 			</thead>
 			<tbody>
 				{#each list.records ?? [] as page}
 					{#each page as record}
 						<tr>
-							<td>{record.id}</td>
-							<td>{record.title}</td>
-							<td>{record.status}</td>
+							<Td>{record.id}</Td>
+							<Td>{record.title}</Td>
+							<Td>{record.status}</Td>
 						</tr>
 					{/each}
 				{/each}
 				<tr>
-					<td colspan="3">
-						<button type="button" onclick={handleMoreClick} disabled={!list.hasNextPage || list.isFetchingNextPage}>
+					<Td colspan={3}>
+						<Button type="button" onclick={handleMoreClick} disabled={!list.hasNextPage || list.isFetchingNextPage}>
 							{list.isFetchingNextPage ? 'Loading...' : 'More'}
-						</button>
-					</td>
+						</Button>
+					</Td>
 				</tr>
 			</tbody>
-		</table>
+		</Table>
 
-		<div class="card stack">
-			<p>Loaded: {loadedCount} / {list.total ?? loadedCount}</p>
-
-			<label>
+		<InlineActions>
+			<FieldLabel>
 				<span>Per page</span>
-				<select
-					value={list.perPage}
-					onchange={(event) => {
-						list.perPage = Number((event.currentTarget as HTMLSelectElement).value)
-					}}
-				>
+				<Select bind:value={list.perPage}>
 					{#each [10, 20, 30, 40] as count}
 						<option value={count}>{count}</option>
 					{/each}
-				</select>
-			</label>
-		</div>
+				</Select>
+			</FieldLabel>
+		</InlineActions>
 	{/if}
-</div>
+</Stack>

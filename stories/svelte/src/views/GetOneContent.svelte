@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { useGetOne } from '@ginjou/svelte'
 	import type { Post } from '../api/posts'
+	import Card from '../components/Card.svelte'
+	import PageTitle from '../components/PageTitle.svelte'
+	import Stack from '../components/Stack.svelte'
 	import { DEFAULT_POST_ID } from '../utils/posts'
 
 	const query = useGetOne<Post>({
@@ -9,18 +12,18 @@
 	})
 </script>
 
-<div class="stack">
-	<h1>useGetOne</h1>
+<Stack>
+	<PageTitle>useGetOne</PageTitle>
 
 	{#if query.isFetching}
-		<div class="card">Loading...</div>
+		<Card>Loading...</Card>
 	{:else if query.record}
-		<div class="card">
+		<Card>
 			<p>id: {query.record.id}</p>
 			<p>title: {query.record.title}</p>
 			<p>status: {query.record.status}</p>
-		</div>
+		</Card>
 	{:else}
-		<div class="card">Not found</div>
+		<Card>Not found</Card>
 	{/if}
-</div>
+</Stack>
