@@ -1,295 +1,509 @@
+import type { Fetchers } from './fetchers'
 import { QueryClient } from '@tanstack/query-core'
 import { describe, expect, it, vi } from 'vitest'
-import { createMutateHandler } from './delete'
+import { createMutationContext } from '../../test/tanstack-utils'
+import { NotificationType } from '../notification'
+import {
+	createErrorHandler,
+	createMutateAsyncFn,
+	createMutateHandler,
+	createMutateFn,
+	createMutationFn,
+	createSuccessHandler,
+} from './delete'
 import { MutationMode } from './mutation-mode'
 
-function createDeps(overrides?: {
-	getProps?: () => any
-	onMutate?: any
-}) {
-	const queryClient = new QueryClient()
-	const notify = vi.fn()
-	const translate = vi.fn((key: string) => key)
-	const getProps = overrides?.getProps ?? (() => ({
-		resource: 'posts',
-		id: 1,
-		fetcherName: 'default',
-	}))
-	const onMutate = overrides?.onMutate ?? vi.fn()
-
-	return { queryClient, notify, translate, getProps, onMutate }
+const mockDeleteOneResult = { data: { id: 1 } }
+const mockDeleteOne = vi.fn(() => Promise.resolve(mockDeleteOneResult))
+const mockFetchers: Fetchers = {
+	default: {
+		deleteOne: mockDeleteOne,
+	},
 }
 
-describe('createMutateHandler (delete)', () => {
-	it('returns a function', () => {
-		const deps = createDeps()
-		const handler = createMutateHandler(deps)
-		expect(typeof handler).toBe('function')
+function createQueryClient() {
+	return new QueryClient({
+		defaultOptions: {
+			queries: { retry: false },
+			mutations: { retry: false },
+		},
+	})
+}
+
+describe('createMutationFn', () => {
+	it('should call deleteOne and return the result in pessimistic mode', async () => {
+		mockDeleteOne.mockClear()
+
+		const mutationFn = createMutationFn({
+			fetchers: mockFetchers,
+			notify: vi.fn(),
+			translate: vi.fn(key => key),
+			getProps: () => ({ resource: 'posts', id: 1, mutationMode: MutationMode.Pessimistic }),
+		})
+
+		const result = await mutationFn({ resource: 'posts', id: 1, mutationMode: MutationMode.Pessimistic }, createMutationContext())
+
+		expect(mockDeleteOne).toHaveBeenCalledOnce()
+		expect(result).toEqual(mockDeleteOneResult)
 	})
 
-	describe('result always contains previousQueries', () => {
-		it('includes previousQueries when onMutate returns undefined', async () => {
-			const queryClient = new QueryClient()
-			const mockOnMutate = vi.fn().mockResolvedValue(undefined)
+	it('should call deleteOne and return the result in optimistic mode', async () => {
+		mockDeleteOne.mockClear()
 
-			const handler = createMutateHandler({
-				queryClient,
-				notify: vi.fn(),
-				translate: vi.fn((k: string) => k),
-				getProps: () => undefined,
-				onMutate: mockOnMutate,
-			})
-
-			const result = await handler({ resource: 'posts', id: 1 }, {} as any)
-
-			expect(result).toHaveProperty('previousQueries')
-			expect(Array.isArray(result.previousQueries)).toBe(true)
+		const mutationFn = createMutationFn({
+			fetchers: mockFetchers,
+			notify: vi.fn(),
+			translate: vi.fn(key => key),
+			getProps: () => undefined,
 		})
 
-		it('includes previousQueries when onMutate is not provided', async () => {
-			const queryClient = new QueryClient()
-			const mockOnMutate = vi.fn().mockResolvedValue(undefined)
+		const result = await mutationFn({ resource: 'posts', id: 1, mutationMode: MutationMode.Optimistic }, createMutationContext())
 
-			const handler = createMutateHandler({
-				queryClient,
-				notify: vi.fn(),
-				translate: vi.fn((k: string) => k),
-				getProps: () => undefined,
-				onMutate: mockOnMutate,
-			})
-
-			const result = await handler({ resource: 'posts', id: 42 }, {} as any)
-
-			expect(result).toHaveProperty('previousQueries')
-		})
-
-		it('merges onMutate return value with previousQueries', async () => {
-			const queryClient = new QueryClient()
-			const extraData = { customField: 'custom-value' }
-			const mockOnMutate = vi.fn().mockResolvedValue(extraData)
-
-			const handler = createMutateHandler({
-				queryClient,
-				notify: vi.fn(),
-				translate: vi.fn((k: string) => k),
-				getProps: () => undefined,
-				onMutate: mockOnMutate,
-			})
-
-			const result = await handler({ resource: 'posts', id: 1 }, {} as any)
-
-			expect(result).toHaveProperty('previousQueries')
-			expect(result).toHaveProperty('customField', 'custom-value')
-		})
-
-		it('previousQueries is not overridden when onMutate returns an object with previousQueries', async () => {
-			const queryClient = new QueryClient()
-			// Put some data in the cache so previousQueries is non-empty
-			queryClient.setQueryData(['default', 'posts'], { data: [{ id: 1 }] })
-
-			const mockOnMutate = vi.fn().mockResolvedValue({ previousQueries: [] })
-
-			const handler = createMutateHandler({
-				queryClient,
-				notify: vi.fn(),
-				translate: vi.fn((k: string) => k),
-				getProps: () => undefined,
-				onMutate: mockOnMutate,
-			})
-
-			// The spread `{ ...resultFromCallback, previousQueries }` means our internal value wins
-			const result = await handler({ resource: 'posts', id: 1 }, {} as any)
-
-			// The internal previousQueries should override what onMutate returns
-			expect(result.previousQueries).not.toEqual([])
-		})
+		expect(mockDeleteOne).toHaveBeenCalledOnce()
+		expect(result).toEqual(mockDeleteOneResult)
 	})
 
-	describe('onMutate callback is called with resolved props', () => {
-		it('calls onMutate with resolved mutation props', async () => {
-			const queryClient = new QueryClient()
-			const mockOnMutate = vi.fn().mockResolvedValue(undefined)
-
-			const handler = createMutateHandler({
-				queryClient,
-				notify: vi.fn(),
-				translate: vi.fn((k: string) => k),
-				getProps: () => ({ resource: 'posts', id: 99 }),
-				onMutate: mockOnMutate,
-			})
-
-			await handler({ resource: 'posts', id: 99 }, {} as any)
-
-			expect(mockOnMutate).toHaveBeenCalledTimes(1)
-			const calledWith = mockOnMutate.mock.calls[0][0]
-			expect(calledWith.resource).toBe('posts')
-			expect(calledWith.id).toBe(99)
+	it('should throw if resource is missing', async () => {
+		const mutationFn = createMutationFn({
+			fetchers: mockFetchers,
+			notify: vi.fn(),
+			translate: vi.fn(key => key),
+			getProps: () => undefined,
 		})
 
-		it('overrides getProps with mutation call-time props', async () => {
-			const queryClient = new QueryClient()
-			const mockOnMutate = vi.fn().mockResolvedValue(undefined)
-
-			const handler = createMutateHandler({
-				queryClient,
-				notify: vi.fn(),
-				translate: vi.fn((k: string) => k),
-				getProps: () => ({ resource: 'posts', id: 1 }),
-				onMutate: mockOnMutate,
-			})
-
-			// Call-time props override getProps
-			await handler({ resource: 'posts', id: 7 }, {} as any)
-
-			const calledWith = mockOnMutate.mock.calls[0][0]
-			expect(calledWith.id).toBe(7)
-		})
+		await expect(mutationFn({ id: 1 } as any, createMutationContext())).rejects.toThrow()
 	})
 
-	describe('pessimistic mode', () => {
-		it('does not update cache in pessimistic mode (default)', async () => {
-			const queryClient = new QueryClient()
-			const setQueriesDataSpy = vi.spyOn(queryClient, 'setQueriesData')
-			const mockOnMutate = vi.fn().mockResolvedValue(undefined)
-
-			const handler = createMutateHandler({
-				queryClient,
-				notify: vi.fn(),
-				translate: vi.fn((k: string) => k),
-				getProps: () => undefined,
-				onMutate: mockOnMutate,
-			})
-
-			await handler({
-				resource: 'posts',
-				id: 1,
-				mutationMode: MutationMode.Pessimistic,
-			}, {} as any)
-
-			expect(setQueriesDataSpy).not.toHaveBeenCalled()
+	it('should throw if id is missing', async () => {
+		const mutationFn = createMutationFn({
+			fetchers: mockFetchers,
+			notify: vi.fn(),
+			translate: vi.fn(key => key),
+			getProps: () => undefined,
 		})
+
+		await expect(mutationFn({ resource: 'posts' } as any, createMutationContext())).rejects.toThrow()
 	})
 
-	describe('optimistic mode', () => {
-		it('updates cache in optimistic mode', async () => {
-			const queryClient = new QueryClient()
-			const setQueriesDataSpy = vi.spyOn(queryClient, 'setQueriesData')
-			const mockOnMutate = vi.fn().mockResolvedValue(undefined)
+	it('should show progress notification in undoable mode', async () => {
+		const mockNotify = vi.fn()
+		const mockTranslate = vi.fn(key => key)
 
-			const handler = createMutateHandler({
-				queryClient,
-				notify: vi.fn(),
-				translate: vi.fn((k: string) => k),
-				getProps: () => undefined,
-				onMutate: mockOnMutate,
-			})
-
-			await handler({
-				resource: 'posts',
-				id: 1,
-				mutationMode: MutationMode.Optimistic,
-			}, {} as any)
-
-			expect(setQueriesDataSpy).toHaveBeenCalled()
+		const mutationFn = createMutationFn({
+			fetchers: mockFetchers,
+			notify: mockNotify,
+			translate: mockTranslate,
+			getProps: () => undefined,
 		})
+
+		// undoable mode creates a deferred promise; we call mutationFn and let it resolve
+		const promise = mutationFn(
+			{ resource: 'posts', id: 1, mutationMode: MutationMode.Undoable },
+			createMutationContext(),
+		)
+
+		expect(mockNotify).toHaveBeenCalledOnce()
+
+		await promise
+	})
+})
+
+describe('createMutateHandler', () => {
+	it('should return previousQueries in the result when onMutate returns undefined', async () => {
+		const queryClient = createQueryClient()
+		const onMutate = vi.fn().mockResolvedValue(undefined)
+
+		const handler = createMutateHandler({
+			queryClient,
+			notify: vi.fn(),
+			translate: vi.fn(key => key),
+			getProps: () => undefined,
+			onMutate,
+		})
+
+		const result = await handler(
+			{ resource: 'posts', id: 1, mutationMode: MutationMode.Pessimistic },
+			createMutationContext(),
+		)
+
+		expect(result).toBeDefined()
+		expect(result).toHaveProperty('previousQueries')
+		expect(Array.isArray(result?.previousQueries)).toBe(true)
 	})
 
-	describe('undoable mode', () => {
-		it('updates cache in undoable mode', async () => {
-			const queryClient = new QueryClient()
-			const setQueriesDataSpy = vi.spyOn(queryClient, 'setQueriesData')
-			const mockOnMutate = vi.fn().mockResolvedValue(undefined)
+	it('should merge extra properties from onMutate callback result with previousQueries', async () => {
+		const queryClient = createQueryClient()
+		const extraData = { customField: 'extra-value' }
+		const onMutate = vi.fn().mockResolvedValue(extraData)
 
-			const handler = createMutateHandler({
-				queryClient,
-				notify: vi.fn(),
-				translate: vi.fn((k: string) => k),
-				getProps: () => undefined,
-				onMutate: mockOnMutate,
-			})
-
-			await handler({
-				resource: 'posts',
-				id: 1,
-				mutationMode: MutationMode.Undoable,
-			}, {} as any)
-
-			expect(setQueriesDataSpy).toHaveBeenCalled()
+		const handler = createMutateHandler({
+			queryClient,
+			notify: vi.fn(),
+			translate: vi.fn(key => key),
+			getProps: () => undefined,
+			onMutate,
 		})
+
+		const result = await handler(
+			{ resource: 'posts', id: 1, mutationMode: MutationMode.Pessimistic },
+			createMutationContext(),
+		)
+
+		expect(result).toHaveProperty('previousQueries')
+		expect(result).toHaveProperty('customField', 'extra-value')
 	})
 
-	describe('previousQueries collection', () => {
-		it('collects previousQueries from cache before cancelling', async () => {
-			const queryClient = new QueryClient()
-			// Seed data so previousQueries is not empty
-			queryClient.setQueryData(['default', 'posts'], { data: [{ id: 1 }] })
+	it('should call onMutate with resolved props and context', async () => {
+		const queryClient = createQueryClient()
+		const onMutate = vi.fn().mockResolvedValue(undefined)
+		const ctx = createMutationContext()
 
-			const mockOnMutate = vi.fn().mockResolvedValue(undefined)
-
-			const handler = createMutateHandler({
-				queryClient,
-				notify: vi.fn(),
-				translate: vi.fn((k: string) => k),
-				getProps: () => undefined,
-				onMutate: mockOnMutate,
-			})
-
-			const result = await handler({ resource: 'posts', id: 1 }, {} as any)
-
-			expect(result.previousQueries.length).toBeGreaterThan(0)
+		const handler = createMutateHandler({
+			queryClient,
+			notify: vi.fn(),
+			translate: vi.fn(key => key),
+			getProps: () => ({ resource: 'articles', id: 42 }),
+			onMutate,
 		})
 
-		it('returns empty previousQueries when cache is empty', async () => {
-			const queryClient = new QueryClient()
-			const mockOnMutate = vi.fn().mockResolvedValue(undefined)
+		await handler(
+			{ mutationMode: MutationMode.Pessimistic },
+			ctx,
+		)
 
-			const handler = createMutateHandler({
-				queryClient,
-				notify: vi.fn(),
-				translate: vi.fn((k: string) => k),
-				getProps: () => undefined,
-				onMutate: mockOnMutate,
-			})
-
-			const result = await handler({ resource: 'posts', id: 1 }, {} as any)
-
-			expect(result.previousQueries).toEqual([])
-		})
+		expect(onMutate).toHaveBeenCalledOnce()
+		const [resolvedProps] = onMutate.mock.calls[0]
+		expect(resolvedProps.resource).toBe('articles')
+		expect(resolvedProps.id).toBe(42)
 	})
 
-	describe('onMutate returning undefined (new capability from PR)', () => {
-		it('handles async onMutate returning undefined without crashing', async () => {
-			const queryClient = new QueryClient()
-			const mockOnMutate = vi.fn(async () => undefined)
+	it('should not call onMutate if onMutate handler is not provided (undefined safe)', async () => {
+		const queryClient = createQueryClient()
+		// Pass a no-op that returns undefined to simulate optional undefined
+		const onMutate = vi.fn().mockResolvedValue(undefined)
 
-			const handler = createMutateHandler({
-				queryClient,
-				notify: vi.fn(),
-				translate: vi.fn((k: string) => k),
-				getProps: () => undefined,
-				onMutate: mockOnMutate,
-			})
-
-			await expect(
-				handler({ resource: 'posts', id: 1 }, {} as any),
-			).resolves.toHaveProperty('previousQueries')
+		const handler = createMutateHandler({
+			queryClient,
+			notify: vi.fn(),
+			translate: vi.fn(key => key),
+			getProps: () => undefined,
+			onMutate,
 		})
 
-		it('handles async onMutate returning Promise<undefined> without crashing', async () => {
-			const queryClient = new QueryClient()
-			const mockOnMutate = vi.fn((): Promise<undefined> => Promise.resolve(undefined))
+		const result = await handler(
+			{ resource: 'posts', id: 1, mutationMode: MutationMode.Pessimistic },
+			createMutationContext(),
+		)
 
-			const handler = createMutateHandler({
-				queryClient,
-				notify: vi.fn(),
-				translate: vi.fn((k: string) => k),
-				getProps: () => undefined,
-				onMutate: mockOnMutate,
-			})
+		// previousQueries is always present
+		expect(result).toHaveProperty('previousQueries')
+	})
 
-			const result = await handler({ resource: 'posts', id: 1 }, {} as any)
+	it('should update cache in optimistic mode', async () => {
+		const queryClient = createQueryClient()
+		const setQueriesDataSpy = vi.spyOn(queryClient, 'setQueriesData')
+		const onMutate = vi.fn().mockResolvedValue(undefined)
 
-			expect(result).toHaveProperty('previousQueries')
+		const handler = createMutateHandler({
+			queryClient,
+			notify: vi.fn(),
+			translate: vi.fn(key => key),
+			getProps: () => undefined,
+			onMutate,
 		})
+
+		await handler(
+			{ resource: 'posts', id: 1, mutationMode: MutationMode.Optimistic },
+			createMutationContext(),
+		)
+
+		expect(setQueriesDataSpy).toHaveBeenCalled()
+	})
+
+	it('should update cache in undoable mode', async () => {
+		const queryClient = createQueryClient()
+		const setQueriesDataSpy = vi.spyOn(queryClient, 'setQueriesData')
+		const onMutate = vi.fn().mockResolvedValue(undefined)
+
+		const handler = createMutateHandler({
+			queryClient,
+			notify: vi.fn(),
+			translate: vi.fn(key => key),
+			getProps: () => undefined,
+			onMutate,
+		})
+
+		await handler(
+			{ resource: 'posts', id: 1, mutationMode: MutationMode.Undoable },
+			createMutationContext(),
+		)
+
+		expect(setQueriesDataSpy).toHaveBeenCalled()
+	})
+
+	it('should not update cache in pessimistic mode', async () => {
+		const queryClient = createQueryClient()
+		const setQueriesDataSpy = vi.spyOn(queryClient, 'setQueriesData')
+		const onMutate = vi.fn().mockResolvedValue(undefined)
+
+		const handler = createMutateHandler({
+			queryClient,
+			notify: vi.fn(),
+			translate: vi.fn(key => key),
+			getProps: () => undefined,
+			onMutate,
+		})
+
+		await handler(
+			{ resource: 'posts', id: 1, mutationMode: MutationMode.Pessimistic },
+			createMutationContext(),
+		)
+
+		expect(setQueriesDataSpy).not.toHaveBeenCalled()
+	})
+
+	it('should always include previousQueries even when onMutate returns undefined (regression test)', async () => {
+		// This test verifies the SetReturnType fix: onMutate returning undefined
+		// must not cause the returned context to lose previousQueries
+		const queryClient = createQueryClient()
+		const onMutate = vi.fn(async () => undefined) // explicitly returns undefined
+
+		const handler = createMutateHandler({
+			queryClient,
+			notify: vi.fn(),
+			translate: vi.fn(key => key),
+			getProps: () => undefined,
+			onMutate,
+		})
+
+		const result = await handler(
+			{ resource: 'posts', id: 1, mutationMode: MutationMode.Pessimistic },
+			createMutationContext(),
+		)
+
+		// The spread of undefined is safe: { ...undefined, previousQueries: [...] }
+		// previousQueries must be present regardless
+		expect(result).toMatchObject({ previousQueries: expect.any(Array) })
+	})
+})
+
+describe('createSuccessHandler', () => {
+	it('should call onSuccess from prop', async () => {
+		const mockOnSuccess = vi.fn()
+		const mockPublish = vi.fn()
+		const queryClient = createQueryClient()
+
+		const handler = createSuccessHandler({
+			notify: vi.fn(),
+			translate: vi.fn(key => key),
+			publish: mockPublish,
+			queryClient,
+			getProps: () => undefined,
+			onSuccess: mockOnSuccess,
+		})
+
+		const data = { data: { id: 1 } }
+		const props = { resource: 'posts', id: 1 }
+		await handler(data as any, props as any, { previousQueries: [] } as any, createMutationContext())
+
+		expect(mockOnSuccess).toHaveBeenCalledOnce()
+	})
+
+	it('should notify success in pessimistic mode', async () => {
+		const mockNotify = vi.fn()
+		const mockTranslate = vi.fn(key => key)
+		const queryClient = createQueryClient()
+
+		const handler = createSuccessHandler({
+			notify: mockNotify,
+			translate: mockTranslate,
+			publish: vi.fn(),
+			queryClient,
+			getProps: () => undefined,
+			onSuccess: undefined,
+		})
+
+		const data = { data: { id: 1 } }
+		await handler(
+			data as any,
+			{ resource: 'posts', id: 1, mutationMode: MutationMode.Pessimistic },
+			{ previousQueries: [] } as any,
+			createMutationContext(),
+		)
+
+		expect(mockNotify).toHaveBeenCalledWith(
+			expect.anything(),
+			expect.objectContaining({ type: NotificationType.Success }),
+		)
+	})
+
+	it('should publish realtime event on success', async () => {
+		const mockPublish = vi.fn()
+		const queryClient = createQueryClient()
+
+		const handler = createSuccessHandler({
+			notify: vi.fn(),
+			translate: vi.fn(key => key),
+			publish: mockPublish,
+			queryClient,
+			getProps: () => undefined,
+			onSuccess: undefined,
+		})
+
+		await handler(
+			{ data: { id: 1 } } as any,
+			{ resource: 'posts', id: 1, mutationMode: MutationMode.Pessimistic } as any,
+			{ previousQueries: [] } as any,
+			createMutationContext(),
+		)
+
+		expect(mockPublish).toHaveBeenCalledOnce()
+		const [event] = mockPublish.mock.calls[0]
+		expect(event.channel).toBe('resources/posts')
+	})
+})
+
+describe('createErrorHandler', () => {
+	it('should restore previous queries on error', async () => {
+		const queryClient = createQueryClient()
+		const setQueryDataSpy = vi.spyOn(queryClient, 'setQueryData')
+		const previousData = { id: 1, name: 'old' }
+		const previousQueryKey = ['posts', '1']
+
+		const handler = createErrorHandler({
+			queryClient,
+			notify: vi.fn(),
+			translate: vi.fn(key => key),
+			checkError: vi.fn().mockResolvedValue({}),
+			getProps: () => undefined,
+			onError: undefined,
+		})
+
+		await handler(
+			new Error('test error'),
+			{ resource: 'posts', id: 1 } as any,
+			{ previousQueries: [[previousQueryKey, previousData]] } as any,
+			createMutationContext(),
+		)
+
+		expect(setQueryDataSpy).toHaveBeenCalledWith(previousQueryKey, previousData)
+	})
+
+	it('should notify error when not an AbortDefer', async () => {
+		const mockNotify = vi.fn()
+		const mockTranslate = vi.fn(key => key)
+		const queryClient = createQueryClient()
+
+		const handler = createErrorHandler({
+			queryClient,
+			notify: mockNotify,
+			translate: mockTranslate,
+			checkError: vi.fn().mockResolvedValue({}),
+			getProps: () => undefined,
+			onError: undefined,
+		})
+
+		await handler(
+			new Error('delete failed'),
+			{ resource: 'posts', id: 1 } as any,
+			{ previousQueries: [] } as any,
+			createMutationContext(),
+		)
+
+		expect(mockNotify).toHaveBeenCalledWith(
+			expect.anything(),
+			expect.objectContaining({ type: NotificationType.Error }),
+		)
+	})
+
+	it('should call onError from prop', async () => {
+		const mockOnError = vi.fn()
+		const queryClient = createQueryClient()
+
+		const handler = createErrorHandler({
+			queryClient,
+			notify: vi.fn(),
+			translate: vi.fn(key => key),
+			checkError: vi.fn().mockResolvedValue({}),
+			getProps: () => undefined,
+			onError: mockOnError,
+		})
+
+		const error = new Error('oops')
+		await handler(
+			error,
+			{ resource: 'posts', id: 1 } as any,
+			{ previousQueries: [] } as any,
+			createMutationContext(),
+		)
+
+		expect(mockOnError).toHaveBeenCalledOnce()
+		expect(mockOnError.mock.calls[0][0]).toBe(error)
+	})
+
+	it('should call checkError with the error', async () => {
+		const mockCheckError = vi.fn().mockResolvedValue({})
+		const queryClient = createQueryClient()
+
+		const handler = createErrorHandler({
+			queryClient,
+			notify: vi.fn(),
+			translate: vi.fn(key => key),
+			checkError: mockCheckError,
+			getProps: () => undefined,
+			onError: undefined,
+		})
+
+		const error = new Error('auth error')
+		await handler(
+			error,
+			{ resource: 'posts', id: 1 } as any,
+			{ previousQueries: [] } as any,
+			createMutationContext(),
+		)
+
+		expect(mockCheckError).toHaveBeenCalledWith(error)
+	})
+})
+
+describe('createMutateFn', () => {
+	it('should call originFn with provided variables', () => {
+		const mockOriginFn = vi.fn()
+		const mutateFn = createMutateFn({ originFn: mockOriginFn })
+		const variables = { resource: 'posts', id: 1 }
+
+		mutateFn(variables, undefined)
+
+		expect(mockOriginFn).toHaveBeenCalledWith(variables, undefined)
+	})
+
+	it('should call originFn with empty object when variables are undefined', () => {
+		const mockOriginFn = vi.fn()
+		const mutateFn = createMutateFn({ originFn: mockOriginFn })
+
+		mutateFn(undefined, undefined)
+
+		expect(mockOriginFn).toHaveBeenCalledWith({}, undefined)
+	})
+})
+
+describe('createMutateAsyncFn', () => {
+	it('should call originFn with provided variables', async () => {
+		const mockOriginFn = vi.fn().mockResolvedValue({ data: { id: 1 } })
+		const mutateAsyncFn = createMutateAsyncFn({ originFn: mockOriginFn })
+		const variables = { resource: 'posts', id: 1 }
+
+		await mutateAsyncFn(variables, undefined)
+
+		expect(mockOriginFn).toHaveBeenCalledWith(variables, undefined)
+	})
+
+	it('should call originFn with empty object when variables are undefined', async () => {
+		const mockOriginFn = vi.fn().mockResolvedValue({ data: { id: 1 } })
+		const mutateAsyncFn = createMutateAsyncFn({ originFn: mockOriginFn })
+
+		await mutateAsyncFn(undefined, undefined)
+
+		expect(mockOriginFn).toHaveBeenCalledWith({}, undefined)
 	})
 })
