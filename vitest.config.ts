@@ -15,6 +15,7 @@ export default defineConfig({
 			],
 			exclude: [
 				'packages/nuxt/**/*',
+				'packages/with-svelte-spa-router/**/*', // FIXME:
 			],
 		},
 		projects: [
