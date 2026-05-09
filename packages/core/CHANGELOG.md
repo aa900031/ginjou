@@ -3,6 +3,32 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.19
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/core@0.1.0-beta.18...${npm.name}@0.1.0-beta.19)
+
+### 🚀 Enhancements
+
+-  Svelte (#116) ([a09c9c7](https://github.com/aa900031/ginjou/commit/a09c9c7e201d8864523c40c9d40ac04302856055))
+-  CodeRabbit Generated Unit Tests: Add unit tests (#117) ([f630e24](https://github.com/aa900031/ginjou/commit/f630e240f85415028deb31e2f58408b3dc70e198))
+
+### 💅 Refactors
+
+-  Make context optional in fetcher functions ([8865654](https://github.com/aa900031/ginjou/commit/8865654f4c7ba3240c430980b547735dcdd7b37c))
+
+### 🏡 Chore
+
+-  **deps:** Update npm non-major develop dependencies (#108) ([4678ada](https://github.com/aa900031/ginjou/commit/4678ada53357ec1889195093f245b6f64ee298b4))
+-  **deps:** Update npm non-major develop dependencies (#111) ([ea61593](https://github.com/aa900031/ginjou/commit/ea61593ffa84633b507ee0753de45020b8cc03ec))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+- Coderabbitai[bot] 
+- Renovate[bot]
+
 ## v0.1.0-beta.18
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/core@0.1.0-beta.17...${npm.name}@0.1.0-beta.18)
