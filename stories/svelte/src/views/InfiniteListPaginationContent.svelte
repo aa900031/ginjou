@@ -28,46 +28,42 @@
 
 	<PageTitle>useInfiniteList</PageTitle>
 
-	{#if list.isFetching && (list.records == null || list.records.length === 0)}
-		<Card>Loading...</Card>
-	{:else}
-		<Table>
-			<thead>
-				<tr>
-					<Th>ID</Th>
-					<Th>Title</Th>
-					<Th>Status</Th>
-				</tr>
-			</thead>
-			<tbody>
-				{#each list.records ?? [] as page}
-					{#each page as record}
-						<tr>
-							<Td>{record.id}</Td>
-							<Td>{record.title}</Td>
-							<Td>{record.status}</Td>
-						</tr>
-					{/each}
+	<Table>
+		<thead>
+			<tr>
+				<Th>ID</Th>
+				<Th>Title</Th>
+				<Th>Status</Th>
+			</tr>
+		</thead>
+		<tbody>
+			{#each list.records ?? [] as page}
+				{#each page as record}
+					<tr>
+						<Td>{record.id}</Td>
+						<Td>{record.title}</Td>
+						<Td>{record.status}</Td>
+					</tr>
 				{/each}
-				<tr>
-					<Td colspan={3}>
-						<Button type="button" onclick={handleMoreClick} disabled={!list.hasNextPage || list.isFetchingNextPage}>
-							{list.isFetchingNextPage ? 'Loading...' : 'More'}
-						</Button>
-					</Td>
-				</tr>
-			</tbody>
-		</Table>
+			{/each}
+			<tr>
+				<Td colspan={3}>
+					<Button type="button" onclick={handleMoreClick} disabled={!list.hasNextPage || list.isFetchingNextPage}>
+						{list.isFetchingNextPage ? 'Loading...' : 'More'}
+					</Button>
+				</Td>
+			</tr>
+		</tbody>
+	</Table>
 
-		<InlineActions>
-			<FieldLabel>
-				<span>Per page</span>
-				<Select bind:value={list.perPage}>
-					{#each [10, 20, 30, 40] as count}
-						<option value={count}>{count}</option>
-					{/each}
-				</Select>
-			</FieldLabel>
-		</InlineActions>
-	{/if}
+	<InlineActions>
+		<FieldLabel>
+			<span>Per page</span>
+			<Select bind:value={list.perPage}>
+				{#each [10, 20, 30, 40] as count}
+					<option value={count}>{count}</option>
+				{/each}
+			</Select>
+		</FieldLabel>
+	</InlineActions>
 </Stack>

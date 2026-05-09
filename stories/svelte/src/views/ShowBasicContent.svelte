@@ -14,13 +14,9 @@
 
 	<PageTitle>Posts Details</PageTitle>
 
-	{#if show.isFetching}
-		<Card>Loading...</Card>
-	{:else}
-		<Card>
-			<p>id: {show.record?.id}</p>
-			<p>title: {show.record?.title}</p>
-			<p>status: {show.record?.status}</p>
-		</Card>
-	{/if}
+	<Card>
+		<p>id: {show.record?.id}</p>
+		<p>title: {show.record?.title}</p>
+		<p>status: {show.record?.status}</p>
+	</Card>
 </Stack>

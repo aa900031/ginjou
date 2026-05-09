@@ -45,34 +45,30 @@
 		</Button>
 	</InlineActions>
 
-	{#if list.isFetching}
-		<Card>Loading...</Card>
-	{:else}
-		<Table>
-			<thead>
+	<Table>
+		<thead>
+			<tr>
+				<Th>V</Th>
+				<Th>ID</Th>
+				<Th>Title</Th>
+				<Th>Status</Th>
+			</tr>
+		</thead>
+		<tbody>
+			{#each list.records ?? [] as record}
 				<tr>
-					<Th>V</Th>
-					<Th>ID</Th>
-					<Th>Title</Th>
-					<Th>Status</Th>
+					<Td>
+						<input
+							type="checkbox"
+							checked={selectedIds.includes(record.id as string)}
+							onchange={(e) => toggleId(record.id as string, e.currentTarget.checked)}
+						/>
+					</Td>
+					<Td>{record.id}</Td>
+					<Td>{record.title}</Td>
+					<Td>{record.status}</Td>
 				</tr>
-			</thead>
-			<tbody>
-				{#each list.records ?? [] as record}
-					<tr>
-						<Td>
-							<input
-								type="checkbox"
-								checked={selectedIds.includes(record.id as string)}
-								onchange={(e) => toggleId(record.id as string, e.currentTarget.checked)}
-							/>
-						</Td>
-						<Td>{record.id}</Td>
-						<Td>{record.title}</Td>
-						<Td>{record.status}</Td>
-					</tr>
-				{/each}
-			</tbody>
-		</Table>
-	{/if}
+			{/each}
+		</tbody>
+	</Table>
 </Stack>

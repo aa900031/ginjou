@@ -26,32 +26,28 @@
 <Stack>
 	<PageTitle>useDeleteOne</PageTitle>
 
-	{#if list.isFetching}
-		<Card>Loading...</Card>
-	{:else}
-		<Table>
-			<thead>
+	<Table>
+		<thead>
+			<tr>
+				<Th>ID</Th>
+				<Th>Title</Th>
+				<Th>Status</Th>
+				<Th>Actions</Th>
+			</tr>
+		</thead>
+		<tbody>
+			{#each list.records ?? [] as record}
 				<tr>
-					<Th>ID</Th>
-					<Th>Title</Th>
-					<Th>Status</Th>
-					<Th>Actions</Th>
+					<Td>{record.id}</Td>
+					<Td>{record.title}</Td>
+					<Td>{record.status}</Td>
+					<Td>
+						<Button onclick={() => handleDelete(record)} disabled={mutation.isPending}>
+							Delete
+						</Button>
+					</Td>
 				</tr>
-			</thead>
-			<tbody>
-				{#each list.records ?? [] as record}
-					<tr>
-						<Td>{record.id}</Td>
-						<Td>{record.title}</Td>
-						<Td>{record.status}</Td>
-						<Td>
-							<Button onclick={() => handleDelete(record)} disabled={mutation.isPending}>
-								Delete
-							</Button>
-						</Td>
-					</tr>
-				{/each}
-			</tbody>
-		</Table>
-	{/if}
+			{/each}
+		</tbody>
+	</Table>
 </Stack>

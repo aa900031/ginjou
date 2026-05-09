@@ -65,26 +65,22 @@
 		</Button>
 	</InlineActions>
 
-	{#if list.isFetching}
-		<Card>Loading...</Card>
-	{:else}
-		<Table>
-			<thead>
+	<Table>
+		<thead>
+			<tr>
+				<Th>ID</Th>
+				<Th>Title</Th>
+				<Th>Status</Th>
+			</tr>
+		</thead>
+		<tbody>
+			{#each list.records ?? [] as record}
 				<tr>
-					<Th>ID</Th>
-					<Th>Title</Th>
-					<Th>Status</Th>
+					<Td>{record.id}</Td>
+					<Td>{record.title}</Td>
+					<Td>{record.status}</Td>
 				</tr>
-			</thead>
-			<tbody>
-				{#each list.records ?? [] as record}
-					<tr>
-						<Td>{record.id}</Td>
-						<Td>{record.title}</Td>
-						<Td>{record.status}</Td>
-					</tr>
-				{/each}
-			</tbody>
-		</Table>
-	{/if}
+			{/each}
+		</tbody>
+	</Table>
 </Stack>

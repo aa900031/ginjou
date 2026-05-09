@@ -40,53 +40,49 @@
 
 	<PageTitle>Posts</PageTitle>
 
-	{#if list.isFetching}
-		<Card>Loading...</Card>
-	{:else}
-		<Table>
-			<thead>
+	<Table>
+		<thead>
+			<tr>
+				<Th>ID</Th>
+				<Th>Title</Th>
+				<Th>Status</Th>
+			</tr>
+		</thead>
+		<tbody>
+			{#each list.records ?? [] as record}
 				<tr>
-					<Th>ID</Th>
-					<Th>Title</Th>
-					<Th>Status</Th>
+					<Td>{record.id}</Td>
+					<Td>{record.title}</Td>
+					<Td>{record.status}</Td>
 				</tr>
-			</thead>
-			<tbody>
-				{#each list.records ?? [] as record}
-					<tr>
-						<Td>{record.id}</Td>
-						<Td>{record.title}</Td>
-						<Td>{record.status}</Td>
-					</tr>
-				{/each}
-			</tbody>
-		</Table>
+			{/each}
+		</tbody>
+	</Table>
 
-		<Card>
-			<Stack>
-				<InlineActions>
-					<Button onclick={handleFirstPage} disabled={!hasPrev}>First</Button>
-					<Button onclick={handlePrevPage} disabled={!hasPrev}>Previous</Button>
-					<Button onclick={handleNextPage} disabled={!hasNext}>Next</Button>
-					<Button onclick={handleLastPage} disabled={!hasNext}>Last</Button>
-				</InlineActions>
+	<Card>
+		<Stack>
+			<InlineActions>
+				<Button onclick={handleFirstPage} disabled={!hasPrev}>First</Button>
+				<Button onclick={handlePrevPage} disabled={!hasPrev}>Previous</Button>
+				<Button onclick={handleNextPage} disabled={!hasNext}>Next</Button>
+				<Button onclick={handleLastPage} disabled={!hasNext}>Last</Button>
+			</InlineActions>
 
-				<span>Page {list.currentPage} / {list.pageCount ?? 1}</span>
+			<span>Page {list.currentPage} / {list.pageCount ?? 1}</span>
 
-				<FieldLabel>
-					<span>Go to page</span>
-					<Input type="number" min={1} max={list.pageCount ?? 1} bind:value={list.currentPage} />
-				</FieldLabel>
+			<FieldLabel>
+				<span>Go to page</span>
+				<Input type="number" min={1} max={list.pageCount ?? 1} bind:value={list.currentPage} />
+			</FieldLabel>
 
-				<FieldLabel>
-					<span>Per page</span>
-					<Select bind:value={list.perPage}>
-						{#each [10, 20, 30, 40] as count}
-							<option value={count}>{count}</option>
-						{/each}
-					</Select>
-				</FieldLabel>
-			</Stack>
-		</Card>
-	{/if}
+			<FieldLabel>
+				<span>Per page</span>
+				<Select bind:value={list.perPage}>
+					{#each [10, 20, 30, 40] as count}
+						<option value={count}>{count}</option>
+					{/each}
+				</Select>
+			</FieldLabel>
+		</Stack>
+	</Card>
 </Stack>
