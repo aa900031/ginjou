@@ -4,13 +4,11 @@ import { h } from 'vue'
 import I18nLocale from './I18nLocale.vue'
 import { createWrapper } from './utils/wrapper'
 
-const meta: Meta = {
+const meta = {
 	title: 'I18n/Locale',
-}
+} satisfies Meta
 
-export default meta
-
-export const Basic: StoryObj<typeof meta> = {
+export const Basic = {
 	name: 'Basic',
 	render: () => () => h(I18nLocale),
 	decorators: [
@@ -27,4 +25,6 @@ export const Basic: StoryObj<typeof meta> = {
 		await canvas.findByText('Locale: zh-TW')
 		await canvas.findByText('\'hi\' >>> 嗨')
 	},
-}
+} satisfies StoryObj<typeof meta>
+
+export default meta

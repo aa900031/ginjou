@@ -4,16 +4,18 @@ import { createPostHandlers } from './utils/posts'
 
 const meta = {
 	title: 'Query/GetOne',
-	component: GetOne,
+} satisfies Meta
+
+export const Basic = {
+	name: 'Basic',
+	render: () => ({
+		Component: GetOne as any,
+	}),
 	parameters: {
 		msw: {
 			handlers: createPostHandlers(),
 		},
 	},
-} satisfies Meta<typeof GetOne>
+} satisfies StoryObj<typeof meta>
 
 export default meta
-
-type Story = StoryObj<typeof meta>
-
-export const Basic = {} satisfies Story

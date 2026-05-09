@@ -5,32 +5,37 @@ import { createPostHandlers } from './utils/posts'
 import { args as MutationModeArgs, argTypes as MutationModeArgTypes } from './utils/sb-args/mutation-mode'
 import { argTypes as RedirectArgTypes } from './utils/sb-args/redirect'
 
-const meta: Meta = {
+const meta = {
 	title: 'Controllers/Form',
+} satisfies Meta
+
+export const Create = {
+	name: 'Create',
+	render: (args: any) => ({
+		Component: FormCreate as any,
+		props: args,
+	}),
 	parameters: {
 		msw: {
 			handlers: createPostHandlers(),
 		},
 	},
-}
-
-export const Create: StoryObj<typeof meta> = {
-	name: 'Create',
-	render: args => ({
-		Component: FormCreate,
-		props: args,
-	}),
 	argTypes: {
 		...RedirectArgTypes,
 	},
-}
+} satisfies StoryObj<typeof meta>
 
-export const Edit: StoryObj<typeof meta> = {
+export const Edit = {
 	name: 'Edit',
-	render: args => ({
-		Component: FormEdit,
+	render: (args: any) => ({
+		Component: FormEdit as any,
 		props: args,
 	}),
+	parameters: {
+		msw: {
+			handlers: createPostHandlers(),
+		},
+	},
 	argTypes: {
 		...MutationModeArgTypes,
 		...RedirectArgTypes,
@@ -38,6 +43,6 @@ export const Edit: StoryObj<typeof meta> = {
 	args: {
 		...MutationModeArgs,
 	},
-}
+} satisfies StoryObj<typeof meta>
 
 export default meta

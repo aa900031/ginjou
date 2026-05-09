@@ -5,22 +5,30 @@ import { createPostHandlers } from './utils/posts'
 
 const meta = {
 	title: 'Query/Delete',
-	component: DeleteOne,
+} satisfies Meta
+
+export const Basic = {
+	name: 'Basic',
+	render: () => ({
+		Component: DeleteOne as any,
+	}),
 	parameters: {
 		msw: {
 			handlers: createPostHandlers(),
 		},
 	},
-} satisfies Meta<typeof DeleteOne>
-
-export default meta
-
-type Story = StoryObj<typeof meta>
-
-export const Basic = {} satisfies Story
+} satisfies StoryObj<typeof meta>
 
 export const Many = {
+	name: 'Many',
 	render: () => ({
-		Component: DeleteMany,
+		Component: DeleteMany as any,
 	}),
-} satisfies Story
+	parameters: {
+		msw: {
+			handlers: createPostHandlers(),
+		},
+	},
+} satisfies StoryObj<typeof meta>
+
+export default meta

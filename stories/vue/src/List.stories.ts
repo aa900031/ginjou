@@ -13,16 +13,16 @@ import ListSortersWithCustomSyncRoute from './ListSortersWithCustomSyncRoute.vue
 import { toHandlers } from './utils/msw-data'
 import { createWrapper } from './utils/wrapper'
 
-const meta: Meta = {
+const meta = {
 	title: 'Controllers/List',
-}
+} satisfies Meta
 
 const posts = new Collection({
 	schema: PostSchema,
 })
 MOCK_POSTS.forEach(post => posts.create(post))
 
-export const Pagination: StoryObj<typeof meta> = {
+export const Pagination = {
 	name: 'Pagination',
 	render: () => () => h(RouterView),
 	parameters: {
@@ -51,9 +51,9 @@ export const Pagination: StoryObj<typeof meta> = {
 			},
 		]),
 	],
-}
+} satisfies StoryObj<typeof meta>
 
-export const Filters: StoryObj<typeof meta> = {
+export const Filters = {
 	name: 'Filters',
 	render: () => () => h(RouterView),
 	parameters: {
@@ -82,9 +82,9 @@ export const Filters: StoryObj<typeof meta> = {
 			},
 		]),
 	],
-}
+} satisfies StoryObj<typeof meta>
 
-export const FiltersWithCustomSyncRoute: StoryObj<typeof meta> = {
+export const FiltersWithCustomSyncRoute = {
 	name: 'Filters w/ custom sync route',
 	render: () => () => h(RouterView),
 	parameters: {
@@ -113,9 +113,9 @@ export const FiltersWithCustomSyncRoute: StoryObj<typeof meta> = {
 			},
 		]),
 	],
-}
+} satisfies StoryObj<typeof meta>
 
-export const Sorters: StoryObj<typeof meta> = {
+export const Sorters = {
 	name: 'Sorters',
 	render: () => () => h(RouterView),
 	parameters: {
@@ -144,9 +144,9 @@ export const Sorters: StoryObj<typeof meta> = {
 			},
 		]),
 	],
-}
+} satisfies StoryObj<typeof meta>
 
-export const SortersWithCustomSyncRoute: StoryObj<typeof meta> = {
+export const SortersWithCustomSyncRoute = {
 	name: 'Sorters w/ custom sync route',
 	render: () => () => h(RouterView),
 	parameters: {
@@ -175,6 +175,6 @@ export const SortersWithCustomSyncRoute: StoryObj<typeof meta> = {
 			},
 		]),
 	],
-}
+} satisfies StoryObj<typeof meta>
 
 export default meta

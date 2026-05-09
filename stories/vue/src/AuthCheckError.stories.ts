@@ -4,11 +4,11 @@ import { h } from 'vue'
 import AuthCheckError from './AuthCheckError.vue'
 import { createWrapper } from './utils/wrapper'
 
-const meta: Meta = {
+const meta = {
 	title: 'Authentication/Check Error',
-}
+} satisfies Meta
 
-export const Basic: StoryObj<typeof meta> = {
+export const Basic = {
 	name: 'Basic',
 	render: () => () => h(AuthCheckError),
 	decorators: [
@@ -29,6 +29,6 @@ export const Basic: StoryObj<typeof meta> = {
 		})
 		await userEvent.click(login)
 	},
-}
+} satisfies StoryObj<typeof meta>
 
 export default meta

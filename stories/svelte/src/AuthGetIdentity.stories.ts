@@ -3,11 +3,13 @@ import AuthGetIdentity from './AuthGetIdentity.svelte'
 
 const meta = {
 	title: 'Authentication/Get Identity',
-	component: AuthGetIdentity,
-} satisfies Meta<typeof AuthGetIdentity>
+} satisfies Meta
+
+export const Basic = {
+	name: 'Basic',
+	render: () => ({
+		Component: AuthGetIdentity as any,
+	}),
+} satisfies StoryObj<typeof meta>
 
 export default meta
-
-type Story = StoryObj<typeof meta>
-
-export const Basic = {} satisfies Story

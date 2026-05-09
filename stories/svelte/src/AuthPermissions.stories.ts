@@ -3,11 +3,13 @@ import AuthPermissions from './AuthPermissions.svelte'
 
 const meta = {
 	title: 'Authentication/Permissions',
-	component: AuthPermissions,
-} satisfies Meta<typeof AuthPermissions>
+} satisfies Meta
+
+export const Basic = {
+	name: 'Basic',
+	render: () => ({
+		Component: AuthPermissions as any,
+	}),
+} satisfies StoryObj<typeof meta>
 
 export default meta
-
-type Story = StoryObj<typeof meta>
-
-export const Basic = {} satisfies Story

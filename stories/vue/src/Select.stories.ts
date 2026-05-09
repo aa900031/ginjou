@@ -7,16 +7,16 @@ import SelectBasic from './SelectBasic.vue'
 import { toHandlers } from './utils/msw-data'
 import { createWrapper } from './utils/wrapper'
 
-const meta: Meta = {
+const meta = {
 	title: 'Controllers/Select',
-}
+} satisfies Meta
 
 const posts = new Collection({
 	schema: PostSchema,
 })
 MOCK_POSTS.forEach(post => posts.create(post))
 
-export const Basic: StoryObj<typeof meta> = {
+export const Basic = {
 	name: 'Basic',
 	render: () => () => h(SelectBasic),
 	parameters: {
@@ -33,6 +33,6 @@ export const Basic: StoryObj<typeof meta> = {
 			],
 		}),
 	],
-}
+} satisfies StoryObj<typeof meta>
 
 export default meta

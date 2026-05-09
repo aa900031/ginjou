@@ -3,11 +3,11 @@ import { h } from 'vue'
 import AuthGetIdentity from './AuthGetIdentity.vue'
 import { createWrapper } from './utils/wrapper'
 
-const meta: Meta = {
+const meta = {
 	title: 'Authentication/Get Identity',
-}
+} satisfies Meta
 
-export const Basic: StoryObj<typeof meta> = {
+export const Basic = {
 	name: 'Basic',
 	render: () => () => h(AuthGetIdentity),
 	decorators: [
@@ -20,6 +20,6 @@ export const Basic: StoryObj<typeof meta> = {
 
 		await canvas.findByText('Hi!', { exact: false, trim: true })
 	},
-}
+} satisfies StoryObj<typeof meta>
 
 export default meta

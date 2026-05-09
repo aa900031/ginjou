@@ -4,16 +4,18 @@ import { createPostHandlers } from './utils/posts'
 
 const meta = {
 	title: 'Controllers/Show',
-	component: ShowBasic,
+} satisfies Meta
+
+export const Basic = {
+	name: 'Basic',
+	render: () => ({
+		Component: ShowBasic as any,
+	}),
 	parameters: {
 		msw: {
 			handlers: createPostHandlers(),
 		},
 	},
-} satisfies Meta<typeof ShowBasic>
+} satisfies StoryObj<typeof meta>
 
 export default meta
-
-type Story = StoryObj<typeof meta>
-
-export const Basic = {} satisfies Story

@@ -8,40 +8,66 @@ import { createPostHandlers } from './utils/posts'
 
 const meta = {
 	title: 'Controllers/List',
-	component: ListPagination,
+} satisfies Meta
+
+export const Pagination = {
+	name: 'Pagination',
+	render: () => ({
+		Component: ListPagination as any,
+	}),
 	parameters: {
 		msw: {
 			handlers: createPostHandlers(),
 		},
 	},
-} satisfies Meta<typeof ListPagination>
-
-export default meta
-
-type Story = StoryObj<typeof meta>
-
-export const Pagination = {} satisfies Story
+} satisfies StoryObj<typeof meta>
 
 export const Filters = {
+	name: 'Filters',
 	render: () => ({
-		Component: ListFilters,
+		Component: ListFilters as any,
 	}),
-} satisfies Story
+	parameters: {
+		msw: {
+			handlers: createPostHandlers(),
+		},
+	},
+} satisfies StoryObj<typeof meta>
 
 export const FiltersWithCustomSyncRoute = {
+	name: 'Filters w/ custom sync route',
 	render: () => ({
-		Component: ListFiltersWithCustomSyncRoute,
+		Component: ListFiltersWithCustomSyncRoute as any,
 	}),
-} satisfies Story
+	parameters: {
+		msw: {
+			handlers: createPostHandlers(),
+		},
+	},
+} satisfies StoryObj<typeof meta>
 
 export const Sorters = {
+	name: 'Sorters',
 	render: () => ({
-		Component: ListSorters,
+		Component: ListSorters as any,
 	}),
-} satisfies Story
+	parameters: {
+		msw: {
+			handlers: createPostHandlers(),
+		},
+	},
+} satisfies StoryObj<typeof meta>
 
 export const SortersWithCustomSyncRoute = {
+	name: 'Sorters w/ custom sync route',
 	render: () => ({
-		Component: ListSortersWithCustomSyncRoute,
+		Component: ListSortersWithCustomSyncRoute as any,
 	}),
-} satisfies Story
+	parameters: {
+		msw: {
+			handlers: createPostHandlers(),
+		},
+	},
+} satisfies StoryObj<typeof meta>
+
+export default meta

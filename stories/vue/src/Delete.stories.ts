@@ -12,16 +12,16 @@ import { args as MutationModeArgs, argTypes as MutationModeArgTypes } from './ut
 import { renderRouteView } from './utils/sb-renders/route-view'
 import { createWrapper } from './utils/wrapper'
 
-const meta: Meta = {
+const meta = {
 	title: 'Query/Delete',
-}
+} satisfies Meta
 
 const posts = new Collection({
 	schema: PostSchema,
 })
 MOCK_POSTS.forEach(post => posts.create(post))
 
-export const Basic: StoryObj<typeof meta> = {
+export const Basic = {
 	name: 'Basic',
 	render: renderRouteView,
 	parameters: {
@@ -68,9 +68,9 @@ export const Basic: StoryObj<typeof meta> = {
 
 		await waitFor(() => canvas.queryByTestId('delete--6c6d3a48-8eef-4c96-a1ba-156bdfd3d389') == null)
 	},
-}
+} satisfies StoryObj<typeof meta>
 
-export const Many: StoryObj<typeof meta> = {
+export const Many = {
 	name: 'Many',
 	render: renderRouteView,
 	parameters: {
@@ -124,6 +124,6 @@ export const Many: StoryObj<typeof meta> = {
 			exact: false,
 		}).length === 7)
 	},
-}
+} satisfies StoryObj<typeof meta>
 
 export default meta

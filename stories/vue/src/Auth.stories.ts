@@ -4,11 +4,11 @@ import { h } from 'vue'
 import Auth from './Auth.vue'
 import { createWrapper } from './utils/wrapper'
 
-const meta: Meta = {
+const meta = {
 	title: 'Authentication/Authenticated',
-}
+} satisfies Meta
 
-export const Basic: StoryObj<typeof meta> = {
+export const Basic = {
 	name: 'Basic',
 	render: () => () => h(Auth),
 	decorators: [
@@ -35,6 +35,6 @@ export const Basic: StoryObj<typeof meta> = {
 
 		await waitFor(() => login.textContent === 'Logout...')
 	},
-}
+} satisfies StoryObj<typeof meta>
 
 export default meta

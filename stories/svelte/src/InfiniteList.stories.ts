@@ -4,16 +4,18 @@ import { createPostHandlers } from './utils/posts'
 
 const meta = {
 	title: 'Controllers/Infinite List',
-	component: InfiniteListPagination,
+} satisfies Meta
+
+export const Pagination = {
+	name: 'Pagination',
+	render: () => ({
+		Component: InfiniteListPagination as any,
+	}),
 	parameters: {
 		msw: {
 			handlers: createPostHandlers(),
 		},
 	},
-} satisfies Meta<typeof InfiniteListPagination>
+} satisfies StoryObj<typeof meta>
 
 export default meta
-
-type Story = StoryObj<typeof meta>
-
-export const Pagination = {} satisfies Story

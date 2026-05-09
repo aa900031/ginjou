@@ -3,11 +3,11 @@ import { h } from 'vue'
 import AuthPermissions from './AuthPermissions.vue'
 import { createWrapper } from './utils/wrapper'
 
-const meta: Meta = {
+const meta = {
 	title: 'Authentication/Permissions',
-}
+} satisfies Meta
 
-export const Basic: StoryObj<typeof meta> = {
+export const Basic = {
 	name: 'Basic',
 	render: () => () => h(AuthPermissions),
 	decorators: [
@@ -22,6 +22,6 @@ export const Basic: StoryObj<typeof meta> = {
 			timeout: 3000,
 		})
 	},
-}
+} satisfies StoryObj<typeof meta>
 
 export default meta

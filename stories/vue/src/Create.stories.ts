@@ -8,16 +8,16 @@ import CreateOne from './CreateOne.vue'
 import { toHandlers } from './utils/msw-data'
 import { createWrapper } from './utils/wrapper'
 
-const meta: Meta = {
+const meta = {
 	title: 'Query/Create',
-}
+} satisfies Meta
 
 const posts = new Collection({
 	schema: PostSchema,
 })
 MOCK_POSTS.forEach(post => posts.create(post))
 
-export const Basic: StoryObj<typeof meta> = {
+export const Basic = {
 	name: 'Basic',
 	parameters: {
 		msw: {
@@ -30,9 +30,9 @@ export const Basic: StoryObj<typeof meta> = {
 		}),
 	],
 	render: () => () => h(CreateOne),
-}
+} satisfies StoryObj<typeof meta>
 
-export const Many: StoryObj<typeof meta> = {
+export const Many = {
 	name: 'Many',
 	parameters: {
 		msw: {
@@ -45,6 +45,6 @@ export const Many: StoryObj<typeof meta> = {
 		}),
 	],
 	render: () => () => h(CreateMany),
-}
+} satisfies StoryObj<typeof meta>
 
 export default meta
