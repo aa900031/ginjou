@@ -13,16 +13,16 @@ import { PostCreate, PostEdit, PostList, PostShow } from './utils/sb-renders/pos
 import { renderRouteView } from './utils/sb-renders/route-view'
 import { createWrapper } from './utils/wrapper'
 
-const meta: Meta = {
+const meta = {
 	title: 'Controllers/Form',
-}
+} satisfies Meta
 
 const posts = new Collection({
 	schema: PostSchema,
 })
 MOCK_POSTS.forEach(post => posts.create(post))
 
-export const Create: StoryObj<typeof meta> = {
+export const Create = {
 	name: 'Create',
 	render: renderRouteView,
 	parameters: {
@@ -70,9 +70,9 @@ export const Create: StoryObj<typeof meta> = {
 	argTypes: {
 		...RedirectArgTypes,
 	},
-}
+} satisfies StoryObj<typeof meta>
 
-export const Edit: StoryObj<typeof meta> = {
+export const Edit = {
 	name: 'Edit',
 	render: renderRouteView,
 	parameters: {
@@ -124,6 +124,6 @@ export const Edit: StoryObj<typeof meta> = {
 	args: {
 		...MutationModeArgs,
 	},
-}
+} satisfies StoryObj<typeof meta>
 
 export default meta

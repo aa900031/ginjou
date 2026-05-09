@@ -24,8 +24,9 @@ export type UseRealtimeOptionsContext = Simplify<
 
 export type UseRealtimeOptionsResult<
 	TPayload,
+> = Ref<
+	ResolvedRealtimeOptions<TPayload>
 >
-	= Ref<ResolvedRealtimeOptions<TPayload>>
 
 export function useRealtimeOptions<
 	TPayload,

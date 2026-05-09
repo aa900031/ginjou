@@ -4,9 +4,16 @@ import type { Post } from './api/posts'
 import { FilterOperator } from '@ginjou/core'
 import { useList } from '@ginjou/vue'
 import { reactive, unref, watch } from 'vue'
-import { useRoute } from 'vue-router'
-
-const route = useRoute()
+import FieldLabel from './components/FieldLabel.vue'
+import InlineActions from './components/InlineActions.vue'
+import Input from './components/Input.vue'
+import LocaleBadge from './components/LocaleBadge.vue'
+import PageTitle from './components/PageTitle.vue'
+import Stack from './components/Stack.vue'
+import StoryShell from './components/StoryShell.vue'
+import Table from './components/Table.vue'
+import Td from './components/Td.vue'
+import Th from './components/Th.vue'
 
 const {
 	records,
@@ -79,50 +86,49 @@ watch(() => unref(formData), (data) => {
 </script>
 
 <template>
-	<div>
-		<code class="text-sm">URL: {{ route.fullPath }}</code>
+	<StoryShell>
+		<Stack>
+			<LocaleBadge />
+			<PageTitle>Posts</PageTitle>
 
-		<h1 class="text-2xl font-bold">
-			Posts
-		</h1>
+			<InlineActions>
+				<FieldLabel>
+					<span>Title</span>
+					<Input
+						v-model="formData.title"
+						type="text"
+						placeholder="Search by Title"
+					/>
+				</FieldLabel>
+				<FieldLabel>
+					<span>ID</span>
+					<Input
+						v-model="formData.id"
+						type="text"
+						placeholder="Search by ID"
+					/>
+				</FieldLabel>
+			</InlineActions>
 
-		<div class="flex items-baseline space-x-4">
-			<input
-				v-model="formData.title"
-				type="text"
-				placeholder="Search by Title"
-			>
-			<input
-				v-model="formData.id"
-				type="text"
-				placeholder="Search by ID"
-			>
-		</div>
-
-		<table class="table-auto w-full">
-			<thead>
-				<tr>
-					<th>ID</th>
-					<th>Title</th>
-					<th>Status</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr
-					v-for="record in records"
-					:key="record.id"
-				>
-					<td>
-						{{ record.id }}
-					</td>
-					<td>
-						{{ record.title }}
-					</td>
-					<td>
-						{{ record.status }}
-					</td>
-				</tr>
-			</tbody>
-		</table>
-	</div>
+			<Table>
+				<thead>
+					<tr>
+						<Th>ID</Th>
+						<Th>Title</Th>
+						<Th>Status</Th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr
+						v-for="record in records"
+						:key="record.id"
+					>
+						<Td>{{ record.id }}</Td>
+						<Td>{{ record.title }}</Td>
+						<Td>{{ record.status }}</Td>
+					</tr>
+				</tbody>
+			</Table>
+		</Stack>
+	</StoryShell>
 </template>

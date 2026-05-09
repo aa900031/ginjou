@@ -13,6 +13,7 @@
 	},
 	"scripts": {
 		"dev": "run-p 'dev:wait-*' && storybook dev -p 6006 --no-open",
+		"dev:wait-svelte": "wait-on tcp:6008",
 		"dev:wait-vue": "wait-on tcp:6007",
 		"build": "storybook build -o dist",
 		"preview": "sirv ./dist --host -p 7006"

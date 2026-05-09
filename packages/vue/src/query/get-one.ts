@@ -81,11 +81,11 @@ export function useGetOne<
 	})
 	const queryFn = GetOne.createQueryFn<TData>({
 		fetchers,
-		getProps: () => unref(queryProps),
+		getProps,
 	})
 	const handleSuccess = GetOne.createSuccessHandler<TData, TResultData>({
 		notify,
-		getProps: () => unref(queryProps),
+		getProps,
 		getSuccessNotify: () => unref(props.successNotify),
 		emitParent: (...args) => unref(props.queryOptions)?.onSuccess?.(...args),
 	})
@@ -93,7 +93,7 @@ export function useGetOne<
 		notify,
 		translate,
 		checkError,
-		getProps: () => unref(queryProps),
+		getProps,
 		getErrorNotify: () => unref(props.errorNotify),
 		emitParent: (...args) => unref(props.queryOptions)?.onError?.(...args),
 	})
@@ -140,6 +140,10 @@ export function useGetOne<
 
 	return {
 		...query,
-		record: computed(() => query.data.value?.data),
+		record: toRef(() => unref(query.data)?.data),
+	}
+
+	function getProps(): GetOne.ResolvedQueryProps {
+		return unref(queryProps)
 	}
 }

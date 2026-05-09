@@ -85,10 +85,10 @@ export function useGetMany<
 	const queryFn = GetMany.createQueryFn<TData, TResultData, TError>({
 		fetchers,
 		queryClient,
-		getProps: () => unref(queryProps),
+		getProps,
 	})
 	const handleSuccess = GetMany.createSuccessHandler<TData, TResultData>({
-		getProps: () => unref(queryProps),
+		getProps,
 		notify,
 		getSuccessNotify: () => unref(props.successNotify),
 		emitParent: (...args) => unref(props.queryOptions)?.onSuccess?.(...args),
@@ -97,12 +97,12 @@ export function useGetMany<
 		notify,
 		translate,
 		checkError,
-		getProps: () => unref(queryProps),
+		getProps,
 		getErrorNotify: () => unref(props.errorNotify),
 		emitParent: (...args) => unref(props.queryOptions)?.onError?.(...args),
 	})
 	const placeholderData = GetMany.createPlacholerDataFn<TData, TError, TResultData>({
-		getProps: () => unref(queryProps),
+		getProps,
 		queryClient,
 	})
 
@@ -146,6 +146,10 @@ export function useGetMany<
 
 	return {
 		...query,
-		records: computed(() => query.data.value?.data),
+		records: toRef(() => unref(query.data)?.data),
+	}
+
+	function getProps(): GetMany.ResolvedQueryProps {
+		return unref(queryProps)
 	}
 }

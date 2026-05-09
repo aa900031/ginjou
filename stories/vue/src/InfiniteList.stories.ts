@@ -10,16 +10,16 @@ import InfiniteListPagination from './InfiniteListPagination.vue'
 import { toHandlers } from './utils/msw-data'
 import { createWrapper } from './utils/wrapper'
 
-const meta: Meta = {
+const meta = {
 	title: 'Controllers/Infinite List',
-}
+} satisfies Meta
 
 const posts = new Collection({
 	schema: PostSchema,
 })
 MOCK_POSTS.forEach(post => posts.create(post))
 
-export const Pagination: StoryObj<typeof meta> = {
+export const Pagination = {
 	name: 'Pagination',
 	render: () => () => h(RouterView),
 	parameters: {
@@ -48,6 +48,6 @@ export const Pagination: StoryObj<typeof meta> = {
 			},
 		]),
 	],
-}
+} satisfies StoryObj<typeof meta>
 
 export default meta

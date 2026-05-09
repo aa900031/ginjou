@@ -2,13 +2,21 @@
 import type { Post, PostFormData, PostRawFormData } from './api/posts'
 import { useCreate } from '@ginjou/vue'
 import { reactive, shallowRef, toRef } from 'vue'
-import { useRoute } from 'vue-router'
+import Button from './components/Button.vue'
+import FieldLabel from './components/FieldLabel.vue'
+import Form from './components/Form.vue'
+import Input from './components/Input.vue'
+import JsonOutput from './components/JsonOutput.vue'
+import LocaleBadge from './components/LocaleBadge.vue'
+import PageTitle from './components/PageTitle.vue'
+import Select from './components/Select.vue'
+import Stack from './components/Stack.vue'
+import StoryShell from './components/StoryShell.vue'
 
 const props = defineProps<{
 	redirect?: any
 }>()
 
-const route = useRoute()
 const { save } = useCreate<Post, PostFormData>({
 	redirect: toRef(props, 'redirect'),
 })
@@ -17,6 +25,7 @@ const formData = reactive<PostRawFormData>({
 	status: 'draft',
 })
 const result = shallowRef<Post>()
+
 async function handleSubmit() {
 	const resp = await save(formData as PostFormData)
 	result.value = resp.data
@@ -24,50 +33,40 @@ async function handleSubmit() {
 </script>
 
 <template>
-	<div>
-		<code class="text-sm">URL: {{ route.fullPath }}</code>
+	<StoryShell>
+		<Stack>
+			<LocaleBadge />
+			<PageTitle>Posts Create</PageTitle>
 
-		<h1 class="text-2xl font-bold">
-			Posts Create
-		</h1>
+			<Form @submit.prevent="handleSubmit">
+				<FieldLabel>
+					<span>Title</span>
+					<Input
+						id="post-title"
+						v-model="formData.title"
+						type="text"
+					/>
+				</FieldLabel>
+				<FieldLabel>
+					<span>Status</span>
+					<Select id="post-status" v-model="formData.status">
+						<option value="draft">
+							Draft
+						</option>
+						<option value="rejected">
+							Rejected
+						</option>
+					</Select>
+				</FieldLabel>
+				<Button type="submit">
+					Submit
+				</Button>
+			</Form>
 
-		<form
-			@submit.prevent="handleSubmit"
-		>
-			<div>
-				<label for="post-title">
-					Title
-				</label>
-				<input
-					id="post-title"
-					v-model="formData.title"
-					type="text"
-				>
-			</div>
-			<div>
-				<label for="post-status">
-					Status
-				</label>
-				<select
-					id="post-status"
-					v-model="formData.status"
-				>
-					<option value="draft">
-						Draft
-					</option>
-					<option value="rejected">
-						Rejected
-					</option>
-				</select>
-			</div>
-			<button type="submit">
-				Submit
-			</button>
-		</form>
-		<hr>
-		<details open>
-			<summary>Result</summary>
-			<pre v-text="result ?? 'undefined'" />
-		</details>
-	</div>
+			<Stack>
+				<PageTitle>Result</PageTitle>
+				<JsonOutput :value="result" />
+			</Stack>
+		</Stack>
+	</StoryShell>
 </template>

@@ -61,30 +61,34 @@ export function useLogin<
 	const notify = useNotify(context)
 	const translate = useTranslate(context)
 
+	const mutationKey = Login.createMutationKey()
+	const mutationFn = Login.createMutationFn<TParams>({
+		auth,
+	})
+	const handleSuccess = Login.createSuccessHandler<TParams, TError>({
+		queryClient,
+		go,
+		getProps,
+		onSuccess: (...args) => unref(props?.mutationOptions)?.onSuccess?.(...args),
+	})
+	const handleError = Login.createErrorHandler<TParams, TError>({
+		notify,
+		translate,
+		go,
+		onError: (...args) => unref(props?.mutationOptions)?.onError?.(...args),
+	})
+
 	const mutation = useMutation<LoginResult, TError, TParams>(computed(() => ({
 		...unref(props?.mutationOptions),
-		mutationKey: Login.createMutationKey(),
-		mutationFn: Login.createMutationFn({
-			auth,
-		}),
-		onSuccess: Login.createSuccessHandler({
-			queryClient,
-			go,
-			getProps,
-			onSuccess: unref(props?.mutationOptions)?.onSuccess,
-		}),
-		onError: Login.createErrorHandler({
-			notify,
-			translate,
-			go,
-			onError: unref(props?.mutationOptions)?.onError,
-		}),
+		mutationKey,
+		mutationFn,
+		onSuccess: handleSuccess,
+		onError: handleError,
 	})), queryClient)
 
 	const mutate = Login.createMutateFn({
 		originFn: mutation.mutate,
 	})
-
 	const mutateAsync = Login.createMutateAsyncFn({
 		originFn: mutation.mutateAsync,
 	})

@@ -1,0 +1,19 @@
+{
+	"extends": "@ginjou/tsconfig/base.json",
+	"references": [
+		{ "path": "../../packages/core/tsconfig.app.json" },
+		{ "path": "../../packages/svelte/tsconfig.app.json" },
+		{ "path": "../../packages/with-rest-api/tsconfig.app.json" }
+	],
+	"include": [
+		"env.d.ts",
+		"src/**/*",
+		"src/**/*.svelte",
+		".storybook/preview.ts",
+		".storybook/decorators/*.ts"
+	],
+	"exclude": [
+		"src/**/*.test.ts",
+		"src/**/*.spec.ts"
+	]
+}

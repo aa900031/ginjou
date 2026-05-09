@@ -26,6 +26,7 @@ coverage/
 .turbo/
 
 /stories/vue/public/mockServiceWorker.js
+/stories/svelte/public/mockServiceWorker.js
 
 .env
 .env.*

@@ -1,5 +1,5 @@
 import type { MutationObserverOptions, QueryClient } from '@tanstack/query-core'
-import type { OverrideProperties, Simplify } from 'type-fest'
+import type { OverrideProperties, SetReturnType, Simplify } from 'type-fest'
 import type { CheckError } from '../auth'
 import type { TranslateFn } from '../i18n'
 import type { NotifyFn } from '../notification'
@@ -173,7 +173,10 @@ export interface CreateMutateHandlerProps<
 	notify: NotifyFn
 	translate: TranslateFn<any>
 	getProps: () => Props<TData, TError, TParams> | undefined
-	onMutate: MutationOptions<TData, TError, TParams>['onMutate']
+	onMutate: SetReturnType<
+		NonNullable<MutationOptions<TData, TError, TParams>['onMutate']>,
+		ReturnType<NonNullable<MutationOptions<TData, TError, TParams>['onMutate']>> | undefined
+	>
 }
 
 export function createMutateHandler<

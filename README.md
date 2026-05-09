@@ -106,6 +106,12 @@ const { data, isLoading, isError } = useList({ resource: 'posts' })
 | [`@ginjou/with-vue-i18n`](./packages/with-vue-i18n/) | [![npm version](https://img.shields.io/npm/v/@ginjou/with-vue-i18n?style=flat&colorA=18181B&colorB=F0DB4F)](https://www.npmjs.com/package/@ginjou/with-vue-i18n) | [![npm downloads](https://img.shields.io/npm/dm/@ginjou/with-vue-i18n?style=flat&colorA=18181B&colorB=F0DB4F)](https://www.npmjs.com/package/@ginjou/with-vue-i18n) |
 | [`@ginjou/with-vue-router`](./packages/with-vue-router/) | [![npm version](https://img.shields.io/npm/v/@ginjou/with-vue-router?style=flat&colorA=18181B&colorB=F0DB4F)](https://www.npmjs.com/package/@ginjou/with-vue-router) | [![npm downloads](https://img.shields.io/npm/dm/@ginjou/with-vue-router?style=flat&colorA=18181B&colorB=F0DB4F)](https://www.npmjs.com/package/@ginjou/with-vue-router) |
 
+### Svelte
+
+| Package | Version | Downloads |
+| --- | --- | --- |
+| [`@ginjou/svelte`](./packages/svelte/) | [![npm version](https://img.shields.io/npm/v/@ginjou/svelte?style=flat&colorA=18181B&colorB=F0DB4F)](https://www.npmjs.com/package/@ginjou/svelte) | [![npm downloads](https://img.shields.io/npm/dm/@ginjou/svelte?style=flat&colorA=18181B&colorB=F0DB4F)](https://www.npmjs.com/package/@ginjou/svelte) |
+
 ### Integrations
 
 | Package | Version | Downloads |

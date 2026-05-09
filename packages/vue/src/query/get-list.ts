@@ -85,13 +85,13 @@ export function useGetList<
 		queryClient,
 	})
 	const queryFn = GetList.createQueryFn<TData, TResultData, TError, TPageParam>({
-		getProps: () => unref(queryProps),
+		getProps,
 		queryClient,
 		fetchers,
 	})
 	const handleSuccess = GetList.createSuccessHandler<TData, TResultData, TPageParam>({
 		notify,
-		getProps: () => unref(queryProps),
+		getProps,
 		getSuccessNotify: () => unref(props.successNotify),
 		emitParent: (...args) => unref(props.queryOptions)?.onSuccess?.(...args),
 	})
@@ -99,7 +99,7 @@ export function useGetList<
 		notify,
 		translate,
 		checkError,
-		getProps: () => unref(queryProps),
+		getProps,
 		getErrorNotify: () => unref(props.errorNotify),
 		emitParent: (...args) => unref(props.queryOptions)?.onError?.(...args),
 	})
@@ -146,6 +146,10 @@ export function useGetList<
 
 	return {
 		...query,
-		records: computed(() => query.data.value?.data),
+		records: toRef(() => unref(query.data)?.data),
+	}
+
+	function getProps(): GetList.ResolvedQueryProps<TPageParam> {
+		return unref(queryProps)
 	}
 }

@@ -17,10 +17,12 @@ export type UseResourcePathContext = Simplify<
 	& UseResourceContext
 >
 
+export type UseResourcePathResult = Ref<string | undefined>
+
 export function useResourcePath(
 	props: UseResourcePathProps,
 	context?: UseResourcePathContext,
-): Ref<string | undefined> {
+): UseResourcePathResult {
 	const resource = useResource({
 		name: props.resource,
 	}, context)

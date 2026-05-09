@@ -80,6 +80,9 @@ export function useGetInfiniteList<
 	const queryKey = computed(() => GetList.createQueryKey<TPageParam>({
 		props: unref(queryProps),
 	}))
+	const initialPageParam = computed(() => GetInfiniteList.getInitialPageParam({
+		props: unref(queryProps),
+	}))
 	const enabledFn = GetInfiniteList.createQueryEnabledFn({
 		getEnabled: () => unref(props.queryOptions)?.enabled,
 		getQueryKey: () => unref(queryKey),
@@ -88,13 +91,13 @@ export function useGetInfiniteList<
 		queryClient,
 	})
 	const queryFn = GetInfiniteList.createQueryFn<TData, TPageParam>({
-		getProps: () => unref(queryProps),
+		getProps,
 		queryClient,
 		fetchers,
 	})
 	const handleSuccess = GetInfiniteList.createSuccessHandler<TData, TResultData, TPageParam>({
 		notify,
-		getProps: () => unref(queryProps),
+		getProps,
 		getSuccessNotify: () => unref(props.successNotify),
 		emitParent: (...args) => unref(props.queryOptions)?.onSuccess?.(...args),
 	})
@@ -102,7 +105,7 @@ export function useGetInfiniteList<
 		notify,
 		translate,
 		checkError,
-		getProps: () => unref(queryProps),
+		getProps,
 		getErrorNotify: () => unref(props.errorNotify),
 		emitParent: (...args) => unref(props.queryOptions)?.onError?.(...args),
 	})
@@ -112,16 +115,14 @@ export function useGetInfiniteList<
 
 	const query = useInfiniteQuery<GetInfiniteListResult<TData, TPageParam>, TError, InfiniteData<GetInfiniteListResult<TResultData, TPageParam>, TPageParam>, any, TPageParam>(
 		computed(() => ({
-			initialPageParam: GetInfiniteList.getInitialPageParam({
-				props: unref(queryProps),
-			}) as any, // Workaround: Just MaybeDeepRef need set object but TPageParam is unknown
+			initialPageParam,
 			getNextPageParam,
 			getPreviousPageParam,
 			// FIXME: type
 			...unref(props.queryOptions) as any,
 			queryKey,
 			queryFn,
-			enabled: () => enabledFn as any, // FIXME: Just wait PR merged
+			enabled: () => enabledFn,
 			placeholderData,
 		})),
 		queryClient,
@@ -161,5 +162,9 @@ export function useGetInfiniteList<
 	return {
 		...query,
 		records,
+	}
+
+	function getProps(): GetInfiniteList.ResolvedQueryProps<TPageParam> {
+		return unref(queryProps)
 	}
 }

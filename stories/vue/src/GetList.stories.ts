@@ -7,16 +7,16 @@ import GetList from './GetList.vue'
 import { toHandlers } from './utils/msw-data'
 import { createWrapper } from './utils/wrapper'
 
-const meta: Meta = {
+const meta = {
 	title: 'Query/GetList',
-}
+} satisfies Meta
 
 const posts = new Collection({
 	schema: PostSchema,
 })
 MOCK_POSTS.forEach(post => posts.create(post))
 
-export const Basic: StoryObj<typeof meta> = {
+export const Basic = {
 	name: 'Basic',
 	parameters: {
 		msw: {
@@ -29,6 +29,6 @@ export const Basic: StoryObj<typeof meta> = {
 		}),
 	],
 	render: () => () => h(GetList),
-}
+} satisfies StoryObj<typeof meta>
 
 export default meta

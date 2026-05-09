@@ -135,6 +135,6 @@ export function useCustom<
 
 	return {
 		...query,
-		record: computed(() => query.data.value?.data),
+		record: toRef(() => unref(query.data)?.data),
 	}
 }

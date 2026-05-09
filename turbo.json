@@ -42,6 +42,16 @@
 				".storybook/**"
 			],
 			"outputs": ["../root/dist/vue/**"]
+		},
+		"@ginjou/storybook-svelte#build": {
+			"dependsOn": [
+				"@ginjou/storybook#build",
+				"^build"
+			],
+			"inputs": [
+				".storybook/**"
+			],
+			"outputs": ["../root/dist/svelte/**"]
 		}
 	}
 }

@@ -68,34 +68,39 @@ export function useCreateOne<
 	const publish = usePublish(context)
 	const { mutateAsync: checkError } = useCheckError<TError>(undefined, context)
 
-	const mutation = useMutation<CreateResult<TData>, TError, CreateOne.MutationProps<TData, TError, TParams>, any>(computed(() => ({
-		...unref(props?.mutationOptions) as any, // TODO:
-		mutationFn: CreateOne.createMutationFn<TData, TError, TParams>({
-			fetchers,
-			getProps,
-		}),
-		onSuccess: CreateOne.createSuccessHandler({
-			notify,
-			translate,
-			publish,
-			getProps,
-			onSuccess: unref(props?.mutationOptions)?.onSuccess,
-			queryClient,
-		}),
-		onError: CreateOne.createErrorHandler({
-			notify,
-			translate,
-			checkError,
-			getProps,
-			onError: unref(props?.mutationOptions)?.onError,
-		}),
+	const mutationFn = CreateOne.createMutationFn<TData, TError, TParams>({
+		fetchers,
+		getProps,
+	})
+	const handleSuccess = CreateOne.createSuccessHandler({
+		notify,
+		translate,
+		publish,
+		getProps,
+		onSuccess: unref(props?.mutationOptions)?.onSuccess,
 		queryClient,
-	})))
+	})
+	const handleError = CreateOne.createErrorHandler({
+		notify,
+		translate,
+		checkError,
+		getProps,
+		onError: unref(props?.mutationOptions)?.onError,
+	})
+
+	const mutation = useMutation<CreateResult<TData>, TError, CreateOne.MutationProps<TData, TError, TParams>, any>(
+		computed(() => ({
+			...unref(props?.mutationOptions),
+			mutationFn,
+			onSuccess: handleSuccess,
+			onError: handleError,
+		})),
+		queryClient,
+	)
 
 	const mutate = CreateOne.createMutateFn({
 		originFn: mutation.mutate,
 	})
-
 	const mutateAsync = CreateOne.createMutateAsyncFn({
 		originFn: mutation.mutateAsync,
 	})

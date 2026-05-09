@@ -115,7 +115,7 @@ description: Move between frontend adapters and backend adapters without rewriti
     class: not-prose
     pauseOnHover: true
     overlay: false
-    repeat: 8
+    repeat: 6
     ui:
       root: "[--gap:--spacing(4)]"
       content: "w-auto py-1"
@@ -140,6 +140,17 @@ description: Move between frontend adapters and backend adapters without rewriti
     variant: outline
     color: neutral
     to: /integrations/nuxt
+    ---
+    :::
+    :::u-button
+    ---
+    class: flex shrink-0
+    label: Svelte
+    icon: i-logos-svelte-icon
+    size: xl
+    variant: outline
+    color: neutral
+    to: /integrations/svelte
     ---
     :::
     ::
