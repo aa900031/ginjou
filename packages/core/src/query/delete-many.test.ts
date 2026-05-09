@@ -6,8 +6,8 @@ import { NotificationType } from '../notification'
 import {
 	createErrorHandler,
 	createMutateAsyncFn,
-	createMutateHandler,
 	createMutateFn,
+	createMutateHandler,
 	createMutationFn,
 	createSuccessHandler,
 } from './delete-many'

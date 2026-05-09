@@ -3,15 +3,15 @@ import { QueryClient } from '@tanstack/query-core'
 import { describe, expect, it, vi } from 'vitest'
 import { createMutationContext } from '../../test/tanstack-utils'
 import { NotificationType } from '../notification'
+import { MutationMode } from './mutation-mode'
 import {
 	createErrorHandler,
 	createMutateAsyncFn,
-	createMutateHandler,
 	createMutateFn,
+	createMutateHandler,
 	createMutationFn,
 	createSuccessHandler,
 } from './update'
-import { MutationMode } from './mutation-mode'
 
 const mockUpdateOneResult = { data: { id: 1, status: 'published' } }
 const mockUpdateOne = vi.fn(() => Promise.resolve(mockUpdateOneResult))
