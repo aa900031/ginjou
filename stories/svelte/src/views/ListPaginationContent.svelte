@@ -13,7 +13,7 @@
 	import Td from '../components/Td.svelte'
 	import Th from '../components/Th.svelte'
 	import UrlBadge from '../components/UrlBadge.svelte'
-	import { formatLocation } from '../utils/mock-router'
+	import { formatLocation } from '../utils/location'
 
 	const list = useList<Post>({
 		syncRoute: true,

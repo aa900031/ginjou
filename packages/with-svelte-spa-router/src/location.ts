@@ -57,11 +57,13 @@ function normalizeParams(
 
 export function buildPath(
 	goParams: RouterGoParams,
+	currentPath: string | undefined,
 	currentQuerystring: string | undefined,
 	parseQuery: QueryParser,
 	stringifyQuery: QueryStringifier,
 ): string {
-	const { to = '/', query, hash, keepQuery } = goParams
+	const { to, query, hash, keepQuery } = goParams
+	const path = to ?? currentPath ?? '/'
 
 	const currentQuery = keepQuery && currentQuerystring ? parseQuery(currentQuerystring) : {}
 	const mergedQuery: Record<string, string | number | null | undefined | (string | null)[]> = {
@@ -71,5 +73,5 @@ export function buildPath(
 
 	const qsStr = stringifyQuery(mergedQuery)
 
-	return `${to}${qsStr ? `?${qsStr}` : ''}${hash ? `#${hash}` : ''}`
+	return `${path}${qsStr ? `?${qsStr}` : ''}${hash ? `#${hash}` : ''}`
 }

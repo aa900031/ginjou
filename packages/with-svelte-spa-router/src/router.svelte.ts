@@ -15,7 +15,7 @@ export function createRouter(options?: CreateRouterOptions): Router {
 
 	return defineRouter({
 		go: (params: RouterGoParams): void => {
-			const path = buildPath(params, router.querystring, parseQuery, stringifyQuery)
+			const path = buildPath(params, router.location, router.querystring, parseQuery, stringifyQuery)
 			if (params.type === 'replace')
 				replace(path)
 			else
@@ -25,7 +25,7 @@ export function createRouter(options?: CreateRouterOptions): Router {
 			pop()
 		},
 		resolve: (params: RouterGoParams): string => {
-			return buildPath(params, router.querystring, parseQuery, stringifyQuery)
+			return buildPath(params, router.location, router.querystring, parseQuery, stringifyQuery)
 		},
 		getLocation: () => {
 			return toLocation(router.location, router.querystring, router.params, parseQuery)

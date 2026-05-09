@@ -12,7 +12,7 @@
 	import Th from '../components/Th.svelte'
 	import UrlBadge from '../components/UrlBadge.svelte'
 	import InlineActions from '../components/InlineActions.svelte'
-	import { formatLocation } from '../utils/mock-router'
+	import { formatLocation } from '../utils/location'
 
 	const list = useInfiniteList<Post>({
 		resource: 'posts',

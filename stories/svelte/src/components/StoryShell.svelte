@@ -1,29 +1,43 @@
 <script lang="ts">
+	import type { Snippet } from "svelte"
 	import type { Auth, Authz, I18n, ResourceDefinition } from '@ginjou/core'
 	import type { QueryClientConfig } from '@tanstack/svelte-query'
 	import { defineAuthContext, defineAuthzContext, defineFetchersContext, defineI18nContext, defineQueryClientContext, defineResourceContext, defineRouterContext } from '@ginjou/svelte'
+	import { createRouter } from '@ginjou/with-svelte-spa-router'
 	import { createFetcher } from '@ginjou/with-rest-api'
-	import { createMockRouter } from '../utils/mock-router'
+	import Router from 'svelte-spa-router'
 	import { API_BASE_URL, postResources } from '../utils/posts'
 	import { resolveStoryAuth, resolveStoryAuthz, resolveStoryI18n } from '../utils/story-contexts'
 
-	export let resources: ResourceDefinition[] = postResources
-	export let withRouter = false
-	export let initialPath = '/posts'
-	export let auth: Auth | boolean | undefined = undefined
-	export let authz: Authz | boolean | undefined = undefined
-	export let i18n: I18n | boolean | undefined = undefined
-	export let queryClientConfig: QueryClientConfig = {
-		defaultOptions: {
-			queries: {
-				retry: false,
-				refetchOnWindowFocus: false,
-			},
-			mutations: {
-				retry: false,
+	const {
+		resources = postResources,
+		initialPath,
+		routes,
+		auth,
+		authz,
+		i18n,
+		queryClientConfig = {
+			defaultOptions: {
+				queries: {
+					retry: false,
+					refetchOnWindowFocus: false,
+				},
+				mutations: {
+					retry: false,
+				},
 			},
 		},
-	}
+		children,
+	}: {
+		resources?: ResourceDefinition[]
+		routes?: Record<string, any> | undefined
+		initialPath?: string
+		auth?: Auth | boolean | undefined
+		authz?: Authz | boolean | undefined
+		i18n?: I18n | boolean | undefined
+		queryClientConfig?: QueryClientConfig
+		children?: Snippet
+	} = $props()
 
 	defineFetchersContext({
 		default: createFetcher({
@@ -47,12 +61,18 @@
 	if (i18nContext)
 		defineI18nContext(i18nContext)
 
-	if (withRouter)
-		defineRouterContext(createMockRouter(initialPath))
+	if (routes) {
+		window.location.hash = `#${(initialPath ?? '/').startsWith('/') ? initialPath : `/${initialPath}`}`
+		defineRouterContext(createRouter())
+	}
 </script>
 
 <div class="story-shell min-h-full text-slate-900 dark:text-slate-100">
-	<slot />
+	{#if routes}
+		<Router {routes} />
+	{:else}
+		{@render children?.()}
+	{/if}
 </div>
 
 <style>

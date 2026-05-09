@@ -439,6 +439,9 @@ importers:
       '@ginjou/with-rest-api':
         specifier: workspace:*
         version: link:../../packages/with-rest-api
+      '@ginjou/with-svelte-spa-router':
+        specifier: workspace:*
+        version: link:../../packages/with-svelte-spa-router
       '@msw/data':
         specifier: ^1.1.2
         version: 1.1.2
@@ -469,6 +472,9 @@ importers:
       svelte:
         specifier: ^5.25.0
         version: 5.55.5(@typescript-eslint/types@8.56.0)
+      svelte-spa-router:
+        specifier: ^5.1.0
+        version: 5.1.0(svelte@5.55.5(@typescript-eslint/types@8.56.0))
       unocss:
         specifier: ^66.6.7
         version: 66.6.7(vite@7.3.1(@types/node@22.19.15)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.46.0)(yaml@2.8.3))

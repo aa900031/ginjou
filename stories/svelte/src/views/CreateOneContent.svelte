@@ -23,15 +23,12 @@
 	async function handleSubmit(event: SubmitEvent): Promise<void> {
 		event.preventDefault()
 
-		await mutation.mutateAsync({
+		const response = await mutation.mutateAsync({
 			params: {
 				...formData,
 			},
-		}, {
-			onSuccess: (data) => {
-				result = data.data
-			},
 		})
+		result = response.data
 	}
 </script>
 

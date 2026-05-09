@@ -16,7 +16,7 @@
 	import Select from '../components/Select.svelte'
 	import Stack from '../components/Stack.svelte'
 	import UrlBadge from '../components/UrlBadge.svelte'
-	import { formatLocation } from '../utils/mock-router'
+	import { formatLocation } from '../utils/location'
 
 	let { redirect = 'list' }: { redirect?: FormRedirect } = $props()
 

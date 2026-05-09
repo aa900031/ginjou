@@ -19,9 +19,9 @@
 	import Select from '../components/Select.svelte'
 	import Stack from '../components/Stack.svelte'
 	import UrlBadge from '../components/UrlBadge.svelte'
-	import { formatLocation } from '../utils/mock-router'
+	import { formatLocation } from '../utils/location'
 
-	let {
+	const {
 		mutationMode = MutationMode.Pessimistic,
 		redirect = 'show',
 	}: {
@@ -38,7 +38,6 @@
 
 	let formData = $state<PostRawFormData>({ title: '', status: 'draft' })
 	let hydratedRecordId = $state<string | undefined>()
-	let result = $state<Post | undefined>()
 
 	$effect(() => {
 		if (edit.record && edit.record.id !== hydratedRecordId) {
@@ -47,7 +46,6 @@
 				status: edit.record.status,
 			}
 			hydratedRecordId = edit.record.id
-			result = edit.record
 		}
 	})
 
@@ -58,7 +56,6 @@
 			title: formData.title ?? 'Updated title',
 			status: formData.status ?? 'draft',
 		})
-		result = response.data
 	}
 </script>
 
@@ -91,7 +88,7 @@
 
 		<Stack>
 			<PageTitle>Result</PageTitle>
-			<JsonOutput value={result} />
+			<JsonOutput value={edit.record} />
 		</Stack>
 	{/if}
 </Stack>

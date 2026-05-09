@@ -5,7 +5,7 @@
 	import PageTitle from '../components/PageTitle.svelte'
 	import Stack from '../components/Stack.svelte'
 	import UrlBadge from '../components/UrlBadge.svelte'
-	import { formatLocation } from '../utils/mock-router'
+	import { formatLocation } from '../utils/location'
 
 	const show = useShow<Post>()
 	const location = useLocation()

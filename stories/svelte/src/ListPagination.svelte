@@ -3,6 +3,7 @@
 	import ListPaginationContent from './views/ListPaginationContent.svelte'
 </script>
 
-<StoryShell withRouter={true} initialPath="/posts">
-	<ListPaginationContent />
-</StoryShell>
+<StoryShell
+	initialPath="/posts"
+	routes={{ '/posts': ListPaginationContent }}
+/>

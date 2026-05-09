@@ -4,6 +4,7 @@
 	import { DEFAULT_POST_ID } from './utils/posts'
 </script>
 
-<StoryShell withRouter={true} initialPath={`/posts/${DEFAULT_POST_ID}`}>
-	<ShowBasicContent />
-</StoryShell>
+<StoryShell
+	routes={{ '/posts/:id': ShowBasicContent }}
+	initialPath={`/posts/${DEFAULT_POST_ID}`}
+/>

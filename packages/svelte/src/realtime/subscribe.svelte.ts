@@ -2,7 +2,7 @@ import type { Simplify } from 'type-fest'
 import type { MaybeAccessor } from '../utils'
 import type { UseRealtimeContextFromProps } from './context'
 import { Subscribe } from '@ginjou/core'
-import { extract } from '../utils'
+import { extract, watch } from '../utils'
 import { useRealtimeContext } from './context'
 
 export type UseSubscribeProps<
@@ -31,24 +31,19 @@ export function useSubscribe<
 	const resolvedProps = $derived.by(() =>
 		Subscribe.resolveProps<TPayload, TPageParam>(extract(props)),
 	)
-	let stop = $state<(() => void) | undefined>(undefined)
-
-	$effect(() => {
-		const unsubscribe = Subscribe.register<TPayload, TPageParam>({
-			props: resolvedProps,
-			realtime,
-		})
-
-		stop = unsubscribe
-
-		return () => {
-			unsubscribe()
-			if (stop === unsubscribe)
-				stop = undefined
-		}
-	})
+	const stop = watch(
+		() => resolvedProps,
+		() =>
+			Subscribe.register<TPayload, TPageParam>({
+				props: resolvedProps,
+				realtime,
+			}),
+		{
+			immediate: true,
+		},
+	)
 
 	return {
-		stop: () => stop?.(),
+		stop,
 	}
 }

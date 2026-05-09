@@ -3,6 +3,4 @@
 	import InfiniteListPaginationContent from './views/InfiniteListPaginationContent.svelte'
 </script>
 
-<StoryShell withRouter={true} initialPath="/posts">
-	<InfiniteListPaginationContent />
-</StoryShell>
+<StoryShell routes={{ '/posts': InfiniteListPaginationContent }} initialPath="/posts" />
