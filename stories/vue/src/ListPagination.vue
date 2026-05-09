@@ -2,11 +2,11 @@
 import type { Post } from './api/posts'
 import { useList } from '@ginjou/vue'
 import { computed } from 'vue'
-import { useRoute } from 'vue-router'
 import Button from './components/Button.vue'
 import FieldLabel from './components/FieldLabel.vue'
 import InlineActions from './components/InlineActions.vue'
 import Input from './components/Input.vue'
+import LocaleBadge from './components/LocaleBadge.vue'
 import PageTitle from './components/PageTitle.vue'
 import Select from './components/Select.vue'
 import Stack from './components/Stack.vue'
@@ -14,9 +14,6 @@ import StoryShell from './components/StoryShell.vue'
 import Table from './components/Table.vue'
 import Td from './components/Td.vue'
 import Th from './components/Th.vue'
-import UrlBadge from './components/UrlBadge.vue'
-
-const route = useRoute()
 
 const {
 	records,
@@ -34,7 +31,7 @@ const hasPrev = computed(() => currentPage.value > 1)
 <template>
 	<StoryShell>
 		<Stack>
-			<UrlBadge :url="route.fullPath" />
+			<LocaleBadge />
 			<PageTitle>Posts</PageTitle>
 
 			<Table>

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { useInfiniteList, useLocation } from '@ginjou/svelte'
+	import { useInfiniteList } from '@ginjou/svelte'
 	import type { Post } from '../api/posts'
 	import Button from '../components/Button.svelte'
 	import Card from '../components/Card.svelte'
@@ -10,16 +10,13 @@
 	import Table from '../components/Table.svelte'
 	import Td from '../components/Td.svelte'
 	import Th from '../components/Th.svelte'
-	import UrlBadge from '../components/UrlBadge.svelte'
 	import InlineActions from '../components/InlineActions.svelte'
-	import { formatLocation } from '../utils/location'
+	import LocaleBadge from '../components/LocaleBadge.svelte';
 
 	const list = useInfiniteList<Post>({
 		resource: 'posts',
 		syncRoute: true,
 	})
-	const location = useLocation()
-	const loadedCount = $derived.by(() => list.records?.reduce((count, page) => count + page.length, 0) ?? 0)
 
 	async function handleMoreClick(): Promise<void> {
 		await list.fetchNextPage()
@@ -27,7 +24,7 @@
 </script>
 
 <Stack>
-	<UrlBadge url={formatLocation(location.value)} />
+	<LocaleBadge />
 
 	<PageTitle>useInfiniteList</PageTitle>
 

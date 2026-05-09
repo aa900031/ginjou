@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { useList, useLocation } from '@ginjou/svelte'
+	import { useList } from '@ginjou/svelte'
 	import type { Post } from '../api/posts'
 	import Button from '../components/Button.svelte'
 	import Card from '../components/Card.svelte'
@@ -12,13 +12,11 @@
 	import Table from '../components/Table.svelte'
 	import Td from '../components/Td.svelte'
 	import Th from '../components/Th.svelte'
-	import UrlBadge from '../components/UrlBadge.svelte'
-	import { formatLocation } from '../utils/location'
+	import LocaleBadge from '../components/LocaleBadge.svelte'
 
 	const list = useList<Post>({
 		syncRoute: true,
 	})
-	const location = useLocation()
 
 	const hasPrev = $derived(list.currentPage > 1)
 	const hasNext = $derived(list.pageCount == null ? false : list.currentPage < list.pageCount)
@@ -38,7 +36,7 @@
 </script>
 
 <Stack>
-	<UrlBadge url={formatLocation(location.value)} />
+	<LocaleBadge />
 
 	<PageTitle>Posts</PageTitle>
 

@@ -7,7 +7,7 @@
 <script lang="ts">
 	import type { MutationModeValues } from '@ginjou/core'
 	import { MutationMode } from '@ginjou/core'
-	import { useEdit, useLocation } from '@ginjou/svelte'
+	import { useEdit } from '@ginjou/svelte'
 	import type { Post, PostFormData, PostRawFormData } from '../api/posts'
 	import Button from '../components/Button.svelte'
 	import Card from '../components/Card.svelte'
@@ -18,8 +18,7 @@
 	import PageTitle from '../components/PageTitle.svelte'
 	import Select from '../components/Select.svelte'
 	import Stack from '../components/Stack.svelte'
-	import UrlBadge from '../components/UrlBadge.svelte'
-	import { formatLocation } from '../utils/location'
+	import LocaleBadge from '../components/LocaleBadge.svelte'
 
 	const {
 		mutationMode = MutationMode.Pessimistic,
@@ -29,7 +28,6 @@
 		redirect?: FormRedirect
 	} = $props()
 
-	const location = useLocation()
 	const edit = useEdit<Post, PostFormData>(() => ({
 		resource: 'posts',
 		mutationMode,
@@ -60,7 +58,7 @@
 </script>
 
 <Stack>
-	<UrlBadge url={formatLocation(location.value)} />
+	<LocaleBadge />
 
 	<PageTitle>useEdit</PageTitle>
 

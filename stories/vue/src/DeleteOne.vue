@@ -2,21 +2,18 @@
 import type { MutationModeValues } from '@ginjou/core'
 import type { Post } from './api/posts'
 import { useDeleteOne, useList } from '@ginjou/vue'
-import { useRoute } from 'vue-router'
 import Button from './components/Button.vue'
+import LocaleBadge from './components/LocaleBadge.vue'
 import PageTitle from './components/PageTitle.vue'
 import Stack from './components/Stack.vue'
 import StoryShell from './components/StoryShell.vue'
 import Table from './components/Table.vue'
 import Td from './components/Td.vue'
 import Th from './components/Th.vue'
-import UrlBadge from './components/UrlBadge.vue'
 
 const props = defineProps<{
 	mutationMode: MutationModeValues
 }>()
-
-const route = useRoute()
 
 const { records } = useList<Post>({ syncRoute: false })
 const { mutateAsync: del } = useDeleteOne()
@@ -33,7 +30,7 @@ async function handleDeleteClick(record: Post) {
 <template>
 	<StoryShell>
 		<Stack>
-			<UrlBadge :url="route.fullPath" />
+			<LocaleBadge />
 			<PageTitle>Posts</PageTitle>
 
 			<Table>

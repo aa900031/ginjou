@@ -25,7 +25,7 @@ function toHref(location: RouterLocation): string {
 	if (location.hash)
 		url.hash = normalizeHash(location.hash)
 
-	return `${url.pathname}${url.search}${url.hash}`
+	return decodeURIComponent(`${url.pathname}${url.search}${url.hash}`)
 }
 
 function normalizeHash(hash: string): string {

@@ -1,18 +1,16 @@
 <script lang="ts">
-	import { useLocation, useShow } from '@ginjou/svelte'
+	import { useShow } from '@ginjou/svelte'
 	import type { Post } from '../api/posts'
 	import Card from '../components/Card.svelte'
 	import PageTitle from '../components/PageTitle.svelte'
 	import Stack from '../components/Stack.svelte'
-	import UrlBadge from '../components/UrlBadge.svelte'
-	import { formatLocation } from '../utils/location'
+	import LocaleBadge from '../components/LocaleBadge.svelte'
 
 	const show = useShow<Post>()
-	const location = useLocation()
 </script>
 
 <Stack>
-	<UrlBadge url={formatLocation(location.value)} />
+	<LocaleBadge />
 
 	<PageTitle>Posts Details</PageTitle>
 

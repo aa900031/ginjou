@@ -2,23 +2,21 @@
 import type { Post, PostFormData, PostRawFormData } from './api/posts'
 import { useCreate } from '@ginjou/vue'
 import { reactive, shallowRef, toRef } from 'vue'
-import { useRoute } from 'vue-router'
 import Button from './components/Button.vue'
 import FieldLabel from './components/FieldLabel.vue'
 import Form from './components/Form.vue'
 import Input from './components/Input.vue'
 import JsonOutput from './components/JsonOutput.vue'
+import LocaleBadge from './components/LocaleBadge.vue'
 import PageTitle from './components/PageTitle.vue'
 import Select from './components/Select.vue'
 import Stack from './components/Stack.vue'
 import StoryShell from './components/StoryShell.vue'
-import UrlBadge from './components/UrlBadge.vue'
 
 const props = defineProps<{
 	redirect?: any
 }>()
 
-const route = useRoute()
 const { save } = useCreate<Post, PostFormData>({
 	redirect: toRef(props, 'redirect'),
 })
@@ -37,7 +35,7 @@ async function handleSubmit() {
 <template>
 	<StoryShell>
 		<Stack>
-			<UrlBadge :url="route.fullPath" />
+			<LocaleBadge />
 			<PageTitle>Posts Create</PageTitle>
 
 			<Form @submit.prevent="handleSubmit">

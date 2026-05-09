@@ -3,24 +3,22 @@ import type { MutationModeValues } from '@ginjou/core'
 import type { Post, PostFormData, PostRawFormData } from './api/posts'
 import { useEdit } from '@ginjou/vue'
 import { reactive, toRef, watch } from 'vue'
-import { useRoute } from 'vue-router'
 import Button from './components/Button.vue'
 import FieldLabel from './components/FieldLabel.vue'
 import Form from './components/Form.vue'
 import Input from './components/Input.vue'
 import JsonOutput from './components/JsonOutput.vue'
+import LocaleBadge from './components/LocaleBadge.vue'
 import PageTitle from './components/PageTitle.vue'
 import Select from './components/Select.vue'
 import Stack from './components/Stack.vue'
 import StoryShell from './components/StoryShell.vue'
-import UrlBadge from './components/UrlBadge.vue'
 
 const props = defineProps<{
 	mutationMode: MutationModeValues
 	redirect?: any
 }>()
 
-const route = useRoute()
 const { record, save } = useEdit<Post, PostFormData>({
 	mutationMode: toRef(props, 'mutationMode'),
 	redirect: toRef(props, 'redirect'),
@@ -40,7 +38,7 @@ async function handleSubmit() {
 <template>
 	<StoryShell>
 		<Stack>
-			<UrlBadge :url="route.fullPath" />
+			<LocaleBadge />
 			<PageTitle>Posts Edit</PageTitle>
 
 			<Form @submit.prevent="handleSubmit">
