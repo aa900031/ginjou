@@ -16,14 +16,16 @@ export function useTranslate<
 	context?: UseTranslateContext,
 ): TranslateFn<TParams> {
 	const i18n = useI18nContext(context)
-	const locale = useLocale()
 	let fn = $state.raw(createTranslateFn({
 		i18n,
 	}))
 
-	watch(() => locale.value, () => {
-		fn = createTranslateFn({ i18n })
-	})
+	if (i18n) {
+		const locale = useLocale()
+		watch(() => locale.value, () => {
+			fn = createTranslateFn({ i18n })
+		})
+	}
 
 	return (
 		(key, params, defaultValue) =>

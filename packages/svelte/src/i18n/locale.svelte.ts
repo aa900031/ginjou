@@ -23,7 +23,7 @@ export function useLocale(): UseLocaleResult {
 	})
 
 	onDestroy(() => {
-		stop?.()
+		stop()
 	})
 
 	return {
