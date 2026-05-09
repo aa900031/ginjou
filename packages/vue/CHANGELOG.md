@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.17
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/vue@0.1.0-beta.16...${npm.name}@0.1.0-beta.17)
+
+### 🚀 Enhancements
+
+-  Svelte (#116) ([a09c9c7](https://github.com/aa900031/ginjou/commit/a09c9c7e201d8864523c40c9d40ac04302856055))
+
+### 🏡 Chore
+
+-  **deps:** Update npm non-major develop dependencies (#108) ([4678ada](https://github.com/aa900031/ginjou/commit/4678ada53357ec1889195093f245b6f64ee298b4))
+-  **deps:** Update npm non-major develop dependencies (#111) ([ea61593](https://github.com/aa900031/ginjou/commit/ea61593ffa84633b507ee0753de45020b8cc03ec))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+- Renovate[bot]
+
 ## v0.1.0-beta.16
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/vue@0.1.0-beta.15...${npm.name}@0.1.0-beta.16)
