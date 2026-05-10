@@ -76,7 +76,7 @@ export function createMutationFn<
 	return async function mutationFn(params) {
 		const { login } = auth ?? {}
 		if (typeof login !== 'function')
-			throw new Error('No') // TODO:
+			throw new Error('[@ginjou/core] Missing auth.login function. Provide an Auth object with a login handler before calling login.')
 
 		const result = await (login as LoginFn<TParams>)(params) ?? {}
 		return result

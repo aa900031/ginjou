@@ -13,7 +13,7 @@ export function useLocale(): Ref<string> {
 		|| !i18n.setLocale
 		|| !i18n.onChangeLocale
 	) {
-		throw new Error('No i18n locale properties')
+		throw new Error('[@ginjou/vue] Cannot read locale because no i18n locale properties were provided.')
 	}
 
 	const [value] = eventRef({

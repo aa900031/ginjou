@@ -13,10 +13,10 @@ describe('createMutationKey', () => {
 describe('createMutationFn', () => {
 	it('should throw an error if auth.logout is not a function', async () => {
 		const mutationFn = createMutationFn({ auth: undefined })
-		await expect(mutationFn({}, createMutationContext())).rejects.toThrow('No')
+		await expect(mutationFn({}, createMutationContext())).rejects.toThrow('Missing auth.logout function')
 
 		const mutationFn2 = createMutationFn({ auth: {} as any })
-		await expect(mutationFn2({}, createMutationContext())).rejects.toThrow('No')
+		await expect(mutationFn2({}, createMutationContext())).rejects.toThrow('Missing auth.logout function')
 	})
 
 	it('should call auth.logout with params and return the result', async () => {

@@ -244,11 +244,11 @@ function parseFromRegExp(
 		case ResourceAction.Type.Show: {
 			const index = keys.indexOf('id')
 			if (index < 0)
-				throw new Error('No') // TODO:
+				throw new Error(`[@ginjou/core] Cannot parse '${action}' resource route because the path pattern does not include an ':id' parameter.`)
 
 			const id = matched[index + 1]
 			if (id == null)
-				throw new Error('No') // TODO:
+				throw new Error(`[@ginjou/core] Cannot parse '${action}' resource route because the matched ':id' parameter is missing from path '${location.path}'.`)
 
 			return {
 				action,
@@ -256,7 +256,7 @@ function parseFromRegExp(
 			}
 		}
 		default:
-			throw new Error('No') // TODO:
+			throw new Error(`[@ginjou/core] Unsupported resource action while parsing route: ${String(action)}`)
 	}
 }
 

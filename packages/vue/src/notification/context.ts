@@ -38,6 +38,6 @@ export function useNotificationContext(
 ): Notification | undefined {
 	const value = injectLocal(KEY, undefined) ?? props?.notification
 	if (props?.strict === true && value == null)
-		throw new Error('No') // TODO:
+		throw new Error('[@ginjou/vue] No notification context found. Use defineNotificationContext() at app setup or pass notification through context props.')
 	return value
 }

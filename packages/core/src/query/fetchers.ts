@@ -26,12 +26,12 @@ export function getFetcher(
 	fetchers: Fetchers | undefined,
 ): Fetcher {
 	if (!fetchers)
-		throw new Error('Data Provider not exists!')
+		throw new Error('[@ginjou/core] No fetchers are registered. Provide fetchers before running a query or mutation.')
 
 	// TODO: remove default values
 	const target = fetchers[props.fetcherName]
 	if (!target)
-		throw new Error(`Data Provider (${props.fetcherName}) not exists!`)
+		throw new Error(`[@ginjou/core] Fetcher '${props.fetcherName}' is not registered. Check meta.fetcherName or defineFetchersContext().`)
 
 	return target
 }
@@ -46,7 +46,7 @@ export function getFetcherFn<
 	const fetcher = getFetcher(props, fetchers)
 	const fn = fetcher[name]
 	if (!fn || typeof fn !== 'function')
-		throw new Error(`Fetcher function: ${name} not exists`)
+		throw new Error(`[@ginjou/core] Fetcher '${props.fetcherName}' does not implement required function '${String(name)}'.`)
 	return fn
 }
 

@@ -38,6 +38,6 @@ export function useControllerContext(
 ): Controller | undefined {
 	const value = injectLocal(KEY, undefined) ?? props?.controller
 	if (props?.strict === true && value == null)
-		throw new Error('No') // TODO:
+		throw new Error('[@ginjou/vue] No controller context found. Use defineControllerContext() at app setup or pass controller through context props.')
 	return value
 }

@@ -104,7 +104,7 @@ export function createSaveFn<
 		const isPessimistic = mutationMode == null || mutationMode === MutationMode.Pessimistic
 		const id = getId() ?? params.id
 		if (id == null)
-			throw new Error('No') // TODO:
+			throw new Error('[@ginjou/core] Cannot save edit mutation without an id. Pass an id prop or include id in the mutation params.')
 
 		if (!isPessimistic) {
 			setTimeout(() => {

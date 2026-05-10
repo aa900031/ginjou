@@ -76,7 +76,7 @@ export function createMutationFn<
 	return async function mutationFn(params) {
 		const { logout } = auth ?? {}
 		if (typeof logout !== 'function')
-			throw new Error('No') // TODO:
+			throw new Error('[@ginjou/core] Missing auth.logout function. Provide an Auth object with a logout handler before calling logout.')
 
 		const result = await (logout as LogoutFn<TParams>)(params) ?? {}
 		return result

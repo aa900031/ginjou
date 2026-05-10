@@ -11,7 +11,7 @@ export function useContextValue<T>(key: symbol, value?: T): T | undefined {
 
 export function requireContext<T>(value: T | undefined, name: string): T {
 	if (value == null)
-		throw new Error(`No '${name}' found in context.`)
+		throw new Error(`[@ginjou/svelte] No '${name}' found in context.`)
 
 	return value
 }

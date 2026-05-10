@@ -38,6 +38,6 @@ export function useFetchersContext(
 ): Fetchers | undefined {
 	const value = injectLocal(KEY, undefined) ?? props?.fetchers
 	if (props?.strict === true && value == null)
-		throw new Error('No') // TODO:
+		throw new Error('[@ginjou/vue] No fetchers context found. Use defineFetchersContext() at app setup or pass fetchers through context props.')
 	return value
 }

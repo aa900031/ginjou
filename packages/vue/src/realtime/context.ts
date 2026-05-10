@@ -38,6 +38,6 @@ export function useRealtimeContext(
 ): Realtime | undefined {
 	const value = injectLocal(KEY, undefined) ?? props?.realtime
 	if (props?.strict === true && value == null)
-		throw new Error('No') // TODO:
+		throw new Error('[@ginjou/vue] No realtime context found. Use defineRealtimeContext() at app setup or pass realtime through context props.')
 	return value
 }

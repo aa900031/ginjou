@@ -323,7 +323,7 @@ function resolveProps<
 	}
 	const { url, method } = props
 	if (url == null || method == null)
-		throw new Error('No') // TODO:
+		throw new Error('[@ginjou/core] Cannot run custom mutation without required props: url and method.')
 
 	return {
 		...props,

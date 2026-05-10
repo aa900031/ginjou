@@ -324,7 +324,7 @@ function resolveProps<
 	}
 	const { resource, params } = props
 	if (resource == null || params == null)
-		throw new Error('No') // TODO:
+		throw new Error('[@ginjou/core] Cannot create many records without required mutation props: resource and params.')
 
 	return {
 		...props,

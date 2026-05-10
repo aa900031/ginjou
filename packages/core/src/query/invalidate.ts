@@ -235,7 +235,7 @@ export async function triggerInvalidate<
 		case InvalidateTarget.Many: {
 			const { resource, ids } = props
 			if (resource == null)
-				throw new Error('`resource` is required')
+				throw new Error('[@ginjou/core] `resource` is required to invalidate many queries.')
 
 			await Promise.all([
 				queryClient.invalidateQueries(
@@ -271,7 +271,7 @@ export async function triggerInvalidate<
 		case InvalidateTarget.Resource: {
 			const { resource, fetcherName } = props
 			if (resource == null)
-				throw new Error('`resource` is required')
+				throw new Error('[@ginjou/core] `resource` is required to invalidate resource queries.')
 
 			await queryClient.invalidateQueries(
 				{
@@ -288,7 +288,7 @@ export async function triggerInvalidate<
 		case InvalidateTarget.One: {
 			const { resource, ...rest } = props
 			if (resource == null)
-				throw new Error('`resource` is required')
+				throw new Error('[@ginjou/core] `resource` is required to invalidate one query.')
 
 			if ('id' in rest && rest.id != null) {
 				const ids = new Set([

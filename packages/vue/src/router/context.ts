@@ -38,6 +38,6 @@ export function useRouterContext(
 ): Router | undefined {
 	const value = injectLocal(KEY, undefined) ?? props?.router
 	if (props?.strict === true && value == null)
-		throw new Error('No') // TODO:
+		throw new Error('[@ginjou/vue] No router context found. Use defineRouterContext() at app setup or pass router through context props.')
 	return value
 }

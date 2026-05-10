@@ -38,6 +38,6 @@ export function useAuthContext(
 ): Auth | undefined {
 	const value = injectLocal(KEY, undefined) ?? props?.auth
 	if (props?.strict === true && value == null)
-		throw new Error('No') // TODO:
+		throw new Error('[@ginjou/vue] No auth context found. Use defineAuthContext() at app setup or pass auth through context props.')
 	return value
 }

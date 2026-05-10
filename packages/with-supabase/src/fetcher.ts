@@ -238,7 +238,7 @@ function applyFilters(
 				break
 			}
 			case 'and':
-				throw new Error('Operator \'and\' is not supported')
+				throw new Error('[@ginjou/with-supabase] Filter operator \'and\' is not supported.')
 			default:
 				query.filter(
 					filter.field,
@@ -272,7 +272,7 @@ function getOperator(
 			return 'not.is'
 		case 'between':
 		case 'nbetween':
-			throw new Error(`Operator ${operator} is not supported`)
+			throw new Error(`[@ginjou/with-supabase] Filter operator '${operator}' is not supported.`)
 		default:
 			return operator
 	}

@@ -494,7 +494,7 @@ function resolveProps<
 	}
 	const { resource, id, params } = props
 	if (resource == null || id == null || params == null)
-		throw new Error('No') // TODO:
+		throw new Error('[@ginjou/core] Cannot update record without required mutation props: resource, id, and params.')
 
 	return {
 		...props,

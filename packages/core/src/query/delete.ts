@@ -499,7 +499,7 @@ function resolveProps<
 	}
 	const { resource, id } = props
 	if (resource == null || id == null)
-		throw new Error('No') // TODO:
+		throw new Error('[@ginjou/core] Cannot delete record without required mutation props: resource and id.')
 
 	return {
 		...props,
