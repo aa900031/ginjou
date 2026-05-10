@@ -1,12 +1,12 @@
 import type { BaseRecord } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
 import type { UseGetListContext, UseGetListResult, UseGetManyContext } from '../query'
-import type { UseResourceContext } from '../resource'
 import type { MaybeAccessor } from '../utils'
-import { getFetcherName, getResourceIdentifier, Select } from '@ginjou/core'
+import type { UseResourceContext } from './resource.svelte'
+import { Resource, Select } from '@ginjou/core'
 import { useGetList, useGetMany } from '../query'
-import { useResource } from '../resource'
 import { extract, stateSub, withAccessors } from '../utils'
+import { useResource } from './resource.svelte'
 
 export type UseSelectProps<
 	TData extends BaseRecord,
@@ -60,11 +60,11 @@ export function useSelect<
 		Select.getPropPerPage,
 	)
 
-	const resourceName = $derived.by(() => getResourceIdentifier({
+	const resourceName = $derived.by(() => Resource.getName({
 		resource: resource.value,
 		resourceFromProp: resolvedProps?.resource,
 	}))
-	const fetcherName = $derived.by(() => getFetcherName({
+	const fetcherName = $derived.by(() => Resource.getFetcherName({
 		resource: resource.value,
 		fetcherNameFromProp: resolvedProps?.fetcherName,
 	}))

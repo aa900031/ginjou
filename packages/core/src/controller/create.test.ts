@@ -1,8 +1,8 @@
 import type { BaseRecord, CreateResult } from '../query'
 import type { Navigate } from '../router'
 import { describe, expect, it, vi } from 'vitest'
-import { ResourceActionType } from '../resource'
 import { createSaveFn, getIsLoading } from './create'
+import * as ResourceAction from './resource-action'
 
 describe('create controller', () => {
 	describe('getIsLoading', () => {
@@ -91,14 +91,14 @@ describe('create controller', () => {
 			expect(navigateTo).toHaveBeenCalledOnce()
 			expect(navigateTo).toHaveBeenCalledWith({
 				resource: 'posts',
-				action: ResourceActionType.List,
+				action: ResourceAction.Type.List,
 			})
 		})
 
 		it('should call navigateTo with create action when redirect is create', async () => {
 			const navigateTo = vi.fn()
 			const getResourceName = vi.fn(() => 'posts')
-			const getRedirect = vi.fn(() => ResourceActionType.Create)
+			const getRedirect = vi.fn(() => ResourceAction.Type.Create)
 			const mockData: CreateResult<BaseRecord> = {
 				data: { id: 1, title: 'Test' },
 			}
@@ -119,14 +119,14 @@ describe('create controller', () => {
 			expect(navigateTo).toHaveBeenCalledOnce()
 			expect(navigateTo).toHaveBeenCalledWith({
 				resource: 'posts',
-				action: ResourceActionType.Create,
+				action: ResourceAction.Type.Create,
 			})
 		})
 
 		it('should call navigateTo with edit action when redirect is edit', async () => {
 			const navigateTo = vi.fn()
 			const getResourceName = vi.fn(() => 'posts')
-			const getRedirect = vi.fn(() => ResourceActionType.Edit)
+			const getRedirect = vi.fn(() => ResourceAction.Type.Edit)
 			const mockData: CreateResult<BaseRecord> = {
 				data: { id: 1, title: 'Test' },
 			}
@@ -147,7 +147,7 @@ describe('create controller', () => {
 			expect(navigateTo).toHaveBeenCalledOnce()
 			expect(navigateTo).toHaveBeenCalledWith({
 				resource: 'posts',
-				action: ResourceActionType.Edit,
+				action: ResourceAction.Type.Edit,
 				id: 1,
 			})
 		})
@@ -155,7 +155,7 @@ describe('create controller', () => {
 		it('should call navigateTo with show action when redirect is show', async () => {
 			const navigateTo = vi.fn()
 			const getResourceName = vi.fn(() => 'posts')
-			const getRedirect = vi.fn(() => ResourceActionType.Show)
+			const getRedirect = vi.fn(() => ResourceAction.Type.Show)
 			const mockData: CreateResult<BaseRecord> = {
 				data: { id: 1, title: 'Test' },
 			}
@@ -176,7 +176,7 @@ describe('create controller', () => {
 			expect(navigateTo).toHaveBeenCalledOnce()
 			expect(navigateTo).toHaveBeenCalledWith({
 				resource: 'posts',
-				action: ResourceActionType.Show,
+				action: ResourceAction.Type.Show,
 				id: 1,
 			})
 		})
@@ -212,7 +212,7 @@ describe('create controller', () => {
 		it('should call redirect function with data', async () => {
 			const navigateTo = vi.fn()
 			const getResourceName = vi.fn(() => 'posts')
-			const redirectFn = vi.fn(() => ResourceActionType.List)
+			const redirectFn = vi.fn(() => ResourceAction.Type.List)
 			const getRedirect = vi.fn(() => redirectFn)
 			const mockData: CreateResult<BaseRecord> = {
 				data: { id: 1, title: 'Test' },
@@ -239,7 +239,7 @@ describe('create controller', () => {
 			const navigateTo = vi.fn()
 			const getResourceName = vi.fn(() => 'posts')
 			const redirectFn = vi.fn((data: CreateResult<BaseRecord>) => {
-				return data.data.id ? ResourceActionType.Edit : ResourceActionType.List
+				return data.data.id ? ResourceAction.Type.Edit : ResourceAction.Type.List
 			})
 			const getRedirect = vi.fn(() => redirectFn)
 			const mockData: CreateResult<BaseRecord> = {
@@ -261,7 +261,7 @@ describe('create controller', () => {
 
 			expect(navigateTo).toHaveBeenCalledWith({
 				resource: 'posts',
-				action: ResourceActionType.Edit,
+				action: ResourceAction.Type.Edit,
 				id: 1,
 			})
 		})
@@ -290,7 +290,7 @@ describe('create controller', () => {
 			expect(navigateTo).toHaveBeenCalledOnce()
 			expect(navigateTo).toHaveBeenCalledWith({
 				resource: undefined,
-				action: ResourceActionType.List,
+				action: ResourceAction.Type.List,
 			})
 		})
 
@@ -364,7 +364,7 @@ describe('create controller', () => {
 		it('should handle data without id field for list/create redirects', async () => {
 			const navigateTo = vi.fn()
 			const getResourceName = vi.fn(() => 'posts')
-			const getRedirect = vi.fn(() => ResourceActionType.List)
+			const getRedirect = vi.fn(() => ResourceAction.Type.List)
 			const mockData: CreateResult<BaseRecord> = {
 				data: { title: 'Test' }, // No id
 			}
@@ -384,7 +384,7 @@ describe('create controller', () => {
 
 			expect(navigateTo).toHaveBeenCalledWith({
 				resource: 'posts',
-				action: ResourceActionType.List,
+				action: ResourceAction.Type.List,
 			})
 		})
 

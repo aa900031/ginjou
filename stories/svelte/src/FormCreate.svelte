@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ResourceActionType } from '@ginjou/core'
+	import { ResourceAction } from '@ginjou/core'
 	import { wrap } from 'svelte-spa-router/wrap'
 	import StoryShell from './components/StoryShell.svelte'
 	import FormCreateContent, { type FormRedirect } from './views/FormCreateContent.svelte'
@@ -7,7 +7,7 @@
 	import PostShow from './views/PostShow.svelte'
 	import PostEdit from './views/PostEdit.svelte'
 
-	const { redirect = ResourceActionType.List }: {
+	const { redirect = ResourceAction.Type.List }: {
 		redirect: FormRedirect
 	} = $props()
 

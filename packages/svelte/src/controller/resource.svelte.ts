@@ -1,12 +1,11 @@
-import type { ResolvedResource } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
 import type { UseLocationContext } from '../router'
 import type { MaybeAccessor } from '../utils'
-import type { UseResourceContextFromProps } from './context'
-import { resolveResource } from '@ginjou/core'
+import type { UseControllerContextFromProps } from './context'
+import { Resource } from '@ginjou/core'
 import { useLocation } from '../router'
 import { extract } from '../utils'
-import { useResourceContext } from './context'
+import { useControllerContext } from './context'
 
 export type UseResourceProps = MaybeAccessor<
 	| {
@@ -16,24 +15,24 @@ export type UseResourceProps = MaybeAccessor<
 >
 
 export type UseResourceContext = Simplify<
-	& UseResourceContextFromProps
+	& UseControllerContextFromProps
 	& UseLocationContext
 >
 
 export interface UseResourceResult {
-	readonly value: ResolvedResource | undefined
+	readonly value: Resource.Resolved | undefined
 }
 
 export function useResource(
 	props?: UseResourceProps,
 	context?: UseResourceContext,
 ): UseResourceResult {
-	const resource = useResourceContext(context)
+	const controller = useControllerContext(context)
 	const location = useLocation(context)
 	const resolvedProps = $derived(extract(props))
 
-	const value = $derived.by(() => resolveResource(
-		resource,
+	const value = $derived.by(() => Resource.resolve(
+		controller,
 		{
 			name: resolvedProps?.name,
 			location: location.value,

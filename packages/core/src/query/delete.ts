@@ -1,8 +1,8 @@
 import type { MutationObserverOptions, QueryClient } from '@tanstack/query-core'
 import type { OverrideProperties, SetReturnType, Simplify } from 'type-fest'
 import type { CheckError } from '../auth'
-import type { TranslateFn } from '../i18n'
-import type { NotifyFn } from '../notification'
+import type { Translate } from '../i18n'
+import type { Notify } from '../notification'
 import type { Publish } from '../realtime'
 import type { BaseRecord, DeleteOneFn, DeleteOneProps, DeleteOneResult, Params } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
@@ -116,8 +116,8 @@ export interface CreateMutationFnProps<
 	TParams extends Params,
 > {
 	fetchers: Fetchers
-	notify: NotifyFn
-	translate: TranslateFn<any>
+	notify: Notify.Fn
+	translate: Translate.Fn<any>
 	getProps: () => Props<TData, TError, TParams> | undefined
 }
 
@@ -170,8 +170,8 @@ export interface CreateMutateHandlerProps<
 	TParams extends Params,
 > {
 	queryClient: QueryClient
-	notify: NotifyFn
-	translate: TranslateFn<any>
+	notify: Notify.Fn
+	translate: Translate.Fn<any>
 	getProps: () => Props<TData, TError, TParams> | undefined
 	onMutate: SetReturnType<
 		NonNullable<MutationOptions<TData, TError, TParams>['onMutate']>,
@@ -289,8 +289,8 @@ export interface CreateSuccessHandlerProps<
 	TError,
 	TParams extends Params,
 > {
-	notify: NotifyFn
-	translate: TranslateFn<any>
+	notify: Notify.Fn
+	translate: Translate.Fn<any>
 	publish: Publish.EmitFn<PublishPayload>
 	queryClient: QueryClient
 	getProps: () => Props<TData, TError, TParams> | undefined
@@ -345,8 +345,8 @@ export interface CreateErrorHandlerProps<
 	TParams extends Params,
 > {
 	queryClient: QueryClient
-	notify: NotifyFn
-	translate: TranslateFn<any>
+	notify: Notify.Fn
+	translate: Translate.Fn<any>
 	checkError: CheckError.MutateAsyncFn<TError, unknown>
 	getProps: () => Props<TData, TError, TParams> | undefined
 	onError: MutationOptions<TData, TError, TParams>['onError']
@@ -537,8 +537,8 @@ function updateCache<
 function dispatchSuccessNotify<
 	TData extends BaseRecord,
 >(
-	notify: NotifyFn,
-	translate: TranslateFn<any>,
+	notify: Notify.Fn,
+	translate: Translate.Fn<any>,
 	data: DeleteOneResult<TData>,
 	resolvedProps: ResolvedMutationProps<any, any, any>,
 ): void {

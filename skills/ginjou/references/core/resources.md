@@ -32,7 +32,7 @@ const resources = [
 				if (!matched)
 					return
 				return {
-					action: ResourceActionType.Show,
+					action: ResourceAction.Type.Show,
 					id: matched[1],
 				}
 			},

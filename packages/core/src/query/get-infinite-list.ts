@@ -2,8 +2,8 @@ import type { GetNextPageParamFunction, GetPreviousPageParamFunction, InfiniteDa
 import type { QueryCallbacks } from 'tanstack-query-callbacks'
 import type { SetOptional, SetRequired, Simplify } from 'type-fest'
 import type { CheckError } from '../auth'
-import type { TranslateFn } from '../i18n'
-import type { NotifyFn } from '../notification'
+import type { Translate } from '../i18n'
+import type { Notify } from '../notification'
 import type { QueryEnabledFn } from '../utils/query'
 import type { BaseRecord, GetInfiniteListResult, GetListFn, GetListProps, GetOneResult, Pagination } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
@@ -245,7 +245,7 @@ export interface CreateSuccessHandlerProps<
 	TResultData extends BaseRecord,
 	TPageParam,
 > {
-	notify: NotifyFn
+	notify: Notify.Fn
 	getProps: () => ResolvedQueryProps<TPageParam>
 	getSuccessNotify: () => NotifyProps<InfiniteData<GetInfiniteListResult<TResultData, TPageParam>>, ResolvedQueryProps<TPageParam>, unknown>['successNotify']
 	emitParent: NonNullable<QueryOptions<any, unknown, TResultData, TPageParam>['onSuccess']>
@@ -279,8 +279,8 @@ export interface CreateErrorHandlerProps<
 	TError,
 	TPageParam,
 > {
-	notify: NotifyFn
-	translate: TranslateFn<any>
+	notify: Notify.Fn
+	translate: Translate.Fn<any>
 	getProps: () => ResolvedQueryProps<TPageParam>
 	getErrorNotify: () => NotifyProps<any, ResolvedQueryProps<TPageParam>, TError>['errorNotify']
 	checkError: CheckError.MutateAsyncFn<TError, unknown>

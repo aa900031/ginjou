@@ -2,13 +2,13 @@ import type { BaseRecord, Pagination } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
 import type { ComputedRef, Ref } from 'vue-demi'
 import type { UseGetListContext, UseGetListResult, UseGetManyContext } from '../query'
-import type { UseResourceContext } from '../resource'
 import type { ToMaybeRefs } from '../utils/refs'
-import { getFetcherName, getResourceIdentifier, Select } from '@ginjou/core'
+import type { UseResourceContext } from './resource'
+import { Resource, Select } from '@ginjou/core'
 import { computed, ref, unref } from 'vue-demi'
 import { useGetList, useGetMany } from '../query'
-import { useResource } from '../resource'
 import { refSub } from '../utils/ref-sub'
+import { useResource } from './resource'
 
 export type UseSelectProps<
 	TData extends BaseRecord,
@@ -59,11 +59,11 @@ export function useSelect<
 		Select.getPropPerPage,
 	)
 
-	const resourceName = computed(() => getResourceIdentifier({
+	const resourceName = computed(() => Resource.getName({
 		resource: unref(resource),
 		resourceFromProp: unref(props?.resource),
 	}))
-	const fetcherName = computed(() => getFetcherName({
+	const fetcherName = computed(() => Resource.getFetcherName({
 		resource: unref(resource),
 		fetcherNameFromProp: unref(props?.fetcherName),
 	}))

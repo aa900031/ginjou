@@ -5,12 +5,12 @@ import type {
 	MutateAsyncFn as UpdateMutateFn,
 	Props as UpdateProps,
 } from '../query/update'
-import type { ResolvedResource } from '../resource'
 import type { Navigate } from '../router'
 import type { RedirectOptions } from './redirect-to'
+import type * as Resource from './resource'
 import { MutationMode } from '../query'
-import { ResourceActionType } from '../resource'
 import { redirectTo } from './redirect-to'
+import * as ResourceAction from './resource-action'
 
 export type Props<
 	TQueryData extends BaseRecord,
@@ -34,7 +34,7 @@ export type Props<
 >
 
 export interface GetIdProps {
-	resource: ResolvedResource | undefined
+	resource: Resource.Resolved | undefined
 	idFromProp: RecordKey | undefined
 }
 
@@ -106,7 +106,7 @@ export function createSaveFn<
 		if (!isPessimistic) {
 			setTimeout(() => {
 				redirectTo({
-					redirect: getRedirect() ?? ResourceActionType.Show,
+					redirect: getRedirect() ?? ResourceAction.Type.Show,
 					resource: getResourceName(),
 					id: getId(),
 					data: {
@@ -127,7 +127,7 @@ export function createSaveFn<
 			onSuccess: (data) => {
 				if (isPessimistic) {
 					redirectTo({
-						redirect: getRedirect() ?? ResourceActionType.Show,
+						redirect: getRedirect() ?? ResourceAction.Type.Show,
 						resource: getResourceName(),
 						id: data.data.id,
 						data,

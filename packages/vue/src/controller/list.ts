@@ -2,17 +2,17 @@ import type { BaseRecord, Filters, Sorters } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
 import type { Ref } from 'vue-demi'
 import type { UseGetListContext, UseGetListResult } from '../query'
-import type { UseResourceContext } from '../resource'
 import type { UseGoContext, UseLocationContext } from '../router'
 import type { ToMaybeRefs } from '../utils/refs'
-import { getFetcherName, getResourceIdentifier, List } from '@ginjou/core'
+import type { UseResourceContext } from './resource'
+import { List, Resource } from '@ginjou/core'
 import { watchDebounced } from '@vueuse/shared'
 import { computed, unref, watch } from 'vue-demi'
 import { useGetList } from '../query'
-import { useResource } from '../resource'
 import { useGo, useLocation } from '../router'
 import { refFallback } from '../utils/ref-fallback'
 import { refSub } from '../utils/ref-sub'
+import { useResource } from './resource'
 
 export type UseListProps<
 	TData extends BaseRecord,
@@ -133,11 +133,11 @@ export function useList<
 		List.getLocationSorters,
 	)
 
-	const resourceName = computed(() => getResourceIdentifier({
+	const resourceName = computed(() => Resource.getName({
 		resource: unref(resource),
 		resourceFromProp: unref(props?.resource),
 	}))
-	const fetcherName = computed(() => getFetcherName({
+	const fetcherName = computed(() => Resource.getFetcherName({
 		resource: unref(resource),
 		fetcherNameFromProp: unref(props?.fetcherName),
 	}))

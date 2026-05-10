@@ -1,7 +1,7 @@
 import type { Params } from '../query'
 import type { I18n } from './i18n'
 
-export interface TranslateFn<
+export interface Fn<
 	TParams,
 > {
 	(
@@ -15,17 +15,17 @@ export interface TranslateFn<
 	): string
 }
 
-export interface CreateTranslateFnProps {
+export interface CreateFnProps {
 	i18n?: I18n
 }
 
-export function createTranslateFn<
+export function createFn<
 	TParams extends Params,
 >(
 	{
 		i18n,
-	}: CreateTranslateFnProps,
-): TranslateFn<TParams> {
+	}: CreateFnProps,
+): Fn<TParams> {
 	if (!i18n)
 		return safeTranslateFn
 

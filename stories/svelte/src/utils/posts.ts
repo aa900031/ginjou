@@ -1,4 +1,4 @@
-import type { ResourceDefinition } from '@ginjou/core'
+import type { Resource } from '@ginjou/core'
 import type { HttpHandler } from 'msw'
 import type { Post } from '../api/posts'
 import { Collection } from '@msw/data'
@@ -18,7 +18,7 @@ export const postResources = [
 		show: '/posts/:id',
 		edit: '/posts/:id/edit',
 	},
-] satisfies ResourceDefinition[]
+] satisfies Resource.Raw[]
 
 export function createPostHandlers(): HttpHandler[] {
 	const posts = new Collection({

@@ -1,17 +1,16 @@
 import type { RecordKey } from '../query'
-import type { ResourceActionTypeValues } from '../resource'
 import type { Navigate } from '../router'
-import { ResourceActionType } from '../resource'
+import * as ResourceAction from './resource-action'
 
 export type RedirectOptions<
 	TData,
 >
 	= | Navigate.ToProps
-		| ResourceActionTypeValues
+		| ResourceAction.TypeValues
 		| (
 			(data: TData) =>
 				| Navigate.ToProps
-				| ResourceActionTypeValues
+				| ResourceAction.TypeValues
 		)
 
 export interface RedirectToProps<
@@ -40,14 +39,14 @@ export function redirectTo<
 		: redirect
 
 	switch (params) {
-		case ResourceActionType.List:
-		case ResourceActionType.Create:
+		case ResourceAction.Type.List:
+		case ResourceAction.Type.Create:
 			return navigateTo({
 				resource,
 				action: params,
 			})
-		case ResourceActionType.Edit:
-		case ResourceActionType.Show:
+		case ResourceAction.Type.Edit:
+		case ResourceAction.Type.Show:
 			if (id == null)
 				return
 			return navigateTo({

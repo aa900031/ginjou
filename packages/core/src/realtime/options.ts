@@ -1,16 +1,39 @@
-import type { RealtimeContextOptions, RealtimeOptions, ResolvedRealtimeOptions } from './realtime'
+import type { SetRequired, Simplify } from 'type-fest'
+import type { RealtimeModeValue } from './mode'
+import type { SubscribeCallbackFn } from './realtime'
 import { RealtimeMode } from './mode'
 
-export type Props<
+export interface Input<
 	TPayload,
-> = RealtimeOptions<TPayload>
+> {
+	mode?: RealtimeModeValue
+	callback?: SubscribeCallbackFn<TPayload>
+	channel?: string
+	params?: Record<string, unknown>
+}
 
-export function mergeOptions<
+export type Context<
+	TPayload,
+> = Simplify<
+	& Omit<
+		Input<TPayload>,
+		| 'channel'
+	>
+>
+
+export type Normalized<
+	TPayload,
+> = SetRequired<
+	Input<TPayload>,
+	| 'mode'
+>
+
+export function merge<
 	TPayload,
 >(
-	options: RealtimeOptions<TPayload> | undefined,
-	contextOptions: RealtimeContextOptions<TPayload> | undefined,
-): ResolvedRealtimeOptions<TPayload> {
+	options: Input<TPayload> | undefined,
+	contextOptions: Context<TPayload> | undefined,
+): Normalized<TPayload> {
 	return {
 		mode: options?.mode ?? contextOptions?.mode ?? RealtimeMode.Auto,
 		callback: (event) => {

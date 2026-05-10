@@ -1,14 +1,14 @@
 import type { BaseRecord, Params } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
 import type { UseCreateOneContext, UseCreateOneResult } from '../query'
-import type { UseResourceContext } from '../resource'
 import type { UseGoContext, UseNavigateToContext } from '../router'
 import type { MaybeAccessor } from '../utils'
-import { Create, getFetcherName, getResourceIdentifier } from '@ginjou/core'
+import type { UseResourceContext } from './resource.svelte'
+import { Create, Resource } from '@ginjou/core'
 import { useCreateOne } from '../query'
-import { useResource } from '../resource'
 import { useNavigateTo } from '../router'
 import { extract, withAccessors } from '../utils'
+import { useResource } from './resource.svelte'
 
 export type UseCreateProps<
 	TMutationData extends BaseRecord,
@@ -50,11 +50,11 @@ export function useCreate<
 	const resource = useResource(() => ({ name: resolvedProps?.resource }), context)
 	const navigateTo = useNavigateTo(() => ({ resource: resolvedProps?.resource }), context)
 
-	const fetcherName = $derived.by(() => getFetcherName({
+	const fetcherName = $derived.by(() => Resource.getFetcherName({
 		resource: resource.value,
 		fetcherNameFromProp: resolvedProps?.fetcherName,
 	}))
-	const resourceName = $derived.by(() => getResourceIdentifier({
+	const resourceName = $derived.by(() => Resource.getName({
 		resource: resource.value,
 		resourceFromProp: resolvedProps?.resource,
 	}))

@@ -1,7 +1,7 @@
-import { defineResourceContext } from '@ginjou/vue'
+import { defineControllerContext } from '@ginjou/vue'
 
 // eslint-disable-next-line ts/explicit-function-return-type
-export default () => defineResourceContext({
+export default () => defineControllerContext({
 	resources: [
 		{
 			name: 'posts',

@@ -1,6 +1,6 @@
-import type { Resource } from '../resource'
+import type { Controller } from '../controller'
 import { describe, expect, it, vi } from 'vitest'
-import { ResourceActionType } from '../resource'
+import { ResourceAction } from '../controller'
 import { createToFn } from './navigate'
 
 describe('navigate', () => {
@@ -13,7 +13,7 @@ describe('navigate', () => {
 			const navigateTo = createToFn({
 				go,
 				getResourceFromProp,
-				resource,
+				controller: resource,
 			})
 
 			expect(navigateTo).toBeTypeOf('function')
@@ -27,7 +27,7 @@ describe('navigate', () => {
 			const navigateTo = createToFn({
 				go,
 				getResourceFromProp,
-				resource,
+				controller: resource,
 			})
 
 			navigateTo(false)
@@ -43,7 +43,7 @@ describe('navigate', () => {
 			const navigateTo = createToFn({
 				go,
 				getResourceFromProp,
-				resource,
+				controller: resource,
 			})
 
 			navigateTo(null as any)
@@ -59,7 +59,7 @@ describe('navigate', () => {
 			const navigateTo = createToFn({
 				go,
 				getResourceFromProp,
-				resource,
+				controller: resource,
 			})
 
 			navigateTo(undefined as any)
@@ -75,7 +75,7 @@ describe('navigate', () => {
 			const navigateTo = createToFn({
 				go,
 				getResourceFromProp,
-				resource,
+				controller: resource,
 			})
 
 			const goParams = { to: '/custom/path' }
@@ -89,7 +89,7 @@ describe('navigate', () => {
 			it('should navigate to list action', () => {
 				const go = vi.fn()
 				const getResourceFromProp = vi.fn(() => 'posts')
-				const resource: Resource = {
+				const resource: Controller = {
 					resources: [
 						{
 							name: 'posts',
@@ -101,11 +101,11 @@ describe('navigate', () => {
 				const navigateTo = createToFn({
 					go,
 					getResourceFromProp,
-					resource,
+					controller: resource,
 				})
 
 				navigateTo({
-					action: ResourceActionType.List,
+					action: ResourceAction.Type.List,
 				})
 
 				expect(go).toHaveBeenCalledOnce()
@@ -117,7 +117,7 @@ describe('navigate', () => {
 			it('should use resource from prop when provided', () => {
 				const go = vi.fn()
 				const getResourceFromProp = vi.fn(() => 'comments')
-				const resource: Resource = {
+				const resource: Controller = {
 					resources: [
 						{
 							name: 'posts',
@@ -137,12 +137,12 @@ describe('navigate', () => {
 				const navigateTo = createToFn({
 					go,
 					getResourceFromProp,
-					resource,
+					controller: resource,
 				})
 
 				navigateTo({
 					resource: 'comments',
-					action: ResourceActionType.List,
+					action: ResourceAction.Type.List,
 				})
 
 				expect(go).toHaveBeenCalledOnce()
@@ -151,7 +151,7 @@ describe('navigate', () => {
 			it('should include params in the path', () => {
 				const go = vi.fn()
 				const getResourceFromProp = vi.fn(() => 'posts')
-				const resource: Resource = {
+				const resource: Controller = {
 					resources: [
 						{
 							name: 'posts',
@@ -163,11 +163,11 @@ describe('navigate', () => {
 				const navigateTo = createToFn({
 					go,
 					getResourceFromProp,
-					resource,
+					controller: resource,
 				})
 
 				navigateTo({
-					action: ResourceActionType.List,
+					action: ResourceAction.Type.List,
 					params: { page: 2, filter: 'active' },
 				})
 
@@ -182,11 +182,11 @@ describe('navigate', () => {
 				const navigateTo = createToFn({
 					go,
 					getResourceFromProp,
-					resource,
+					controller: resource,
 				})
 
 				navigateTo({
-					action: ResourceActionType.List,
+					action: ResourceAction.Type.List,
 				})
 
 				expect(go).not.toHaveBeenCalled()
@@ -197,7 +197,7 @@ describe('navigate', () => {
 			it('should navigate to create action', () => {
 				const go = vi.fn()
 				const getResourceFromProp = vi.fn(() => 'posts')
-				const resource: Resource = {
+				const resource: Controller = {
 					resources: [
 						{
 							name: 'posts',
@@ -209,11 +209,11 @@ describe('navigate', () => {
 				const navigateTo = createToFn({
 					go,
 					getResourceFromProp,
-					resource,
+					controller: resource,
 				})
 
 				navigateTo({
-					action: ResourceActionType.Create,
+					action: ResourceAction.Type.Create,
 				})
 
 				expect(go).toHaveBeenCalledOnce()
@@ -225,7 +225,7 @@ describe('navigate', () => {
 			it('should include params in create navigation', () => {
 				const go = vi.fn()
 				const getResourceFromProp = vi.fn(() => 'posts')
-				const resource: Resource = {
+				const resource: Controller = {
 					resources: [
 						{
 							name: 'posts',
@@ -237,11 +237,11 @@ describe('navigate', () => {
 				const navigateTo = createToFn({
 					go,
 					getResourceFromProp,
-					resource,
+					controller: resource,
 				})
 
 				navigateTo({
-					action: ResourceActionType.Create,
+					action: ResourceAction.Type.Create,
 					params: { template: 'default' },
 				})
 
@@ -253,7 +253,7 @@ describe('navigate', () => {
 			it('should navigate to edit action with id', () => {
 				const go = vi.fn()
 				const getResourceFromProp = vi.fn(() => 'posts')
-				const resource: Resource = {
+				const resource: Controller = {
 					resources: [
 						{
 							name: 'posts',
@@ -265,11 +265,11 @@ describe('navigate', () => {
 				const navigateTo = createToFn({
 					go,
 					getResourceFromProp,
-					resource,
+					controller: resource,
 				})
 
 				navigateTo({
-					action: ResourceActionType.Edit,
+					action: ResourceAction.Type.Edit,
 					id: 123,
 				})
 
@@ -279,7 +279,7 @@ describe('navigate', () => {
 			it('should handle string ids', () => {
 				const go = vi.fn()
 				const getResourceFromProp = vi.fn(() => 'posts')
-				const resource: Resource = {
+				const resource: Controller = {
 					resources: [
 						{
 							name: 'posts',
@@ -291,11 +291,11 @@ describe('navigate', () => {
 				const navigateTo = createToFn({
 					go,
 					getResourceFromProp,
-					resource,
+					controller: resource,
 				})
 
 				navigateTo({
-					action: ResourceActionType.Edit,
+					action: ResourceAction.Type.Edit,
 					id: 'abc-123',
 				})
 
@@ -305,7 +305,7 @@ describe('navigate', () => {
 			it('should include id in params for edit', () => {
 				const go = vi.fn()
 				const getResourceFromProp = vi.fn(() => 'posts')
-				const resource: Resource = {
+				const resource: Controller = {
 					resources: [
 						{
 							name: 'posts',
@@ -317,11 +317,11 @@ describe('navigate', () => {
 				const navigateTo = createToFn({
 					go,
 					getResourceFromProp,
-					resource,
+					controller: resource,
 				})
 
 				navigateTo({
-					action: ResourceActionType.Edit,
+					action: ResourceAction.Type.Edit,
 					id: 123,
 					params: { view: 'advanced' },
 				})
@@ -337,11 +337,11 @@ describe('navigate', () => {
 				const navigateTo = createToFn({
 					go,
 					getResourceFromProp,
-					resource,
+					controller: resource,
 				})
 
 				navigateTo({
-					action: ResourceActionType.Edit,
+					action: ResourceAction.Type.Edit,
 					id: 123,
 				})
 
@@ -353,7 +353,7 @@ describe('navigate', () => {
 			it('should navigate to show action with id', () => {
 				const go = vi.fn()
 				const getResourceFromProp = vi.fn(() => 'posts')
-				const resource: Resource = {
+				const resource: Controller = {
 					resources: [
 						{
 							name: 'posts',
@@ -365,11 +365,11 @@ describe('navigate', () => {
 				const navigateTo = createToFn({
 					go,
 					getResourceFromProp,
-					resource,
+					controller: resource,
 				})
 
 				navigateTo({
-					action: ResourceActionType.Show,
+					action: ResourceAction.Type.Show,
 					id: 456,
 				})
 
@@ -379,7 +379,7 @@ describe('navigate', () => {
 			it('should handle string ids for show', () => {
 				const go = vi.fn()
 				const getResourceFromProp = vi.fn(() => 'posts')
-				const resource: Resource = {
+				const resource: Controller = {
 					resources: [
 						{
 							name: 'posts',
@@ -391,11 +391,11 @@ describe('navigate', () => {
 				const navigateTo = createToFn({
 					go,
 					getResourceFromProp,
-					resource,
+					controller: resource,
 				})
 
 				navigateTo({
-					action: ResourceActionType.Show,
+					action: ResourceAction.Type.Show,
 					id: 'xyz-789',
 				})
 
@@ -405,7 +405,7 @@ describe('navigate', () => {
 			it('should include id in params for show', () => {
 				const go = vi.fn()
 				const getResourceFromProp = vi.fn(() => 'posts')
-				const resource: Resource = {
+				const resource: Controller = {
 					resources: [
 						{
 							name: 'posts',
@@ -417,11 +417,11 @@ describe('navigate', () => {
 				const navigateTo = createToFn({
 					go,
 					getResourceFromProp,
-					resource,
+					controller: resource,
 				})
 
 				navigateTo({
-					action: ResourceActionType.Show,
+					action: ResourceAction.Type.Show,
 					id: 456,
 					params: { tab: 'comments' },
 				})
@@ -437,11 +437,11 @@ describe('navigate', () => {
 				const navigateTo = createToFn({
 					go,
 					getResourceFromProp,
-					resource,
+					controller: resource,
 				})
 
 				navigateTo({
-					action: ResourceActionType.Show,
+					action: ResourceAction.Type.Show,
 					id: 456,
 				})
 
@@ -452,7 +452,7 @@ describe('navigate', () => {
 		it('should use getResourceFromProp when resource prop is undefined', () => {
 			const go = vi.fn()
 			const getResourceFromProp = vi.fn(() => 'posts')
-			const resource: Resource = {
+			const resource: Controller = {
 				resources: [
 					{
 						name: 'posts',
@@ -464,11 +464,11 @@ describe('navigate', () => {
 			const navigateTo = createToFn({
 				go,
 				getResourceFromProp,
-				resource,
+				controller: resource,
 			})
 
 			navigateTo({
-				action: ResourceActionType.List,
+				action: ResourceAction.Type.List,
 			})
 
 			expect(getResourceFromProp).toHaveBeenCalledOnce()
@@ -477,7 +477,7 @@ describe('navigate', () => {
 		it('should handle complex navigation scenarios', () => {
 			const go = vi.fn()
 			const getResourceFromProp = vi.fn(() => 'posts')
-			const resource: Resource = {
+			const resource: Controller = {
 				resources: [
 					{
 						name: 'posts',
@@ -492,14 +492,14 @@ describe('navigate', () => {
 			const navigateTo = createToFn({
 				go,
 				getResourceFromProp,
-				resource,
+				controller: resource,
 			})
 
 			// Test multiple navigations
-			navigateTo({ action: ResourceActionType.List })
-			navigateTo({ action: ResourceActionType.Create })
-			navigateTo({ action: ResourceActionType.Edit, id: 1 })
-			navigateTo({ action: ResourceActionType.Show, id: 1 })
+			navigateTo({ action: ResourceAction.Type.List })
+			navigateTo({ action: ResourceAction.Type.Create })
+			navigateTo({ action: ResourceAction.Type.Edit, id: 1 })
+			navigateTo({ action: ResourceAction.Type.Show, id: 1 })
 
 			expect(go).toHaveBeenCalledTimes(4)
 		})

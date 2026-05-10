@@ -1,17 +1,17 @@
 import type { QueryClient } from '@tanstack/query-core'
-import type { RealtimeOptions, ResolvedRealtimeOptions, SubscribeCallbackFn } from '../realtime'
+import type { RealtimeOption, SubscribeCallbackFn } from '../realtime'
 import { RealtimeMode } from '../realtime/mode'
 import { InvalidateTarget, triggerInvalidate } from './invalidate'
 
 export interface RealtimeProps<
 	TPayload,
 > {
-	realtime?: RealtimeOptions<TPayload>
+	realtime?: RealtimeOption.Input<TPayload>
 }
 
 export interface GetSubscribeChannelProps {
 	resource: string
-	realtimeOptions: ResolvedRealtimeOptions<any>
+	realtimeOptions: RealtimeOption.Normalized<any>
 }
 
 export function getSubscribeChannel(
@@ -28,7 +28,7 @@ export interface CreateSubscribeCallbackProps<
 	TPayload,
 > {
 	queryClient: QueryClient
-	getRealtimeOptions: () => ResolvedRealtimeOptions<TPayload>
+	getRealtimeOptions: () => RealtimeOption.Normalized<TPayload>
 	getResource: () => string
 	getFetcherName: () => string
 }

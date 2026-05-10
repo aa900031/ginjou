@@ -1,14 +1,14 @@
 import type { BaseRecord, Params } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
 import type { UseGetOneContext, UseGetOneResult, UseUpdateOneContext, UseUpdateOneResult } from '../query'
-import type { UseResourceContext } from '../resource'
 import type { UseGoContext, UseNavigateToContext } from '../router'
 import type { MaybeAccessor } from '../utils'
-import { Edit, getFetcherName, getResourceIdentifier } from '@ginjou/core'
+import type { UseResourceContext } from './resource.svelte'
+import { Edit, Resource } from '@ginjou/core'
 import { useGetOne, useUpdateOne } from '../query'
-import { useResource } from '../resource'
 import { useNavigateTo } from '../router'
 import { extract, withAccessors } from '../utils'
+import { useResource } from './resource.svelte'
 
 export type UseEditProps<
 	TQueryData extends BaseRecord,
@@ -68,11 +68,11 @@ export function useEdit<
 		resource: resource.value,
 		idFromProp: resolvedProps?.id,
 	}))
-	const fetcherName = $derived.by(() => getFetcherName({
+	const fetcherName = $derived.by(() => Resource.getFetcherName({
 		resource: resource.value,
 		fetcherNameFromProp: resolvedProps?.fetcherName,
 	}))
-	const resourceName = $derived.by(() => getResourceIdentifier({
+	const resourceName = $derived.by(() => Resource.getName({
 		resource: resource.value,
 		resourceFromProp: resolvedProps?.resource,
 	}))

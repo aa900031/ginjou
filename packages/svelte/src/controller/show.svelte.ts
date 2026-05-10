@@ -1,12 +1,12 @@
 import type { BaseRecord, RecordKey } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
 import type { UseGetOneContext, UseGetOneResult } from '../query'
-import type { UseResourceContext } from '../resource'
 import type { MaybeAccessor } from '../utils'
-import { getFetcherName, getResourceIdentifier, Show } from '@ginjou/core'
+import type { UseResourceContext } from './resource.svelte'
+import { Resource, Show } from '@ginjou/core'
 import { useGetOne } from '../query'
-import { useResource } from '../resource'
 import { extract, watch, withAccessors } from '../utils'
+import { useResource } from './resource.svelte'
 
 export type UseShowProps<
 	TData extends BaseRecord,
@@ -44,11 +44,11 @@ export function useShow<
 	const resource = useResource(() => ({ name: resolvedProps?.resource }), context)
 	const inferredResource = useResource(undefined, context)
 
-	const resourceName = $derived.by(() => getResourceIdentifier({
+	const resourceName = $derived.by(() => Resource.getName({
 		resource: resource.value,
 		resourceFromProp: resolvedProps?.resource,
 	}))
-	const fetcherName = $derived.by(() => getFetcherName({
+	const fetcherName = $derived.by(() => Resource.getFetcherName({
 		resource: resource.value,
 		fetcherNameFromProp: resolvedProps?.fetcherName,
 	}))

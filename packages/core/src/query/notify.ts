@@ -1,4 +1,4 @@
-import type { TranslateFn } from '../i18n'
+import type { Translate } from '../i18n'
 import type { OpenNotificationParams, ProgressNotificationParams } from '../notification'
 import type { DeferResult } from '../utils/defer'
 import type { BaseRecord, RecordKey } from './fetcher'
@@ -106,7 +106,7 @@ export function createProgressNotifyKey(
 export interface ResolveProgressNotifyParamsProps extends CreateProgressNotifyKeyProps {
 	props: CreateProgressNotifyKeyProps['props'] & { undoableTimeout: number }
 	defer: DeferResult<unknown>
-	translate: TranslateFn<any>
+	translate: Translate.Fn<any>
 }
 
 export function createProgressNotifyParams(

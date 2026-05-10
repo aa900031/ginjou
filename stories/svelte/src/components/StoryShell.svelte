@@ -1,8 +1,8 @@
 <script lang="ts">
 	import type { Snippet } from "svelte"
-	import type { Auth, Authz, I18n, ResourceDefinition } from '@ginjou/core'
+	import type { Auth, Authz, I18n, Resource } from '@ginjou/core'
 	import type { QueryClientConfig } from '@tanstack/svelte-query'
-	import { defineAuthContext, defineAuthzContext, defineFetchersContext, defineI18nContext, defineQueryClientContext, defineResourceContext, defineRouterContext } from '@ginjou/svelte'
+	import { defineAuthContext, defineAuthzContext, defineFetchersContext, defineI18nContext, defineQueryClientContext, defineControllerContext, defineRouterContext } from '@ginjou/svelte'
 	import { createRouter } from '@ginjou/with-svelte-spa-router'
 	import { createFetcher } from '@ginjou/with-rest-api'
 	import Router from 'svelte-spa-router'
@@ -29,7 +29,7 @@
 		},
 		children,
 	}: {
-		resources?: ResourceDefinition[]
+		resources?: Resource.Raw[]
 		routes?: Record<string, any> | undefined
 		initialPath?: string
 		auth?: Auth | boolean | undefined
@@ -45,7 +45,7 @@
 		}),
 	})
 	defineQueryClientContext(queryClientConfig)
-	defineResourceContext({
+	defineControllerContext({
 		resources,
 	})
 

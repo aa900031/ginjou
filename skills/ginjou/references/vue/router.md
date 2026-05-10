@@ -48,13 +48,13 @@ Use `keepQuery` when the next target should inherit the current query string, an
 
 ```vue
 <script setup lang="ts">
-import { ResourceActionType } from '@ginjou/core'
+import { ResourceAction } from '@ginjou/core'
 import { useNavigateTo } from '@ginjou/vue'
 
 const navigateTo = useNavigateTo({ resource: 'posts' })
 
-navigateTo({ action: ResourceActionType.Create })
-navigateTo({ action: ResourceActionType.Show, id: 42 })
+navigateTo({ action: ResourceAction.Type.Create })
+navigateTo({ action: ResourceAction.Type.Show, id: 42 })
 </script>
 ```
 

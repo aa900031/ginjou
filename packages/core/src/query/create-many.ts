@@ -1,8 +1,8 @@
 import type { MutationObserverOptions, QueryClient } from '@tanstack/query-core'
 import type { OverrideProperties, Simplify } from 'type-fest'
 import type { CheckError } from '../auth'
-import type { TranslateFn } from '../i18n'
-import type { NotifyFn } from '../notification'
+import type { Translate } from '../i18n'
+import type { Notify } from '../notification'
 import type { Publish } from '../realtime'
 import type { BaseRecord, CreateManyFn, CreateManyProps, CreateManyResult, CreateOneFn, Params } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
@@ -129,8 +129,8 @@ export interface CreateSuccessHandlerProps<
 	TError,
 	TParams extends Params,
 > {
-	notify: NotifyFn
-	translate: TranslateFn<any>
+	notify: Notify.Fn
+	translate: Translate.Fn<any>
 	publish: Publish.EmitFn<PublishPayload>
 	queryClient: QueryClient
 	getProps: () => Props<TData, TError, TParams> | undefined
@@ -181,8 +181,8 @@ export interface CreateErrorHandlerProps<
 	TError,
 	TParams extends Params,
 > {
-	notify: NotifyFn
-	translate: TranslateFn<any>
+	notify: Notify.Fn
+	translate: Translate.Fn<any>
 	checkError: CheckError.MutateAsyncFn<TError, unknown>
 	getProps: () => Props<TData, TError, TParams> | undefined
 	onError: MutationOptions<TData, TError, TParams>['onError']

@@ -1,5 +1,5 @@
 import type { ArgTypes } from '@storybook/vue3'
-import { ResourceActionType } from '@ginjou/core'
+import { ResourceAction } from '@ginjou/core'
 
 export const argTypes = {
 	redirect: {
@@ -7,18 +7,18 @@ export const argTypes = {
 		control: {
 			type: 'radio',
 			labels: {
-				[`${ResourceActionType.List}`]: 'List',
-				[`${ResourceActionType.Create}`]: 'Create',
-				[`${ResourceActionType.Show}`]: 'Show',
-				[`${ResourceActionType.Edit}`]: 'Edit',
+				[`${ResourceAction.Type.List}`]: 'List',
+				[`${ResourceAction.Type.Create}`]: 'Create',
+				[`${ResourceAction.Type.Show}`]: 'Show',
+				[`${ResourceAction.Type.Edit}`]: 'Edit',
 				false: 'False',
 			},
 		},
 		options: [
-			ResourceActionType.List,
-			ResourceActionType.Create,
-			ResourceActionType.Show,
-			ResourceActionType.Edit,
+			ResourceAction.Type.List,
+			ResourceAction.Type.Create,
+			ResourceAction.Type.Show,
+			ResourceAction.Type.Edit,
 			false,
 		],
 	},

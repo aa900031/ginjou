@@ -1,6 +1,6 @@
 import type { Simplify } from 'type-fest'
 import type { BaseRecord, GetOne, RecordKey } from '../query'
-import type { ResolvedResource } from '../resource'
+import type * as Resource from './resource'
 
 export type Props<
 	TData extends BaseRecord,
@@ -13,8 +13,8 @@ export type Props<
 export interface GetDefaultIdProps {
 	resourceFromProp: string | undefined
 	idFromProp: RecordKey | undefined
-	resource: ResolvedResource | undefined
-	inferredResource: ResolvedResource | undefined
+	resource: Resource.Resolved | undefined
+	inferredResource: Resource.Resolved | undefined
 }
 
 export function getDefaultId(

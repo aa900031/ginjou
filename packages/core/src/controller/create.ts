@@ -6,8 +6,8 @@ import type {
 } from '../query/create'
 import type { Navigate } from '../router'
 import type { RedirectOptions } from './redirect-to'
-import { ResourceActionType } from '../resource'
 import { redirectTo } from './redirect-to'
+import * as ResourceAction from './resource-action'
 
 export type Props<
 	TMutationData extends BaseRecord,
@@ -70,7 +70,7 @@ export function createSaveFn<
 		}, {
 			onSuccess: (data) => {
 				redirectTo({
-					redirect: getRedirect() ?? ResourceActionType.List,
+					redirect: getRedirect() ?? ResourceAction.Type.List,
 					resource: getResourceName(),
 					id: data.data.id,
 					data,

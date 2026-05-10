@@ -15,7 +15,7 @@ pnpm add @ginjou/vue @tanstack/vue-query
 | Query Client | `defineQueryClientContext` | Yes |
 | Fetchers | `defineFetchersContext` | Yes |
 | Router | `defineRouterContext` | Conditional (when route-aware features used) |
-| Resources | `defineResourceContext` | Conditional (when resources used) |
+| Resources | `defineControllerContext` | Conditional (when resources used) |
 | Auth | `defineAuthContext` | Optional |
 | Authorization | `defineAuthzContext` | Optional |
 | Notifications | `defineNotificationContext` | Optional |
@@ -58,4 +58,4 @@ Add resource, auth, authz, notifications, realtime, or i18n contexts at the same
 - Create the `QueryClient` once at the app root.
 - Keep provider wiring in `App.vue`, not inside feature pages.
 - Add `defineRouterContext` only when route-aware behavior is actually needed.
-- If the app also uses resource inference or multi-backend binding, add `defineResourceContext` at the same root boundary.
+- If the app also uses resource inference or multi-backend binding, add `defineControllerContext` at the same root boundary.

@@ -2,8 +2,8 @@ import type { BaseRecord, UpdateResult } from '../query'
 import type { Navigate } from '../router'
 import { describe, expect, it, vi } from 'vitest'
 import { MutationMode } from '../query'
-import { ResourceActionType } from '../resource'
 import { createSaveFn, getId, getIsLoading } from './edit'
+import * as ResourceAction from './resource-action'
 
 describe('edit controller', () => {
 	describe('getId', () => {
@@ -171,7 +171,7 @@ describe('edit controller', () => {
 				expect(navigateTo).toHaveBeenCalledOnce()
 				expect(navigateTo).toHaveBeenCalledWith({
 					resource: 'posts',
-					action: ResourceActionType.Show,
+					action: ResourceAction.Type.Show,
 					id: 1,
 				})
 			})
@@ -266,7 +266,7 @@ describe('edit controller', () => {
 				expect(navigateTo).toHaveBeenCalledOnce()
 				expect(navigateTo).toHaveBeenCalledWith({
 					resource: 'posts',
-					action: ResourceActionType.Show,
+					action: ResourceAction.Type.Show,
 					id: 1,
 				})
 
@@ -304,7 +304,7 @@ describe('edit controller', () => {
 
 				expect(navigateTo).toHaveBeenCalledWith({
 					resource: 'posts',
-					action: ResourceActionType.Show,
+					action: ResourceAction.Type.Show,
 					id: 1,
 				})
 
@@ -389,7 +389,7 @@ describe('edit controller', () => {
 				const getId = vi.fn(() => 1)
 				const getResourceName = vi.fn(() => 'posts')
 				const getMutationMode = vi.fn(() => MutationMode.Pessimistic)
-				const getRedirect = vi.fn(() => ResourceActionType.List)
+				const getRedirect = vi.fn(() => ResourceAction.Type.List)
 				const navigateTo = vi.fn()
 
 				const mockData: UpdateResult<BaseRecord> = {
@@ -414,7 +414,7 @@ describe('edit controller', () => {
 
 				expect(navigateTo).toHaveBeenCalledWith({
 					resource: 'posts',
-					action: ResourceActionType.List,
+					action: ResourceAction.Type.List,
 				})
 			})
 
@@ -422,7 +422,7 @@ describe('edit controller', () => {
 				const getId = vi.fn(() => 1)
 				const getResourceName = vi.fn(() => 'posts')
 				const getMutationMode = vi.fn(() => MutationMode.Pessimistic)
-				const getRedirect = vi.fn(() => ResourceActionType.Create)
+				const getRedirect = vi.fn(() => ResourceAction.Type.Create)
 				const navigateTo = vi.fn()
 				const mockData: UpdateResult<BaseRecord> = {
 					data: { id: 1, title: 'Updated' },
@@ -447,7 +447,7 @@ describe('edit controller', () => {
 
 				expect(navigateTo).toHaveBeenCalledWith({
 					resource: 'posts',
-					action: ResourceActionType.Create,
+					action: ResourceAction.Type.Create,
 				})
 			})
 
@@ -455,7 +455,7 @@ describe('edit controller', () => {
 				const getId = vi.fn(() => 1)
 				const getResourceName = vi.fn(() => 'posts')
 				const getMutationMode = vi.fn(() => MutationMode.Pessimistic)
-				const getRedirect = vi.fn(() => ResourceActionType.Edit)
+				const getRedirect = vi.fn(() => ResourceAction.Type.Edit)
 				const navigateTo = vi.fn()
 
 				const mockData: UpdateResult<BaseRecord> = {
@@ -480,7 +480,7 @@ describe('edit controller', () => {
 
 				expect(navigateTo).toHaveBeenCalledWith({
 					resource: 'posts',
-					action: ResourceActionType.Edit,
+					action: ResourceAction.Type.Edit,
 					id: 1,
 				})
 			})
@@ -522,7 +522,7 @@ describe('edit controller', () => {
 				const getId = vi.fn(() => 1)
 				const getResourceName = vi.fn(() => 'posts')
 				const getMutationMode = vi.fn(() => MutationMode.Pessimistic)
-				const redirectFn = vi.fn(() => ResourceActionType.List)
+				const redirectFn = vi.fn(() => ResourceAction.Type.List)
 				const getRedirect = vi.fn(() => redirectFn)
 
 				const navigateTo = vi.fn()
@@ -657,7 +657,7 @@ describe('edit controller', () => {
 
 			expect(navigateTo).toHaveBeenCalledWith({
 				resource: undefined,
-				action: ResourceActionType.Show,
+				action: ResourceAction.Type.Show,
 				id: 1,
 			})
 		})
@@ -725,7 +725,7 @@ describe('edit controller', () => {
 
 			expect(navigateTo).toHaveBeenCalledWith({
 				resource: 'posts',
-				action: ResourceActionType.Show,
+				action: ResourceAction.Type.Show,
 				id: 'abc-123',
 			})
 		})

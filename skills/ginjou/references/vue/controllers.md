@@ -58,7 +58,7 @@ Use `useInfiniteList()` for load-more or infinite-scroll UIs where each fetched 
 
 `useShow()` loads one record for a detail page. Pass `resource` and `id` explicitly unless route/resource inference is already configured.
 
-When `defineRouterContext()` and `defineResourceContext()` are registered, `useShow()` can infer the current resource and read `id` from the matched show-route params automatically.
+When `defineRouterContext()` and `defineControllerContext()` are registered, `useShow()` can infer the current resource and read `id` from the matched show-route params automatically.
 
 ```vue
 <script setup lang="ts">

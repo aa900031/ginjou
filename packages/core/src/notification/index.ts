@@ -1,2 +1,2 @@
 export * from './notification'
-export * from './notify'
+export * as Notify from './notify'

@@ -1,14 +1,14 @@
-import type { ResourceActionTypeValues } from '@ginjou/core'
+import type { ResourceAction } from '@ginjou/core'
 import type { MaybeRef } from '@vueuse/shared'
 import type { Simplify } from 'type-fest'
 import type { Ref } from 'vue-demi'
 import type { UseResourceContext } from './resource'
-import { createResourcePath } from '@ginjou/core'
+import { ResourcePath } from '@ginjou/core'
 import { computed, unref } from 'vue-demi'
 import { useResource } from './resource'
 
 export interface UseResourcePathProps {
-	action: MaybeRef<ResourceActionTypeValues>
+	action: MaybeRef<ResourceAction.TypeValues>
 	resource?: MaybeRef<string>
 	params?: MaybeRef<Record<string, any>>
 }
@@ -23,12 +23,12 @@ export function useResourcePath(
 	props: UseResourcePathProps,
 	context?: UseResourcePathContext,
 ): UseResourcePathResult {
-	const resource = useResource({
+	const controller = useResource({
 		name: props.resource,
 	}, context)
 
-	return computed(() => createResourcePath({
-		resolved: unref(resource),
+	return computed(() => ResourcePath.get({
+		resolved: unref(controller),
 		action: unref(props.action),
 		params: unref(props.params),
 	}))

@@ -39,7 +39,7 @@ const composables = [
 	// 'useRealtimeOptions',
 	// 'useResolvePath',
 	'useResource',
-	'useResourceContext',
+	'useControllerContext',
 	'useResourcePath',
 	// 'useRouterContext',
 	'useSelect',

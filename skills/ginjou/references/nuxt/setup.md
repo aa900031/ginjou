@@ -41,7 +41,7 @@ order:
 
 1. Register `defineQueryClientContext` at the app boundary.
 2. Register every named fetcher in `defineFetchersContext`.
-3. Register resource definitions and `meta.fetcherName` bindings in `defineResourceContext`.
+3. Register resource definitions and `meta.fetcherName` bindings in `defineControllerContext`.
 4. Use `useAsync*` composables on SSR-first read surfaces.
 5. Keep create, update, and delete actions on the regular mutation composables.
 

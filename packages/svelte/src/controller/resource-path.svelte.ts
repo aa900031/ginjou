@@ -1,13 +1,13 @@
-import type { ResourceActionTypeValues } from '@ginjou/core'
+import type { ResourceAction } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
 import type { MaybeAccessor } from '../utils'
 import type { UseResourceContext } from './resource.svelte'
-import { createResourcePath } from '@ginjou/core'
+import { ResourcePath } from '@ginjou/core'
 import { extract } from '../utils'
 import { useResource } from './resource.svelte'
 
 export type UseResourcePathProps = MaybeAccessor<{
-	action: ResourceActionTypeValues
+	action: ResourceAction.TypeValues
 	resource?: string
 	params?: Record<string, any>
 }>
@@ -25,12 +25,12 @@ export function useResourcePath(
 	context?: UseResourcePathContext,
 ): UseResourcePathResult {
 	const resolvedProps = $derived(extract(props))
-	const resource = useResource(() => ({
+	const controller = useResource(() => ({
 		name: resolvedProps.resource,
 	}), context)
 
-	const value = $derived.by(() => createResourcePath({
-		resolved: resource.value,
+	const value = $derived.by(() => ResourcePath.get({
+		resolved: controller.value,
 		action: resolvedProps.action,
 		params: resolvedProps.params,
 	}))

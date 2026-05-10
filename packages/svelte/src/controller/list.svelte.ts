@@ -1,14 +1,14 @@
 import type { BaseRecord, Filters, Sorters } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
 import type { UseGetListContext, UseGetListResult } from '../query'
-import type { UseResourceContext } from '../resource'
 import type { UseGoContext, UseLocationContext } from '../router'
 import type { MaybeAccessor } from '../utils'
-import { getFetcherName, getResourceIdentifier, List } from '@ginjou/core'
+import type { UseResourceContext } from './resource.svelte'
+import { List, Resource } from '@ginjou/core'
 import { useGetList } from '../query'
-import { useResource } from '../resource'
 import { useGo, useLocation } from '../router'
 import { extract, stateFallback, stateSub, watch, withAccessors } from '../utils'
+import { useResource } from './resource.svelte'
 
 export type UseListProps<
 	TData extends BaseRecord,
@@ -131,11 +131,11 @@ export function useList<
 		List.getLocationSorters,
 	)
 
-	const resourceName = $derived.by(() => getResourceIdentifier({
+	const resourceName = $derived.by(() => Resource.getName({
 		resource: resource.value,
 		resourceFromProp: resolvedProps?.resource,
 	}))
-	const fetcherName = $derived.by(() => getFetcherName({
+	const fetcherName = $derived.by(() => Resource.getFetcherName({
 		resource: resource.value,
 		fetcherNameFromProp: resolvedProps?.fetcherName,
 	}))

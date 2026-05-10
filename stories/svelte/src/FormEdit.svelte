@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { MutationModeValues } from '@ginjou/core'
-	import { MutationMode, ResourceActionType } from '@ginjou/core'
+	import { MutationMode, ResourceAction } from '@ginjou/core'
 	import { wrap } from 'svelte-spa-router/wrap'
 	import { DEFAULT_POST_ID } from './utils/posts'
 	import StoryShell from './components/StoryShell.svelte'
@@ -10,7 +10,7 @@
 
 	const {
 		mutationMode = MutationMode.Pessimistic,
-		redirect= ResourceActionType.Show
+		redirect= ResourceAction.Type.Show
 	}: {
 		mutationMode: MutationModeValues
 		redirect: FormRedirect

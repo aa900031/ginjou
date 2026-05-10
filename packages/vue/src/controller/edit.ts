@@ -2,14 +2,14 @@ import type { BaseRecord, Params } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
 import type { Ref } from 'vue-demi'
 import type { UseGetOneContext, UseGetOneResult, UseUpdateOneContext, UseUpdateOneResult } from '../query'
-import type { UseResourceContext } from '../resource'
 import type { UseGoContext, UseNavigateToContext } from '../router'
 import type { ToMaybeRefs } from '../utils/refs'
-import { Edit, getFetcherName, getResourceIdentifier } from '@ginjou/core'
+import type { UseResourceContext } from './resource'
+import { Edit, Resource } from '@ginjou/core'
 import { computed, unref } from 'vue-demi'
 import { useGetOne, useUpdateOne } from '../query'
-import { useResource } from '../resource'
 import { useNavigateTo } from '../router'
+import { useResource } from './resource'
 
 export type UseEditProps<
 	TQueryData extends BaseRecord,
@@ -67,11 +67,11 @@ export function useEdit<
 		resource: unref(resource),
 		idFromProp: unref(props?.id),
 	}))
-	const fetcherName = computed(() => getFetcherName({
+	const fetcherName = computed(() => Resource.getFetcherName({
 		resource: unref(resource),
 		fetcherNameFromProp: unref(props?.fetcherName),
 	}))
-	const resourceName = computed(() => getResourceIdentifier({
+	const resourceName = computed(() => Resource.getName({
 		resource: unref(resource),
 		resourceFromProp: unref(props?.resource),
 	}))
