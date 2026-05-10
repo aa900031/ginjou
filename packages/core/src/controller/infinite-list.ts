@@ -132,8 +132,8 @@ export function toRouterGoParams(
 
 	if ([
 		[perPageLocation, perPage],
-		[filtersLocation, sorters],
-		[sortersLocation, filters],
+		[filtersLocation, filters],
+		[sortersLocation, sorters],
 	].every(([a, b]) => isEqual(a, b))) {
 		return false
 	}

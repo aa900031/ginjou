@@ -175,7 +175,7 @@ export interface CreateMutateHandlerProps<
 	getProps: () => Props<TData, TError, TParams> | undefined
 	onMutate: SetReturnType<
 		NonNullable<MutationOptions<TData, TError, TParams>['onMutate']>,
-		ReturnType<NonNullable<MutationOptions<TData, TError, TParams>['onMutate']>> | undefined
+		ReturnType<NonNullable<MutationOptions<TData, TError, TParams>['onMutate']>> | Promise<undefined> | undefined
 	>
 }
 
