@@ -244,11 +244,11 @@ function parseFromRegExp(
 		case ResourceAction.Type.Show: {
 			const index = keys.indexOf('id')
 			if (index < 0)
-				throw new Error('No')
+				throw new Error('No') // TODO:
 
 			const id = matched[index + 1]
 			if (id == null)
-				throw new Error('No')
+				throw new Error('No') // TODO:
 
 			return {
 				action,
@@ -256,7 +256,7 @@ function parseFromRegExp(
 			}
 		}
 		default:
-			throw new Error('Nooo')
+			throw new Error('No') // TODO:
 	}
 }
 

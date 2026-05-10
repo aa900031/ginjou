@@ -38,6 +38,6 @@ export function useI18nContext(
 ): I18n | undefined {
 	const value = injectLocal(KEY, undefined) ?? props?.i18n
 	if (props?.strict === true && value == null)
-		throw new Error('No')
+		throw new Error('No') // TODO:
 	return value
 }

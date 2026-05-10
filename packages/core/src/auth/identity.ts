@@ -66,7 +66,7 @@ export function createQueryFn<
 	return async function queryFn() {
 		const { getIdentity } = auth ?? {}
 		if (typeof getIdentity !== 'function')
-			throw new Error('No')
+			throw new Error('No') // TODO:
 
 		const params = getParams()
 		const result = await (getIdentity as GetIdentityFn<TData, TParams>)(params)

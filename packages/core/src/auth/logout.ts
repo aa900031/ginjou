@@ -76,7 +76,7 @@ export function createMutationFn<
 	return async function mutationFn(params) {
 		const { logout } = auth ?? {}
 		if (typeof logout !== 'function')
-			throw new Error('No')
+			throw new Error('No') // TODO:
 
 		const result = await (logout as LogoutFn<TParams>)(params) ?? {}
 		return result

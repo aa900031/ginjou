@@ -76,7 +76,7 @@ export function createMutationFn<
 	return async function mutationFn(params) {
 		const { login } = auth ?? {}
 		if (typeof login !== 'function')
-			throw new Error('No')
+			throw new Error('No') // TODO:
 
 		const result = await (login as LoginFn<TParams>)(params) ?? {}
 		return result

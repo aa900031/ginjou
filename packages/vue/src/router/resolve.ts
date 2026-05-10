@@ -16,7 +16,7 @@ export function useResolvePath<
 
 	return (to) => {
 		if (!router)
-			throw new Error('No')
+			throw new Error('No') // TODO:
 
 		return router.resolve(to)
 	}
