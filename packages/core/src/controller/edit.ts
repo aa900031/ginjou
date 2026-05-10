@@ -43,10 +43,10 @@ export function getId(
 		resource,
 		idFromProp,
 	}: GetIdProps,
-): RecordKey {
+): RecordKey | undefined {
 	return idFromProp
-		?? (resource && resource.action === 'edit' ? resource.id : undefined)
-		?? '' // TODO: maybe use undeined?
+		?? (resource && 'action' in resource && resource.action === 'edit' ? resource.id : undefined)
+		?? undefined
 }
 
 export interface GetIsLoadingParams {
@@ -74,7 +74,7 @@ export interface SaveFnParams<
 	TMutationError,
 	TQueryResultData extends BaseRecord,
 > {
-	getId: () => RecordKey
+	getId: () => RecordKey | undefined
 	getResourceName: () => string | undefined
 	getMutationMode: () => MutationModeValues | undefined
 	getRedirect: () => RedirectOptions<UpdateResult<TMutationData>> | undefined
@@ -102,16 +102,19 @@ export function createSaveFn<
 	return async function saveFn(params) {
 		const mutationMode = getMutationMode()
 		const isPessimistic = mutationMode == null || mutationMode === MutationMode.Pessimistic
+		const id = getId() ?? params.id
+		if (id == null)
+			throw new Error('No')
 
 		if (!isPessimistic) {
 			setTimeout(() => {
 				redirectTo({
 					redirect: getRedirect() ?? ResourceAction.Type.Show,
 					resource: getResourceName(),
-					id: getId(),
+					id,
 					data: {
 						data: {
-							id: getId(),
+							id,
 							...getQueryData(),
 							...params as any,
 						} as TMutationData,

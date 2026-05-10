@@ -1,6 +1,7 @@
 import type { Simplify } from 'type-fest'
 import type { RecordKey } from '../query'
 import type { RouterLocation } from '../router'
+import type { Controller } from './controller'
 import { omit } from 'es-toolkit'
 import { parse as parseRegexparam } from 'regexparam'
 import * as ResourceAction from './resource-action'
@@ -68,7 +69,9 @@ export type Resolved<
 	& {
 		resource: Raw<TResourceMeta>
 	}
->
+> | {
+	resource: Raw<TResourceMeta>
+}
 
 export interface ResolveParams<
 	TLocationMeta = unknown,
@@ -80,9 +83,7 @@ export interface ResolveParams<
 export function get<
 	TResourceMeta extends Record<string, any> = Record<string, any>,
 >(
-	controller: {
-		resources: Raw<TResourceMeta>[]
-	},
+	controller: Controller<TResourceMeta>,
 	name: string | undefined,
 ): Raw<TResourceMeta> | undefined {
 	if (!name)
@@ -96,9 +97,7 @@ export function resolve<
 	TResourceMeta extends Record<string, any> = Record<string, any>,
 	TLocationMeta = unknown,
 >(
-	controller: {
-		resources: Raw<TResourceMeta>[]
-	} | undefined,
+	controller: Controller<TResourceMeta> | undefined,
 	params: ResolveParams<TLocationMeta>,
 ): Resolved<TResourceMeta> | undefined {
 	if (!controller)
@@ -107,14 +106,13 @@ export function resolve<
 	if (params.name) {
 		const resource = get<TResourceMeta>(controller, params.name)
 		if (resource) {
+			const parsed = params.location
+				? parse(resource, params.location)
+				: undefined
 			return {
 				resource,
-				...(
-					params.location
-						? parse(resource, params.location)
-						: undefined
-				),
-			} as Resolved<TResourceMeta>
+				...parsed,
+			}
 		}
 	}
 
@@ -191,9 +189,7 @@ const resourceMapCache = new WeakMap<Raw[], Map<string, Raw>>()
 function getResourceMap<
 	TResourceMeta extends Record<string, any> = Record<string, any>,
 >(
-	controller: {
-		resources: Raw<TResourceMeta>[]
-	},
+	controller: Controller<TResourceMeta>,
 ): Map<string, Raw<TResourceMeta>> | undefined {
 	if (!controller?.resources)
 		return

@@ -28,6 +28,8 @@ export function getDefaultId(
 	if (resourceFromProp && resourceFromProp !== inferredResource?.resource.name)
 		return idFromProp
 
-	const idFromResource = resource?.action === 'show' ? resource.id : undefined
+	const idFromResource = (resource && 'action' in resource && resource.action === 'show')
+		? resource.id
+		: undefined
 	return idFromProp ?? idFromResource
 }

@@ -22,7 +22,7 @@ export function get(
 	const pattern = typeof target === 'string' ? target : target.pattern
 	return injectRegexparam(pattern, {
 		...{ id: 'id' in resolved ? resolved.id : undefined },
-		...{ action: resolved.action },
+		...{ action: 'action' in resolved ? resolved.action : undefined },
 		...params,
 	})
 }

@@ -52,7 +52,7 @@ describe('edit controller', () => {
 				idFromProp: undefined,
 			})
 
-			expect(result).toBe('')
+			expect(result).toBe(undefined)
 		})
 
 		it('should return empty string when resource action is not edit', () => {
@@ -64,7 +64,7 @@ describe('edit controller', () => {
 				idFromProp: undefined,
 			})
 
-			expect(result).toBe('')
+			expect(result).toBe(undefined)
 		})
 
 		it('should handle string ids', () => {
