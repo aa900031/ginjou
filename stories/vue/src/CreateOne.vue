@@ -17,6 +17,7 @@ const { mutateAsync: createOne, isPending } = useCreateOne<Post, PostRawFormData
 })
 
 const formData = reactive<PostRawFormData>({
+	title: 'test',
 	status: 'draft',
 })
 const result = shallowRef<Post>()

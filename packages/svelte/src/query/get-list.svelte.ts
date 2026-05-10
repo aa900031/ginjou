@@ -75,7 +75,7 @@ export function useGetList<
 		meta: extract(resolvedProps.meta),
 	}))
 	const queryKey = $derived.by(() => GetList.createQueryKey<TPageParam>({ props: queryProps }))
-	const queryEnabled = GetList.createQueryEnabledFn({
+	const enabledFn = GetList.createQueryEnabledFn({
 		getEnabled: () => resolvedProps.queryOptions?.enabled,
 		getQueryKey: () => queryKey,
 		getResource: () => queryProps.resource,
@@ -108,7 +108,7 @@ export function useGetList<
 			...resolvedProps.queryOptions,
 			queryKey,
 			queryFn,
-			enabled: queryEnabled,
+			enabled: enabledFn,
 			placeholderData,
 		}),
 		() => queryClient,
@@ -142,7 +142,7 @@ export function useGetList<
 		meta: queryProps.meta,
 		callback,
 		actions: [RealtimeAction.Any],
-		enabled: queryEnabled,
+		enabled: enabledFn,
 	}), context)
 
 	return withAccessors(query, {

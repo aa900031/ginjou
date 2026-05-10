@@ -15,7 +15,7 @@
 	})
 
 	let formData = $state<PostRawFormData>({
-		title: '',
+		title: 'test',
 		status: 'draft',
 	})
 	let result = $state<Post | undefined>()

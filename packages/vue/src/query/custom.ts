@@ -112,7 +112,11 @@ export function useCustom<
 			...unref(props.queryOptions) as any,
 			queryKey,
 			queryFn,
-			enabled: () => enabledFn,
+			enabled: () => {
+				// eslint-disable-next-line ts/no-unused-expressions
+				unref(props?.queryOptions)?.enabled
+				return enabledFn
+			},
 		})),
 		queryClient,
 	)

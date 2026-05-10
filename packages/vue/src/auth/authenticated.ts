@@ -57,7 +57,11 @@ export function useAuthenticated<
 			...unref(props?.queryOptions),
 			queryKey,
 			queryFn,
-			enabled: () => enabledFn,
+			enabled: () => {
+				// eslint-disable-next-line ts/no-unused-expressions
+				unref(props?.queryOptions)?.enabled
+				return enabledFn
+			},
 			retry: false,
 		})),
 		queryClient,
