@@ -103,6 +103,20 @@ describe('redirectTo', () => {
 		expect(navigateTo).toHaveBeenCalledWith(redirect)
 	})
 
+	it('should pass false redirects through directly', () => {
+		const navigateTo = vi.fn()
+
+		redirectTo({
+			redirect: false,
+			resource: 'posts',
+			id: '123',
+			data: { id: '123' },
+			navigateTo,
+		})
+
+		expect(navigateTo).toHaveBeenCalledWith(false)
+	})
+
 	it('should resolve redirect from a callback using data', () => {
 		const navigateTo = vi.fn()
 		const data = { id: '123', published: true }

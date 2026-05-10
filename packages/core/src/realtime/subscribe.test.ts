@@ -33,7 +33,6 @@ describe('register', () => {
 			callback,
 		})
 
-		expect(register({ props, realtime: undefined })).not.toThrow()
 		const dispose = register({ props, realtime: undefined })
 		expect(() => dispose()).not.toThrow()
 	})
