@@ -30,14 +30,14 @@ export default {
 	refs: (config, { configType }) => {
 		const urls = getRefsUrl(configType)
 		return {
-			svelte: {
-				title: 'Svelte',
-				url: urls.svelte,
-				expanded: false,
-			},
 			vue: {
 				title: 'Vue',
 				url: urls.vue,
+				expanded: false,
+			},
+			svelte: {
+				title: 'Svelte',
+				url: urls.svelte,
 				expanded: false,
 			},
 		}
