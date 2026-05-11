@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
-import { RealtimeMode } from './mode'
 import { merge } from './options'
+import { RealtimeMode } from './realtime'
 
 describe('merge', () => {
 	it('should default mode to auto', () => {

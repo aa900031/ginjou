@@ -1,7 +1,23 @@
-import type { ValueOf } from 'type-fest'
+import type { LiteralUnion, ValueOf } from 'type-fest'
 import type { Filters, Meta, Pagination, RecordKey, Sorters } from '../query'
-import type { RealtimeActionValues, RealtimeEvent } from './event'
 import type { Context as ContextOption } from './options'
+
+export const RealtimeMode = {
+	Off: 'off',
+	Auto: 'auto',
+	Manual: 'manual',
+} as const
+
+export type RealtimeModeValue = ValueOf<typeof RealtimeMode>
+
+export const RealtimeAction = {
+	Any: '*',
+	Deleted: 'deleted',
+	Updated: 'updated',
+	Created: 'created',
+} as const
+
+export type RealtimeActionValues = LiteralUnion<ValueOf<typeof RealtimeAction>, string>
 
 export const SubscribeType = {
 	List: 'list',
@@ -33,6 +49,16 @@ export interface SubscribeManyParams {
 	type: typeof SubscribeType.Many
 	resource: string
 	ids: RecordKey[]
+	meta?: Meta
+}
+
+export interface RealtimeEvent<
+	TPayload = unknown,
+> {
+	channel: string
+	action: RealtimeActionValues
+	payload: TPayload // TODO: 釐清使用方式
+	date: Date
 	meta?: Meta
 }
 

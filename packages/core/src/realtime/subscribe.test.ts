@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { RealtimeAction } from './event'
+import { RealtimeAction } from './realtime'
 import { register, resolveProps } from './subscribe'
 
 describe('resolveProps', () => {

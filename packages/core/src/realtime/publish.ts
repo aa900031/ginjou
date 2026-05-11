@@ -1,6 +1,5 @@
 import type { SetOptional } from 'type-fest'
-import type { RealtimeEvent } from './event'
-import type { PublishFn, Realtime } from './realtime'
+import type { PublishFn, Realtime, RealtimeEvent } from './realtime'
 
 export interface CreateEmitFnProps {
 	realtime: Realtime | undefined

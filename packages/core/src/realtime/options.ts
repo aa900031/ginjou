@@ -1,7 +1,6 @@
 import type { SetRequired, Simplify } from 'type-fest'
-import type { RealtimeModeValue } from './mode'
-import type { SubscribeCallbackFn } from './realtime'
-import { RealtimeMode } from './mode'
+import type { RealtimeModeValue, SubscribeCallbackFn } from './realtime'
+import { RealtimeMode } from './realtime'
 
 export interface Input<
 	TPayload,

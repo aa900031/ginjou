@@ -1,7 +1,7 @@
 import type { SetOptional, SetRequired, Simplify } from 'type-fest'
 import type { Realtime, SubscribeFn, SubscribeProps } from './realtime'
 import { noop } from 'es-toolkit'
-import { RealtimeAction } from './event'
+import { RealtimeAction } from './realtime'
 
 export type Props<
 	TPayload,
