@@ -66,6 +66,12 @@ importers:
         specifier: ^4.4.2
         version: 4.4.2(@babel/core@7.29.0)(@babel/plugin-syntax-jsx@7.28.6(@babel/core@7.29.0))(@parcel/watcher@2.5.1)(@types/node@22.19.15)(@vue/compiler-sfc@3.5.31)(better-sqlite3@12.8.0)(cac@6.7.14)(db0@0.3.4(better-sqlite3@12.8.0))(eslint@9.39.4(jiti@2.6.1))(ioredis@5.9.3)(lightningcss@1.32.0)(magicast@0.5.2)(meow@13.2.0)(optionator@0.9.4)(rolldown@1.0.0-rc.9)(rollup-plugin-visualizer@6.0.5(rolldown@1.0.0-rc.9)(rollup@4.59.0))(rollup@4.59.0)(terser@5.46.0)(typescript@5.9.3)(vite@7.3.1(@types/node@22.19.15)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.46.0)(yaml@2.8.3))(yaml@2.8.3)
 
+  internals/storybook-config:
+    devDependencies:
+      '@ginjou/tsconfig':
+        specifier: workspace:*
+        version: link:../tsconfig
+
   internals/tsconfig:
     dependencies:
       '@tsconfig/node22':
@@ -385,6 +391,9 @@ importers:
 
   stories/root:
     devDependencies:
+      '@ginjou/storybook-config':
+        specifier: workspace:*
+        version: link:../../internals/storybook-config
       '@storybook/addon-docs':
         specifier: ^10.3.2
         version: 10.3.3(@types/react@19.2.14)(esbuild@0.27.3)(rollup@4.59.0)(storybook@10.3.3(@testing-library/dom@9.3.4)(prettier@3.8.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(vite@7.3.1(@types/node@22.19.15)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.46.0)(yaml@2.8.3))
@@ -430,6 +439,9 @@ importers:
       '@ginjou/core':
         specifier: workspace:^
         version: link:../../packages/core
+      '@ginjou/storybook-config':
+        specifier: workspace:*
+        version: link:../../internals/storybook-config
       '@ginjou/svelte':
         specifier: workspace:*
         version: link:../../packages/svelte
@@ -493,6 +505,9 @@ importers:
       '@ginjou/core':
         specifier: workspace:^
         version: link:../../packages/core
+      '@ginjou/storybook-config':
+        specifier: workspace:*
+        version: link:../../internals/storybook-config
       '@ginjou/tsconfig':
         specifier: workspace:*
         version: link:../../internals/tsconfig
@@ -10271,8 +10286,8 @@ packages:
   vue-component-type-helpers@3.2.6:
     resolution: {integrity: sha512-O02tnvIfOQVmnvoWwuSydwRoHjZVt8UEBR+2p4rT35p8GAy5VTlWP8o5qXfJR/GWCN0nVZoYWsVUvx2jwgdBmQ==}
 
-  vue-component-type-helpers@3.2.8:
-    resolution: {integrity: sha512-9689efAXhN/EV86plgkL/XFiJSXhGtWPG6JDboZ+QnjlUWUUQrQ0ILKQtw4iQsuwIwu5k6Aw+JnehDe7161e7A==}
+  vue-component-type-helpers@3.2.9:
+    resolution: {integrity: sha512-S3BiWYaLSzHxTpln665ELSrMR9UYmrIDUmhik7nVZxmJjTKL2/a+ew1hvGxksKelivm0ujjWfG1fYOiU/2e8rA==}
 
   vue-demi@0.14.10:
     resolution: {integrity: sha512-nMZBOwuzabUO0nLgIcc6rycZEebF6eeUfaiQx9+WSk8e29IbLvPU9feI6tqW4kTo3hvoYAJkMh8n8D0fuISphg==}
@@ -13780,7 +13795,7 @@ snapshots:
       storybook: 10.3.3(@testing-library/dom@9.3.4)(prettier@3.8.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       type-fest: 2.19.0
       vue: 3.5.30(typescript@5.9.3)
-      vue-component-type-helpers: 3.2.8
+      vue-component-type-helpers: 3.2.9
 
   '@stylistic/eslint-plugin@5.8.0(eslint@9.39.4(jiti@2.6.1))':
     dependencies:
@@ -21850,7 +21865,7 @@ snapshots:
 
   vue-component-type-helpers@3.2.6: {}
 
-  vue-component-type-helpers@3.2.8: {}
+  vue-component-type-helpers@3.2.9: {}
 
   vue-demi@0.14.10(vue@3.5.30(typescript@5.9.3)):
     dependencies:

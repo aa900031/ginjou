@@ -1,0 +1,6 @@
+{
+	"extends": "@ginjou/tsconfig/base.json",
+	"include": [
+		"**/*.mjs"
+	]
+}

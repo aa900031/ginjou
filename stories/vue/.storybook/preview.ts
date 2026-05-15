@@ -1,9 +1,10 @@
 /* eslint-disable perfectionist/sort-imports */
 import 'uno.css'
-import type { Decorator, Preview } from '@storybook/vue3-vite'
+import type { Preview } from '@storybook/vue3-vite'
 import { AbortDefer } from '@ginjou/core'
 import { setup as setupVue } from '@storybook/vue3-vite'
 import { mswLoader as MswLoader, initialize as setupMsw } from 'msw-storybook-addon'
+import { parameters, withDarkClass } from '@ginjou/storybook-config/preview'
 
 setupMsw({
 	onUnhandledRequest: 'bypass',
@@ -24,13 +25,6 @@ setupVue((app) => {
 	}
 })
 
-const withDarkClass: Decorator = (story, context) => {
-	const bg = context.globals?.backgrounds
-	const name = typeof bg === 'string' ? bg : bg?.value
-	document.documentElement.classList.toggle('dark', name === 'dark')
-	return story()
-}
-
 export default {
 	loaders: [
 		MswLoader,
@@ -39,19 +33,6 @@ export default {
 		withDarkClass,
 	],
 	parameters: {
-		controls: {
-			matchers: {
-				color: /(background|color)$/i,
-				date: /Date$/,
-			},
-		},
-		options: {
-			storySort: {
-				order: [
-					'Controllers',
-					'Query',
-				],
-			},
-		},
+		...parameters,
 	},
 } satisfies Preview

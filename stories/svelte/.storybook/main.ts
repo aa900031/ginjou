@@ -1,6 +1,6 @@
-import type { StorybookConfig } from '@storybook/svelte-vite'
+import { defineMain } from '@storybook/svelte-vite/node'
 
-export default {
+export default defineMain({
 	stories: [
 		'../src/**/*.stories.@(js|ts|svelte)',
 	],
@@ -11,4 +11,4 @@ export default {
 		name: '@storybook/svelte-vite',
 		options: {},
 	},
-} satisfies StorybookConfig
+})

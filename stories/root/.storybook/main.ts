@@ -1,7 +1,7 @@
-import type { StorybookConfig } from '@storybook/react-vite'
+import { defineMain } from '@storybook/react-vite/node'
 import remarkGfm from 'remark-gfm'
 
-export default {
+export default defineMain({
 	staticDirs: [
 		'../public',
 	],
@@ -42,7 +42,7 @@ export default {
 			},
 		}
 	},
-} satisfies StorybookConfig
+})
 
 function getRefsUrl(
 	type: string | undefined,

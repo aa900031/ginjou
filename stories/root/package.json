@@ -19,6 +19,7 @@
 		"preview": "sirv ./dist --host -p 7006"
 	},
 	"devDependencies": {
+		"@ginjou/storybook-config": "workspace:*",
 		"@storybook/addon-docs": "^10.3.2",
 		"@storybook/react-vite": "^10.3.2",
 		"@types/react": "^19.2.14",

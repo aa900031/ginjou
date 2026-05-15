@@ -1,0 +1,14 @@
+/* MDX docs: responsive table */
+.sbdocs table {
+	display: block;
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+}
+
+/* MDX docs: responsive code blocks */
+@media (max-width: 640px) {
+	.sbdocs pre,
+	.sbdocs code {
+		font-size: 12px;
+	}
+}

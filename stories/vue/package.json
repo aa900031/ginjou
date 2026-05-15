@@ -25,6 +25,7 @@
 	"devDependencies": {
 		"@faker-js/faker": "^10.3.0",
 		"@ginjou/core": "workspace:^",
+		"@ginjou/storybook-config": "workspace:*",
 		"@ginjou/tsconfig": "workspace:*",
 		"@ginjou/vite-config": "workspace:*",
 		"@ginjou/vue": "workspace:*",

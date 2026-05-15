@@ -13,6 +13,7 @@
 		"resolveJsonModule": true,
 		"strict": true,
 		"noImplicitThis": true,
+		"allowJs": true,
 		"allowSyntheticDefaultImports": true,
 		"useDefineForClassFields": true,
 		"strictNullChecks": true,
