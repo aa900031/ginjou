@@ -1,4 +1,3 @@
-import type { ArgTypes } from '@storybook/svelte'
 import { MutationMode } from '@ginjou/core'
 
 export const argTypes = {
@@ -13,7 +12,7 @@ export const argTypes = {
 			MutationMode.Undoable,
 		],
 	},
-} satisfies ArgTypes
+}
 
 export const args = {
 	mutationMode: MutationMode.Pessimistic,

@@ -2,14 +2,25 @@ import type { Collection } from '@msw/data'
 import type { HttpHandler } from 'msw'
 import { faker } from '@faker-js/faker'
 import { http, HttpResponse } from 'msw'
-import { resolveURL } from 'ufo'
+import { initialize, mswLoader } from 'msw-storybook-addon'
+
+export { mswLoader }
+
+export function setupMsw(): void {
+	initialize({
+		onUnhandledRequest: 'bypass',
+		serviceWorker: {
+			url: './mockServiceWorker.js',
+		},
+	})
+}
 
 export function toHandlers(
 	collection: Collection<any>,
 	collectionName: string,
 	baseUrl: string,
 ): HttpHandler[] {
-	const listPath = resolveURL(baseUrl, collectionName)
+	const listPath = `${baseUrl.replace(/\/$/, '')}/${collectionName}`
 	const itemPath = `${listPath}/:id`
 
 	return [
@@ -56,11 +67,8 @@ export function toHandlers(
 				if (sort && order) {
 					const sorts = sort.split(',')
 					const orders = order.split(',')
-					for (let index = 0; index < sorts.length; index++) {
-						const key = sorts[index]
-						const direction = orders[index]
-						orderBy[key] = direction
-					}
+					for (let index = 0; index < sorts.length; index++)
+						orderBy[sorts[index]!] = orders[index]
 				}
 
 				const start = url.searchParams.get('_start')
@@ -68,32 +76,21 @@ export function toHandlers(
 				let take: number | undefined
 				let skip: number | undefined
 				if (start && end) {
-					const startNum = Number(start)
-					const endNum = Number(end)
-					skip = startNum
-					take = endNum - startNum
+					skip = Number(start)
+					take = Number(end) - skip
 				}
 
+				const hasFilter = Object.keys(filterParams).length > 0
 				const records = collection.findMany(
-					Object.keys(filterParams).length > 0
-						? (query: any) => query.where(filterParams)
-						: undefined,
-					{
-						take,
-						skip,
-						orderBy,
-					},
+					hasFilter ? (q: any) => q.where(filterParams) : undefined,
+					{ take, skip, orderBy },
 				)
 				const all = collection.findMany(
-					Object.keys(filterParams).length > 0
-						? (query: any) => query.where(filterParams)
-						: undefined,
+					hasFilter ? (q: any) => q.where(filterParams) : undefined,
 				)
 
 				return HttpResponse.json(records, {
-					headers: {
-						'x-total-count': `${all.length}`,
-					},
+					headers: { 'x-total-count': `${all.length}` },
 				})
 			}
 			catch (error: any) {
@@ -107,14 +104,10 @@ export function toHandlers(
 		http.get(itemPath, async (info) => {
 			try {
 				const id = info.params.id
-				const record = collection.findFirst((query: any) => query.where({ id }))
+				const record = collection.findFirst((q: any) => q.where({ id }))
 
-				if (!record) {
-					return HttpResponse.json(
-						{ message: 'Not found' },
-						{ status: 404 },
-					)
-				}
+				if (!record)
+					return HttpResponse.json({ message: 'Not found' }, { status: 404 })
 
 				return HttpResponse.json(record)
 			}
@@ -129,10 +122,7 @@ export function toHandlers(
 		http.post(listPath, async (info) => {
 			try {
 				const body = await info.request.json()
-				const record = await collection.create({
-					...(body as any),
-					id: faker.string.uuid(),
-				})
+				const record = await collection.create({ ...(body as any), id: faker.string.uuid() })
 				return HttpResponse.json(record, { status: 201 })
 			}
 			catch (error: any) {
@@ -147,16 +137,10 @@ export function toHandlers(
 			try {
 				const id = info.params.id
 				const body = await info.request.json()
-
 				const updated = await collection.update(
-					(query: any) => query.where({ id }),
-					{
-						data(record: any) {
-							Object.assign(record, body)
-						},
-					},
+					(q: any) => q.where({ id }),
+					{ data(record: any) { Object.assign(record, body) } },
 				)
-
 				return HttpResponse.json(updated)
 			}
 			catch (error: any) {
@@ -171,16 +155,10 @@ export function toHandlers(
 			try {
 				const id = info.params.id
 				const body = await info.request.json()
-
 				const updated = await collection.update(
-					(query: any) => query.where({ id }),
-					{
-						data(record: any) {
-							Object.assign(record, body)
-						},
-					},
+					(q: any) => q.where({ id }),
+					{ data(record: any) { Object.assign(record, body) } },
 				)
-
 				return HttpResponse.json(updated)
 			}
 			catch (error: any) {
@@ -193,8 +171,7 @@ export function toHandlers(
 
 		http.delete(itemPath, async (info) => {
 			try {
-				const deleted = collection.delete((query: any) => query.where({ id: info.params.id }))
-
+				const deleted = collection.delete((q: any) => q.where({ id: info.params.id }))
 				return HttpResponse.json(deleted)
 			}
 			catch (error: any) {

@@ -8,7 +8,7 @@
 	import type { MutationModeValues } from '@ginjou/core'
 	import { MutationMode } from '@ginjou/core'
 	import { useEdit } from '@ginjou/svelte'
-	import type { Post, PostFormData, PostRawFormData } from '../api/posts'
+	import type { Post, PostFormData, PostRawFormData } from '@ginjou/storybook-shared/mock-data'
 	import Button from '../components/Button.svelte'
 	import Card from '../components/Card.svelte'
 	import FieldLabel from '../components/FieldLabel.svelte'

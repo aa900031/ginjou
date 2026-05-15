@@ -66,7 +66,26 @@ importers:
         specifier: ^4.4.2
         version: 4.4.2(@babel/core@7.29.0)(@babel/plugin-syntax-jsx@7.28.6(@babel/core@7.29.0))(@parcel/watcher@2.5.1)(@types/node@22.19.15)(@vue/compiler-sfc@3.5.31)(better-sqlite3@12.8.0)(cac@6.7.14)(db0@0.3.4(better-sqlite3@12.8.0))(eslint@9.39.4(jiti@2.6.1))(ioredis@5.9.3)(lightningcss@1.32.0)(magicast@0.5.2)(meow@13.2.0)(optionator@0.9.4)(rolldown@1.0.0-rc.9)(rollup-plugin-visualizer@6.0.5(rolldown@1.0.0-rc.9)(rollup@4.59.0))(rollup@4.59.0)(terser@5.46.0)(typescript@5.9.3)(vite@7.3.1(@types/node@22.19.15)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.46.0)(yaml@2.8.3))(yaml@2.8.3)
 
-  internals/storybook-config:
+  internals/storybook-shared:
+    dependencies:
+      '@faker-js/faker':
+        specifier: ^10.3.0
+        version: 10.3.0
+      '@ginjou/core':
+        specifier: workspace:^
+        version: link:../../packages/core
+      '@msw/data':
+        specifier: ^1.1.2
+        version: 1.1.2
+      msw:
+        specifier: ^2.12.14
+        version: 2.12.14(@types/node@22.19.15)(typescript@5.9.3)
+      msw-storybook-addon:
+        specifier: 2.0.6
+        version: 2.0.6(msw@2.12.14(@types/node@22.19.15)(typescript@5.9.3))
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
     devDependencies:
       '@ginjou/tsconfig':
         specifier: workspace:*
@@ -391,9 +410,9 @@ importers:
 
   stories/root:
     devDependencies:
-      '@ginjou/storybook-config':
+      '@ginjou/storybook-shared':
         specifier: workspace:*
-        version: link:../../internals/storybook-config
+        version: link:../../internals/storybook-shared
       '@storybook/addon-docs':
         specifier: ^10.3.2
         version: 10.3.3(@types/react@19.2.14)(esbuild@0.27.3)(rollup@4.59.0)(storybook@10.3.3(@testing-library/dom@9.3.4)(prettier@3.8.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(vite@7.3.1(@types/node@22.19.15)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.46.0)(yaml@2.8.3))
@@ -433,15 +452,12 @@ importers:
 
   stories/svelte:
     devDependencies:
-      '@faker-js/faker':
-        specifier: ^10.3.0
-        version: 10.3.0
       '@ginjou/core':
         specifier: workspace:^
         version: link:../../packages/core
-      '@ginjou/storybook-config':
+      '@ginjou/storybook-shared':
         specifier: workspace:*
-        version: link:../../internals/storybook-config
+        version: link:../../internals/storybook-shared
       '@ginjou/svelte':
         specifier: workspace:*
         version: link:../../packages/svelte
@@ -454,9 +470,6 @@ importers:
       '@ginjou/with-svelte-spa-router':
         specifier: workspace:*
         version: link:../../packages/with-svelte-spa-router
-      '@msw/data':
-        specifier: ^1.1.2
-        version: 1.1.2
       '@storybook/addon-docs':
         specifier: 10.3.3
         version: 10.3.3(@types/react@19.2.14)(esbuild@0.27.3)(rollup@4.59.0)(storybook@10.3.3(@testing-library/dom@9.3.4)(prettier@3.8.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(vite@7.3.1(@types/node@22.19.15)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.46.0)(yaml@2.8.3))
@@ -472,9 +485,6 @@ importers:
       msw:
         specifier: ^2.12.14
         version: 2.12.14(@types/node@22.19.15)(typescript@5.9.3)
-      msw-storybook-addon:
-        specifier: 2.0.6
-        version: 2.0.6(msw@2.12.14(@types/node@22.19.15)(typescript@5.9.3))
       npm-run-all2:
         specifier: ^8.0.4
         version: 8.0.4
@@ -493,21 +503,15 @@ importers:
       vite:
         specifier: ^7.3.1
         version: 7.3.1(@types/node@22.19.15)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.46.0)(yaml@2.8.3)
-      zod:
-        specifier: ^4.3.6
-        version: 4.3.6
 
   stories/vue:
     devDependencies:
-      '@faker-js/faker':
-        specifier: ^10.3.0
-        version: 10.3.0
       '@ginjou/core':
         specifier: workspace:^
         version: link:../../packages/core
-      '@ginjou/storybook-config':
+      '@ginjou/storybook-shared':
         specifier: workspace:*
-        version: link:../../internals/storybook-config
+        version: link:../../internals/storybook-shared
       '@ginjou/tsconfig':
         specifier: workspace:*
         version: link:../../internals/tsconfig
@@ -526,9 +530,6 @@ importers:
       '@ginjou/with-vue-router':
         specifier: workspace:*
         version: link:../../packages/with-vue-router
-      '@msw/data':
-        specifier: ^1.1.2
-        version: 1.1.2
       '@storybook/addon-docs':
         specifier: ^10.3.2
         version: 10.3.3(@types/react@19.2.14)(esbuild@0.27.3)(rollup@4.59.0)(storybook@10.3.3(@testing-library/dom@9.3.4)(prettier@3.8.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(vite@7.3.1(@types/node@22.19.15)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.46.0)(yaml@2.8.3))
@@ -547,9 +548,6 @@ importers:
       msw:
         specifier: ^2.12.14
         version: 2.12.14(@types/node@22.19.15)(typescript@5.9.3)
-      msw-storybook-addon:
-        specifier: 2.0.6
-        version: 2.0.6(msw@2.12.14(@types/node@22.19.15)(typescript@5.9.3))
       npm-run-all2:
         specifier: ^8.0.4
         version: 8.0.4
@@ -574,9 +572,6 @@ importers:
       vue-router:
         specifier: ^5.0.4
         version: 5.0.4(@vue/compiler-sfc@3.5.31)(vue@3.5.30(typescript@5.9.3))
-      zod:
-        specifier: ^4.3.6
-        version: 4.3.6
 
 packages:
 

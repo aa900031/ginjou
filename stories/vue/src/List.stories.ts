@@ -1,33 +1,25 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
-import { Collection } from '@msw/data'
+import { createPostHandlers } from '@ginjou/storybook-shared/mock-data'
 import { vueRouter } from 'storybook-vue3-router'
 import { h } from 'vue'
 import { RouterView } from 'vue-router'
-import MOCK_POSTS from '../data/mock-posts.json'
-import { PostSchema } from './api/posts'
 import ListFilters from './ListFilters.vue'
 import ListFiltersWithCustomSyncRoute from './ListFiltersWithCustomSyncRoute.vue'
 import ListPagination from './ListPagination.vue'
 import ListSorters from './ListSorters.vue'
 import ListSortersWithCustomSyncRoute from './ListSortersWithCustomSyncRoute.vue'
-import { toHandlers } from './utils/msw-data'
 import { createWrapper } from './utils/wrapper'
 
 const meta = {
 	title: 'Controllers/List',
 } satisfies Meta
 
-const posts = new Collection({
-	schema: PostSchema,
-})
-MOCK_POSTS.forEach(post => posts.create(post))
-
 export const Pagination = {
 	name: 'Pagination',
 	render: () => () => h(RouterView),
 	parameters: {
 		msw: {
-			handlers: toHandlers(posts, 'posts', 'https://rest-api.local'),
+			handlers: createPostHandlers(),
 		},
 	},
 	decorators: [
@@ -58,7 +50,7 @@ export const Filters = {
 	render: () => () => h(RouterView),
 	parameters: {
 		msw: {
-			handlers: toHandlers(posts, 'posts', 'https://rest-api.local'),
+			handlers: createPostHandlers(),
 		},
 	},
 	decorators: [
@@ -89,7 +81,7 @@ export const FiltersWithCustomSyncRoute = {
 	render: () => () => h(RouterView),
 	parameters: {
 		msw: {
-			handlers: toHandlers(posts, 'posts', 'https://rest-api.local'),
+			handlers: createPostHandlers(),
 		},
 	},
 	decorators: [
@@ -120,7 +112,7 @@ export const Sorters = {
 	render: () => () => h(RouterView),
 	parameters: {
 		msw: {
-			handlers: toHandlers(posts, 'posts', 'https://rest-api.local'),
+			handlers: createPostHandlers(),
 		},
 	},
 	decorators: [
@@ -151,7 +143,7 @@ export const SortersWithCustomSyncRoute = {
 	render: () => () => h(RouterView),
 	parameters: {
 		msw: {
-			handlers: toHandlers(posts, 'posts', 'https://rest-api.local'),
+			handlers: createPostHandlers(),
 		},
 	},
 	decorators: [

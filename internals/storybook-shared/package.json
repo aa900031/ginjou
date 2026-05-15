@@ -1,0 +1,24 @@
+{
+	"name": "@ginjou/storybook-shared",
+	"version": "0.1.0",
+	"private": true,
+	"author": "zhong666 <hi@zhong666.me>",
+	"exports": {
+		"./preview": "./src/preview.ts",
+		"./preview.css": "./src/preview.css",
+		"./msw": "./src/msw.ts",
+		"./mock-data": "./src/mock-data.ts",
+		"./args": "./src/args.ts"
+	},
+	"dependencies": {
+		"@faker-js/faker": "^10.3.0",
+		"@ginjou/core": "workspace:^",
+		"@msw/data": "^1.1.2",
+		"msw": "^2.12.14",
+		"msw-storybook-addon": "2.0.6",
+		"zod": "^4.3.6"
+	},
+	"devDependencies": {
+		"@ginjou/tsconfig": "workspace:*"
+	}
+}

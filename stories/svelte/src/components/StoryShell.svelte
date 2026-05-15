@@ -6,7 +6,7 @@
 	import { createRouter } from '@ginjou/with-svelte-spa-router'
 	import { createFetcher } from '@ginjou/with-rest-api'
 	import Router from 'svelte-spa-router'
-	import { API_BASE_URL, postResources } from '../utils/posts'
+	import { API_BASE_URL, postResources } from '@ginjou/storybook-shared/mock-data'
 	import { resolveStoryAuth, resolveStoryAuthz, resolveStoryI18n } from '../utils/story-contexts'
 
 	const {

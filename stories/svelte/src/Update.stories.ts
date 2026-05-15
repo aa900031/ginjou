@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/svelte-vite'
+import { createPostHandlers } from '@ginjou/storybook-shared/mock-data'
 import UpdateMany from './UpdateMany.svelte'
 import UpdateOne from './UpdateOne.svelte'
-import { createPostHandlers } from './utils/posts'
 
 const meta = {
 	title: 'Query/Update',

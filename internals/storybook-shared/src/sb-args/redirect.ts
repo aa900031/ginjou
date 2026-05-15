@@ -1,4 +1,3 @@
-import type { ArgTypes } from '@storybook/svelte'
 import { ResourceAction } from '@ginjou/core'
 
 export const argTypes = {
@@ -22,4 +21,4 @@ export const argTypes = {
 			false,
 		],
 	},
-} satisfies ArgTypes
+}

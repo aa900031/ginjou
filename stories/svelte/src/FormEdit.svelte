@@ -2,7 +2,7 @@
 	import type { MutationModeValues } from '@ginjou/core'
 	import { MutationMode, ResourceAction } from '@ginjou/core'
 	import { wrap } from 'svelte-spa-router/wrap'
-	import { DEFAULT_POST_ID } from './utils/posts'
+	import { DEFAULT_POST_ID } from '@ginjou/storybook-shared/mock-data'
 	import StoryShell from './components/StoryShell.svelte'
 	import FormEditContent, { type FormRedirect } from './views/FormEditContent.svelte'
 	import PostList from './views/PostList.svelte'

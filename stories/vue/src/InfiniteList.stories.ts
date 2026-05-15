@@ -1,30 +1,22 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
+import { createPostHandlers } from '@ginjou/storybook-shared/mock-data'
 
-import { Collection } from '@msw/data'
 import { vueRouter } from 'storybook-vue3-router'
 import { h } from 'vue'
 import { RouterView } from 'vue-router'
-import MOCK_POSTS from '../data/mock-posts.json'
-import { PostSchema } from './api/posts'
 import InfiniteListPagination from './InfiniteListPagination.vue'
-import { toHandlers } from './utils/msw-data'
 import { createWrapper } from './utils/wrapper'
 
 const meta = {
 	title: 'Controllers/Infinite List',
 } satisfies Meta
 
-const posts = new Collection({
-	schema: PostSchema,
-})
-MOCK_POSTS.forEach(post => posts.create(post))
-
 export const Pagination = {
 	name: 'Pagination',
 	render: () => () => h(RouterView),
 	parameters: {
 		msw: {
-			handlers: toHandlers(posts, 'posts', 'https://rest-api.local'),
+			handlers: createPostHandlers(),
 		},
 	},
 	decorators: [

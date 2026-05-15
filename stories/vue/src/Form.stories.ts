@@ -1,33 +1,27 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
+import { mutationMode, redirect } from '@ginjou/storybook-shared/args'
 
-import { Collection } from '@msw/data'
+import { createPostHandlers } from '@ginjou/storybook-shared/mock-data'
 import { vueRouter } from 'storybook-vue3-router'
-import MOCK_POSTS from '../data/mock-posts.json'
-import { PostSchema } from './api/posts'
 import FormCreate from './FormCreate.vue'
 import FormEdit from './FormEdit.vue'
-import { toHandlers } from './utils/msw-data'
-import { args as MutationModeArgs, argTypes as MutationModeArgTypes } from './utils/sb-args/mutation-mode'
-import { argTypes as RedirectArgTypes } from './utils/sb-args/redirect'
 import { PostCreate, PostEdit, PostList, PostShow } from './utils/sb-renders/post-simple-view'
 import { renderRouteView } from './utils/sb-renders/route-view'
 import { createWrapper } from './utils/wrapper'
 
+const { argTypes: MutationModeArgTypes, args: MutationModeArgs } = mutationMode
+const { argTypes: RedirectArgTypes } = redirect
+
 const meta = {
 	title: 'Controllers/Form',
 } satisfies Meta
-
-const posts = new Collection({
-	schema: PostSchema,
-})
-MOCK_POSTS.forEach(post => posts.create(post))
 
 export const Create = {
 	name: 'Create',
 	render: renderRouteView,
 	parameters: {
 		msw: {
-			handlers: toHandlers(posts, 'posts', 'https://rest-api.local'),
+			handlers: createPostHandlers(),
 		},
 	},
 	decorators: [
@@ -77,7 +71,7 @@ export const Edit = {
 	render: renderRouteView,
 	parameters: {
 		msw: {
-			handlers: toHandlers(posts, 'posts', 'https://rest-api.local'),
+			handlers: createPostHandlers(),
 		},
 	},
 	decorators: [

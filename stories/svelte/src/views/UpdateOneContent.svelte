@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { useUpdateOne } from '@ginjou/svelte'
-	import type { Post, PostFormData, PostRawFormData } from '../api/posts'
+	import type { Post, PostFormData, PostRawFormData } from '@ginjou/storybook-shared/mock-data'
 	import Button from '../components/Button.svelte'
 	import FieldLabel from '../components/FieldLabel.svelte'
 	import Form from '../components/Form.svelte'
@@ -9,7 +9,7 @@
 	import PageTitle from '../components/PageTitle.svelte'
 	import Select from '../components/Select.svelte'
 	import Stack from '../components/Stack.svelte'
-	import { DEFAULT_POST_ID } from '../utils/posts'
+	import { DEFAULT_POST_ID } from '@ginjou/storybook-shared/mock-data'
 
 	const mutation = useUpdateOne<Post, PostFormData>({
 		resource: 'posts',

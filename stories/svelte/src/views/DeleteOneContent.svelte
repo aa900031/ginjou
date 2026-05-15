@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { useDeleteOne, useList } from '@ginjou/svelte'
-	import type { Post } from '../api/posts'
+	import type { Post } from '@ginjou/storybook-shared/mock-data'
 	import Button from '../components/Button.svelte'
 	import Card from '../components/Card.svelte'
 	import PageTitle from '../components/PageTitle.svelte'

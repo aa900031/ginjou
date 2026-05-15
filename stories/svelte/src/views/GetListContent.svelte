@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { useGetList } from '@ginjou/svelte'
-	import type { Post } from '../api/posts'
+	import type { Post } from '@ginjou/storybook-shared/mock-data'
 	import Card from '../components/Card.svelte'
 	import PageTitle from '../components/PageTitle.svelte'
 	import Stack from '../components/Stack.svelte'

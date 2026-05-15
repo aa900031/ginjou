@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/svelte-vite'
+import { createPostHandlers } from '@ginjou/storybook-shared/mock-data'
 import DeleteMany from './DeleteMany.svelte'
 import DeleteOne from './DeleteOne.svelte'
-import { createPostHandlers } from './utils/posts'
 
 const meta = {
 	title: 'Query/Delete',

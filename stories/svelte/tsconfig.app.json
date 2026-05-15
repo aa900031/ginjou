@@ -4,7 +4,8 @@
 		{ "path": "../../packages/core/tsconfig.app.json" },
 		{ "path": "../../packages/svelte/tsconfig.app.json" },
 		{ "path": "../../packages/with-rest-api/tsconfig.app.json" },
-		{ "path": "../../packages/with-svelte-spa-router/tsconfig.app.json" }
+		{ "path": "../../packages/with-svelte-spa-router/tsconfig.app.json" },
+		{ "path": "../../internals/storybook-shared/tsconfig.app.json" }
 	],
 	"include": [
 		"env.d.ts",
