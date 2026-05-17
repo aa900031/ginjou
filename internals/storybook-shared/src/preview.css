@@ -5,10 +5,7 @@
 	-webkit-overflow-scrolling: touch;
 }
 
-/* MDX docs: responsive code blocks */
-@media (max-width: 640px) {
-	.sbdocs pre,
-	.sbdocs code {
-		font-size: 12px;
-	}
+.sbdocs table img {
+	max-width: fit-content;
+	vertical-align: text-top;
 }
