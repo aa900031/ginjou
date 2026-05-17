@@ -2,7 +2,7 @@
 import 'uno.css'
 import type { Preview } from '@storybook/svelte-vite'
 import { mswLoader as MswLoader, setupMsw } from '@ginjou/storybook-shared/msw'
-import { parameters, withDarkClass } from '@ginjou/storybook-shared/preview'
+import { withDarkClass } from '@ginjou/storybook-shared/preview'
 
 setupMsw()
 
@@ -14,6 +14,19 @@ export default {
 		withDarkClass,
 	],
 	parameters: {
-		...parameters,
+		controls: {
+			matchers: {
+				color: /(background|color)$/i,
+				date: /Date$/,
+			},
+		},
+		options: {
+			storySort: {
+				order: [
+					'Controllers',
+					'Query',
+				],
+			},
+		},
 	},
 } satisfies Preview

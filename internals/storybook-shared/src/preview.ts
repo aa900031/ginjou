@@ -4,20 +4,3 @@ export function withDarkClass(story: () => any, context: any): any {
 	document.documentElement.classList.toggle('dark', name === 'dark')
 	return story()
 }
-
-export const parameters = {
-	controls: {
-		matchers: {
-			color: /(background|color)$/i,
-			date: /Date$/,
-		},
-	},
-	options: {
-		storySort: {
-			order: [
-				'Controllers',
-				'Query',
-			],
-		},
-	},
-}
