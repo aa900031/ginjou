@@ -116,7 +116,7 @@ export function resolve<
 		}
 	}
 
-	if (params.location) {
+	if (params.location && controller.resources?.length) {
 		for (const resource of controller.resources) {
 			const parsed = parse(resource, params.location)
 			if (parsed) {

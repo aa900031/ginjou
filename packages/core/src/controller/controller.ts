@@ -3,7 +3,7 @@ import type * as Resource from './resource'
 export interface Controller<
 	TResourceMeta extends Record<string, any> = Record<string, any>,
 > {
-	resources: Resource.Raw<TResourceMeta>[]
+	resources?: Resource.Raw<TResourceMeta>[]
 }
 
 /* @__NO_SIDE_EFFECTS__ */
