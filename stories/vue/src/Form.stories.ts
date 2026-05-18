@@ -1,13 +1,15 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import { mutationMode, redirect } from '@ginjou/storybook-shared/args'
-
 import { createPostHandlers } from '@ginjou/storybook-shared/mock-data'
 import { vueRouter } from 'storybook-vue3-router'
 import FormCreate from './FormCreate.vue'
 import FormEdit from './FormEdit.vue'
-import { PostCreate, PostEdit, PostList, PostShow } from './utils/sb-renders/post-simple-view'
 import { renderRouteView } from './utils/sb-renders/route-view'
 import { createWrapper } from './utils/wrapper'
+import PostCreate from './views/PostCreate.vue'
+import PostEdit from './views/PostEdit.vue'
+import PostList from './views/PostList.vue'
+import PostShow from './views/PostShow.vue'
 
 const { argTypes: MutationModeArgTypes, args: MutationModeArgs } = mutationMode
 const { argTypes: RedirectArgTypes } = redirect
