@@ -1,3 +1,4 @@
+import type { Box } from './box'
 import { deriveState } from './derive-state.svelte'
 
 export type PickStateGetter<T, TProp> = (
@@ -7,9 +8,7 @@ export type PickStateGetter<T, TProp> = (
 export function pickState<T, TProp>(
 	prop: () => TProp,
 	get: PickStateGetter<T, TProp>,
-): {
-	value: T | undefined
-} {
+): Box<T | undefined> {
 	return deriveState(
 		prop,
 		(value, prev) => get({

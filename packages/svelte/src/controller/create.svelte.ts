@@ -7,7 +7,7 @@ import type { UseResourceContext } from './resource.svelte'
 import { Create, Resource } from '@ginjou/core'
 import { useCreateOne } from '../query'
 import { useNavigateTo } from '../router'
-import { extract, withAccessors } from '../utils'
+import { extract, unbox, withAccessors } from '../utils'
 import { useResource } from './resource.svelte'
 
 export type UseCreateProps<
@@ -51,11 +51,11 @@ export function useCreate<
 	const navigateTo = useNavigateTo(() => ({ resource: resolvedProps?.resource }), context)
 
 	const fetcherName = $derived.by(() => Resource.getFetcherName({
-		resource: resource.value,
+		resource: unbox(resource),
 		fetcherNameFromProp: resolvedProps?.fetcherName,
 	}))
 	const resourceName = $derived.by(() => Resource.getName({
-		resource: resource.value,
+		resource: unbox(resource),
 		resourceFromProp: resolvedProps?.resource,
 	}))
 

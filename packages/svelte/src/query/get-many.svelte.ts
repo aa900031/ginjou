@@ -15,7 +15,7 @@ import { useCheckError } from '../auth'
 import { useTranslate } from '../i18n'
 import { useNotify } from '../notification'
 import { useRealtimeOptions, useSubscribe } from '../realtime'
-import { extract, withAccessors } from '../utils'
+import { extract, unbox, withAccessors } from '../utils'
 import { useFetchersContext } from './fetchers'
 import { useQueryClientContext } from './query-client'
 
@@ -124,15 +124,15 @@ export function useGetMany<
 
 	const channel = $derived.by(() => getSubscribeChannel({
 		resource: queryProps.resource,
-		realtimeOptions: realtimeOptions.value,
+		realtimeOptions: unbox(realtimeOptions),
 	}))
 	const params = $derived.by(() => GetMany.getSubscribeParams({
 		queryProps,
-		realtimeOptions: realtimeOptions.value,
+		realtimeOptions: unbox(realtimeOptions),
 	}))
 	const callback = createSubscribeCallback({
 		queryClient,
-		getRealtimeOptions: () => realtimeOptions.value,
+		getRealtimeOptions: () => unbox(realtimeOptions),
 		getResource: () => queryProps.resource,
 		getFetcherName: () => queryProps.fetcherName,
 	})

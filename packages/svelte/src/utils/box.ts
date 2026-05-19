@@ -2,50 +2,56 @@ export interface ReadonlyBox<T> {
 	readonly value: T
 }
 
-export interface Box<T> {
-	value: T
+export interface Box<T, S = T> {
+	get value(): T
+	set value(_: S)
 }
 
-export interface BoxAccessor<T> {
-	get: () => T
-	set: (value: T) => void
-}
+export type BoxGetter<T> = () => T
 
-export type BoxSource<T> = (() => T) | BoxAccessor<T>
+export type BoxSetter<T> = (nextValue: T) => void
+
+export interface WritableBoxOptions<T, S = T> {
+	get: BoxGetter<T>
+	set: BoxSetter<S>
+}
 
 export function box<T>(
-	source: () => T,
+	getter: BoxGetter<T>,
 ): ReadonlyBox<T>
 
-export function box<T>(
-	source: BoxAccessor<T>,
-): Box<T>
+export function box<T, S = T>(
+	options: WritableBoxOptions<T, S>,
+): Box<T, S>
 
 export function box<T>(
-	source: BoxSource<T>,
+	getterOrOptions: BoxGetter<T> | WritableBoxOptions<T>,
 ): Box<T> | ReadonlyBox<T> {
-	if (typeof source === 'function') {
-		return {
-			get value() {
-				return source()
-			},
-		}
+	let getter: BoxGetter<T>
+	let setter: BoxSetter<T> | undefined
+
+	if (typeof getterOrOptions === 'function') {
+		getter = getterOrOptions
+	}
+	else {
+		getter = getterOrOptions.get
+		setter = getterOrOptions.set
 	}
 
-	if (source.set) {
+	if (setter) {
 		return {
 			get value() {
-				return source.get()
+				return getter()
 			},
 			set value(nextValue) {
-				source.set(nextValue)
+				setter(nextValue)
 			},
 		}
 	}
 
 	return {
 		get value() {
-			return source.get()
+			return getter()
 		},
 	}
 }
@@ -53,23 +59,11 @@ export function box<T>(
 export function unbox<T>(
 	value: ReadonlyBox<T> | Box<T>,
 ): T {
-	if (typeof value === 'object' && value != null && 'value' in value)
-		return value.value
-	return value
+	return isBox(value) ? value.value : value
 }
 
-export function getBoxValue<T>(source: BoxSource<T>): T {
-	if (typeof source === 'function')
-		return source()
-
-	return source.get()
-}
-
-export function setBoxValue<T>(source: BoxSource<T>, value: T): boolean {
-	if (typeof source === 'object' && source.set) {
-		source.set(value)
-		return true
-	}
-
-	return false
+export function isBox(
+	value: unknown,
+): value is Box<any> {
+	return value != null && typeof value === 'object' && 'value' in value
 }

@@ -1,8 +1,8 @@
 import type { Simplify } from 'type-fest'
-import type { MaybeAccessor } from '../utils'
+import type { MaybeAccessor, ReadonlyBox } from '../utils'
 import type { UseRealtimeContextFromProps } from './context'
 import { RealtimeOption } from '@ginjou/core'
-import { extract } from '../utils'
+import { box, extract } from '../utils'
 import { useRealtimeContext } from './context'
 
 export type UseRealtimeOptionsProps<
@@ -15,11 +15,9 @@ export type UseRealtimeOptionsContext = Simplify<
 	& UseRealtimeContextFromProps
 >
 
-export interface UseRealtimeOptionsResult<
+export type UseRealtimeOptionsResult<
 	TPayload,
-> {
-	readonly value: RealtimeOption.Normalized<TPayload>
-}
+> = ReadonlyBox<RealtimeOption.Normalized<TPayload>>
 
 export function useRealtimeOptions<
 	TPayload,
@@ -44,9 +42,5 @@ export function useRealtimeOptions<
 		)
 	})
 
-	return {
-		get value() {
-			return value
-		},
-	}
+	return box(() => value)
 }

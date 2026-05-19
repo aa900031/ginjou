@@ -1,10 +1,10 @@
 import type { Simplify } from 'type-fest'
 import type { UseLocationContext } from '../router'
-import type { MaybeAccessor } from '../utils'
+import type { MaybeAccessor, ReadonlyBox } from '../utils'
 import type { UseControllerContextFromProps } from './context'
 import { Resource } from '@ginjou/core'
 import { useLocation } from '../router'
-import { extract } from '../utils'
+import { extract, unbox } from '../utils'
 import { useControllerContext } from './context'
 
 export type UseResourceProps = MaybeAccessor<
@@ -19,9 +19,7 @@ export type UseResourceContext = Simplify<
 	& UseLocationContext
 >
 
-export interface UseResourceResult {
-	readonly value: Resource.Resolved | undefined
-}
+export type UseResourceResult = ReadonlyBox<Resource.Resolved | undefined>
 
 export function useResource(
 	props?: UseResourceProps,
@@ -35,7 +33,7 @@ export function useResource(
 		controller,
 		{
 			name: resolvedProps?.name,
-			location: location.value,
+			location: unbox(location),
 		},
 	))
 

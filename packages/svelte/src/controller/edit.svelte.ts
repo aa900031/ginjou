@@ -7,7 +7,7 @@ import type { UseResourceContext } from './resource.svelte'
 import { Edit, Resource } from '@ginjou/core'
 import { useGetOne, useUpdateOne } from '../query'
 import { useNavigateTo } from '../router'
-import { extract, withAccessors } from '../utils'
+import { extract, unbox, withAccessors } from '../utils'
 import { useResource } from './resource.svelte'
 
 export type UseEditProps<
@@ -65,15 +65,15 @@ export function useEdit<
 	const navigateTo = useNavigateTo(() => ({ resource: resolvedProps?.resource }), context)
 
 	const id = $derived.by(() => Edit.getId({
-		resource: resource.value,
+		resource: unbox(resource),
 		idFromProp: resolvedProps?.id,
 	}))
 	const fetcherName = $derived.by(() => Resource.getFetcherName({
-		resource: resource.value,
+		resource: unbox(resource),
 		fetcherNameFromProp: resolvedProps?.fetcherName,
 	}))
 	const resourceName = $derived.by(() => Resource.getName({
-		resource: resource.value,
+		resource: unbox(resource),
 		resourceFromProp: resolvedProps?.resource,
 	}))
 

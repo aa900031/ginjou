@@ -7,7 +7,7 @@ import type { UseResourceContext } from './resource.svelte'
 import { InfiniteList, List, Resource } from '@ginjou/core'
 import { useGetInfiniteList } from '../query'
 import { useGo, useLocation } from '../router'
-import { deriveState, extract, pickState, watch, withAccessors } from '../utils'
+import { deriveState, extract, pickState, unbox, watch, withAccessors } from '../utils'
 import { useResource } from './resource.svelte'
 
 export type UseInfiniteListProps<
@@ -103,100 +103,100 @@ export function useInfiniteList<
 
 	const currentPageLocation = deriveState<TPageParam | undefined, List.GetLocationCurrentPageProps>(
 		() => ({
-			location: location.value,
+			location: unbox(location),
 			syncRouteFromProp: resolvedProps?.syncRoute,
 		}),
 		List.getLocationCurrentPage,
 	)
 	const perPageLocation = deriveState<number | undefined, List.GetLocationPerPageProps>(
 		() => ({
-			location: location.value,
+			location: unbox(location),
 			syncRouteFromProp: resolvedProps?.syncRoute,
 		}),
 		List.getLocationPerPage,
 	)
 	const filtersLocation = deriveState<Filters | undefined, List.GetLocationFiltersProps>(
 		() => ({
-			location: location.value,
+			location: unbox(location),
 			syncRouteFromProp: resolvedProps?.syncRoute,
 		}),
 		List.getLocationFilters,
 	)
 	const sortersLocation = deriveState<Sorters | undefined, List.GetLocationSortersProps>(
 		() => ({
-			location: location.value,
+			location: unbox(location),
 			syncRouteFromProp: resolvedProps?.syncRoute,
 		}),
 		List.getLocationSorters,
 	)
 
 	const resourceName = $derived.by(() => Resource.getName({
-		resource: resource.value,
+		resource: unbox(resource),
 		resourceFromProp: resolvedProps?.resource,
 	}))
 	const fetcherName = $derived.by(() => Resource.getFetcherName({
-		resource: resource.value,
+		resource: unbox(resource),
 		fetcherNameFromProp: resolvedProps?.fetcherName,
 	}))
 
 	const currentPage = deriveState<TPageParam, List.GetCurrentPageProps<TPageParam>>(
 		() => ({
-			initalPageFromProp: initialPageProp.value,
-			currentPageFromProp: currentPageProp.value,
-			currentPageFromLocation: currentPageLocation.value,
+			initalPageFromProp: unbox(initialPageProp),
+			currentPageFromProp: unbox(currentPageProp),
+			currentPageFromLocation: unbox(currentPageLocation),
 			syncRouteFromProp: resolvedProps?.syncRoute,
 		}),
 		List.getCurrentPage,
 	)
 	const perPage = deriveState<number, List.GetPerPageProps<TPageParam>>(
 		() => ({
-			perPageFromProp: perPageProp.value,
-			perPageFromLocation: perPageLocation.value,
+			perPageFromProp: unbox(perPageProp),
+			perPageFromLocation: unbox(perPageLocation),
 			syncRouteFromProp: resolvedProps?.syncRoute,
 		}),
 		List.getPerPage,
 	)
 	const filtersState = deriveState<Filters, List.GetFiltersProps>(
 		() => ({
-			filtersFromLocation: filtersLocation.value,
-			filtersFromProp: filtersProp.value,
-			filtersPermanentFromProp: filtersPermanentProp.value,
+			filtersFromLocation: unbox(filtersLocation),
+			filtersFromProp: unbox(filtersProp),
+			filtersPermanentFromProp: unbox(filtersPermanentProp),
 			syncRouteFromProp: resolvedProps?.syncRoute,
 		}),
 		List.getFilters,
 	)
 	const setFilters = List.createSetFiltersFn({
-		getFiltersPermanent: () => filtersPermanentProp.value,
-		getFiltersBehavior: () => filtersBehaviorProp.value,
-		getPrev: () => filtersState.value,
-		update: value => filtersState.value = value,
+		getFiltersPermanent: () => unbox(filtersPermanentProp),
+		getFiltersBehavior: () => unbox(filtersBehaviorProp),
+		getPrev: () => unbox(filtersState),
+		update: (value: Filters) => filtersState.value = value,
 	})
 	const sortersState = deriveState<Sorters, List.GetSortersProps>(
 		() => ({
-			sortersFromLocation: sortersLocation.value,
-			sortersFromProp: sortersProp.value,
-			sortersPermanentFromProp: sortersPermanentProp.value,
+			sortersFromLocation: unbox(sortersLocation),
+			sortersFromProp: unbox(sortersProp),
+			sortersPermanentFromProp: unbox(sortersPermanentProp),
 			syncRouteFromProp: resolvedProps?.syncRoute,
 		}),
 		List.getSorters,
 	)
 	const setSorters = List.createSetSortersFn({
-		getSortersPermanent: () => sortersPermanentProp.value,
-		getPrev: () => sortersState.value,
-		update: value => sortersState.value = value,
+		getSortersPermanent: () => unbox(sortersPermanentProp),
+		getPrev: () => unbox(sortersState),
+		update: (value: Sorters) => sortersState.value = value,
 	})
 
 	const paginationForQuery = $derived.by(() => InfiniteList.getPaginationForQuery({
-		currentPage: currentPage.value,
-		perPage: perPage.value,
+		currentPage: unbox(currentPage),
+		perPage: unbox(perPage),
 	}))
 	const sortersForQuery = $derived.by(() => List.getSortersForQuery({
-		sortersModeFromProp: sortersModeProp.value,
-		sorters: sortersState.value,
+		sortersModeFromProp: unbox(sortersModeProp),
+		sorters: unbox(sortersState),
 	}))
 	const filtersForQuery = $derived.by(() => List.getFiltersForQuery({
-		filtersModeFromProp: filtersModeProp.value,
-		filters: filtersState.value,
+		filtersModeFromProp: unbox(filtersModeProp),
+		filters: unbox(filtersState),
 	}))
 
 	const result = useGetInfiniteList<TData, TError, TResultData, TPageParam>(() => ({
@@ -210,7 +210,7 @@ export function useInfiniteList<
 
 	const pageCount = $derived.by(() => InfiniteList.getPageCount({
 		queryData: result.data,
-		perPage: perPage.value,
+		perPage: unbox(perPage),
 	}))
 
 	const total = $derived.by(() => InfiniteList.getTotal({
@@ -220,13 +220,13 @@ export function useInfiniteList<
 	watch(() => ({
 		syncRouteFromProp: resolvedProps?.syncRoute,
 
-		perPageLocation: perPageLocation.value,
-		filtersLocation: filtersLocation.value,
-		sortersLocation: sortersLocation.value,
+		perPageLocation: unbox(perPageLocation),
+		filtersLocation: unbox(filtersLocation),
+		sortersLocation: unbox(sortersLocation),
 
-		perPage: perPage.value,
-		sorters: sortersState.value,
-		filters: filtersState.value,
+		perPage: unbox(perPage),
+		sorters: unbox(sortersState),
+		filters: unbox(filtersState),
 	}), (val) => {
 		const params = InfiniteList.toRouterGoParams(val)
 		if (!params)
@@ -245,12 +245,12 @@ export function useInfiniteList<
 	})
 
 	watch(() => ({
-		perPage: perPage.value,
-		_filters: filtersState.value,
-		_sorters: sortersState.value,
+		perPage: unbox(perPage),
+		_filters: unbox(filtersState),
+		_sorters: unbox(sortersState),
 	}), () => {
 		currentPage.value = List.getInitialPage({
-			initalPageFromProp: initialPageProp.value,
+			initalPageFromProp: unbox(initialPageProp),
 		})
 	})
 

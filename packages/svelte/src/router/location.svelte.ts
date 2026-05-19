@@ -1,18 +1,18 @@
 import type { RouterLocation } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
+import type { ReadonlyBox } from '../utils'
 import type { UseRouterContextFromProps } from './context'
 import { onDestroy } from 'svelte'
+import { box } from '../utils'
 import { useRouterContext } from './context'
 
 export type UseLocationContext = Simplify<
 	& UseRouterContextFromProps
 >
 
-export interface UseLocationResult<
+export type UseLocationResult<
 	TMeta = unknown,
-> {
-	readonly value: RouterLocation<TMeta> | undefined
-}
+> = ReadonlyBox<RouterLocation<TMeta> | undefined>
 
 export function useLocation<
 	TMeta = unknown,
@@ -23,17 +23,13 @@ export function useLocation<
 
 	let value = $state(router?.getLocation() as RouterLocation<TMeta> | undefined)
 
-	const stop = router?.onChangeLocation((location) => {
-		value = location as RouterLocation<TMeta>
+	const stop = router?.onChangeLocation((location: RouterLocation<TMeta>) => {
+		value = location
 	})
 
 	onDestroy(() => {
 		stop?.()
 	})
 
-	return {
-		get value() {
-			return value
-		},
-	}
+	return box(() => value)
 }

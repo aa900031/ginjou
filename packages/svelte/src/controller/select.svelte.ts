@@ -5,7 +5,7 @@ import type { MaybeAccessor } from '../utils'
 import type { UseResourceContext } from './resource.svelte'
 import { Resource, Select } from '@ginjou/core'
 import { useGetList, useGetMany } from '../query'
-import { extract, pickState, withAccessors } from '../utils'
+import { extract, pickState, unbox, withAccessors } from '../utils'
 import { useResource } from './resource.svelte'
 
 export type UseSelectProps<
@@ -61,11 +61,11 @@ export function useSelect<
 	)
 
 	const resourceName = $derived.by(() => Resource.getName({
-		resource: resource.value,
+		resource: unbox(resource),
 		resourceFromProp: resolvedProps?.resource,
 	}))
 	const fetcherName = $derived.by(() => Resource.getFetcherName({
-		resource: resource.value,
+		resource: unbox(resource),
 		fetcherNameFromProp: resolvedProps?.fetcherName,
 	}))
 	const filters = $derived.by(() => Select.getListFilters({
@@ -75,8 +75,8 @@ export function useSelect<
 		searchToFilters: resolvedProps?.searchToFilters,
 	}))
 	const pagination = $derived.by(() => Select.getPagination({
-		currentPage: currentPage.value,
-		perPage: perPage.value,
+		currentPage: unbox(currentPage),
+		perPage: unbox(perPage),
 	}))
 	const ids = $derived.by(() => Select.getValueIds({
 		valueFormProp: resolvedProps?.value,

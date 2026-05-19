@@ -18,7 +18,7 @@ describe('withAccessors', () => {
 		const result = withAccessors({}, {
 			current: {
 				get: () => value,
-				set: (nextValue) => {
+				set: (nextValue: number) => {
 					value = nextValue
 				},
 			},

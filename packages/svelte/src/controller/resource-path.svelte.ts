@@ -1,9 +1,9 @@
 import type { ResourceAction } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
-import type { MaybeAccessor } from '../utils'
+import type { MaybeAccessor, ReadonlyBox } from '../utils'
 import type { UseResourceContext } from './resource.svelte'
 import { ResourcePath } from '@ginjou/core'
-import { extract } from '../utils'
+import { extract, unbox } from '../utils'
 import { useResource } from './resource.svelte'
 
 export type UseResourcePathProps = MaybeAccessor<{
@@ -16,9 +16,7 @@ export type UseResourcePathContext = Simplify<
 	& UseResourceContext
 >
 
-export interface UseResourcePathResult {
-	readonly value: string | undefined
-}
+export type UseResourcePathResult = ReadonlyBox<string | undefined>
 
 export function useResourcePath(
 	props: UseResourcePathProps,
@@ -30,7 +28,7 @@ export function useResourcePath(
 	}), context)
 
 	const value = $derived.by(() => ResourcePath.get({
-		resolved: controller.value,
+		resolved: unbox(controller),
 		action: resolvedProps.action,
 		params: resolvedProps.params,
 	}))

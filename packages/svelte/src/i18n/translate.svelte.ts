@@ -2,7 +2,7 @@ import type { Params } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
 import type { UseI18nContextFromProps } from './context'
 import { Translate } from '@ginjou/core'
-import { watch } from '../utils'
+import { unbox, watch } from '../utils'
 import { useI18nContext } from './context'
 import { useLocale } from './locale.svelte'
 
@@ -22,7 +22,7 @@ export function useTranslate<
 
 	if (i18n) {
 		const locale = useLocale()
-		watch(() => locale.value, () => {
+		watch(() => unbox(locale), () => {
 			fn = Translate.createFn({ i18n })
 		})
 	}

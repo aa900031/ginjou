@@ -5,7 +5,7 @@ import type { MaybeAccessor } from '../utils'
 import type { UseResourceContext } from './resource.svelte'
 import { Resource, Show } from '@ginjou/core'
 import { useGetOne } from '../query'
-import { extract, watch, withAccessors } from '../utils'
+import { extract, unbox, watch, withAccessors } from '../utils'
 import { useResource } from './resource.svelte'
 
 export type UseShowProps<
@@ -45,18 +45,18 @@ export function useShow<
 	const inferredResource = useResource(undefined, context)
 
 	const resourceName = $derived.by(() => Resource.getName({
-		resource: resource.value,
+		resource: unbox(resource),
 		resourceFromProp: resolvedProps?.resource,
 	}))
 	const fetcherName = $derived.by(() => Resource.getFetcherName({
-		resource: resource.value,
+		resource: unbox(resource),
 		fetcherNameFromProp: resolvedProps?.fetcherName,
 	}))
 	const defaultId = $derived.by(() => Show.getDefaultId({
 		resourceFromProp: resolvedProps?.resource,
 		idFromProp: resolvedProps?.id,
-		resource: resource.value,
-		inferredResource: inferredResource.value,
+		resource: unbox(resource),
+		inferredResource: unbox(inferredResource),
 	}))
 
 	let id = $state<RecordKey | undefined>()

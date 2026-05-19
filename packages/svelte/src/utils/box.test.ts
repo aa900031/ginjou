@@ -13,19 +13,6 @@ describe('box', () => {
 		expect(result.value).toBe(2)
 	})
 
-	it('should create a readonly box from a getter object', () => {
-		let value = 1
-		const result = box({
-			get: () => value,
-		})
-
-		expect(result.value).toBe(1)
-
-		value = 3
-
-		expect(result.value).toBe(3)
-	})
-
 	it('should create a writable box from get and set accessors', () => {
 		let value = 1
 		const result = box({
