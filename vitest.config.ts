@@ -9,7 +9,7 @@ export default defineConfig({
 			? { forks: { execArgv: getV8Flags() } }
 			: undefined,
 		coverage: {
-			provider: 'istanbul',
+			provider: 'v8',
 			include: [
 				'packages/*/src/**/*',
 			],
