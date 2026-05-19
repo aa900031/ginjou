@@ -36,11 +36,11 @@ export type {
 } from './notify'
 
 export type {
-	OptimisticUpdateMap,
-	OptimisticUpdateMapFunction,
-	OptimisticUpdateMapProps,
-	OptimisticUpdateMapValue,
-} from './optimistic-update-map'
+	OptimisticUpdate,
+	OptimisticUpdateFn,
+	OptimisticUpdateProps,
+	OptimisticUpdateRule,
+} from './optimistic-update'
 
 export type {
 	CreateSubscribeCallbackProps,

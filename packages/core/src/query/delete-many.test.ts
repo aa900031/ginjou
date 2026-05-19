@@ -204,7 +204,7 @@ describe('createMutateHandler (delete-many)', () => {
 			expect(setQueriesDataSpy).toHaveBeenCalled()
 		})
 
-		it('skips selected optimistic cache groups when optimisticUpdateMap entries are false', async () => {
+		it('skips selected optimistic cache groups when optimisticUpdate entries are false', async () => {
 			const queryClient = new QueryClient()
 			const keys = seedPostQueries(queryClient)
 			const handler = createMutateHandler({
@@ -219,7 +219,7 @@ describe('createMutateHandler (delete-many)', () => {
 				resource: 'posts',
 				ids: [1, 2],
 				mutationMode: MutationMode.Optimistic,
-				optimisticUpdateMap: {
+				optimisticUpdate: {
 					list: false,
 					many: false,
 					one: false,

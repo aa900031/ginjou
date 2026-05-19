@@ -5,15 +5,7 @@ import { createQueryKey as createGetListQueryKey } from './get-list'
 import { createQueryKey as createGetManyQueryKey } from './get-many'
 import { createQueryKey as createGetOneQueryKey } from './get-one'
 import { MutationMode } from './mutation-mode'
-import {
-	createErrorHandler,
-	createMutateAsyncFn,
-	createMutateFn,
-	createMutateHandler,
-	createMutationFn,
-	createSettledHandler,
-	createSuccessHandler,
-} from './update'
+import { createErrorHandler, createMutateAsyncFn, createMutateFn, createMutateHandler, createMutationFn, createSettledHandler, createSuccessHandler } from './update'
 
 function seedPostQueries(queryClient: QueryClient) {
 	const queryProps = {
@@ -103,7 +95,7 @@ describe('createMutationFn (update)', () => {
 })
 
 describe('createMutateHandler (update)', () => {
-	it('should skip selected optimistic cache groups when optimisticUpdateMap entries are false', async () => {
+	it('should skip selected optimistic cache groups when optimisticUpdate entries are false', async () => {
 		const queryClient = new QueryClient()
 		const keys = seedPostQueries(queryClient)
 		const handler = createMutateHandler({
@@ -119,7 +111,7 @@ describe('createMutateHandler (update)', () => {
 			id: 1,
 			params: { title: 'Updated' },
 			mutationMode: MutationMode.Optimistic,
-			optimisticUpdateMap: {
+			optimisticUpdate: {
 				list: false,
 				many: false,
 				one: false,
@@ -137,7 +129,7 @@ describe('createMutateHandler (update)', () => {
 		})
 	})
 
-	it('should use custom optimisticUpdateMap mapper functions', async () => {
+	it('should use custom optimisticUpdate functions', async () => {
 		const queryClient = new QueryClient()
 		const keys = seedPostQueries(queryClient)
 		const list = vi.fn((previous: any, params: any, id: any) => ({
@@ -173,7 +165,7 @@ describe('createMutateHandler (update)', () => {
 			id: 1,
 			params: { title: 'Updated' },
 			mutationMode: MutationMode.Optimistic,
-			optimisticUpdateMap: {
+			optimisticUpdate: {
 				list,
 				many,
 				one,

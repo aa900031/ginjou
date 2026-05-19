@@ -3,56 +3,60 @@ import type { BaseRecord, GetListResult, GetManyResult, GetOneResult, Params, Re
 import type { UpdaterFn } from './types'
 import { checkTargetRecord, isInfiniteData, mergeTargetRecord } from './helper'
 
-export type OptimisticUpdateMapValue<
+export type OptimisticUpdateRule<
 	TPrevious,
 	TParams,
 	TTarget,
 >
 	= | boolean
-		| OptimisticUpdateMapFunction<TPrevious, TParams, TTarget>
+		| OptimisticUpdateFn<TPrevious, TParams, TTarget>
 
-export type OptimisticUpdateMapFunction<
+export type OptimisticUpdateFn<
 	TPrevious,
 	TParams,
 	TTarget,
-> = (previous: TPrevious | undefined, params: TParams, target: TTarget) => TPrevious | undefined
+> = (
+	previous: TPrevious | undefined,
+	params: TParams,
+	target: TTarget,
+) => TPrevious | undefined
 
-export type ActiveOptimisticUpdateMapValue<
+export type EnabledOptimisticUpdateRule<
 	TPrevious,
 	TParams,
 	TTarget,
-> = Exclude<OptimisticUpdateMapValue<TPrevious, TParams, TTarget>, false>
+> = Exclude<OptimisticUpdateRule<TPrevious, TParams, TTarget>, false>
 
-export interface OptimisticUpdateMap<
+export interface OptimisticUpdate<
 	TData extends BaseRecord,
 	TParams,
 	TTarget extends RecordKey | RecordKey[],
 	TPageParam = unknown,
 > {
-	list?: OptimisticUpdateMapValue<
+	list?: OptimisticUpdateRule<
 		GetListResult<TData, TPageParam> | InfiniteData<GetListResult<TData, TPageParam>>,
 		TParams,
 		TTarget
 	>
-	many?: OptimisticUpdateMapValue<
+	many?: OptimisticUpdateRule<
 		GetManyResult<TData>,
 		TParams,
 		TTarget
 	>
-	one?: OptimisticUpdateMapValue<
+	one?: OptimisticUpdateRule<
 		GetOneResult<TData>,
 		TParams,
 		RecordKey
 	>
 }
 
-export interface OptimisticUpdateMapProps<
+export interface OptimisticUpdateProps<
 	TData extends BaseRecord,
 	TParams,
 	TTarget extends RecordKey | RecordKey[],
 	TPageParam = unknown,
 > {
-	optimisticUpdateMap?: OptimisticUpdateMap<TData, TParams, TTarget, TPageParam>
+	optimisticUpdate?: OptimisticUpdate<TData, TParams, TTarget, TPageParam>
 }
 
 export function shouldApplyOptimisticUpdate<
@@ -60,21 +64,21 @@ export function shouldApplyOptimisticUpdate<
 	TParams,
 	TTarget,
 >(
-	optimisticUpdate: OptimisticUpdateMapValue<TPrevious, TParams, TTarget> | undefined,
-): optimisticUpdate is ActiveOptimisticUpdateMapValue<TPrevious, TParams, TTarget> | undefined {
+	optimisticUpdate: OptimisticUpdateRule<TPrevious, TParams, TTarget> | undefined,
+): optimisticUpdate is EnabledOptimisticUpdateRule<TPrevious, TParams, TTarget> | undefined {
 	return optimisticUpdate !== false
 }
 
-export function createOptimisticUpdateMapUpdaterFn<
+export function createOptimisticUpdaterFn<
 	TPrevious,
 	TParams,
 	TTarget,
 >(
-	optimisticUpdateMapFunction: OptimisticUpdateMapFunction<TPrevious, TParams, TTarget>,
+	optimisticUpdateFn: OptimisticUpdateFn<TPrevious, TParams, TTarget>,
 	params: TParams,
 	target: TTarget,
 ): UpdaterFn<TPrevious> {
-	return previous => optimisticUpdateMapFunction(previous, params, target)
+	return previous => optimisticUpdateFn(previous, params, target)
 }
 
 export function createModifyListItemUpdaterFn<
@@ -88,9 +92,7 @@ export function createModifyListItemUpdaterFn<
 ): UpdaterFn<GetListResult<TData, TPageParam> | InfiniteData<GetListResult<TData, TPageParam>>> {
 	const ids = normalizeIds(idOrIds)
 
-	return modifyListUpdater
-
-	function modifyListUpdater(
+	return function modifyListUpdater(
 		previous: GetListResult<TData, TPageParam> | InfiniteData<GetListResult<TData, TPageParam>> | undefined,
 	): GetListResult<TData, TPageParam> | InfiniteData<GetListResult<TData, TPageParam>> | undefined {
 		if (!previous)
@@ -132,9 +134,7 @@ export function createModifyManyUpdaterFn<
 ): UpdaterFn<GetManyResult<TData>> {
 	const ids = normalizeIds(idOrIds)
 
-	return modifyManyUpdater
-
-	function modifyManyUpdater(
+	return function modifyManyUpdater(
 		previous: GetManyResult<TData> | undefined,
 	): GetManyResult<TData> | undefined {
 		if (!previous)
@@ -163,9 +163,7 @@ export function createModifyOneUpdaterFn<
 >(
 	params: TParams,
 ): UpdaterFn<GetOneResult<TData>> {
-	return modifyOneUpdater
-
-	function modifyOneUpdater(
+	return function modifyOneUpdater(
 		previous: GetOneResult<TData> | undefined,
 	): GetOneResult<TData> | undefined {
 		if (!previous)
@@ -190,9 +188,7 @@ export function createRemoveListItemUpdaterFn<
 ): UpdaterFn<GetListResult<TData, TPageParam> | InfiniteData<GetListResult<TData, TPageParam>>> {
 	const ids = normalizeIds(idOrIds)
 
-	return removeListItemUpdater
-
-	function removeListItemUpdater(
+	return function removeListItemUpdater(
 		previous: GetListResult<TData, TPageParam> | InfiniteData<GetListResult<TData, TPageParam>> | undefined,
 	): GetListResult<TData, TPageParam> | InfiniteData<GetListResult<TData, TPageParam>> | undefined {
 		if (!previous)
@@ -232,9 +228,7 @@ export function createRemoveManyUpdaterFn<
 ): UpdaterFn<GetManyResult<TData>> {
 	const ids = normalizeIds(idOrIds)
 
-	return removeManyUpdater
-
-	function removeManyUpdater(
+	return function removeManyUpdater(
 		previous: GetManyResult<TData> | undefined,
 	): GetManyResult<TData> | undefined {
 		if (!previous)

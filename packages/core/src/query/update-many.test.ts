@@ -5,15 +5,7 @@ import { createQueryKey as createGetListQueryKey } from './get-list'
 import { createQueryKey as createGetManyQueryKey } from './get-many'
 import { createQueryKey as createGetOneQueryKey } from './get-one'
 import { MutationMode } from './mutation-mode'
-import {
-	createErrorHandler,
-	createMutateAsyncFn,
-	createMutateFn,
-	createMutateHandler,
-	createMutationFn,
-	createSettledHandler,
-	createSuccessHandler,
-} from './update-many'
+import { createErrorHandler, createMutateAsyncFn, createMutateFn, createMutateHandler, createMutationFn, createSettledHandler, createSuccessHandler } from './update-many'
 
 function seedPostQueries(queryClient: QueryClient) {
 	const queryProps = {
@@ -342,7 +334,7 @@ describe('createMutateHandler (update-many)', () => {
 			expect(setQueriesDataSpy).toHaveBeenCalled()
 		})
 
-		it('skips selected optimistic cache groups when optimisticUpdateMap entries are false', async () => {
+		it('skips selected optimistic cache groups when optimisticUpdate entries are false', async () => {
 			const queryClient = new QueryClient()
 			const keys = seedPostQueries(queryClient)
 			const handler = createMutateHandler({
@@ -358,7 +350,7 @@ describe('createMutateHandler (update-many)', () => {
 				ids: [1, 2],
 				params: { title: 'Updated' },
 				mutationMode: MutationMode.Optimistic,
-				optimisticUpdateMap: {
+				optimisticUpdate: {
 					list: false,
 					many: false,
 					one: false,
@@ -379,7 +371,7 @@ describe('createMutateHandler (update-many)', () => {
 			})
 		})
 
-		it('uses custom optimisticUpdateMap mapper functions', async () => {
+		it('uses custom optimisticUpdate functions', async () => {
 			const queryClient = new QueryClient()
 			const keys = seedPostQueries(queryClient)
 			const list = vi.fn((previous: any, params: any, ids: any[]) => ({
@@ -414,7 +406,7 @@ describe('createMutateHandler (update-many)', () => {
 				ids: [1, 2],
 				params: { title: 'Updated' },
 				mutationMode: MutationMode.Optimistic,
-				optimisticUpdateMap: {
+				optimisticUpdate: {
 					list,
 					many,
 					one,

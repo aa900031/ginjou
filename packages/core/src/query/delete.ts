@@ -9,7 +9,7 @@ import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { InvalidatesProps, InvalidateTargetType, ResolvedInvalidatesProps } from './invalidate'
 import type { MutationModeProps, ResolvedMutationModeProps } from './mutation-mode'
 import type { NotifyProps } from './notify'
-import type { OptimisticUpdateMapProps } from './optimistic-update-map'
+import type { OptimisticUpdateProps } from './optimistic-update'
 import type { PublishPayload } from './publish'
 import type { OptionalMutateAsyncFunction, OptionalMutateSyncFunction, OriginMutateAsyncFunction, OriginMutateSyncFunction, QueryPair } from './types'
 import { NotificationType } from '../notification'
@@ -23,7 +23,7 @@ import { createQueryKey as genGetOneQueryKey } from './get-one'
 import { InvalidateTarget, resolveInvalidateProps, triggerInvalidates } from './invalidate'
 import { MutationMode, resolveMutationModeProps } from './mutation-mode'
 import { createProgressNotifyParams, resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
-import { createOptimisticUpdateMapUpdaterFn, createRemoveListItemUpdaterFn, createRemoveManyUpdaterFn, shouldApplyOptimisticUpdate } from './optimistic-update-map'
+import { createOptimisticUpdaterFn, createRemoveListItemUpdaterFn, createRemoveManyUpdaterFn, shouldApplyOptimisticUpdate } from './optimistic-update'
 import { createPublishMeta, createPublishPayloadByOne } from './publish'
 import { createQueryKey as genResourceQueryKey } from './resource'
 
@@ -37,7 +37,7 @@ export type MutationProps<
 	& InvalidatesProps
 	& NotifyProps<DeleteOneResult<TData>, DeleteOneProps<TParams>, TError>
 	& MutationModeProps
-	& OptimisticUpdateMapProps<TData, TParams | undefined, DeleteOneProps<TParams>['id']>
+	& OptimisticUpdateProps<TData, TParams | undefined, DeleteOneProps<TParams>['id']>
 >
 
 export type ResolvedMutationProps<
@@ -518,9 +518,9 @@ function updateCache<
 	props: ResolvedMutationProps<TData, any, any>,
 	queryClient: QueryClient,
 ): void {
-	const listOptimisticUpdate = props.optimisticUpdateMap?.list
-	const manyOptimisticUpdate = props.optimisticUpdateMap?.many
-	const oneOptimisticUpdate = props.optimisticUpdateMap?.one
+	const listOptimisticUpdate = props.optimisticUpdate?.list
+	const manyOptimisticUpdate = props.optimisticUpdate?.many
+	const oneOptimisticUpdate = props.optimisticUpdate?.one
 
 	if (shouldApplyOptimisticUpdate(listOptimisticUpdate)) {
 		queryClient.setQueriesData(
@@ -528,7 +528,7 @@ function updateCache<
 				queryKey: genBaseGetListQueryKey({ props }),
 			},
 			typeof listOptimisticUpdate === 'function'
-				? createOptimisticUpdateMapUpdaterFn(listOptimisticUpdate, props.params, props.id)
+				? createOptimisticUpdaterFn(listOptimisticUpdate, props.params, props.id)
 				: createRemoveListItemUpdaterFn<TData, TPageParam, DeleteOneProps<any>['id']>(props.id),
 		)
 	}
@@ -538,7 +538,7 @@ function updateCache<
 				queryKey: genBaseGetManyQueryKey({ props }),
 			},
 			typeof manyOptimisticUpdate === 'function'
-				? createOptimisticUpdateMapUpdaterFn(manyOptimisticUpdate, props.params, props.id)
+				? createOptimisticUpdaterFn(manyOptimisticUpdate, props.params, props.id)
 				: createRemoveManyUpdaterFn<TData, DeleteOneProps<any>['id']>(props.id),
 		)
 	}
@@ -548,7 +548,7 @@ function updateCache<
 				{
 					queryKey: genGetOneQueryKey({ props }),
 				},
-				createOptimisticUpdateMapUpdaterFn(oneOptimisticUpdate, props.params, props.id),
+				createOptimisticUpdaterFn(oneOptimisticUpdate, props.params, props.id),
 			)
 		}
 		else {
