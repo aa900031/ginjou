@@ -7,7 +7,7 @@ import type { UseResourceContext } from './resource.svelte'
 import { List, Resource } from '@ginjou/core'
 import { useGetList } from '../query'
 import { useGo, useLocation } from '../router'
-import { extract, stateFallback, stateSub, watch, withAccessors } from '../utils'
+import { deriveState, extract, pickState, watch, withAccessors } from '../utils'
 import { useResource } from './resource.svelte'
 
 export type UseListProps<
@@ -57,73 +57,73 @@ export function useList<
 	const resource = useResource(() => ({ name: resolvedProps?.resource }), context)
 	const location = useLocation(context)
 
-	const initialPageProp = stateSub<number, List.PaginationProp<number> | undefined>(
+	const initialPageProp = pickState<number, List.PaginationProp<number> | undefined>(
 		() => resolvedProps?.pagination,
 		List.getPropInitialPage,
 	)
-	const currentPageProp = stateSub<number, List.PaginationProp<number> | undefined>(
+	const currentPageProp = pickState<number, List.PaginationProp<number> | undefined>(
 		() => resolvedProps?.pagination,
 		List.getPropCurrentPage,
 	)
-	const perPageProp = stateSub<number, List.PaginationProp<number> | undefined>(
+	const perPageProp = pickState<number, List.PaginationProp<number> | undefined>(
 		() => resolvedProps?.pagination,
 		List.getPropPerPage,
 	)
-	const paginationModeProp = stateSub<List.PaginationProp<number>['mode'], List.PaginationProp<number> | undefined>(
+	const paginationModeProp = pickState<List.PaginationProp<number>['mode'], List.PaginationProp<number> | undefined>(
 		() => resolvedProps?.pagination,
 		List.getPropPaginationMode,
 	)
-	const filtersProp = stateSub<Filters, List.FiltersProp | undefined>(
+	const filtersProp = pickState<Filters, List.FiltersProp | undefined>(
 		() => resolvedProps?.filters,
 		List.getPropFilters,
 	)
-	const filtersPermanentProp = stateSub<List.FiltersOptions['permanent'], List.FiltersProp | undefined>(
+	const filtersPermanentProp = pickState<List.FiltersOptions['permanent'], List.FiltersProp | undefined>(
 		() => resolvedProps?.filters,
 		List.getPropFiltersPermanent,
 	)
-	const filtersBehaviorProp = stateSub<List.FiltersOptions['behavior'], List.FiltersProp | undefined>(
+	const filtersBehaviorProp = pickState<List.FiltersOptions['behavior'], List.FiltersProp | undefined>(
 		() => resolvedProps?.filters,
 		List.getPropFiltersBehavior,
 	)
-	const filtersModeProp = stateSub<List.FiltersOptions['mode'], List.FiltersProp | undefined>(
+	const filtersModeProp = pickState<List.FiltersOptions['mode'], List.FiltersProp | undefined>(
 		() => resolvedProps?.filters,
 		List.getPropFiltersMode,
 	)
-	const sortersProp = stateSub<Sorters, List.SortersProp | undefined>(
+	const sortersProp = pickState<Sorters, List.SortersProp | undefined>(
 		() => resolvedProps?.sorters,
 		List.getPropSorters,
 	)
-	const sortersPermanentProp = stateSub<List.SortersOptions['permanent'], List.SortersProp | undefined>(
+	const sortersPermanentProp = pickState<List.SortersOptions['permanent'], List.SortersProp | undefined>(
 		() => resolvedProps?.sorters,
 		List.getPropSortersPermanent,
 	)
-	const sortersModeProp = stateSub<List.SortersOptions['mode'], List.SortersProp | undefined>(
+	const sortersModeProp = pickState<List.SortersOptions['mode'], List.SortersProp | undefined>(
 		() => resolvedProps?.sorters,
 		List.getPropSortersMode,
 	)
 
-	const currentPageLocation = stateFallback<number | undefined, List.GetLocationCurrentPageProps>(
+	const currentPageLocation = deriveState<number | undefined, List.GetLocationCurrentPageProps>(
 		() => ({
 			location: location.value,
 			syncRouteFromProp: resolvedProps?.syncRoute,
 		}),
 		List.getLocationCurrentPage,
 	)
-	const perPageLocation = stateFallback<number | undefined, List.GetLocationPerPageProps>(
+	const perPageLocation = deriveState<number | undefined, List.GetLocationPerPageProps>(
 		() => ({
 			location: location.value,
 			syncRouteFromProp: resolvedProps?.syncRoute,
 		}),
 		List.getLocationPerPage,
 	)
-	const filtersLocation = stateFallback<Filters | undefined, List.GetLocationFiltersProps>(
+	const filtersLocation = deriveState<Filters | undefined, List.GetLocationFiltersProps>(
 		() => ({
 			location: location.value,
 			syncRouteFromProp: resolvedProps?.syncRoute,
 		}),
 		List.getLocationFilters,
 	)
-	const sortersLocation = stateFallback<Sorters | undefined, List.GetLocationSortersProps>(
+	const sortersLocation = deriveState<Sorters | undefined, List.GetLocationSortersProps>(
 		() => ({
 			location: location.value,
 			syncRouteFromProp: resolvedProps?.syncRoute,
@@ -140,7 +140,7 @@ export function useList<
 		fetcherNameFromProp: resolvedProps?.fetcherName,
 	}))
 
-	const currentPage = stateFallback(
+	const currentPage = deriveState<number, List.GetCurrentPageProps<number>>(
 		() => ({
 			initalPageFromProp: initialPageProp.value,
 			currentPageFromProp: currentPageProp.value,
@@ -149,7 +149,7 @@ export function useList<
 		}),
 		List.getCurrentPage<number>,
 	)
-	const perPage = stateFallback(
+	const perPage = deriveState<number, List.GetPerPageProps<number>>(
 		() => ({
 			perPageFromProp: perPageProp.value,
 			perPageFromLocation: perPageLocation.value,
@@ -157,7 +157,7 @@ export function useList<
 		}),
 		List.getPerPage<number>,
 	)
-	const filtersState = stateFallback<Filters, List.GetFiltersProps>(
+	const filtersState = deriveState<Filters, List.GetFiltersProps>(
 		() => ({
 			filtersFromLocation: filtersLocation.value,
 			filtersFromProp: filtersProp.value,
@@ -172,7 +172,7 @@ export function useList<
 		getPrev: () => filtersState.value,
 		update: value => filtersState.value = value,
 	})
-	const sortersState = stateFallback<Sorters, List.GetSortersProps>(
+	const sortersState = deriveState<Sorters, List.GetSortersProps>(
 		() => ({
 			sortersFromLocation: sortersLocation.value,
 			sortersFromProp: sortersProp.value,

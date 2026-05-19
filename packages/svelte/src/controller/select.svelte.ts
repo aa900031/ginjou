@@ -5,7 +5,7 @@ import type { MaybeAccessor } from '../utils'
 import type { UseResourceContext } from './resource.svelte'
 import { Resource, Select } from '@ginjou/core'
 import { useGetList, useGetMany } from '../query'
-import { extract, stateSub, withAccessors } from '../utils'
+import { extract, pickState, withAccessors } from '../utils'
 import { useResource } from './resource.svelte'
 
 export type UseSelectProps<
@@ -51,11 +51,11 @@ export function useSelect<
 	const resource = useResource(() => ({ name: resolvedProps?.resource }), context)
 
 	let search = $state<string | undefined>()
-	const currentPage = stateSub<TPageParam | undefined, Select.Props<TData, TError, TResultData, TPageParam>['pagination']>(
+	const currentPage = pickState<TPageParam | undefined, Select.Props<TData, TError, TResultData, TPageParam>['pagination']>(
 		() => resolvedProps?.pagination,
 		Select.getPropCurrentPage,
 	)
-	const perPage = stateSub<number | undefined, Select.Props<TData, TError, TResultData, TPageParam>['pagination']>(
+	const perPage = pickState<number | undefined, Select.Props<TData, TError, TResultData, TPageParam>['pagination']>(
 		() => resolvedProps?.pagination,
 		Select.getPropPerPage,
 	)

@@ -1,14 +1,14 @@
 import type { Ref, ShallowRef } from 'vue-demi'
 import { shallowRef, watch } from 'vue-demi'
 
-export function refFallback<T, TParams>(
-	params: () => TParams,
-	get: (params: TParams, old?: T | undefined) => T,
+export function deriveRef<T, TSource>(
+	source: () => TSource,
+	derive: (source: TSource, prev?: T | undefined) => T,
 ): Ref<T> {
 	const result = shallowRef<T>()
 
-	watch(params, (val) => {
-		result.value = get(val, result.value)
+	watch(source, (value) => {
+		result.value = derive(value, result.value)
 	}, {
 		flush: 'sync',
 		immediate: true,

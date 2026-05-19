@@ -10,8 +10,8 @@ import { watchDebounced } from '@vueuse/shared'
 import { computed, unref, watch } from 'vue-demi'
 import { useGetInfiniteList } from '../query'
 import { useGo, useLocation } from '../router'
-import { refFallback } from '../utils/ref-fallback'
-import { refSub } from '../utils/ref-sub'
+import { deriveRef } from '../utils/derive-ref'
+import { pickRef } from '../utils/pick-ref'
 import { useResource } from './resource'
 
 export type UseInfiniteListProps<
@@ -62,69 +62,69 @@ export function useInfiniteList<
 	const resource = useResource({ name: props?.resource }, context)
 	const location = useLocation(context)
 
-	const initalPageProp = refSub<TPageParam, any>(
+	const initalPageProp = pickRef<TPageParam, any>(
 		props?.pagination,
 		List.getPropInitialPage,
 	)
-	const currentPageProp = refSub<TPageParam, any>(
+	const currentPageProp = pickRef<TPageParam, any>(
 		props?.pagination,
 		List.getPropCurrentPage,
 	)
-	const perPageProp = refSub(
+	const perPageProp = pickRef(
 		props?.pagination,
 		List.getPropPerPage,
 	)
-	const filtersProp = refSub(
+	const filtersProp = pickRef(
 		props?.filters,
 		List.getPropFilters,
 	)
-	const filtersPermanentProp = refSub(
+	const filtersPermanentProp = pickRef(
 		props?.filters,
 		List.getPropFiltersPermanent,
 	)
-	const filtersBehaviorProp = refSub(
+	const filtersBehaviorProp = pickRef(
 		props?.filters,
 		List.getPropFiltersBehavior,
 	)
-	const filtersModeProp = refSub(
+	const filtersModeProp = pickRef(
 		props?.filters,
 		List.getPropFiltersMode,
 	)
-	const sortersProp = refSub(
+	const sortersProp = pickRef(
 		props?.sorters,
 		List.getPropSorters,
 	)
-	const sortersPermanentProp = refSub(
+	const sortersPermanentProp = pickRef(
 		props?.sorters,
 		List.getPropSortersPermanent,
 	)
-	const sortersModeProp = refSub(
+	const sortersModeProp = pickRef(
 		props?.sorters,
 		List.getPropSortersMode,
 	)
 
-	const currentPageLocation = refFallback<TPageParam | undefined, List.GetLocationCurrentPageProps>(
+	const currentPageLocation = deriveRef<TPageParam | undefined, List.GetLocationCurrentPageProps>(
 		() => ({
 			location: unref(location),
 			syncRouteFromProp: unref(props?.syncRoute),
 		}),
 		List.getLocationCurrentPage,
 	)
-	const perPageLocation = refFallback<number | undefined, List.GetLocationPerPageProps>(
+	const perPageLocation = deriveRef<number | undefined, List.GetLocationPerPageProps>(
 		() => ({
 			location: unref(location),
 			syncRouteFromProp: unref(props?.syncRoute),
 		}),
 		List.getLocationPerPage,
 	)
-	const filtersLocation = refFallback<Filters | undefined, List.GetLocationFiltersProps>(
+	const filtersLocation = deriveRef<Filters | undefined, List.GetLocationFiltersProps>(
 		() => ({
 			location: unref(location),
 			syncRouteFromProp: unref(props?.syncRoute),
 		}),
 		List.getLocationFilters,
 	)
-	const sortersLocation = refFallback<Sorters | undefined, List.GetLocationSortersProps>(
+	const sortersLocation = deriveRef<Sorters | undefined, List.GetLocationSortersProps>(
 		() => ({
 			location: unref(location),
 			syncRouteFromProp: unref(props?.syncRoute),
@@ -141,7 +141,7 @@ export function useInfiniteList<
 		fetcherNameFromProp: unref(props?.fetcherName),
 	}))
 
-	const currentPage = refFallback<TPageParam, List.GetCurrentPageProps<TPageParam>>(
+	const currentPage = deriveRef<TPageParam, List.GetCurrentPageProps<TPageParam>>(
 		() => ({
 			initalPageFromProp: unref(initalPageProp),
 			currentPageFromProp: unref(currentPageProp),
@@ -150,7 +150,7 @@ export function useInfiniteList<
 		}),
 		List.getCurrentPage,
 	)
-	const perPage = refFallback(
+	const perPage = deriveRef(
 		() => ({
 			perPageFromProp: unref(perPageProp),
 			perPageFromLocation: unref(perPageLocation),
@@ -158,7 +158,7 @@ export function useInfiniteList<
 		}),
 		List.getPerPage,
 	)
-	const _filters = refFallback(
+	const _filters = deriveRef(
 		() => ({
 			filtersFromLocation: unref(filtersLocation),
 			filtersFromProp: unref(filtersProp),
@@ -173,7 +173,7 @@ export function useInfiniteList<
 		getPrev: () => unref(_filters),
 		update: value => _filters.value = value,
 	})
-	const _sorters = refFallback(
+	const _sorters = deriveRef(
 		() => ({
 			sortersFromLocation: unref(sortersLocation),
 			sortersFromProp: unref(sortersProp),

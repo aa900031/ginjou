@@ -1,14 +1,14 @@
 import { describe, expect, it, vi } from 'vitest'
 import { ref, unref } from 'vue-demi'
-import { refFallback } from './ref-fallback'
+import { deriveRef } from './derive-ref'
 
-describe('refFallback', () => {
+describe('deriveRef', () => {
 	describe('basic functionality', () => {
 		it('should create a reactive ref from params and get function', () => {
 			const params = ref({ value: 10 })
 			const get = vi.fn((p: { value: number }) => p.value * 2)
 
-			const result = refFallback(() => unref(params), get)
+			const result = deriveRef(() => unref(params), get)
 
 			expect(unref(result)).toBe(20)
 			expect(get).toHaveBeenCalledWith({ value: 10 }, undefined)
@@ -18,7 +18,7 @@ describe('refFallback', () => {
 			const get = vi.fn((p: number) => p + 1)
 			const params = ref(5)
 
-			const result = refFallback(() => unref(params), get)
+			const result = deriveRef(() => unref(params), get)
 
 			expect(get).toHaveBeenCalledTimes(1)
 			expect(unref(result)).toBe(6)
@@ -27,7 +27,7 @@ describe('refFallback', () => {
 		it('should return a ShallowRef', () => {
 			const get = vi.fn((p: string) => p.toUpperCase())
 
-			const result = refFallback(() => 'hello', get)
+			const result = deriveRef(() => 'hello', get)
 
 			expect(unref(result)).toBe('HELLO')
 		})
@@ -38,7 +38,7 @@ describe('refFallback', () => {
 			const params = ref(10)
 			const get = vi.fn((p: number) => p * 3)
 
-			const result = refFallback(() => unref(params), get)
+			const result = deriveRef(() => unref(params), get)
 
 			expect(unref(result)).toBe(30)
 			expect(get).toHaveBeenCalledTimes(1)
@@ -53,7 +53,7 @@ describe('refFallback', () => {
 			const params = ref({ a: 5, b: 10 })
 			const get = vi.fn((p: { a: number, b: number }) => p.a + p.b)
 
-			const result = refFallback(() => unref(params), get)
+			const result = deriveRef(() => unref(params), get)
 
 			expect(unref(result)).toBe(15)
 
@@ -68,7 +68,7 @@ describe('refFallback', () => {
 			const param2 = ref(10)
 			const get = vi.fn((p: { x: number, y: number }) => p.x * p.y)
 
-			const result = refFallback(
+			const result = deriveRef(
 				() => ({ x: unref(param1), y: unref(param2) }),
 				get,
 			)
@@ -90,7 +90,7 @@ describe('refFallback', () => {
 				return old !== undefined ? old + p : p
 			})
 
-			const result = refFallback(() => unref(params), get)
+			const result = deriveRef(() => unref(params), get)
 
 			expect(unref(result)).toBe(1)
 			expect(get).toHaveBeenCalledWith(1, undefined)
@@ -109,7 +109,7 @@ describe('refFallback', () => {
 				return old ? `${old}-${p}` : p
 			})
 
-			const result = refFallback(() => 'first', get)
+			const result = deriveRef(() => 'first', get)
 
 			expect(get).toHaveBeenCalledWith('first', undefined)
 			expect(unref(result)).toBe('first')
@@ -122,7 +122,7 @@ describe('refFallback', () => {
 				return [...prev, p]
 			})
 
-			const result = refFallback(() => unref(counter), get)
+			const result = deriveRef(() => unref(counter), get)
 
 			expect(unref(result)).toEqual([1])
 
@@ -150,7 +150,7 @@ describe('refFallback', () => {
 				}
 			})
 
-			const result = refFallback(() => unref(params), get)
+			const result = deriveRef(() => unref(params), get)
 
 			expect(unref(result)).toEqual({
 				total: 5,
@@ -170,7 +170,7 @@ describe('refFallback', () => {
 			const params = ref<number | undefined>(undefined)
 			const get = vi.fn((p: number | undefined) => p ?? 0)
 
-			const result = refFallback(() => unref(params), get)
+			const result = deriveRef(() => unref(params), get)
 
 			expect(unref(result)).toBe(0)
 
@@ -182,7 +182,7 @@ describe('refFallback', () => {
 			const params = ref<number | null>(null)
 			const get = vi.fn((p: number | null) => p === null ? -1 : p)
 
-			const result = refFallback(() => unref(params), get)
+			const result = deriveRef(() => unref(params), get)
 
 			expect(unref(result)).toBe(-1)
 
@@ -194,7 +194,7 @@ describe('refFallback', () => {
 			const params = ref({})
 			const get = vi.fn((p: object) => Object.keys(p).length)
 
-			const result = refFallback(() => unref(params), get)
+			const result = deriveRef(() => unref(params), get)
 
 			expect(unref(result)).toBe(0)
 		})
@@ -203,7 +203,7 @@ describe('refFallback', () => {
 			const params = ref([1, 2, 3])
 			const get = vi.fn((p: number[]) => p.reduce((a, b) => a + b, 0))
 
-			const result = refFallback(() => unref(params), get)
+			const result = deriveRef(() => unref(params), get)
 
 			expect(unref(result)).toBe(6)
 
@@ -215,7 +215,7 @@ describe('refFallback', () => {
 			const params = ref((x: number) => x * 2)
 			const get = vi.fn((p: (x: number) => number) => p(5))
 
-			const result = refFallback(() => unref(params), get)
+			const result = deriveRef(() => unref(params), get)
 
 			expect(unref(result)).toBe(10)
 
@@ -227,7 +227,7 @@ describe('refFallback', () => {
 			const staticObj = { value: 42 }
 			const get = vi.fn((p: { value: number }) => p.value)
 
-			const result = refFallback(() => staticObj, get)
+			const result = deriveRef(() => staticObj, get)
 
 			expect(unref(result)).toBe(42)
 			expect(get).toHaveBeenCalledTimes(1)
@@ -245,7 +245,7 @@ describe('refFallback', () => {
 			})
 
 			expect(() => {
-				refFallback(() => unref(params), get)
+				deriveRef(() => unref(params), get)
 			}).toThrow('Value too large')
 		})
 
@@ -253,7 +253,7 @@ describe('refFallback', () => {
 			const params = ref(0)
 			const get = vi.fn((p: number) => p || -1)
 
-			const result = refFallback(() => unref(params), get)
+			const result = deriveRef(() => unref(params), get)
 
 			expect(unref(result)).toBe(-1)
 
@@ -267,7 +267,7 @@ describe('refFallback', () => {
 				return p ? 'true' : (old ?? 'false')
 			})
 
-			const result = refFallback(() => unref(params), get)
+			const result = deriveRef(() => unref(params), get)
 
 			expect(unref(result)).toBe('false')
 
@@ -281,7 +281,7 @@ describe('refFallback', () => {
 			const params = ref(1)
 			const get = vi.fn((p: number) => p * 10)
 
-			const result = refFallback(() => unref(params), get)
+			const result = deriveRef(() => unref(params), get)
 
 			let capturedValue = unref(result)
 			expect(capturedValue).toBe(10)
@@ -295,7 +295,7 @@ describe('refFallback', () => {
 		it('should call get immediately on creation', () => {
 			const get = vi.fn((p: number) => p)
 
-			refFallback(() => 42, get)
+			deriveRef(() => 42, get)
 
 			expect(get).toHaveBeenCalledTimes(1)
 			expect(get).toHaveBeenCalledWith(42, undefined)
@@ -314,7 +314,7 @@ describe('refFallback', () => {
 				return p.enabled ? `Count: ${p.count}` : 'Disabled'
 			}
 
-			const result = refFallback(() => unref(params), get)
+			const result = deriveRef(() => unref(params), get)
 
 			expect(unref(result)).toBe('Count: 5')
 
@@ -328,7 +328,7 @@ describe('refFallback', () => {
 				return typeof p === 'string' ? p.toUpperCase() : p.toString()
 			}
 
-			const result = refFallback(() => unref(params), get)
+			const result = deriveRef(() => unref(params), get)
 
 			expect(unref(result)).toBe('HELLO')
 
@@ -342,7 +342,7 @@ describe('refFallback', () => {
 			const params = ref({ a: 1, b: 2 })
 			const get = vi.fn((p: { a: number, b: number }) => p.a + p.b)
 
-			const result = refFallback(() => unref(params), get)
+			const result = deriveRef(() => unref(params), get)
 
 			expect(get).toHaveBeenCalledTimes(1)
 
@@ -358,7 +358,7 @@ describe('refFallback', () => {
 			const params = ref(0)
 			const get = vi.fn((p: number) => p + 1)
 
-			const result = refFallback(() => unref(params), get)
+			const result = deriveRef(() => unref(params), get)
 
 			for (let i = 1; i <= 100; i++) {
 				params.value = i
@@ -383,7 +383,7 @@ describe('refFallback', () => {
 				return Number.parseInt(params.location.query.page) || undefined
 			}
 
-			const result = refFallback(
+			const result = deriveRef(
 				() => ({ location: unref(location), syncRoute: unref(syncRoute) }),
 				get,
 			)
@@ -410,7 +410,7 @@ describe('refFallback', () => {
 				return params.location ?? params.prop ?? params.initial
 			}
 
-			const result = refFallback(
+			const result = deriveRef(
 				() => ({
 					location: unref(locationValue),
 					prop: unref(propValue),
@@ -441,7 +441,7 @@ describe('refFallback', () => {
 				return params.location ?? params.prop ?? old ?? []
 			}
 
-			const result = refFallback(
+			const result = deriveRef(
 				() => ({ location: unref(locationFilters), prop: unref(propFilters) }),
 				get,
 			)

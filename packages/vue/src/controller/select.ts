@@ -7,7 +7,7 @@ import type { UseResourceContext } from './resource'
 import { Resource, Select } from '@ginjou/core'
 import { computed, ref, unref } from 'vue-demi'
 import { useGetList, useGetMany } from '../query'
-import { refSub } from '../utils/ref-sub'
+import { pickRef } from '../utils/pick-ref'
 import { useResource } from './resource'
 
 export type UseSelectProps<
@@ -50,11 +50,11 @@ export function useSelect<
 ): UseSelectResult<TError, TResultData, TPageParam> {
 	const resource = useResource({ name: props?.resource }, context)
 	const search = ref<string | undefined>()
-	const currentPage = refSub<TPageParam | undefined, Pagination<TPageParam> | undefined>(
+	const currentPage = pickRef<TPageParam | undefined, Pagination<TPageParam> | undefined>(
 		props?.pagination,
 		Select.getPropCurrentPage,
 	)
-	const perPage = refSub<number | undefined, Pagination<TPageParam> | undefined>(
+	const perPage = pickRef<number | undefined, Pagination<TPageParam> | undefined>(
 		props?.pagination,
 		Select.getPropPerPage,
 	)
