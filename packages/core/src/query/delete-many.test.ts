@@ -1,7 +1,37 @@
 import { QueryClient } from '@tanstack/query-core'
 import { describe, expect, it, vi } from 'vitest'
 import { createMutateHandler } from './delete-many'
+import { createQueryKey as createGetListQueryKey } from './get-list'
+import { createQueryKey as createGetManyQueryKey } from './get-many'
+import { createQueryKey as createGetOneQueryKey } from './get-one'
 import { MutationMode } from './mutation-mode'
+
+function seedPostQueries(queryClient: QueryClient) {
+	const queryProps = {
+		fetcherName: 'default',
+		resource: 'posts',
+	}
+	const listKey = createGetListQueryKey({ props: queryProps as any })
+	const manyKey = createGetManyQueryKey({ props: { ...queryProps, ids: [1, 2] } as any })
+	const oneKey1 = createGetOneQueryKey({ props: { ...queryProps, id: 1 } as any })
+	const oneKey2 = createGetOneQueryKey({ props: { ...queryProps, id: 2 } as any })
+
+	queryClient.setQueryData(listKey, {
+		data: [{ id: 1 }, { id: 2 }],
+		total: 2,
+	})
+	queryClient.setQueryData(manyKey, {
+		data: [{ id: 1 }, { id: 2 }],
+	})
+	queryClient.setQueryData(oneKey1, {
+		data: { id: 1 },
+	})
+	queryClient.setQueryData(oneKey2, {
+		data: { id: 2 },
+	})
+
+	return { listKey, manyKey, oneKey1, oneKey2 }
+}
 
 function createDeps(overrides?: {
 	getProps?: () => any
@@ -172,6 +202,43 @@ describe('createMutateHandler (delete-many)', () => {
 			}, {} as any)
 
 			expect(setQueriesDataSpy).toHaveBeenCalled()
+		})
+
+		it('skips selected optimistic cache groups when optimisticUpdateMap entries are false', async () => {
+			const queryClient = new QueryClient()
+			const keys = seedPostQueries(queryClient)
+			const handler = createMutateHandler({
+				queryClient,
+				notify: vi.fn(),
+				translate: vi.fn((k: string) => k),
+				getProps: () => undefined,
+				onMutate: vi.fn(),
+			})
+
+			await handler({
+				resource: 'posts',
+				ids: [1, 2],
+				mutationMode: MutationMode.Optimistic,
+				optimisticUpdateMap: {
+					list: false,
+					many: false,
+					one: false,
+				},
+			}, {} as any)
+
+			expect(queryClient.getQueryData(keys.listKey)).toMatchObject({
+				data: [{ id: 1 }, { id: 2 }],
+				total: 2,
+			})
+			expect(queryClient.getQueryData(keys.manyKey)).toMatchObject({
+				data: [{ id: 1 }, { id: 2 }],
+			})
+			expect(queryClient.getQueryData(keys.oneKey1)).toMatchObject({
+				data: { id: 1 },
+			})
+			expect(queryClient.getQueryData(keys.oneKey2)).toMatchObject({
+				data: { id: 2 },
+			})
 		})
 	})
 

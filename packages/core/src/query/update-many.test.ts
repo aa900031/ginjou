@@ -1,6 +1,9 @@
 import { QueryClient } from '@tanstack/query-core'
 import { describe, expect, it, vi } from 'vitest'
 import { AbortDefer } from '../utils/defer'
+import { createQueryKey as createGetListQueryKey } from './get-list'
+import { createQueryKey as createGetManyQueryKey } from './get-many'
+import { createQueryKey as createGetOneQueryKey } from './get-one'
 import { MutationMode } from './mutation-mode'
 import {
 	createErrorHandler,
@@ -11,6 +14,39 @@ import {
 	createSettledHandler,
 	createSuccessHandler,
 } from './update-many'
+
+function seedPostQueries(queryClient: QueryClient) {
+	const queryProps = {
+		fetcherName: 'default',
+		resource: 'posts',
+	}
+	const listKey = createGetListQueryKey({ props: queryProps as any })
+	const manyKey = createGetManyQueryKey({ props: { ...queryProps, ids: [1, 2] } as any })
+	const oneKey1 = createGetOneQueryKey({ props: { ...queryProps, id: 1 } as any })
+	const oneKey2 = createGetOneQueryKey({ props: { ...queryProps, id: 2 } as any })
+
+	queryClient.setQueryData(listKey, {
+		data: [
+			{ id: 1, title: 'Initial 1' },
+			{ id: 2, title: 'Initial 2' },
+		],
+		total: 2,
+	})
+	queryClient.setQueryData(manyKey, {
+		data: [
+			{ id: 1, title: 'Initial 1' },
+			{ id: 2, title: 'Initial 2' },
+		],
+	})
+	queryClient.setQueryData(oneKey1, {
+		data: { id: 1, title: 'Initial 1' },
+	})
+	queryClient.setQueryData(oneKey2, {
+		data: { id: 2, title: 'Initial 2' },
+	})
+
+	return { listKey, manyKey, oneKey1, oneKey2 }
+}
 
 describe('createMutationFn (update-many)', () => {
 	it('should call updateMany when the fetcher implements it', async () => {
@@ -304,6 +340,94 @@ describe('createMutateHandler (update-many)', () => {
 			}, {} as any)
 
 			expect(setQueriesDataSpy).toHaveBeenCalled()
+		})
+
+		it('skips selected optimistic cache groups when optimisticUpdateMap entries are false', async () => {
+			const queryClient = new QueryClient()
+			const keys = seedPostQueries(queryClient)
+			const handler = createMutateHandler({
+				queryClient,
+				notify: vi.fn(),
+				translate: vi.fn((k: string) => k),
+				getProps: () => undefined,
+				onMutate: vi.fn(),
+			})
+
+			await handler({
+				resource: 'posts',
+				ids: [1, 2],
+				params: { title: 'Updated' },
+				mutationMode: MutationMode.Optimistic,
+				optimisticUpdateMap: {
+					list: false,
+					many: false,
+					one: false,
+				},
+			}, {} as any)
+
+			expect(queryClient.getQueryData(keys.listKey)).toMatchObject({
+				data: [{ id: 1, title: 'Initial 1' }, { id: 2, title: 'Initial 2' }],
+			})
+			expect(queryClient.getQueryData(keys.manyKey)).toMatchObject({
+				data: [{ id: 1, title: 'Initial 1' }, { id: 2, title: 'Initial 2' }],
+			})
+			expect(queryClient.getQueryData(keys.oneKey1)).toMatchObject({
+				data: { id: 1, title: 'Initial 1' },
+			})
+			expect(queryClient.getQueryData(keys.oneKey2)).toMatchObject({
+				data: { id: 2, title: 'Initial 2' },
+			})
+		})
+
+		it('uses custom optimisticUpdateMap mapper functions', async () => {
+			const queryClient = new QueryClient()
+			const keys = seedPostQueries(queryClient)
+			const list = vi.fn((previous: any, params: any, ids: any[]) => ({
+				...previous,
+				data: previous.data.map((record: any) => ids.includes(record.id)
+					? { ...record, title: `list:${params.title}` }
+					: record),
+			}))
+			const many = vi.fn((previous: any, params: any, ids: any[]) => ({
+				...previous,
+				data: previous.data.map((record: any) => ids.includes(record.id)
+					? { ...record, title: `many:${params.title}` }
+					: record),
+			}))
+			const one = vi.fn((previous: any, params: any, id: any) => ({
+				...previous,
+				data: {
+					...previous.data,
+					title: `one:${params.title}:${id}`,
+				},
+			}))
+			const handler = createMutateHandler({
+				queryClient,
+				notify: vi.fn(),
+				translate: vi.fn((k: string) => k),
+				getProps: () => undefined,
+				onMutate: vi.fn(),
+			})
+
+			await handler({
+				resource: 'posts',
+				ids: [1, 2],
+				params: { title: 'Updated' },
+				mutationMode: MutationMode.Optimistic,
+				optimisticUpdateMap: {
+					list,
+					many,
+					one,
+				},
+			}, {} as any)
+
+			expect(list).toHaveBeenCalledWith(expect.anything(), { title: 'Updated' }, [1, 2])
+			expect(many).toHaveBeenCalledWith(expect.anything(), { title: 'Updated' }, [1, 2])
+			expect(one).toHaveBeenCalledTimes(2)
+			expect(queryClient.getQueryData<any>(keys.listKey).data.map((record: any) => record.title)).toEqual(['list:Updated', 'list:Updated'])
+			expect(queryClient.getQueryData<any>(keys.manyKey).data.map((record: any) => record.title)).toEqual(['many:Updated', 'many:Updated'])
+			expect(queryClient.getQueryData<any>(keys.oneKey1).data.title).toBe('one:Updated:1')
+			expect(queryClient.getQueryData<any>(keys.oneKey2).data.title).toBe('one:Updated:2')
 		})
 	})
 

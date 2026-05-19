@@ -1,14 +1,48 @@
 import { QueryClient } from '@tanstack/query-core'
 import { describe, expect, it, vi } from 'vitest'
 import { AbortDefer } from '../utils/defer'
+import { createQueryKey as createGetListQueryKey } from './get-list'
+import { createQueryKey as createGetManyQueryKey } from './get-many'
+import { createQueryKey as createGetOneQueryKey } from './get-one'
+import { MutationMode } from './mutation-mode'
 import {
 	createErrorHandler,
 	createMutateAsyncFn,
 	createMutateFn,
+	createMutateHandler,
 	createMutationFn,
 	createSettledHandler,
 	createSuccessHandler,
 } from './update'
+
+function seedPostQueries(queryClient: QueryClient) {
+	const queryProps = {
+		fetcherName: 'default',
+		resource: 'posts',
+	}
+	const listKey = createGetListQueryKey({ props: queryProps as any })
+	const manyKey = createGetManyQueryKey({ props: { ...queryProps, ids: [1, 2] } as any })
+	const oneKey = createGetOneQueryKey({ props: { ...queryProps, id: 1 } as any })
+
+	queryClient.setQueryData(listKey, {
+		data: [
+			{ id: 1, title: 'Initial' },
+			{ id: 2, title: 'Other' },
+		],
+		total: 2,
+	})
+	queryClient.setQueryData(manyKey, {
+		data: [
+			{ id: 1, title: 'Initial' },
+			{ id: 2, title: 'Other' },
+		],
+	})
+	queryClient.setQueryData(oneKey, {
+		data: { id: 1, title: 'Initial' },
+	})
+
+	return { listKey, manyKey, oneKey }
+}
 
 describe('createMutationFn (update)', () => {
 	it('should call updateOne with resolved props', async () => {
@@ -65,6 +99,96 @@ describe('createMutationFn (update)', () => {
 		await expect(mutationFn({} as any, {} as any)).rejects.toThrow(
 			'[@ginjou/core] Cannot update record without required mutation props: resource, id, and params.',
 		)
+	})
+})
+
+describe('createMutateHandler (update)', () => {
+	it('should skip selected optimistic cache groups when optimisticUpdateMap entries are false', async () => {
+		const queryClient = new QueryClient()
+		const keys = seedPostQueries(queryClient)
+		const handler = createMutateHandler({
+			queryClient,
+			notify: vi.fn(),
+			translate: vi.fn((key: string) => key),
+			getProps: () => undefined,
+			onMutate: vi.fn(),
+		})
+
+		await handler({
+			resource: 'posts',
+			id: 1,
+			params: { title: 'Updated' },
+			mutationMode: MutationMode.Optimistic,
+			optimisticUpdateMap: {
+				list: false,
+				many: false,
+				one: false,
+			},
+		} as any, {} as any)
+
+		expect(queryClient.getQueryData(keys.listKey)).toMatchObject({
+			data: [{ id: 1, title: 'Initial' }, { id: 2, title: 'Other' }],
+		})
+		expect(queryClient.getQueryData(keys.manyKey)).toMatchObject({
+			data: [{ id: 1, title: 'Initial' }, { id: 2, title: 'Other' }],
+		})
+		expect(queryClient.getQueryData(keys.oneKey)).toMatchObject({
+			data: { id: 1, title: 'Initial' },
+		})
+	})
+
+	it('should use custom optimisticUpdateMap mapper functions', async () => {
+		const queryClient = new QueryClient()
+		const keys = seedPostQueries(queryClient)
+		const list = vi.fn((previous: any, params: any, id: any) => ({
+			...previous,
+			data: previous.data.map((record: any) => record.id === id
+				? { ...record, title: `list:${params.title}` }
+				: record),
+		}))
+		const many = vi.fn((previous: any, params: any, id: any) => ({
+			...previous,
+			data: previous.data.map((record: any) => record.id === id
+				? { ...record, title: `many:${params.title}` }
+				: record),
+		}))
+		const one = vi.fn((previous: any, params: any, id: any) => ({
+			...previous,
+			data: {
+				...previous.data,
+				title: `one:${params.title}`,
+				checkedId: id,
+			},
+		}))
+		const handler = createMutateHandler({
+			queryClient,
+			notify: vi.fn(),
+			translate: vi.fn((key: string) => key),
+			getProps: () => undefined,
+			onMutate: vi.fn(),
+		})
+
+		await handler({
+			resource: 'posts',
+			id: 1,
+			params: { title: 'Updated' },
+			mutationMode: MutationMode.Optimistic,
+			optimisticUpdateMap: {
+				list,
+				many,
+				one,
+			},
+		} as any, {} as any)
+
+		expect(list).toHaveBeenCalledWith(expect.anything(), { title: 'Updated' }, 1)
+		expect(many).toHaveBeenCalledWith(expect.anything(), { title: 'Updated' }, 1)
+		expect(one).toHaveBeenCalledWith(expect.anything(), { title: 'Updated' }, 1)
+		expect(queryClient.getQueryData<any>(keys.listKey).data[0].title).toBe('list:Updated')
+		expect(queryClient.getQueryData<any>(keys.manyKey).data[0].title).toBe('many:Updated')
+		expect(queryClient.getQueryData<any>(keys.oneKey).data).toMatchObject({
+			title: 'one:Updated',
+			checkedId: 1,
+		})
 	})
 })
 

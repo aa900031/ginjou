@@ -30,9 +30,17 @@ export type {
 export {
 	MutationMode,
 } from './mutation-mode'
+
 export type {
 	NotifyProps,
 } from './notify'
+
+export type {
+	OptimisticUpdateMap,
+	OptimisticUpdateMapFunction,
+	OptimisticUpdateMapProps,
+	OptimisticUpdateMapValue,
+} from './optimistic-update-map'
 
 export type {
 	CreateSubscribeCallbackProps,
