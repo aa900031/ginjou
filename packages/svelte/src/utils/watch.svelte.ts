@@ -8,7 +8,7 @@ export interface WatchOptions {
 
 export function watch<T>(
 	source: Accessor<T>,
-	callback: (value: T, oldValue: T | undefined) => void | VoidFunction,
+	callback: (value: T, oldValue: T | undefined) => void | (() => void),
 	options?: WatchOptions,
 ): (() => void) {
 	const immediate = options?.immediate ?? false
@@ -33,7 +33,7 @@ export function watch<T>(
 
 function runEffect(
 	flush: 'pre' | 'post',
-	effect: () => void | VoidFunction,
+	effect: () => void | (() => void),
 ): (() => void) {
 	const cleanup = $effect.root(() => {
 		switch (flush) {

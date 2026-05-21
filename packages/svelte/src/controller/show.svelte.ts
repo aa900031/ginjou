@@ -1,12 +1,12 @@
 import type { BaseRecord, RecordKey } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
 import type { UseGetOneContext, UseGetOneResult } from '../query'
-import type { UseResourceContext } from '../resource'
 import type { MaybeAccessor } from '../utils'
-import { getFetcherName, getResourceIdentifier, Show } from '@ginjou/core'
+import type { UseResourceContext } from './resource.svelte'
+import { Resource, Show } from '@ginjou/core'
 import { useGetOne } from '../query'
-import { useResource } from '../resource'
-import { extract, watch, withAccessors } from '../utils'
+import { extract, unbox, watch, withAccessors } from '../utils'
+import { useResource } from './resource.svelte'
 
 export type UseShowProps<
 	TData extends BaseRecord,
@@ -44,19 +44,19 @@ export function useShow<
 	const resource = useResource(() => ({ name: resolvedProps?.resource }), context)
 	const inferredResource = useResource(undefined, context)
 
-	const resourceName = $derived.by(() => getResourceIdentifier({
-		resource: resource.value,
+	const resourceName = $derived.by(() => Resource.getName({
+		resource: unbox(resource),
 		resourceFromProp: resolvedProps?.resource,
 	}))
-	const fetcherName = $derived.by(() => getFetcherName({
-		resource: resource.value,
+	const fetcherName = $derived.by(() => Resource.getFetcherName({
+		resource: unbox(resource),
 		fetcherNameFromProp: resolvedProps?.fetcherName,
 	}))
 	const defaultId = $derived.by(() => Show.getDefaultId({
 		resourceFromProp: resolvedProps?.resource,
 		idFromProp: resolvedProps?.id,
-		resource: resource.value,
-		inferredResource: inferredResource.value,
+		resource: unbox(resource),
+		inferredResource: unbox(inferredResource),
 	}))
 
 	let id = $state<RecordKey | undefined>()

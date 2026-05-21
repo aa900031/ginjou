@@ -1,8 +1,8 @@
 import type { MutationObserverOptions } from '@tanstack/query-core'
 import type { OverrideProperties, Simplify } from 'type-fest'
 import type { CheckError } from '../auth'
-import type { TranslateFn } from '../i18n'
-import type { NotifyFn } from '../notification'
+import type { Translate } from '../i18n'
+import type { Notify } from '../notification'
 import type { Publish } from '../realtime'
 import type { BaseRecord, CustomFn, CustomProps, CustomResult, Params } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
@@ -145,7 +145,7 @@ export interface CreateSuccessHandlerProps<
 	TPayload extends Params,
 	TMutateResult,
 > {
-	notify: NotifyFn
+	notify: Notify.Fn
 	publish: Publish.EmitFn<TPayload>
 	getProps: () => Props<TData, TError, TQuery, TPayload, TMutateResult> | undefined
 	onSuccess: MutationOptions<TData, TError, TQuery, TPayload, TMutateResult>['onSuccess']
@@ -191,8 +191,8 @@ export interface CreateErrorHandlerProps<
 	TPayload extends Params,
 	TMutateResult,
 > {
-	notify: NotifyFn
-	translate: TranslateFn<any>
+	notify: Notify.Fn
+	translate: Translate.Fn<any>
 	checkError: CheckError.MutateAsyncFn<TError, unknown>
 	getProps: () => Props<TData, TError, TQuery, TPayload, TMutateResult> | undefined
 	onError: MutationOptions<TData, TError, TQuery, TPayload, TMutateResult>['onError']
@@ -323,7 +323,7 @@ function resolveProps<
 	}
 	const { url, method } = props
 	if (url == null || method == null)
-		throw new Error('No') // TODO:
+		throw new Error('[@ginjou/core] Cannot run custom mutation without required props: url and method.')
 
 	return {
 		...props,

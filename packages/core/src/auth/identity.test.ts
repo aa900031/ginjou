@@ -18,10 +18,10 @@ describe('createQueryFn', () => {
 	it('should throw an error if auth.getIdentity is not a function', async () => {
 		const getParams = () => ({})
 		const queryFn = createQueryFn({ auth: undefined, getParams })
-		await expect(queryFn(createQueryContext())).rejects.toThrow('No')
+		await expect(queryFn(createQueryContext())).rejects.toThrow('Missing auth.getIdentity function')
 
 		const queryFn2 = createQueryFn({ auth: {} as any, getParams })
-		await expect(queryFn2(createQueryContext())).rejects.toThrow('No')
+		await expect(queryFn2(createQueryContext())).rejects.toThrow('Missing auth.getIdentity function')
 	})
 
 	it('should call auth.getIdentity with params and return the result', async () => {

@@ -38,6 +38,6 @@ export function useI18nContext(
 ): I18n | undefined {
 	const value = injectLocal(KEY, undefined) ?? props?.i18n
 	if (props?.strict === true && value == null)
-		throw new Error('No')
+		throw new Error('[@ginjou/vue] No i18n context found. Use defineI18nContext() at app setup or pass i18n through context props.')
 	return value
 }

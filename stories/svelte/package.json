@@ -12,34 +12,31 @@
 		"url": "https://github.com/aa900031/ginjou/issues"
 	},
 	"scripts": {
-		"dev": "run-s dev:prepare dev:sb",
+		"dev": "run-s --silent dev:prepare dev:sb",
 		"dev:prepare": "msw init ./public --save",
 		"dev:sb": "storybook dev -p 6008 --no-open",
-		"build": "run-s build:prepare build:sb",
+		"build": "run-s --silent build:prepare build:sb",
 		"build:prepare": "msw init ./public --save",
 		"build:sb": "storybook build -o ../root/dist/svelte"
 	},
 	"devDependencies": {
-		"@faker-js/faker": "^10.3.0",
 		"@ginjou/core": "workspace:^",
+		"@ginjou/storybook-shared": "workspace:*",
 		"@ginjou/svelte": "workspace:*",
 		"@ginjou/tsconfig": "workspace:*",
 		"@ginjou/with-rest-api": "workspace:*",
 		"@ginjou/with-svelte-spa-router": "workspace:*",
-		"@msw/data": "^1.1.2",
 		"@storybook/addon-docs": "10.3.3",
 		"@storybook/svelte-vite": "10.3.3",
 		"@sveltejs/vite-plugin-svelte": "6.2.4",
 		"@tanstack/svelte-query": "^6.1.10",
 		"msw": "^2.12.14",
-		"msw-storybook-addon": "2.0.6",
 		"npm-run-all2": "^8.0.4",
 		"storybook": "10.3.3",
 		"svelte": "^5.25.0",
 		"svelte-spa-router": "^5.1.0",
 		"unocss": "^66.6.7",
-		"vite": "^7.3.1",
-		"zod": "^4.3.6"
+		"vite": "^7.3.1"
 	},
 	"msw": {
 		"workerDirectory": [

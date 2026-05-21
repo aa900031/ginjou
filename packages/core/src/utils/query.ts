@@ -65,6 +65,6 @@ export function getQuery<
 	const cache = queryClient.getQueryCache()
 	const query = cache.get<TQueryFnData, TError, TData>(hash)
 	if (!query)
-		throw new Error(`Query not found in cache for key: ${JSON.stringify(queryKey)}`)
+		throw new Error(`[@ginjou/core] Query not found in cache for key: ${JSON.stringify(queryKey)}`)
 	return query
 }

@@ -636,7 +636,7 @@ export function createSetFiltersFn(
 					nextValue = resolveFilters(getFiltersPermanent(), value)
 					break
 				default:
-					throw new Error('No')
+					throw new Error(`[@ginjou/core] Unsupported set filter behavior: ${String(_behavior)}`)
 			}
 		}
 

@@ -2,8 +2,8 @@ import type { QueryClient, QueryKey, QueryObserverOptions } from '@tanstack/quer
 import type { QueryCallbacks } from 'tanstack-query-callbacks'
 import type { SetRequired, Simplify } from 'type-fest'
 import type { CheckError } from '../auth'
-import type { TranslateFn } from '../i18n'
-import type { NotifyFn } from '../notification'
+import type { Translate } from '../i18n'
+import type { Notify } from '../notification'
 import type { QueryEnabledFn } from '../utils/query'
 import type { BaseRecord, CustomFn, CustomProps, CustomResult, Params } from './fetcher'
 import type { FetcherProps, Fetchers } from './fetchers'
@@ -149,7 +149,7 @@ export interface CreateSuccessHandlerProps<
 	TQuery extends Params,
 	TPayload extends Params,
 > {
-	notify: NotifyFn
+	notify: Notify.Fn
 	getProps: () => ResolvedQueryProps<TQuery, TPayload>
 	getSuccessNotify: () => NotifyProps<CustomResult<TResultData>, ResolvedQueryProps<TQuery, TPayload>, unknown>['successNotify']
 	emitParent: NonNullable<QueryOptions<any, unknown, TResultData>['onSuccess']>
@@ -185,8 +185,8 @@ export interface CreateErrorHandlerProps<
 	TQuery extends Params,
 	TPayload extends Params,
 > {
-	notify: NotifyFn
-	translate: TranslateFn<any>
+	notify: Notify.Fn
+	translate: Translate.Fn<any>
 	getProps: () => ResolvedQueryProps<TQuery, TPayload>
 	getErrorNotify: () => NotifyProps<CustomResult<any>, ResolvedQueryProps<TQuery, TPayload>, TError>['errorNotify']
 	checkError: CheckError.MutateAsyncFn<TError, unknown>

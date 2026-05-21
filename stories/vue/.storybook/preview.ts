@@ -1,16 +1,12 @@
 /* eslint-disable perfectionist/sort-imports */
 import 'uno.css'
-import type { Decorator, Preview } from '@storybook/vue3-vite'
+import type { Preview } from '@storybook/vue3-vite'
 import { AbortDefer } from '@ginjou/core'
 import { setup as setupVue } from '@storybook/vue3-vite'
-import { mswLoader as MswLoader, initialize as setupMsw } from 'msw-storybook-addon'
+import { mswLoader as MswLoader, setupMsw } from '@ginjou/storybook-shared/msw'
+import { withDarkClass } from '@ginjou/storybook-shared/preview'
 
-setupMsw({
-	onUnhandledRequest: 'bypass',
-	serviceWorker: {
-		url: './mockServiceWorker.js',
-	},
-})
+setupMsw()
 
 setupVue((app) => {
 	const _originErrorHandler = app.config.errorHandler
@@ -23,13 +19,6 @@ setupVue((app) => {
 		_originErrorHandler?.(err, instance, info)
 	}
 })
-
-const withDarkClass: Decorator = (story, context) => {
-	const bg = context.globals?.backgrounds
-	const name = typeof bg === 'string' ? bg : bg?.value
-	document.documentElement.classList.toggle('dark', name === 'dark')
-	return story()
-}
 
 export default {
 	loaders: [

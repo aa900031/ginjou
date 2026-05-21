@@ -5,22 +5,18 @@ import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
 	test: {
-		poolOptions: isCI
-			? { forks: { execArgv: getV8Flags() } }
-			: undefined,
+		execArgv: isCI ? getV8Flags() : undefined,
 		coverage: {
-			provider: 'istanbul',
+			provider: 'v8',
 			include: [
 				'packages/*/src/**/*',
 			],
 			exclude: [
-				'packages/nuxt/**/*',
 				'packages/with-svelte-spa-router/**/*', // FIXME:
 			],
 		},
 		projects: [
 			'packages/*',
-			'!packages/nuxt',
 			{
 				plugins: isCI
 					? [

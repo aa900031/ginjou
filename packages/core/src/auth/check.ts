@@ -62,7 +62,7 @@ export function createQueryFn<
 	return async function queryFn() {
 		const { check } = auth ?? {}
 		if (typeof check !== 'function')
-			throw new Error('No')
+			throw new Error('[@ginjou/core] Missing auth.check function. Provide an Auth object with a check handler before calling check auth.')
 
 		const params = getParams()
 		const result = await (check as CheckAuthFn<TParams>)(params)

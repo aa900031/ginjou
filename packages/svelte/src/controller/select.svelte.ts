@@ -1,12 +1,12 @@
 import type { BaseRecord } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
 import type { UseGetListContext, UseGetListResult, UseGetManyContext } from '../query'
-import type { UseResourceContext } from '../resource'
 import type { MaybeAccessor } from '../utils'
-import { getFetcherName, getResourceIdentifier, Select } from '@ginjou/core'
+import type { UseResourceContext } from './resource.svelte'
+import { Resource, Select } from '@ginjou/core'
 import { useGetList, useGetMany } from '../query'
-import { useResource } from '../resource'
-import { extract, stateSub, withAccessors } from '../utils'
+import { extract, pickState, unbox, withAccessors } from '../utils'
+import { useResource } from './resource.svelte'
 
 export type UseSelectProps<
 	TData extends BaseRecord,
@@ -51,21 +51,21 @@ export function useSelect<
 	const resource = useResource(() => ({ name: resolvedProps?.resource }), context)
 
 	let search = $state<string | undefined>()
-	const currentPage = stateSub<TPageParam | undefined, Select.Props<TData, TError, TResultData, TPageParam>['pagination']>(
+	const currentPage = pickState<TPageParam | undefined, Select.Props<TData, TError, TResultData, TPageParam>['pagination']>(
 		() => resolvedProps?.pagination,
 		Select.getPropCurrentPage,
 	)
-	const perPage = stateSub<number | undefined, Select.Props<TData, TError, TResultData, TPageParam>['pagination']>(
+	const perPage = pickState<number | undefined, Select.Props<TData, TError, TResultData, TPageParam>['pagination']>(
 		() => resolvedProps?.pagination,
 		Select.getPropPerPage,
 	)
 
-	const resourceName = $derived.by(() => getResourceIdentifier({
-		resource: resource.value,
+	const resourceName = $derived.by(() => Resource.getName({
+		resource: unbox(resource),
 		resourceFromProp: resolvedProps?.resource,
 	}))
-	const fetcherName = $derived.by(() => getFetcherName({
-		resource: resource.value,
+	const fetcherName = $derived.by(() => Resource.getFetcherName({
+		resource: unbox(resource),
 		fetcherNameFromProp: resolvedProps?.fetcherName,
 	}))
 	const filters = $derived.by(() => Select.getListFilters({
@@ -75,8 +75,8 @@ export function useSelect<
 		searchToFilters: resolvedProps?.searchToFilters,
 	}))
 	const pagination = $derived.by(() => Select.getPagination({
-		currentPage: currentPage.value,
-		perPage: perPage.value,
+		currentPage: unbox(currentPage),
+		perPage: unbox(perPage),
 	}))
 	const ids = $derived.by(() => Select.getValueIds({
 		valueFormProp: resolvedProps?.value,

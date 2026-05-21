@@ -1,9 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/svelte-vite'
+import { mutationMode, redirect } from '@ginjou/storybook-shared/args'
+import { createPostHandlers } from '@ginjou/storybook-shared/mock-data'
 import FormCreate from './FormCreate.svelte'
 import FormEdit from './FormEdit.svelte'
-import { createPostHandlers } from './utils/posts'
-import { args as MutationModeArgs, argTypes as MutationModeArgTypes } from './utils/sb-args/mutation-mode'
-import { argTypes as RedirectArgTypes } from './utils/sb-args/redirect'
+
+const { argTypes: MutationModeArgTypes, args: MutationModeArgs } = mutationMode
+const { argTypes: RedirectArgTypes } = redirect
 
 const meta = {
 	title: 'Controllers/Form',

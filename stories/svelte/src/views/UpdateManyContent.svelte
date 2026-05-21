@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { useUpdateMany } from '@ginjou/svelte'
-	import type { Post, PostFormData, PostRawFormData } from '../api/posts'
+	import type { Post, PostFormData, PostRawFormData } from '@ginjou/storybook-shared/mock-data'
 	import Button from '../components/Button.svelte'
 	import FieldLabel from '../components/FieldLabel.svelte'
 	import Form from '../components/Form.svelte'
@@ -8,11 +8,11 @@
 	import JsonOutput from '../components/JsonOutput.svelte'
 	import PageTitle from '../components/PageTitle.svelte'
 	import Stack from '../components/Stack.svelte'
-	import { mockPostIds } from '../utils/posts'
+	import { MOCK_POST_IDS } from '@ginjou/storybook-shared/mock-data'
 
 	const mutation = useUpdateMany<Post, PostFormData>({
 		resource: 'posts',
-		ids: mockPostIds.slice(0, 2),
+		ids: MOCK_POST_IDS.slice(0, 2),
 	})
 
 	let formData = $state<PostRawFormData>({

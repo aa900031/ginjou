@@ -1,7 +1,7 @@
+import type { Controller } from '../controller'
 import type { RecordKey } from '../query'
-import type { Resource } from '../resource'
-import type { RouterGoFn, RouterGoParams } from './go'
-import { createResourcePath, resolveResource, ResourceActionType } from '../resource'
+import type { RouterGoFn, RouterGoParams } from './router'
+import { Resource, ResourceAction, ResourcePath } from '../controller'
 
 export interface Props {
 	resource?: string
@@ -9,13 +9,13 @@ export interface Props {
 
 export interface ToPropsWithResource {
 	resource?: string
-	action: typeof ResourceActionType.List | typeof ResourceActionType.Create
+	action: typeof ResourceAction.Type.List | typeof ResourceAction.Type.Create
 	params?: Record<string, any>
 }
 
 export interface ToPropsWithResourceId {
 	resource?: string
-	action: typeof ResourceActionType.Edit | typeof ResourceActionType.Show
+	action: typeof ResourceAction.Type.Edit | typeof ResourceAction.Type.Show
 	id: RecordKey
 	params?: Record<string, any>
 }
@@ -33,14 +33,14 @@ export type ToFn = (
 export interface CreateToFnProps {
 	go: RouterGoFn<unknown>
 	getResourceFromProp: () => string | undefined
-	resource: Resource | undefined
+	controller: Controller | undefined
 }
 
 export function createToFn(
 	{
 		go,
 		getResourceFromProp,
-		resource: resourceContext,
+		controller,
 	}: CreateToFnProps,
 ): ToFn {
 	return function navigateTo(props) {
@@ -52,10 +52,10 @@ export function createToFn(
 		}
 
 		switch (props.action) {
-			case ResourceActionType.List:
-			case ResourceActionType.Create: {
-				const path = createResourcePath({
-					resolved: resolveResource(resourceContext, { name: props.resource ?? getResourceFromProp() }),
+			case ResourceAction.Type.List:
+			case ResourceAction.Type.Create: {
+				const path = ResourcePath.get({
+					resolved: Resource.resolve(controller, { name: props.resource ?? getResourceFromProp() }),
 					action: props.action,
 					params: props.params,
 				})
@@ -66,10 +66,10 @@ export function createToFn(
 					to: path,
 				})
 			}
-			case ResourceActionType.Edit:
-			case ResourceActionType.Show: {
-				const path = createResourcePath({
-					resolved: resolveResource(resourceContext, { name: props.resource ?? getResourceFromProp() }),
+			case ResourceAction.Type.Edit:
+			case ResourceAction.Type.Show: {
+				const path = ResourcePath.get({
+					resolved: Resource.resolve(controller, { name: props.resource ?? getResourceFromProp() }),
 					action: props.action,
 					params: {
 						id: props.id,

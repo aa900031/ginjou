@@ -15,7 +15,7 @@ import { useCheckError } from '../auth'
 import { useTranslate } from '../i18n'
 import { useNotify } from '../notification'
 import { useRealtimeOptions, useSubscribe } from '../realtime'
-import { extract, withAccessors } from '../utils'
+import { extract, unbox, withAccessors } from '../utils'
 import { useFetchersContext } from './fetchers'
 import { useQueryClientContext } from './query-client'
 
@@ -75,7 +75,7 @@ export function useGetList<
 		meta: extract(resolvedProps.meta),
 	}))
 	const queryKey = $derived.by(() => GetList.createQueryKey<TPageParam>({ props: queryProps }))
-	const queryEnabled = GetList.createQueryEnabledFn({
+	const enabledFn = GetList.createQueryEnabledFn({
 		getEnabled: () => resolvedProps.queryOptions?.enabled,
 		getQueryKey: () => queryKey,
 		getResource: () => queryProps.resource,
@@ -108,7 +108,7 @@ export function useGetList<
 			...resolvedProps.queryOptions,
 			queryKey,
 			queryFn,
-			enabled: queryEnabled,
+			enabled: enabledFn,
 			placeholderData,
 		}),
 		() => queryClient,
@@ -123,15 +123,15 @@ export function useGetList<
 
 	const channel = $derived.by(() => getSubscribeChannel({
 		resource: queryProps.resource,
-		realtimeOptions: realtimeOptions.value,
+		realtimeOptions: unbox(realtimeOptions),
 	}))
 	const params = $derived.by(() => GetList.getSubscribeParams({
 		queryProps,
-		realtimeOptions: realtimeOptions.value,
+		realtimeOptions: unbox(realtimeOptions),
 	}))
 	const callback = createSubscribeCallback({
 		queryClient,
-		getRealtimeOptions: () => realtimeOptions.value,
+		getRealtimeOptions: () => unbox(realtimeOptions),
 		getResource: () => queryProps.resource,
 		getFetcherName: () => queryProps.fetcherName,
 	})
@@ -142,7 +142,7 @@ export function useGetList<
 		meta: queryProps.meta,
 		callback,
 		actions: [RealtimeAction.Any],
-		enabled: queryEnabled,
+		enabled: enabledFn,
 	}), context)
 
 	return withAccessors(query, {

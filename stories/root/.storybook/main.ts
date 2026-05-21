@@ -1,7 +1,7 @@
-import type { StorybookConfig } from '@storybook/react-vite'
+import { defineMain } from '@storybook/react-vite/node'
 import remarkGfm from 'remark-gfm'
 
-export default {
+export default defineMain({
 	staticDirs: [
 		'../public',
 	],
@@ -30,19 +30,19 @@ export default {
 	refs: (config, { configType }) => {
 		const urls = getRefsUrl(configType)
 		return {
-			svelte: {
-				title: 'Svelte',
-				url: urls.svelte,
-				expanded: false,
-			},
 			vue: {
 				title: 'Vue',
 				url: urls.vue,
 				expanded: false,
 			},
+			svelte: {
+				title: 'Svelte',
+				url: urls.svelte,
+				expanded: false,
+			},
 		}
 	},
-} satisfies StorybookConfig
+})
 
 function getRefsUrl(
 	type: string | undefined,

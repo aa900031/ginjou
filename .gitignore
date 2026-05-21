@@ -27,6 +27,7 @@ coverage/
 
 /stories/vue/public/mockServiceWorker.js
 /stories/svelte/public/mockServiceWorker.js
+/reports/junit.xml
 
 .env
 .env.*

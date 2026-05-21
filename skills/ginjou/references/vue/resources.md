@@ -2,12 +2,12 @@
 
 Use this reference for Vue resource registration and resource helper composables. See [Resources](https://ginjou.pages.dev/raw/guides/resources.md) for guide-level usage. See [core/resources.md](../core/resources.md) for definition shape, nested resources, and route-id compatibility.
 
-## `defineResourceContext`
+## `defineControllerContext`
 
 ```ts
-import { defineResourceContext } from '@ginjou/vue'
+import { defineControllerContext } from '@ginjou/vue'
 
-defineResourceContext({
+defineControllerContext({
 	resources: [
 		{ name: 'posts', list: '/posts', create: '/posts/new', show: '/posts/:id', edit: '/posts/:id/edit' },
 	],
@@ -20,7 +20,7 @@ Add `meta.parent` for nested resources and `meta.fetcherName` for named fetcher 
 
 `useResource()` resolves a resource definition from an explicit name or the current route.
 
-> ⚠️ **Warning:** `useResource` requires both `defineResourceContext` **and** `defineRouterContext` to be registered. Without router context, route inference will not work.
+> ⚠️ **Warning:** `useResource` requires both `defineControllerContext` **and** `defineRouterContext` to be registered. Without router context, route inference will not work.
 
 ```ts
 import { useResource } from '@ginjou/vue'
@@ -33,16 +33,16 @@ const inferred = useResource()
 `useResourcePath()` builds one action path from the resolved resource definition.
 
 ```ts
-import { ResourceActionType } from '@ginjou/core'
+import { ResourceAction } from '@ginjou/core'
 import { useResourcePath } from '@ginjou/vue'
 
-const createPath = useResourcePath({
-	action: ResourceActionType.Create,
+const resourcePath = useResourcePath({
+	action: ResourceAction.Type.Create,
 	resource: 'posts',
 })
 
 const editPath = useResourcePath({
-	action: ResourceActionType.Edit,
+	action: ResourceAction.Type.Edit,
 	resource: 'posts',
 	params: { id: 42 },
 })
@@ -52,7 +52,7 @@ If the resource cannot be resolved, or the target action path does not exist, th
 
 ## Rules
 
-- Register `defineResourceContext` once near app setup.
+- Register `defineControllerContext` once near app setup.
 - Use `useResource()` when the current route should resolve to a resource definition and parsed route state.
 - Use `useResourcePath()` when the UI needs one concrete path for a resource action.
 - Keep nested-resource and multi-backend metadata inside the resource definition instead of scattering it across feature pages.

@@ -54,6 +54,6 @@ describe('getQuery', () => {
 	it('should throw error if query not found', () => {
 		const queryKey = ['test']
 		const queryClient = new QueryClient()
-		expect(() => getQuery({ queryKey, queryClient })).toThrowError('Query not found in cache for key: ["test"]')
+		expect(() => getQuery({ queryKey, queryClient })).toThrowError('[@ginjou/core] Query not found in cache for key: ["test"]')
 	})
 })

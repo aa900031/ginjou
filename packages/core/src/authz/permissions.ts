@@ -65,7 +65,7 @@ export function createQueryFn<
 	return async function queryFn() {
 		const { getPermissions } = authz ?? {}
 		if (typeof getPermissions !== 'function')
-			throw new Error('No')
+			throw new Error('[@ginjou/core] Missing authz.getPermissions function. Provide an Authz object with a getPermissions handler before requesting permissions.')
 
 		const params = getParams()
 		const result = await (getPermissions as GetPermissionsFn<TData, TParams>)(params)

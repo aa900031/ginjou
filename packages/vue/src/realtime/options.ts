@@ -1,4 +1,3 @@
-import type { ResolvedRealtimeOptions } from '@ginjou/core'
 import type { MaybeRef } from '@vueuse/shared'
 import type { Simplify } from 'type-fest'
 import type { Ref } from 'vue-demi'
@@ -8,14 +7,14 @@ import { RealtimeOption } from '@ginjou/core'
 import { computed, unref } from 'vue-demi'
 import { useRealtimeContext } from './context'
 
-export type UseRealtimeProps<
+export type UseRealtimeOptionsProps<
 	TPayload,
 >
 	= | ToMaybeRefs<
-		RealtimeOption.Props<TPayload>
+		RealtimeOption.Input<TPayload>
 	>
 	| MaybeRef<
-		RealtimeOption.Props<TPayload> | undefined
+		RealtimeOption.Input<TPayload> | undefined
 	>
 
 export type UseRealtimeOptionsContext = Simplify<
@@ -25,13 +24,13 @@ export type UseRealtimeOptionsContext = Simplify<
 export type UseRealtimeOptionsResult<
 	TPayload,
 > = Ref<
-	ResolvedRealtimeOptions<TPayload>
+	RealtimeOption.Normalized<TPayload>
 >
 
 export function useRealtimeOptions<
 	TPayload,
 >(
-	props?: UseRealtimeProps<TPayload>,
+	props?: UseRealtimeOptionsProps<TPayload>,
 	context?: UseRealtimeOptionsContext,
 ): UseRealtimeOptionsResult<TPayload> {
 	const realtime = useRealtimeContext(context)
@@ -39,7 +38,7 @@ export function useRealtimeOptions<
 	return computed(() => {
 		const _props = unref(props)
 
-		return RealtimeOption.mergeOptions(
+		return RealtimeOption.merge(
 			_props
 				? {
 						mode: unref(_props.mode),

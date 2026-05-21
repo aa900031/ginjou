@@ -1,9 +1,9 @@
+import type { Box } from '../utils'
 import { onDestroy } from 'svelte'
+import { box } from '../utils'
 import { useI18nContext } from './context'
 
-export interface UseLocaleResult {
-	value: string
-}
+export type UseLocaleResult = Box<string>
 
 export function useLocale(): UseLocaleResult {
 	const i18n = useI18nContext()
@@ -14,11 +14,11 @@ export function useLocale(): UseLocaleResult {
 		|| !i18n.setLocale
 		|| !i18n.onChangeLocale
 	) {
-		throw new Error('No i18n locale properties')
+		throw new Error('[@ginjou/svelte] Cannot read locale because no i18n locale properties were provided.')
 	}
 
 	let value = $state(i18n.getLocale())
-	const stop = i18n.onChangeLocale((locale) => {
+	const stop = i18n.onChangeLocale((locale: string) => {
 		value = locale
 	})
 
@@ -26,13 +26,11 @@ export function useLocale(): UseLocaleResult {
 		stop()
 	})
 
-	return {
-		get value() {
-			return value
-		},
-		set value(nextLocale: string) {
+	return box({
+		get: () => value,
+		set: (nextLocale: string) => {
 			value = nextLocale
 			i18n.setLocale!(nextLocale)
 		},
-	}
+	})
 }

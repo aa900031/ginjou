@@ -1,15 +1,15 @@
 import type { I18n } from './i18n'
 import { describe, expect, it, vi } from 'vitest'
-import { createTranslateFn } from './translate'
+import { createFn } from './translate'
 
-describe('createTranslateFn', () => {
+describe('createFn (createTranslateFn)', () => {
 	it('should return a function that returns the key if i18n is not provided', () => {
-		const translate = createTranslateFn({})
+		const translate = createFn({})
 		expect(translate('my.key')).toBe('my.key')
 	})
 
 	it('should return a function that returns the default value if i18n is not provided', () => {
-		const translate = createTranslateFn({})
+		const translate = createFn({})
 		expect(translate('my.key', undefined, 'My Default')).toBe('My Default')
 	})
 
@@ -17,7 +17,7 @@ describe('createTranslateFn', () => {
 		const i18n = {
 			translate: vi.fn().mockReturnValue('Translated Value'),
 		} as unknown as I18n
-		const translate = createTranslateFn({ i18n })
+		const translate = createFn({ i18n })
 		const result = translate('my.key', { name: 'test' })
 
 		expect(i18n.translate).toHaveBeenCalledWith('my.key', { name: 'test' })
@@ -28,7 +28,7 @@ describe('createTranslateFn', () => {
 		const i18n = {
 			translate: vi.fn().mockReturnValue(undefined),
 		} as unknown as I18n
-		const translate = createTranslateFn({ i18n })
+		const translate = createFn({ i18n })
 		const result = translate('my.key', { name: 'test' }, 'My Default')
 
 		expect(i18n.translate).toHaveBeenCalledWith('my.key', { name: 'test' })
@@ -39,7 +39,7 @@ describe('createTranslateFn', () => {
 		const i18n = {
 			translate: vi.fn().mockReturnValue(undefined),
 		} as unknown as I18n
-		const translate = createTranslateFn({ i18n })
+		const translate = createFn({ i18n })
 		const result = translate('my.key', { name: 'test' })
 
 		expect(i18n.translate).toHaveBeenCalledWith('my.key', { name: 'test' })

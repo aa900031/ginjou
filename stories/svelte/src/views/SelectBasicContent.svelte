@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { useSelect } from '@ginjou/svelte'
-	import type { Post } from '../api/posts'
+	import type { Post } from '@ginjou/storybook-shared/mock-data'
 	import Card from '../components/Card.svelte'
 	import FieldLabel from '../components/FieldLabel.svelte'
 	import Input from '../components/Input.svelte'

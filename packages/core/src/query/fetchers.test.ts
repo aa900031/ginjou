@@ -38,13 +38,13 @@ describe('getFetcher', () => {
 	it('should throw error if fetchers are not provided', () => {
 		const props = { fetcherName: 'default' }
 		const resolvedProps = resolveFetcherProps(props)
-		expect(() => getFetcher(resolvedProps, undefined)).toThrow('Data Provider not exists!')
+		expect(() => getFetcher(resolvedProps, undefined)).toThrow('[@ginjou/core] No fetchers are registered')
 	})
 
 	it('should throw error if fetcherName does not exist', () => {
 		const props = { fetcherName: 'nonExistent' }
 		const resolvedProps = resolveFetcherProps(props)
-		expect(() => getFetcher(resolvedProps, mockFetchers)).toThrow('Data Provider (nonExistent) not exists!')
+		expect(() => getFetcher(resolvedProps, mockFetchers)).toThrow(`[@ginjou/core] Fetcher '${resolvedProps.fetcherName}' is not registered`)
 	})
 })
 
@@ -64,7 +64,7 @@ describe('getFetcherFn', () => {
 
 	it('should throw error if fetcher function does not exist', () => {
 		const resolvedProps = resolveFetcherProps({})
-		expect(() => getFetcherFn(resolvedProps, mockFetchers, 'getList')).toThrow('Fetcher function: getList not exists')
+		expect(() => getFetcherFn(resolvedProps, mockFetchers, 'getList')).toThrow(`[@ginjou/core] Fetcher '${resolvedProps.fetcherName}' does not implement required function 'getList'`)
 	})
 })
 

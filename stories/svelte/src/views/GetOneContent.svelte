@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { useGetOne } from '@ginjou/svelte'
-	import type { Post } from '../api/posts'
+	import type { Post } from '@ginjou/storybook-shared/mock-data'
 	import Card from '../components/Card.svelte'
 	import PageTitle from '../components/PageTitle.svelte'
 	import Stack from '../components/Stack.svelte'
-	import { DEFAULT_POST_ID } from '../utils/posts'
+	import { DEFAULT_POST_ID } from '@ginjou/storybook-shared/mock-data'
 
 	const query = useGetOne<Post>({
 		id: DEFAULT_POST_ID,

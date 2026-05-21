@@ -16,7 +16,7 @@ export function useResolvePath<
 
 	return (to) => {
 		if (!router)
-			throw new Error('No router found in context.')
+			throw new Error('[@ginjou/svelte] No router context found. Use defineRouterContext() before calling useResolvePath().')
 
 		return router.resolve(to)
 	}

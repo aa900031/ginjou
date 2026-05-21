@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/svelte-vite'
+import { createPostHandlers } from '@ginjou/storybook-shared/mock-data'
 import InfiniteListPagination from './InfiniteListPagination.svelte'
-import { createPostHandlers } from './utils/posts'
 
 const meta = {
 	title: 'Controllers/Infinite List',

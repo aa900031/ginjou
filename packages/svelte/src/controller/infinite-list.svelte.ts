@@ -1,14 +1,14 @@
 import type { BaseRecord, Filters, Sorters } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
 import type { UseGetInfiniteListContext, UseGetInfiniteListResult } from '../query'
-import type { UseResourceContext } from '../resource'
 import type { UseGoContext, UseLocationContext } from '../router'
 import type { MaybeAccessor } from '../utils'
-import { getFetcherName, getResourceIdentifier, InfiniteList, List } from '@ginjou/core'
+import type { UseResourceContext } from './resource.svelte'
+import { InfiniteList, List, Resource } from '@ginjou/core'
 import { useGetInfiniteList } from '../query'
-import { useResource } from '../resource'
 import { useGo, useLocation } from '../router'
-import { extract, stateFallback, stateSub, watch, withAccessors } from '../utils'
+import { deriveState, extract, pickState, unbox, watch, withAccessors } from '../utils'
+import { useResource } from './resource.svelte'
 
 export type UseInfiniteListProps<
 	TData extends BaseRecord,
@@ -60,143 +60,143 @@ export function useInfiniteList<
 	const resource = useResource(() => ({ name: resolvedProps?.resource }), context)
 	const location = useLocation(context)
 
-	const initialPageProp = stateSub<TPageParam, InfiniteList.PaginationProp<TPageParam> | undefined>(
+	const initialPageProp = pickState<TPageParam, InfiniteList.PaginationProp<TPageParam> | undefined>(
 		() => resolvedProps?.pagination,
 		List.getPropInitialPage,
 	)
-	const currentPageProp = stateSub<TPageParam, InfiniteList.PaginationProp<TPageParam> | undefined>(
+	const currentPageProp = pickState<TPageParam, InfiniteList.PaginationProp<TPageParam> | undefined>(
 		() => resolvedProps?.pagination,
 		List.getPropCurrentPage,
 	)
-	const perPageProp = stateSub<number, InfiniteList.PaginationProp<TPageParam> | undefined>(
+	const perPageProp = pickState<number, InfiniteList.PaginationProp<TPageParam> | undefined>(
 		() => resolvedProps?.pagination,
 		List.getPropPerPage,
 	)
-	const filtersProp = stateSub<Filters, List.FiltersProp | undefined>(
+	const filtersProp = pickState<Filters, List.FiltersProp | undefined>(
 		() => resolvedProps?.filters,
 		List.getPropFilters,
 	)
-	const filtersPermanentProp = stateSub<List.FiltersOptions['permanent'], List.FiltersProp | undefined>(
+	const filtersPermanentProp = pickState<List.FiltersOptions['permanent'], List.FiltersProp | undefined>(
 		() => resolvedProps?.filters,
 		List.getPropFiltersPermanent,
 	)
-	const filtersBehaviorProp = stateSub<List.FiltersOptions['behavior'], List.FiltersProp | undefined>(
+	const filtersBehaviorProp = pickState<List.FiltersOptions['behavior'], List.FiltersProp | undefined>(
 		() => resolvedProps?.filters,
 		List.getPropFiltersBehavior,
 	)
-	const filtersModeProp = stateSub<List.FiltersOptions['mode'], List.FiltersProp | undefined>(
+	const filtersModeProp = pickState<List.FiltersOptions['mode'], List.FiltersProp | undefined>(
 		() => resolvedProps?.filters,
 		List.getPropFiltersMode,
 	)
-	const sortersProp = stateSub<Sorters, List.SortersProp | undefined>(
+	const sortersProp = pickState<Sorters, List.SortersProp | undefined>(
 		() => resolvedProps?.sorters,
 		List.getPropSorters,
 	)
-	const sortersPermanentProp = stateSub<List.SortersOptions['permanent'], List.SortersProp | undefined>(
+	const sortersPermanentProp = pickState<List.SortersOptions['permanent'], List.SortersProp | undefined>(
 		() => resolvedProps?.sorters,
 		List.getPropSortersPermanent,
 	)
-	const sortersModeProp = stateSub<List.SortersOptions['mode'], List.SortersProp | undefined>(
+	const sortersModeProp = pickState<List.SortersOptions['mode'], List.SortersProp | undefined>(
 		() => resolvedProps?.sorters,
 		List.getPropSortersMode,
 	)
 
-	const currentPageLocation = stateFallback<TPageParam | undefined, List.GetLocationCurrentPageProps>(
+	const currentPageLocation = deriveState<TPageParam | undefined, List.GetLocationCurrentPageProps>(
 		() => ({
-			location: location.value,
+			location: unbox(location),
 			syncRouteFromProp: resolvedProps?.syncRoute,
 		}),
 		List.getLocationCurrentPage,
 	)
-	const perPageLocation = stateFallback<number | undefined, List.GetLocationPerPageProps>(
+	const perPageLocation = deriveState<number | undefined, List.GetLocationPerPageProps>(
 		() => ({
-			location: location.value,
+			location: unbox(location),
 			syncRouteFromProp: resolvedProps?.syncRoute,
 		}),
 		List.getLocationPerPage,
 	)
-	const filtersLocation = stateFallback<Filters | undefined, List.GetLocationFiltersProps>(
+	const filtersLocation = deriveState<Filters | undefined, List.GetLocationFiltersProps>(
 		() => ({
-			location: location.value,
+			location: unbox(location),
 			syncRouteFromProp: resolvedProps?.syncRoute,
 		}),
 		List.getLocationFilters,
 	)
-	const sortersLocation = stateFallback<Sorters | undefined, List.GetLocationSortersProps>(
+	const sortersLocation = deriveState<Sorters | undefined, List.GetLocationSortersProps>(
 		() => ({
-			location: location.value,
+			location: unbox(location),
 			syncRouteFromProp: resolvedProps?.syncRoute,
 		}),
 		List.getLocationSorters,
 	)
 
-	const resourceName = $derived.by(() => getResourceIdentifier({
-		resource: resource.value,
+	const resourceName = $derived.by(() => Resource.getName({
+		resource: unbox(resource),
 		resourceFromProp: resolvedProps?.resource,
 	}))
-	const fetcherName = $derived.by(() => getFetcherName({
-		resource: resource.value,
+	const fetcherName = $derived.by(() => Resource.getFetcherName({
+		resource: unbox(resource),
 		fetcherNameFromProp: resolvedProps?.fetcherName,
 	}))
 
-	const currentPage = stateFallback<TPageParam, List.GetCurrentPageProps<TPageParam>>(
+	const currentPage = deriveState<TPageParam, List.GetCurrentPageProps<TPageParam>>(
 		() => ({
-			initalPageFromProp: initialPageProp.value,
-			currentPageFromProp: currentPageProp.value,
-			currentPageFromLocation: currentPageLocation.value,
+			initalPageFromProp: unbox(initialPageProp),
+			currentPageFromProp: unbox(currentPageProp),
+			currentPageFromLocation: unbox(currentPageLocation),
 			syncRouteFromProp: resolvedProps?.syncRoute,
 		}),
 		List.getCurrentPage,
 	)
-	const perPage = stateFallback(
+	const perPage = deriveState<number, List.GetPerPageProps<TPageParam>>(
 		() => ({
-			perPageFromProp: perPageProp.value,
-			perPageFromLocation: perPageLocation.value,
+			perPageFromProp: unbox(perPageProp),
+			perPageFromLocation: unbox(perPageLocation),
 			syncRouteFromProp: resolvedProps?.syncRoute,
 		}),
 		List.getPerPage,
 	)
-	const filtersState = stateFallback<Filters, List.GetFiltersProps>(
+	const filtersState = deriveState<Filters, List.GetFiltersProps>(
 		() => ({
-			filtersFromLocation: filtersLocation.value,
-			filtersFromProp: filtersProp.value,
-			filtersPermanentFromProp: filtersPermanentProp.value,
+			filtersFromLocation: unbox(filtersLocation),
+			filtersFromProp: unbox(filtersProp),
+			filtersPermanentFromProp: unbox(filtersPermanentProp),
 			syncRouteFromProp: resolvedProps?.syncRoute,
 		}),
 		List.getFilters,
 	)
 	const setFilters = List.createSetFiltersFn({
-		getFiltersPermanent: () => filtersPermanentProp.value,
-		getFiltersBehavior: () => filtersBehaviorProp.value,
-		getPrev: () => filtersState.value,
-		update: value => filtersState.value = value,
+		getFiltersPermanent: () => unbox(filtersPermanentProp),
+		getFiltersBehavior: () => unbox(filtersBehaviorProp),
+		getPrev: () => unbox(filtersState),
+		update: (value: Filters) => filtersState.value = value,
 	})
-	const sortersState = stateFallback<Sorters, List.GetSortersProps>(
+	const sortersState = deriveState<Sorters, List.GetSortersProps>(
 		() => ({
-			sortersFromLocation: sortersLocation.value,
-			sortersFromProp: sortersProp.value,
-			sortersPermanentFromProp: sortersPermanentProp.value,
+			sortersFromLocation: unbox(sortersLocation),
+			sortersFromProp: unbox(sortersProp),
+			sortersPermanentFromProp: unbox(sortersPermanentProp),
 			syncRouteFromProp: resolvedProps?.syncRoute,
 		}),
 		List.getSorters,
 	)
 	const setSorters = List.createSetSortersFn({
-		getSortersPermanent: () => sortersPermanentProp.value,
-		getPrev: () => sortersState.value,
-		update: value => sortersState.value = value,
+		getSortersPermanent: () => unbox(sortersPermanentProp),
+		getPrev: () => unbox(sortersState),
+		update: (value: Sorters) => sortersState.value = value,
 	})
 
 	const paginationForQuery = $derived.by(() => InfiniteList.getPaginationForQuery({
-		currentPage: currentPage.value,
-		perPage: perPage.value,
+		currentPage: unbox(currentPage),
+		perPage: unbox(perPage),
 	}))
 	const sortersForQuery = $derived.by(() => List.getSortersForQuery({
-		sortersModeFromProp: sortersModeProp.value,
-		sorters: sortersState.value,
+		sortersModeFromProp: unbox(sortersModeProp),
+		sorters: unbox(sortersState),
 	}))
 	const filtersForQuery = $derived.by(() => List.getFiltersForQuery({
-		filtersModeFromProp: filtersModeProp.value,
-		filters: filtersState.value,
+		filtersModeFromProp: unbox(filtersModeProp),
+		filters: unbox(filtersState),
 	}))
 
 	const result = useGetInfiniteList<TData, TError, TResultData, TPageParam>(() => ({
@@ -210,7 +210,7 @@ export function useInfiniteList<
 
 	const pageCount = $derived.by(() => InfiniteList.getPageCount({
 		queryData: result.data,
-		perPage: perPage.value,
+		perPage: unbox(perPage),
 	}))
 
 	const total = $derived.by(() => InfiniteList.getTotal({
@@ -220,13 +220,13 @@ export function useInfiniteList<
 	watch(() => ({
 		syncRouteFromProp: resolvedProps?.syncRoute,
 
-		perPageLocation: perPageLocation.value,
-		filtersLocation: filtersLocation.value,
-		sortersLocation: sortersLocation.value,
+		perPageLocation: unbox(perPageLocation),
+		filtersLocation: unbox(filtersLocation),
+		sortersLocation: unbox(sortersLocation),
 
-		perPage: perPage.value,
-		sorters: sortersState.value,
-		filters: filtersState.value,
+		perPage: unbox(perPage),
+		sorters: unbox(sortersState),
+		filters: unbox(filtersState),
 	}), (val) => {
 		const params = InfiniteList.toRouterGoParams(val)
 		if (!params)
@@ -245,12 +245,12 @@ export function useInfiniteList<
 	})
 
 	watch(() => ({
-		perPage: perPage.value,
-		_filters: filtersState.value,
-		_sorters: sortersState.value,
+		perPage: unbox(perPage),
+		_filters: unbox(filtersState),
+		_sorters: unbox(sortersState),
 	}), () => {
 		currentPage.value = List.getInitialPage({
-			initalPageFromProp: initialPageProp.value,
+			initalPageFromProp: unbox(initialPageProp),
 		})
 	})
 

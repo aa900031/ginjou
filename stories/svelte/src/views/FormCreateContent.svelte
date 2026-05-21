@@ -1,12 +1,12 @@
 <script lang="ts" module>
-	import { ResourceActionType } from '@ginjou/core'
+	import { ResourceAction } from '@ginjou/core'
 
-	export type FormRedirect = false | typeof ResourceActionType.List | typeof ResourceActionType.Create | typeof ResourceActionType.Show | typeof ResourceActionType.Edit
+	export type FormRedirect = false | typeof ResourceAction.Type.List | typeof ResourceAction.Type.Create | typeof ResourceAction.Type.Show | typeof ResourceAction.Type.Edit
 </script>
 
 <script lang="ts">
 	import { useCreate } from '@ginjou/svelte'
-	import type { Post, PostFormData, PostRawFormData } from '../api/posts'
+	import type { Post, PostFormData, PostRawFormData } from '@ginjou/storybook-shared/mock-data'
 	import Button from '../components/Button.svelte'
 	import FieldLabel from '../components/FieldLabel.svelte'
 	import Form from '../components/Form.svelte'

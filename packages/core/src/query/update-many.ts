@@ -1,18 +1,19 @@
 import type { MutationFunctionContext, MutationObserverOptions, QueryClient } from '@tanstack/query-core'
 import type { OverrideProperties, SetReturnType, Simplify } from 'type-fest'
 import type { CheckError } from '../auth'
-import type { TranslateFn } from '../i18n'
-import type { NotifyFn } from '../notification'
+import type { Translate } from '../i18n'
+import type { Notify } from '../notification'
 import type { Publish } from '../realtime'
 import type { BaseRecord, Params, UpdateManyFn, UpdateManyProps, UpdateManyResult, UpdateOneFn } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { InvalidatesProps, InvalidateTargetType, ResolvedInvalidatesProps } from './invalidate'
 import type { MutationModeProps, ResolvedMutationModeProps } from './mutation-mode'
 import type { NotifyProps } from './notify'
+import type { OptimisticUpdateProps } from './optimistic-update'
 import type { PublishPayload } from './publish'
 import type { OptionalMutateAsyncFunction, OptionalMutateSyncFunction, OriginMutateAsyncFunction, OriginMutateSyncFunction, QueryPair } from './types'
 import { NotificationType } from '../notification'
-import { RealtimeAction } from '../realtime/event'
+import { RealtimeAction } from '../realtime'
 import { AbortDefer, defer } from '../utils/defer'
 import { getErrorMessage } from '../utils/error'
 import { getFetcherFn, getSafeFetcherFn, resolveFetcherProps } from './fetchers'
@@ -21,8 +22,9 @@ import { createBaseQueryKey as genBaseGetManyQueryKey } from './get-many'
 import { createQueryKey as genGetOneQueryKey } from './get-one'
 import { fakeMany } from './helper'
 import { InvalidateTarget, resolveInvalidateProps, triggerInvalidates } from './invalidate'
-import { createModifyListItemUpdaterFn, createModifyManyUpdaterFn, createModifyOneUpdaterFn, MutationMode, resolveMutationModeProps } from './mutation-mode'
+import { MutationMode, resolveMutationModeProps } from './mutation-mode'
 import { createProgressNotifyParams, resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
+import { createModifyListItemUpdaterFn, createModifyManyUpdaterFn, createModifyOneUpdaterFn, createOptimisticUpdaterFn, shouldApplyOptimisticUpdate } from './optimistic-update'
 import { createPublishMeta, createPublishPayloadByMany } from './publish'
 import { createQueryKey as genResourceQueryKey } from './resource'
 
@@ -36,6 +38,7 @@ export type MutationProps<
 	& InvalidatesProps
 	& NotifyProps<UpdateManyResult<TData>, UpdateManyProps<TParams>, TError>
 	& MutationModeProps
+	& OptimisticUpdateProps<TData, TParams, UpdateManyProps<TParams>['ids']>
 >
 
 export type ResolvedMutationProps<
@@ -117,8 +120,8 @@ export interface CreateMutationFnProps<
 	TParams extends Params,
 > {
 	fetchers: Fetchers
-	notify: NotifyFn
-	translate: TranslateFn<any>
+	notify: Notify.Fn
+	translate: Translate.Fn<any>
 	getProps: () => Props<TData, TError, TParams> | undefined
 }
 
@@ -180,12 +183,12 @@ export interface CreateMutateHandlerProps<
 	TParams extends Params,
 > {
 	queryClient: QueryClient
-	notify: NotifyFn
-	translate: TranslateFn<any>
+	notify: Notify.Fn
+	translate: Translate.Fn<any>
 	getProps: () => Props<TData, TError, TParams> | undefined
 	onMutate: SetReturnType<
 		NonNullable<MutationOptions<TData, TError, TParams>['onMutate']>,
-		ReturnType<NonNullable<MutationOptions<TData, TError, TParams>['onMutate']>> | undefined
+		ReturnType<NonNullable<MutationOptions<TData, TError, TParams>['onMutate']>> | Promise<undefined> | undefined
 	>
 }
 
@@ -294,8 +297,8 @@ export interface CreateSuccessHandlerProps<
 	TError,
 	TParams extends Params,
 > {
-	notify: NotifyFn
-	translate: TranslateFn<any>
+	notify: Notify.Fn
+	translate: Translate.Fn<any>
 	publish: Publish.EmitFn<PublishPayload>
 	queryClient: QueryClient
 	getProps: () => Props<TData, TError, TParams> | undefined
@@ -350,8 +353,8 @@ export interface CreateErrorHandlerProps<
 	TParams extends Params,
 > {
 	queryClient: QueryClient
-	notify: NotifyFn
-	translate: TranslateFn<any>
+	notify: Notify.Fn
+	translate: Translate.Fn<any>
 	checkError: CheckError.MutateAsyncFn<TError, unknown>
 	getProps: () => Props<TData, TError, TParams> | undefined
 	onError: MutationOptions<TData, TError, TParams>['onError']
@@ -505,7 +508,7 @@ function resolveProps<
 	}
 	const { resource, ids, params } = props
 	if (resource == null || ids == null || params == null)
-		throw new Error('No') // TODO:
+		throw new Error('[@ginjou/core] Cannot update many records without required mutation props: resource, ids, and params.')
 
 	return {
 		...props,
@@ -523,27 +526,43 @@ function updateCache<
 	props: ResolvedMutationProps<TData, any, TParams>,
 	queryClient: QueryClient,
 ): void {
-	queryClient.setQueriesData(
-		{ queryKey: genBaseGetListQueryKey({ props }) },
-		createModifyListItemUpdaterFn<TData, TParams, TPageParam>(props.ids, props.params),
-	)
-	queryClient.setQueriesData(
-		{ queryKey: genBaseGetManyQueryKey({ props }) },
-		createModifyManyUpdaterFn<TData, TParams>(props.ids, props.params),
-	)
-	for (const id of props.ids) {
+	const listOptimisticUpdate = props.optimisticUpdate?.list
+	const manyOptimisticUpdate = props.optimisticUpdate?.many
+	const oneOptimisticUpdate = props.optimisticUpdate?.one
+
+	if (shouldApplyOptimisticUpdate(listOptimisticUpdate)) {
 		queryClient.setQueriesData(
-			{ queryKey: genGetOneQueryKey({ props: { ...props, id } }) },
-			createModifyOneUpdaterFn(props.params),
+			{ queryKey: genBaseGetListQueryKey({ props }) },
+			typeof listOptimisticUpdate === 'function'
+				? createOptimisticUpdaterFn(listOptimisticUpdate, props.params, props.ids)
+				: createModifyListItemUpdaterFn<TData, TParams, TPageParam, UpdateManyProps<TParams>['ids']>(props.ids, props.params),
 		)
+	}
+	if (shouldApplyOptimisticUpdate(manyOptimisticUpdate)) {
+		queryClient.setQueriesData(
+			{ queryKey: genBaseGetManyQueryKey({ props }) },
+			typeof manyOptimisticUpdate === 'function'
+				? createOptimisticUpdaterFn(manyOptimisticUpdate, props.params, props.ids)
+				: createModifyManyUpdaterFn<TData, TParams, UpdateManyProps<TParams>['ids']>(props.ids, props.params),
+		)
+	}
+	if (shouldApplyOptimisticUpdate(oneOptimisticUpdate)) {
+		for (const id of props.ids) {
+			queryClient.setQueriesData(
+				{ queryKey: genGetOneQueryKey({ props: { ...props, id } }) },
+				typeof oneOptimisticUpdate === 'function'
+					? createOptimisticUpdaterFn(oneOptimisticUpdate, props.params, id)
+					: createModifyOneUpdaterFn<TData, TParams>(props.params),
+			)
+		}
 	}
 }
 
 function dispatchSuccessNotify<
 	TData extends BaseRecord,
 >(
-	notify: NotifyFn,
-	translate: TranslateFn<any>,
+	notify: Notify.Fn,
+	translate: Translate.Fn<any>,
 	data: UpdateManyResult<TData>,
 	resolvedProps: ResolvedMutationProps<any, any, any>,
 ): void {

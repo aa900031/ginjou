@@ -2,14 +2,14 @@ import type { BaseRecord, Params } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
 import type { Ref } from 'vue-demi'
 import type { UseCreateOneContext, UseCreateOneResult } from '../query'
-import type { UseResourceContext } from '../resource'
 import type { UseGoContext, UseNavigateToContext } from '../router'
 import type { ToMaybeRefs } from '../utils/refs'
-import { Create, getFetcherName, getResourceIdentifier } from '@ginjou/core'
+import type { UseResourceContext } from './resource'
+import { Create, Resource } from '@ginjou/core'
 import { computed, unref } from 'vue-demi'
 import { useCreateOne } from '../query'
-import { useResource } from '../resource'
 import { useNavigateTo } from '../router'
+import { useResource } from './resource'
 
 export type UseCreateProps<
 	TMutationData extends BaseRecord,
@@ -49,11 +49,11 @@ export function useCreate<
 	const resource = useResource({ name: props?.resource }, context)
 	const navigateTo = useNavigateTo(props, context)
 
-	const fetcherName = computed(() => getFetcherName({
+	const fetcherName = computed(() => Resource.getFetcherName({
 		resource: unref(resource),
 		fetcherNameFromProp: unref(props?.fetcherName),
 	}))
-	const resourceName = computed(() => getResourceIdentifier({
+	const resourceName = computed(() => Resource.getName({
 		resource: unref(resource),
 		resourceFromProp: unref(props?.resource),
 	}))

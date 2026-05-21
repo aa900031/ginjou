@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { useCreateOne } from '@ginjou/svelte'
-	import type { Post, PostRawFormData } from '../api/posts'
+	import type { Post, PostRawFormData } from '@ginjou/storybook-shared/mock-data'
 	import Button from '../components/Button.svelte'
 	import FieldLabel from '../components/FieldLabel.svelte'
 	import Form from '../components/Form.svelte'
@@ -15,7 +15,7 @@
 	})
 
 	let formData = $state<PostRawFormData>({
-		title: '',
+		title: 'test',
 		status: 'draft',
 	})
 	let result = $state<Post | undefined>()

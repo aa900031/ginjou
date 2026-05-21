@@ -12,13 +12,16 @@
 		"url": "https://github.com/aa900031/ginjou/issues"
 	},
 	"scripts": {
-		"dev": "run-p 'dev:wait-*' && storybook dev -p 6006 --no-open",
+		"dev": "run-s --silent dev:wait dev:storybook",
+		"dev:wait": "run-p 'dev:wait-*'",
 		"dev:wait-svelte": "wait-on tcp:6008",
 		"dev:wait-vue": "wait-on tcp:6007",
+		"dev:storybook": "storybook dev -p 6006 --no-open",
 		"build": "storybook build -o dist",
 		"preview": "sirv ./dist --host -p 7006"
 	},
 	"devDependencies": {
+		"@ginjou/storybook-shared": "workspace:*",
 		"@storybook/addon-docs": "^10.3.2",
 		"@storybook/react-vite": "^10.3.2",
 		"@types/react": "^19.2.14",

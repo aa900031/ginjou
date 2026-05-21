@@ -2,9 +2,9 @@ import type { PlaceholderDataFunction, QueryClient, QueryKey, QueryObserverOptio
 import type { QueryCallbacks } from 'tanstack-query-callbacks'
 import type { SetOptional, Simplify } from 'type-fest'
 import type { CheckError } from '../auth'
-import type { TranslateFn } from '../i18n'
-import type { NotifyFn } from '../notification'
-import type { ResolvedRealtimeOptions, SubscribeListParams } from '../realtime'
+import type { Translate } from '../i18n'
+import type { Notify } from '../notification'
+import type { RealtimeOption, SubscribeListParams } from '../realtime'
 import type { QueryEnabledFn } from '../utils/query'
 import type { BaseRecord, GetListFn, GetListProps, GetListResult, GetOneResult } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
@@ -164,7 +164,7 @@ export interface CreateSuccessHandlerProps<
 	TResultData extends BaseRecord,
 	TPageParam,
 > {
-	notify: NotifyFn
+	notify: Notify.Fn
 	getProps: () => ResolvedQueryProps<TPageParam>
 	getSuccessNotify: () => NotifyProps<GetListResult<TResultData, TPageParam>, ResolvedQueryProps<TPageParam>, unknown>['successNotify']
 	emitParent: NonNullable<QueryOptions<any, unknown, TResultData, TPageParam>['onSuccess']>
@@ -198,8 +198,8 @@ export interface CreateErrorHandlerProps<
 	TError,
 	TPageParam,
 > {
-	notify: NotifyFn
-	translate: TranslateFn<any>
+	notify: Notify.Fn
+	translate: Translate.Fn<any>
 	getProps: () => ResolvedQueryProps<TPageParam>
 	getErrorNotify: () => NotifyProps<GetListResult<any, TPageParam>, ResolvedQueryProps<TPageParam>, TError>['errorNotify']
 	checkError: CheckError.MutateAsyncFn<TError, unknown>
@@ -291,7 +291,7 @@ export interface GetSubscribeParamsProps<
 	TPageParam,
 > {
 	queryProps: ResolvedQueryProps<TPageParam>
-	realtimeOptions: ResolvedRealtimeOptions<TPayload>
+	realtimeOptions: RealtimeOption.Normalized<TPayload>
 }
 
 export function getSubscribeParams<

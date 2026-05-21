@@ -1,7 +1,23 @@
-import type { SetRequired, Simplify, ValueOf } from 'type-fest'
+import type { LiteralUnion, ValueOf } from 'type-fest'
 import type { Filters, Meta, Pagination, RecordKey, Sorters } from '../query'
-import type { RealtimeActionValues, RealtimeEvent } from './event'
-import type { RealtimeModeValue } from './mode'
+import type { Context as ContextOption } from './options'
+
+export const RealtimeMode = {
+	Off: 'off',
+	Auto: 'auto',
+	Manual: 'manual',
+} as const
+
+export type RealtimeModeValue = ValueOf<typeof RealtimeMode>
+
+export const RealtimeAction = {
+	Any: '*',
+	Deleted: 'deleted',
+	Updated: 'updated',
+	Created: 'created',
+} as const
+
+export type RealtimeActionValues = LiteralUnion<ValueOf<typeof RealtimeAction>, string>
 
 export const SubscribeType = {
 	List: 'list',
@@ -33,6 +49,16 @@ export interface SubscribeManyParams {
 	type: typeof SubscribeType.Many
 	resource: string
 	ids: RecordKey[]
+	meta?: Meta
+}
+
+export interface RealtimeEvent<
+	TPayload = unknown,
+> {
+	channel: string
+	action: RealtimeActionValues
+	payload: TPayload // TODO: 釐清使用方式
+	date: Date
 	meta?: Meta
 }
 
@@ -79,36 +105,11 @@ export type PublishFn<
 	event: RealtimeEvent<TPayload>,
 ) => void
 
-export interface RealtimeOptions<
-	TPayload,
-> {
-	mode?: RealtimeModeValue
-	callback?: SubscribeCallbackFn<TPayload>
-	channel?: string
-	params?: Record<string, unknown>
-}
-
-export type RealtimeContextOptions<
-	TPayload,
-> = Simplify<
-	& Omit<
-		RealtimeOptions<TPayload>,
-		| 'channel'
-	>
->
-
-export type ResolvedRealtimeOptions<
-	TPayload,
-> = SetRequired<
-	RealtimeOptions<TPayload>,
-	| 'mode'
->
-
 export interface Realtime {
 	subscribe: SubscribeFn<any, any>
 	unsubscribe?: UnsubscribeFn
 	publish?: PublishFn<any>
-	options?: RealtimeContextOptions<any>
+	options?: ContextOption<any>
 }
 
 /* @__NO_SIDE_EFFECTS__ */

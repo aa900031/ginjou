@@ -1,6 +1,6 @@
 import type { LiteralUnion } from 'type-fest'
+import type { ResourceAction } from '../controller'
 import type { RecordKey } from '../query'
-import type { ResourceActionTypeValues } from '../resource'
 
 export type GetPermissionsResult<
 	TData,
@@ -14,7 +14,7 @@ export type GetPermissionsFn<
 ) => Promise<GetPermissionsResult<TData>>
 
 export interface AccessCanParams {
-	action: LiteralUnion<ResourceActionTypeValues, string>
+	action: LiteralUnion<ResourceAction.TypeValues, string>
 	resource?: string
 	params?: {
 		id?: RecordKey

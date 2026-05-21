@@ -1,6 +1,6 @@
 import type { MutationFunction, MutationKey, MutationObserverOptions, QueryClient } from '@tanstack/query-core'
-import type { TranslateFn } from '../i18n'
-import type { NotifyFn } from '../notification'
+import type { Translate } from '../i18n'
+import type { Notify } from '../notification'
 import type { Params } from '../query'
 import type { OptionalMutateAsyncFunction, OptionalMutateSyncFunction, OriginMutateAsyncFunction, OriginMutateSyncFunction } from '../query/types'
 import type { RouterGoFn, RouterGoParams } from '../router'
@@ -76,7 +76,7 @@ export function createMutationFn<
 	return async function mutationFn(params) {
 		const { login } = auth ?? {}
 		if (typeof login !== 'function')
-			throw new Error('No')
+			throw new Error('[@ginjou/core] Missing auth.login function. Provide an Auth object with a login handler before calling login.')
 
 		const result = await (login as LoginFn<TParams>)(params) ?? {}
 		return result
@@ -128,8 +128,8 @@ export interface CreateErrorHandlerProps<
 	TParams extends Params,
 	TError,
 > {
-	notify: NotifyFn
-	translate: TranslateFn<any>
+	notify: Notify.Fn
+	translate: Translate.Fn<any>
 	go: RouterGoFn<unknown>
 	onError: MutationOptions<TParams, TError>['onError']
 }

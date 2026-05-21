@@ -1,7 +1,7 @@
 <script lang="ts">
 	import ShowBasicContent from './views/ShowBasicContent.svelte'
 	import StoryShell from './components/StoryShell.svelte'
-	import { DEFAULT_POST_ID } from './utils/posts'
+	import { DEFAULT_POST_ID } from '@ginjou/storybook-shared/mock-data'
 </script>
 
 <StoryShell

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { useList } from '@ginjou/svelte'
 	import type { Filter } from '@ginjou/core'
-	import type { Post } from '../api/posts'
+	import type { Post } from '@ginjou/storybook-shared/mock-data'
 	import { FilterOperator } from '@ginjou/core'
 	import Card from '../components/Card.svelte'
 	import FieldLabel from '../components/FieldLabel.svelte'

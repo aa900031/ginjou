@@ -1,8 +1,8 @@
 import type { MutationObserverOptions, QueryClient } from '@tanstack/query-core'
 import type { OverrideProperties, Simplify } from 'type-fest'
 import type { CheckError } from '../auth'
-import type { TranslateFn } from '../i18n'
-import type { NotifyFn } from '../notification'
+import type { Translate } from '../i18n'
+import type { Notify } from '../notification'
 import type { Publish } from '../realtime'
 import type { BaseRecord, CreateOneFn, CreateProps, CreateResult, Params } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
@@ -11,7 +11,7 @@ import type { NotifyProps } from './notify'
 import type { PublishPayload } from './publish'
 import type { OptionalMutateAsyncFunction, OptionalMutateSyncFunction, OriginMutateAsyncFunction, OriginMutateSyncFunction } from './types'
 import { NotificationType } from '../notification'
-import { RealtimeAction } from '../realtime/event'
+import { RealtimeAction } from '../realtime'
 import { getErrorMessage } from '../utils/error'
 import { getFetcherFn, resolveFetcherProps } from './fetchers'
 import { InvalidateTarget, resolveInvalidateProps, triggerInvalidates } from './invalidate'
@@ -124,8 +124,8 @@ export interface CreateSuccessHandlerProps<
 	TError,
 	TParams extends Params,
 > {
-	notify: NotifyFn
-	translate: TranslateFn<any>
+	notify: Notify.Fn
+	translate: Translate.Fn<any>
 	publish: Publish.EmitFn<PublishPayload>
 	queryClient: QueryClient
 	getProps: () => Props<TData, TError, TParams> | undefined
@@ -176,8 +176,8 @@ export interface CreateErrorHandlerProps<
 	TError,
 	TParams extends Params,
 > {
-	notify: NotifyFn
-	translate: TranslateFn<any>
+	notify: Notify.Fn
+	translate: Translate.Fn<any>
 	checkError: CheckError.MutateAsyncFn<TError, unknown>
 	getProps: () => Props<TData, TError, TParams> | undefined
 	onError: MutationOptions<TData, TError, TParams>['onError']
@@ -319,7 +319,7 @@ function resolveProps<
 	}
 	const { resource, params } = props
 	if (resource == null || params == null)
-		throw new Error('No') // TODO:
+		throw new Error('[@ginjou/core] Cannot create record without required mutation props: resource and params.')
 
 	return {
 		...props,

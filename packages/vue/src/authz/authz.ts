@@ -38,6 +38,6 @@ export function useAuthzContext(
 ): Authz | undefined {
 	const value = injectLocal(KEY, undefined) ?? props?.authz
 	if (props?.strict === true && value == null)
-		throw new Error('No')
+		throw new Error('[@ginjou/vue] No authz context found. Use defineAuthzContext() at app setup or pass authz through context props.')
 	return value
 }

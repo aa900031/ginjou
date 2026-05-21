@@ -1,22 +1,17 @@
 /* eslint-disable perfectionist/sort-imports */
 import 'uno.css'
 import type { Preview } from '@storybook/svelte-vite'
-import { mswLoader as MswLoader, initialize as setupMsw } from 'msw-storybook-addon'
-import { withBackgroundClass } from './decorators/background-class'
+import { mswLoader as MswLoader, setupMsw } from '@ginjou/storybook-shared/msw'
+import { withDarkClass } from '@ginjou/storybook-shared/preview'
 
-setupMsw({
-	onUnhandledRequest: 'bypass',
-	serviceWorker: {
-		url: './mockServiceWorker.js',
-	},
-})
+setupMsw()
 
 export default {
 	loaders: [
 		MswLoader,
 	],
 	decorators: [
-		withBackgroundClass,
+		withDarkClass,
 	],
 	parameters: {
 		controls: {

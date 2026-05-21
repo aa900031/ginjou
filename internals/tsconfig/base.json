@@ -13,6 +13,7 @@
 		"resolveJsonModule": true,
 		"strict": true,
 		"noImplicitThis": true,
+		"allowJs": true,
 		"allowSyntheticDefaultImports": true,
 		"useDefineForClassFields": true,
 		"strictNullChecks": true,
@@ -22,6 +23,8 @@
 		"forceConsistentCasingInFileNames": true,
 		"skipLibCheck": true,
 		"paths": {
+			"@ginjou/storybook-shared/*": ["../../internals/storybook-shared/src/*.ts"],
+
 			"@ginjou/core": ["../../packages/core/src/index.ts"],
 			"@ginjou/svelte": ["../../packages/svelte/src/index.ts"],
 			"@ginjou/vue": ["../../packages/vue/src/index.ts"],

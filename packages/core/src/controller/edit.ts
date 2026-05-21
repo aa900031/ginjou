@@ -5,12 +5,12 @@ import type {
 	MutateAsyncFn as UpdateMutateFn,
 	Props as UpdateProps,
 } from '../query/update'
-import type { ResolvedResource } from '../resource'
 import type { Navigate } from '../router'
 import type { RedirectOptions } from './redirect-to'
+import type * as Resource from './resource'
 import { MutationMode } from '../query'
-import { ResourceActionType } from '../resource'
 import { redirectTo } from './redirect-to'
+import * as ResourceAction from './resource-action'
 
 export type Props<
 	TQueryData extends BaseRecord,
@@ -34,7 +34,7 @@ export type Props<
 >
 
 export interface GetIdProps {
-	resource: ResolvedResource | undefined
+	resource: Resource.Resolved | undefined
 	idFromProp: RecordKey | undefined
 }
 
@@ -43,10 +43,10 @@ export function getId(
 		resource,
 		idFromProp,
 	}: GetIdProps,
-): RecordKey {
+): RecordKey | undefined {
 	return idFromProp
-		?? (resource && resource.action === 'edit' ? resource.id : undefined)
-		?? '' // TODO: maybe use undeined?
+		?? (resource && 'action' in resource && resource.action === 'edit' ? resource.id : undefined)
+		?? undefined
 }
 
 export interface GetIsLoadingParams {
@@ -74,7 +74,7 @@ export interface SaveFnParams<
 	TMutationError,
 	TQueryResultData extends BaseRecord,
 > {
-	getId: () => RecordKey
+	getId: () => RecordKey | undefined
 	getResourceName: () => string | undefined
 	getMutationMode: () => MutationModeValues | undefined
 	getRedirect: () => RedirectOptions<UpdateResult<TMutationData>> | undefined
@@ -102,16 +102,19 @@ export function createSaveFn<
 	return async function saveFn(params) {
 		const mutationMode = getMutationMode()
 		const isPessimistic = mutationMode == null || mutationMode === MutationMode.Pessimistic
+		const id = getId() ?? params.id
+		if (id == null)
+			throw new Error('[@ginjou/core] Cannot save edit mutation without an id. Pass an id prop or include id in the mutation params.')
 
 		if (!isPessimistic) {
 			setTimeout(() => {
 				redirectTo({
-					redirect: getRedirect() ?? ResourceActionType.Show,
+					redirect: getRedirect() ?? ResourceAction.Type.Show,
 					resource: getResourceName(),
-					id: getId(),
+					id,
 					data: {
 						data: {
-							id: getId(),
+							id,
 							...getQueryData(),
 							...params as any,
 						} as TMutationData,
@@ -127,7 +130,7 @@ export function createSaveFn<
 			onSuccess: (data) => {
 				if (isPessimistic) {
 					redirectTo({
-						redirect: getRedirect() ?? ResourceActionType.Show,
+						redirect: getRedirect() ?? ResourceAction.Type.Show,
 						resource: getResourceName(),
 						id: data.data.id,
 						data,

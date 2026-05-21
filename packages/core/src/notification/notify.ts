@@ -1,19 +1,19 @@
 import type { Notification, OpenNotificationParams } from './notification'
 
-export type NotifyFn = (
+export type Fn = (
 	params: OpenNotificationParams | false | undefined,
 	fallback?: OpenNotificationParams,
 ) => void
 
-export interface CreateNotifyFnProps {
+export interface CreateFnProps {
 	notification?: Notification
 }
 
-export function createNotifyFn(
+export function createFn(
 	{
 		notification,
-	}: CreateNotifyFnProps,
-): NotifyFn {
+	}: CreateFnProps,
+): Fn {
 	return function notify(
 		params,
 		fallback,

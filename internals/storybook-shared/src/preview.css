@@ -1,0 +1,11 @@
+/* MDX docs: responsive table */
+.sbdocs table {
+	display: block;
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+}
+
+.sbdocs table img {
+	max-width: fit-content;
+	vertical-align: text-top;
+}

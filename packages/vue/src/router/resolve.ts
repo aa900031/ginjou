@@ -16,7 +16,7 @@ export function useResolvePath<
 
 	return (to) => {
 		if (!router)
-			throw new Error('No')
+			throw new Error('[@ginjou/vue] Cannot resolve path because no router context was found. Use defineRouterContext() before calling useResolvePath().')
 
 		return router.resolve(to)
 	}

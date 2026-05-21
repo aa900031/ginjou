@@ -1,8 +1,8 @@
-import type { Auth, Authz, Fetchers, I18n, Notification, ResourceDefinition } from '@ginjou/core'
+import type { Auth, Authz, Fetchers, I18n, Notification, Resource } from '@ginjou/core'
 import type { Decorator } from '@storybook/vue3'
 import type { QueryClient } from '@tanstack/vue-query'
 import { defineAuth, defineAuthz, defineI18n, NotificationType } from '@ginjou/core'
-import { defineAuthContext, defineAuthzContext, defineFetchersContext, defineI18nContext, defineNotificationContext, defineQueryClientContext, defineResourceContext, defineRouterContext } from '@ginjou/vue'
+import { defineAuthContext, defineAuthzContext, defineControllerContext, defineFetchersContext, defineI18nContext, defineNotificationContext, defineQueryClientContext, defineRouterContext } from '@ginjou/vue'
 import { createFetcher } from '@ginjou/with-rest-api'
 import { createRouter } from '@ginjou/with-vue-router'
 import { delay } from 'msw'
@@ -13,7 +13,7 @@ export type CreateWrapperProps
 	= & {
 		router?: boolean
 		fetchers?: Fetchers
-		resources?: ResourceDefinition[]
+		resources?: Resource.Raw[]
 		auth?: Auth | boolean
 		authz?: Authz | boolean
 		i18n?: I18n | boolean
@@ -66,7 +66,7 @@ export function createWrapper(
 						defineFetchersContext((typeof value === 'function' ? value() : value) as any)
 						break
 					case 'resources':
-						value && defineResourceContext({
+						value && defineControllerContext({
 							resources: value as any,
 						})
 						break

@@ -50,7 +50,7 @@ export function useQueryClientContext(
 
 	const value = injectLocal(KEY, undefined)
 	if (value == null)
-		throw new Error('No \'queryClient\' found in context, use \'defineQueryClientContext\' to properly initialize the library.')
+		throw new Error('[@ginjou/vue] No queryClient context found. Use defineQueryClientContext() at app setup or pass queryClient through context props.')
 
 	return value
 }
@@ -76,5 +76,5 @@ function createQueryClient(
 	if (typeof value === 'object')
 		return new QueryClient(value)
 
-	throw new Error('Not support value:', value)
+	throw new Error(`[@ginjou/vue] Unsupported query client context value: ${String(value)}`)
 }

@@ -1,17 +1,17 @@
 import type { Notification, OpenNotificationParams } from './notification'
 import { describe, expect, it, vi } from 'vitest'
-import { createNotifyFn } from './notify'
+import { createFn } from './notify'
 
-describe('createNotifyFn', () => {
+describe('createFn (createNotifyFn)', () => {
 	it('should return a function', () => {
-		const notify = createNotifyFn({})
+		const notify = createFn({})
 		expect(typeof notify).toBe('function')
 	})
 
 	describe('notify', () => {
 		it('should do nothing if notification is not provided', () => {
 			const openFn = vi.fn()
-			const notifyWithUndefined = createNotifyFn({ notification: undefined })
+			const notifyWithUndefined = createFn({ notification: undefined })
 			notifyWithUndefined({
 				type: 'success',
 				message: 'test',
@@ -25,7 +25,7 @@ describe('createNotifyFn', () => {
 				open: openFn,
 				close: vi.fn(),
 			}
-			const notify = createNotifyFn({ notification: mockNotification })
+			const notify = createFn({ notification: mockNotification })
 			notify(false)
 			expect(openFn).not.toHaveBeenCalled()
 		})
@@ -36,7 +36,7 @@ describe('createNotifyFn', () => {
 				open: openFn,
 				close: vi.fn(),
 			}
-			const notify = createNotifyFn({ notification: mockNotification })
+			const notify = createFn({ notification: mockNotification })
 			notify(undefined)
 			expect(openFn).not.toHaveBeenCalled()
 		})
@@ -47,7 +47,7 @@ describe('createNotifyFn', () => {
 				open: openFn,
 				close: vi.fn(),
 			}
-			const notify = createNotifyFn({ notification: mockNotification })
+			const notify = createFn({ notification: mockNotification })
 			const params: OpenNotificationParams = {
 				type: 'success',
 				message: 'Hello',
@@ -62,7 +62,7 @@ describe('createNotifyFn', () => {
 				open: openFn,
 				close: vi.fn(),
 			}
-			const notify = createNotifyFn({ notification: mockNotification })
+			const notify = createFn({ notification: mockNotification })
 			const fallback: OpenNotificationParams = {
 				type: 'success',
 				message: 'Fallback',
@@ -77,7 +77,7 @@ describe('createNotifyFn', () => {
 				open: openFn,
 				close: vi.fn(),
 			}
-			const notify = createNotifyFn({ notification: mockNotification })
+			const notify = createFn({ notification: mockNotification })
 			const params: OpenNotificationParams = {
 				type: 'success',
 				message: 'Hello',

@@ -1,9 +1,9 @@
 import type { Simplify } from 'type-fest'
-import type { UseResourceContext } from '../resource'
+import type { UseResourceContext } from '../controller'
 import type { MaybeAccessor } from '../utils'
 import type { UseGoContext } from './go.svelte'
 import { Navigate } from '@ginjou/core'
-import { useResourceContext } from '../resource'
+import { useControllerContext } from '../controller'
 import { extract } from '../utils'
 import { useGo } from './go.svelte'
 
@@ -21,7 +21,7 @@ export function useNavigateTo(
 	props?: UseNavigateToProps,
 	context?: UseNavigateToContext,
 ): Navigate.ToFn {
-	const resourceContext = useResourceContext(context)
+	const controllerContext = useControllerContext(context)
 	const go = useGo(context)
 
 	const resolvedProps = $derived(extract(props))
@@ -29,6 +29,6 @@ export function useNavigateTo(
 	return Navigate.createToFn({
 		go,
 		getResourceFromProp: () => resolvedProps?.resource,
-		resource: resourceContext,
+		controller: controllerContext,
 	})
 }

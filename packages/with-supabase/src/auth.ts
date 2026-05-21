@@ -93,7 +93,7 @@ export function createAuth(
 					break
 				}
 				default:
-					throw new Error('No support')
+					throw new Error(`[@ginjou/with-supabase] Unsupported auth confirm type: ${String(type)}`)
 			}
 		},
 		logout: async (params?: LogoutParams) => {

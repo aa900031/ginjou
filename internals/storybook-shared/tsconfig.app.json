@@ -1,0 +1,9 @@
+{
+	"extends": "@ginjou/tsconfig/base.json",
+	"references": [
+		{ "path": "../../packages/core/tsconfig.app.json" }
+	],
+	"include": [
+		"src/**/*.ts"
+	]
+}

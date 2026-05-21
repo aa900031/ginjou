@@ -1,38 +1,35 @@
-import type { ResolvedRealtimeOptions } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
-import type { MaybeAccessor } from '../utils'
+import type { MaybeAccessor, ReadonlyBox } from '../utils'
 import type { UseRealtimeContextFromProps } from './context'
 import { RealtimeOption } from '@ginjou/core'
-import { extract } from '../utils'
+import { box, extract } from '../utils'
 import { useRealtimeContext } from './context'
 
-export type UseRealtimeProps<
+export type UseRealtimeOptionsProps<
 	TPayload,
 > = MaybeAccessor<
-	RealtimeOption.Props<TPayload> | undefined
+	RealtimeOption.Input<TPayload> | undefined
 >
 
 export type UseRealtimeOptionsContext = Simplify<
 	& UseRealtimeContextFromProps
 >
 
-export interface UseRealtimeOptionsResult<
+export type UseRealtimeOptionsResult<
 	TPayload,
-> {
-	readonly value: ResolvedRealtimeOptions<TPayload>
-}
+> = ReadonlyBox<RealtimeOption.Normalized<TPayload>>
 
 export function useRealtimeOptions<
 	TPayload,
 >(
-	props?: UseRealtimeProps<TPayload>,
+	props?: UseRealtimeOptionsProps<TPayload>,
 	context?: UseRealtimeOptionsContext,
 ): UseRealtimeOptionsResult<TPayload> {
 	const realtime = useRealtimeContext(context)
 
 	const value = $derived.by(() => {
 		const resolvedProps = extract(props)
-		return RealtimeOption.mergeOptions(
+		return RealtimeOption.merge(
 			resolvedProps
 				? {
 						mode: resolvedProps.mode,
@@ -45,9 +42,5 @@ export function useRealtimeOptions<
 		)
 	})
 
-	return {
-		get value() {
-			return value
-		},
-	}
+	return box(() => value)
 }
