@@ -39,7 +39,9 @@
 	"scripts": {
 		"build": "run-s build:prepare build:bundle",
 		"build:bundle": "nuxt-module-build build",
-		"build:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare",
+		"build:prepare": "run-s build:module-stub build:module-prepare",
+		"build:module-stub": "nuxt-module-build build --stub",
+		"build:module-prepare": "nuxt-module-build prepare",
 		"dev:playground": "nuxi dev playground",
 		"dev": "run-s build:prepare dev:playground",
 		"release": "release-it"
