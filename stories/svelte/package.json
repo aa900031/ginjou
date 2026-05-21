@@ -12,10 +12,10 @@
 		"url": "https://github.com/aa900031/ginjou/issues"
 	},
 	"scripts": {
-		"dev": "run-s dev:prepare dev:sb",
+		"dev": "run-s --silent dev:prepare dev:sb",
 		"dev:prepare": "msw init ./public --save",
 		"dev:sb": "storybook dev -p 6008 --no-open",
-		"build": "run-s build:prepare build:sb",
+		"build": "run-s --silent build:prepare build:sb",
 		"build:prepare": "msw init ./public --save",
 		"build:sb": "storybook build -o ../root/dist/svelte"
 	},

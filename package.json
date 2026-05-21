@@ -11,7 +11,7 @@
 		"build:docs": "turbo run build --filter=@ginjou/docs",
 		"preview:sb": "turbo run preview --filter=@ginjou/storybook",
 		"preview:docs": "turbo run preview --filter=@ginjou/docs",
-		"test": "run-s test:prepare \"test:run {@}\" --",
+		"test": "run-s --silent test:prepare \"test:run {@}\" --",
 		"test:prepare": "pnpm --filter @ginjou/nuxt build:prepare",
 		"test:run": "vitest run",
 		"bench": "vitest bench --run --project benchmark",

@@ -12,7 +12,7 @@
 		"url": "https://github.com/aa900031/ginjou/issues"
 	},
 	"scripts": {
-		"dev": "run-s dev:wait dev:storybook",
+		"dev": "run-s --silent dev:wait dev:storybook",
 		"dev:wait": "run-p 'dev:wait-*'",
 		"dev:wait-svelte": "wait-on tcp:6008",
 		"dev:wait-vue": "wait-on tcp:6007",

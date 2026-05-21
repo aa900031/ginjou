@@ -12,12 +12,12 @@
 		"url": "https://github.com/aa900031/ginjou/issues"
 	},
 	"scripts": {
-		"dev": "run-s dev:prepare dev:sb",
+		"dev": "run-s --silent dev:prepare dev:sb",
 		"dev:sb": "storybook dev -p 6007 --no-open",
 		"dev:prepare": "run-p 'dev:prepare:*'",
 		"dev:prepare:vue-3": "vue-demi-switch 3",
 		"dev:prepare:msw": "msw init ./public --save",
-		"build": "run-s buile:prepare build:sb",
+		"build": "run-s --silent buile:prepare build:sb",
 		"build:sb": "storybook build -o ../root/dist/vue",
 		"buile:prepare": "run-p 'build:prepare:*'",
 		"build:prepare:msw": "msw init ./public --save"
