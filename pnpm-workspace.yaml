@@ -17,13 +17,11 @@ packages:
 overrides:
   '@tanstack/vue-query>vue-demi': latest
 
-ignoredBuiltDependencies:
-  - '@aa900031/eslint-config'
-
-onlyBuiltDependencies:
-  - '@parcel/watcher'
-  - esbuild
-  - msw
-  - sharp
-  - vue-demi
-  - better-sqlite3
+allowBuilds:
+  '@parcel/watcher': true
+  esbuild: true
+  msw: true
+  sharp: true
+  vue-demi: true
+  better-sqlite3: true
+  '@aa900031/eslint-config': false
