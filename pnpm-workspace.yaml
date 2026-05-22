@@ -1,4 +1,8 @@
 ignoreWorkspaceRootCheck: true
+
+minimumReleaseAgeExclude:
+  - '@aa900031/release-it-config@1.0.0'
+
 shamefullyHoist: true
 shellEmulator: true
 strictPeerDependencies: false
