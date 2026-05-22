@@ -10,7 +10,7 @@
 			"expected_output": "App-root setup of `@ginjou/vue` + `@ginjou/with-rest-api` + `@tanstack/vue-query`, page using `useList` (controller) or `useGetList` with `pagination.current` / `pagination.perPage` plus a `q` filter, mention of REST adapter producing `_start`/`_end` and `_sort`/`_order`.",
 			"files": [],
 			"expectations": [
-				"App-root setup registers `defineQueryClientContext`, `defineFetchersContext`, `defineRouterContext` with `createRouter()` from `@ginjou/with-vue-router`, plus `defineResourceContext` for the `posts` resource.",
+				"App-root setup registers `defineQueryClientContext`, `defineFetchersContext`, `defineRouterContext` with `createRouter()` from `@ginjou/with-vue-router`, plus `defineControllerContext` for the `posts` resource.",
 				"Page composable is `useList` (controller) or `useGetList` — NOT a fabricated `useGetPosts` / `usePostsList`.",
 				"Pagination uses `pagination.current` and `pagination.perPage` (NOT `page` / `pageSize` / `limit` / `offset`).",
 				"Search filter uses `{ field: 'q', operator: 'eq', value }` (json-server `q` form), not an invented `search` prop.",
