@@ -31,7 +31,6 @@
 		"@sveltejs/vite-plugin-svelte": "6.2.4",
 		"@tanstack/svelte-query": "^6.1.10",
 		"msw": "^2.12.14",
-		"npm-run-all2": "^8.0.4",
 		"storybook": "10.3.3",
 		"svelte": "^5.25.0",
 		"svelte-spa-router": "^5.1.0",
