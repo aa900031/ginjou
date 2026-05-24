@@ -33,6 +33,9 @@
 				".storybook/**"
 			]
 		},
+		"@ginjou/docs#build": {
+			"outputs": [".output/**"]
+		},
 		"@ginjou/storybook-vue#build": {
 			"dependsOn": [
 				"@ginjou/storybook#build",

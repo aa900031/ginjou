@@ -12,8 +12,8 @@
 		"@ginjou/nuxt": "workspace:^",
 		"@ginjou/vue": "workspace:^",
 		"@ginjou/with-rest-api": "workspace:^",
-		"@nuxt/ui": "^4.6.0",
-		"nuxt": "^4.4.2",
-		"tailwindcss": "^4.2.2"
+		"@nuxt/ui": "^4.8.0",
+		"nuxt": "^4.4.6",
+		"tailwindcss": "^4.3.0"
 	}
 }

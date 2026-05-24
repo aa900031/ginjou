@@ -5,12 +5,13 @@
 	"scripts": {
 		"build": "nuxt generate",
 		"dev": "nuxt dev",
-		"preview": "sirv ./dist --host -p 3000"
+		"preview": "sirv ./.output/public --host -p 3000"
 	},
 	"dependencies": {
 		"@barzhsieh/nuxt-content-mermaid": "^2.2.3",
-		"better-sqlite3": "^12.8.0",
-		"docus": "^5.8.1",
-		"nuxt": "^4.4.2"
+		"better-sqlite3": "^12.10.0",
+		"docus": "^5.11.0",
+		"nuxt": "^4.4.6",
+		"tailwindcss": "^4.3.0"
 	}
 }
