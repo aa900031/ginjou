@@ -37,7 +37,6 @@
 		"@tanstack/vue-query": "^5.95.0",
 		"@vitejs/plugin-vue": "^6.0.5",
 		"msw": "^2.12.14",
-		"npm-run-all2": "^8.0.4",
 		"reka-ui": "^2.9.2",
 		"storybook": "^10.3.2",
 		"storybook-vue3-router": "^7.0.0",
