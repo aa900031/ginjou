@@ -61,7 +61,7 @@
 		"@bouzu/vue-helper": "^0.1.0",
 		"@ginjou/core": "workspace:^",
 		"@vueuse/shared": "^10.11.1",
-		"tanstack-query-callbacks": "^0.3.1",
+		"tanstack-query-callbacks": "^0.3.2",
 		"type-fest": "^4.41.0",
 		"vue-demi": "latest"
 	},
@@ -69,7 +69,7 @@
 		"@ginjou/tsconfig": "workspace:*",
 		"@ginjou/tsdown-config": "workspace:*",
 		"@ginjou/vite-config": "workspace:*",
-		"@tanstack/vue-query": "^5.95.0",
+		"@tanstack/vue-query": "^5.100.13",
 		"@testing-library/vue": "^8.1.0",
 		"vue": "^3.5.30"
 	}

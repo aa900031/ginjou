@@ -53,7 +53,7 @@
 		"@ginjou/svelte": "workspace:^",
 		"@ginjou/tsconfig": "workspace:*",
 		"@ginjou/tsdown-config": "workspace:*",
-		"svelte": "^5.25.0",
+		"svelte": "^5.55.9",
 		"svelte-spa-router": "^5.1.0"
 	}
 }
