@@ -1,4 +1,4 @@
-import type { Enabled, Query, QueryClient, QueryKey, QueryKeyHashFunction } from '@tanstack/query-core'
+import type { Query, QueryBooleanOption, QueryClient, QueryKey, QueryKeyHashFunction } from '@tanstack/query-core'
 import { hashKey } from '@tanstack/query-core'
 
 export type OriginQueryEnabledFn<
@@ -24,7 +24,7 @@ export function resolveQueryEnableds<
 >(
 	query: Query<TQueryFnData, TError, TData>,
 	enableds: (
-		| Enabled<TQueryFnData, TError, TData>
+		| QueryBooleanOption<TQueryFnData, TError, TData>
 		| (() => boolean | undefined) | undefined
 	)[],
 ): boolean {

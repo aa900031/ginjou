@@ -48,20 +48,19 @@ export function useAuthenticated<
 		auth,
 		getParams,
 	})
-	const enabledFn = CheckAuth.createQueryEnabledFn({
-		getEnabled: () => unref(props?.queryOptions)?.enabled,
-		getAuth: () => auth,
+	const enabledFn = computed(() => {
+		const queryOptions = unref(props?.queryOptions)
+		return CheckAuth.createQueryEnabledFn({
+			getEnabled: () => queryOptions?.enabled,
+			getAuth: () => auth,
+		})
 	})
 	const query = useQuery<CheckAuthResult, TError>(
 		computed(() => ({
 			...unref(props?.queryOptions),
 			queryKey,
 			queryFn,
-			enabled: () => {
-				// eslint-disable-next-line ts/no-unused-expressions
-				unref(props?.queryOptions)?.enabled
-				return enabledFn
-			},
+			enabled: () => unref(enabledFn),
 			retry: false,
 		})),
 		queryClient,

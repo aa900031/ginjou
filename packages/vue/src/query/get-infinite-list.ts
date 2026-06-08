@@ -83,13 +83,6 @@ export function useGetInfiniteList<
 	const initialPageParam = computed(() => GetInfiniteList.getInitialPageParam({
 		props: unref(queryProps),
 	}))
-	const enabledFn = GetInfiniteList.createQueryEnabledFn({
-		getEnabled: () => unref(props.queryOptions)?.enabled,
-		getQueryKey: () => unref(queryKey),
-		getResource: () => unref(queryProps).resource,
-		getQueryOptions: () => unref(props.queryOptions),
-		queryClient,
-	})
 	const queryFn = GetInfiniteList.createQueryFn<TData, TPageParam>({
 		getProps,
 		queryClient,
@@ -112,23 +105,31 @@ export function useGetInfiniteList<
 	const placeholderData = GetInfiniteList.createPlacholerDataFn<TData, TError, TPageParam>()
 	const getNextPageParam = GetInfiniteList.createGetNextPageParamFn<TData, TPageParam>()
 	const getPreviousPageParam = GetInfiniteList.createGetPreviousPageParamFn<TData, TPageParam>()
+	const enabledFn = computed(() => {
+		const queryOptions = unref(props.queryOptions)
+		return GetInfiniteList.createQueryEnabledFn({
+			getEnabled: () => queryOptions?.enabled,
+			getQueryKey: () => unref(queryKey),
+			getResource: () => unref(queryProps).resource,
+			getQueryOptions: () => queryOptions,
+			queryClient,
+		})
+	})
 
 	const query = useInfiniteQuery<GetInfiniteListResult<TData, TPageParam>, TError, InfiniteData<GetInfiniteListResult<TResultData, TPageParam>, TPageParam>, any, TPageParam>(
-		computed(() => ({
-			initialPageParam,
-			getNextPageParam,
-			getPreviousPageParam,
-			// FIXME: type
-			...unref(props.queryOptions) as any,
-			queryKey,
-			queryFn,
-			enabled: () => {
-				// eslint-disable-next-line ts/no-unused-expressions
-				unref(props?.queryOptions)?.enabled
-				return enabledFn
-			},
-			placeholderData,
-		})),
+		computed(() => {
+			return {
+				initialPageParam,
+				getNextPageParam,
+				getPreviousPageParam,
+				// FIXME: type
+				...unref(props.queryOptions) as any,
+				queryKey,
+				queryFn,
+				enabled: () => unref(enabledFn),
+				placeholderData,
+			}
+		}),
 		queryClient,
 	)
 
@@ -160,11 +161,7 @@ export function useGetInfiniteList<
 			getFetcherName: () => unref(queryProps).fetcherName,
 		}),
 		actions: [RealtimeAction.Any],
-		enabled: toRef(() => {
-			// eslint-disable-next-line ts/no-unused-expressions
-			unref(props?.queryOptions)?.enabled
-			return enabledFn
-		}),
+		enabled: enabledFn,
 	}, context)
 
 	return {

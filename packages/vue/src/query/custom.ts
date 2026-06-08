@@ -99,25 +99,26 @@ export function useCustom<
 		getErrorNotify: () => unref(props.errorNotify),
 		emitParent: (...args) => unref(props.queryOptions)?.onError?.(...args),
 	})
-	const enabledFn = Custom.createQueryEnabledFn<TData, TError, TResultData>({
-		getQueryKey: () => unref(queryKey),
-		getEnabled: () => unref(props.queryOptions)?.enabled,
-		getQueryOptions: () => unref(props.queryOptions),
-		queryClient,
+	const enabledFn = computed(() => {
+		const queryOptions = unref(props.queryOptions)
+		return Custom.createQueryEnabledFn<TData, TError, TResultData>({
+			getQueryKey: () => unref(queryKey),
+			getEnabled: () => queryOptions?.enabled,
+			getQueryOptions: () => queryOptions,
+			queryClient,
+		})
 	})
 
 	const query = useQuery<CustomResult<TData>, TError, CustomResult<TResultData>>(
-		computed(() => ({
-			// FIXME: type
-			...unref(props.queryOptions) as any,
-			queryKey,
-			queryFn,
-			enabled: () => {
-				// eslint-disable-next-line ts/no-unused-expressions
-				unref(props?.queryOptions)?.enabled
-				return enabledFn
-			},
-		})),
+		computed(() => {
+			return {
+				// FIXME: type
+				...unref(props.queryOptions) as any,
+				queryKey,
+				queryFn,
+				enabled: () => unref(enabledFn),
+			}
+		}),
 		queryClient,
 	)
 

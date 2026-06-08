@@ -74,14 +74,6 @@ export function useGetMany<
 	const queryKey = computed(() => GetMany.createQueryKey({
 		props: unref(queryProps),
 	}))
-	const enabledFn = GetMany.createQueryEnabledFn({
-		getEnabled: () => unref(props.queryOptions)?.enabled,
-		getQueryKey: () => unref(queryKey),
-		getIds: () => unref(queryProps).ids,
-		getResource: () => unref(queryProps).resource,
-		getQueryOptions: () => unref(props.queryOptions),
-		queryClient,
-	})
 	const queryFn = GetMany.createQueryFn<TData, TResultData, TError>({
 		fetchers,
 		queryClient,
@@ -105,20 +97,29 @@ export function useGetMany<
 		getProps,
 		queryClient,
 	})
+	const enabledFn = computed(() => {
+		const queryOptions = unref(props.queryOptions)
+		return GetMany.createQueryEnabledFn({
+			getEnabled: () => queryOptions?.enabled,
+			getQueryKey: () => unref(queryKey),
+			getIds: () => unref(queryProps).ids,
+			getResource: () => unref(queryProps).resource,
+			getQueryOptions: () => queryOptions,
+			queryClient,
+		})
+	})
 
 	const query = useQuery<GetManyResult<TData>, TError, GetManyResult<TResultData>>(
-		computed(() => ({
-			// FIXME: type
-			...unref(props.queryOptions) as any,
-			queryKey,
-			queryFn,
-			enabled: () => {
-				// eslint-disable-next-line ts/no-unused-expressions
-				unref(props?.queryOptions)?.enabled
-				return enabledFn
-			},
-			placeholderData,
-		})),
+		computed(() => {
+			return {
+				// FIXME: type
+				...unref(props.queryOptions) as any,
+				queryKey,
+				queryFn,
+				enabled: () => unref(enabledFn),
+				placeholderData,
+			}
+		}),
 		queryClient,
 	)
 	useQueryCallbacks<GetManyResult<TResultData>, TError>({
@@ -145,11 +146,7 @@ export function useGetMany<
 			getFetcherName: () => unref(queryProps).fetcherName,
 		}),
 		actions: [RealtimeAction.Any],
-		enabled: toRef(() => {
-			// eslint-disable-next-line ts/no-unused-expressions
-			unref(props?.queryOptions)?.enabled
-			return enabledFn
-		}),
+		enabled: enabledFn,
 	}, context)
 
 	return {
