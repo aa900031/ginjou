@@ -75,12 +75,15 @@ export function useGetList<
 		meta: extract(resolvedProps.meta),
 	}))
 	const queryKey = $derived.by(() => GetList.createQueryKey<TPageParam>({ props: queryProps }))
-	const enabledFn = GetList.createQueryEnabledFn({
-		getEnabled: () => resolvedProps.queryOptions?.enabled,
-		getQueryKey: () => queryKey,
-		getResource: () => queryProps.resource,
-		getQueryOptions: () => resolvedProps.queryOptions,
-		queryClient,
+	const enabledFn = $derived.by(() => {
+		const queryOptions = resolvedProps.queryOptions
+		return GetList.createQueryEnabledFn({
+			getEnabled: () => queryOptions?.enabled,
+			getQueryKey: () => queryKey,
+			getResource: () => queryProps.resource,
+			getQueryOptions: () => queryOptions,
+			queryClient,
+		})
 	})
 	const queryFn = GetList.createQueryFn<TData, TResultData, TError, TPageParam>({
 		getProps,

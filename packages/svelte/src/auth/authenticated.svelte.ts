@@ -49,9 +49,12 @@ export function useAuthenticated<
 		auth,
 		getParams: () => resolvedProps?.params,
 	})
-	const enabledFn = CheckAuth.createQueryEnabledFn({
-		getEnabled: () => resolvedProps?.queryOptions?.enabled,
-		getAuth: () => auth,
+	const enabledFn = $derived.by(() => {
+		const queryOptions = resolvedProps?.queryOptions
+		return CheckAuth.createQueryEnabledFn({
+			getEnabled: () => queryOptions?.enabled,
+			getAuth: () => auth,
+		})
 	})
 
 	const query = createQuery<CheckAuthResult, TError>(

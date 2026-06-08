@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { useGetList } from './get-list.svelte'
+import { useGetMany } from './get-many.svelte'
 
 const mocks = vi.hoisted(() => ({
 	createQuery: vi.fn(),
@@ -29,7 +29,7 @@ vi.mock('@ginjou/core', () => ({
 	RealtimeAction: {
 		Any: 'any',
 	},
-	GetList: {
+	GetMany: {
 		createErrorHandler: mocks.createErrorHandler,
 		createPlacholerDataFn: mocks.createPlacholerDataFn,
 		createQueryEnabledFn: mocks.createQueryEnabledFn,
@@ -74,98 +74,47 @@ vi.mock('./query-client', () => ({
 	useQueryClientContext: mocks.useQueryClientContext,
 }))
 
-describe('useGetList', () => {
+describe('useGetMany', () => {
 	beforeEach(() => {
-		mocks.createErrorHandler.mockReset()
-		mocks.createPlacholerDataFn.mockReset()
-		mocks.createQuery.mockReset()
-		mocks.createQueryEnabledFn.mockReset()
-		mocks.createQueryFn.mockReset()
-		mocks.createQueryKey.mockReset()
-		mocks.createSubscribeCallback.mockReset()
-		mocks.createSuccessHandler.mockReset()
-		mocks.getSubscribeChannel.mockReset()
-		mocks.getSubscribeParams.mockReset()
-		mocks.resolveQueryProps.mockReset()
-		mocks.useCheckError.mockReset()
-		mocks.useFetchersContext.mockReset()
-		mocks.useNotify.mockReset()
-		mocks.useQueryCallbacks.mockReset()
-		mocks.useQueryClientContext.mockReset()
-		mocks.useRealtimeOptions.mockReset()
-		mocks.useSubscribe.mockReset()
-		mocks.useTranslate.mockReset()
+		for (const mock of Object.values(mocks))
+			mock.mockReset()
 
 		mocks.createErrorHandler.mockReturnValue(vi.fn())
 		mocks.createPlacholerDataFn.mockReturnValue(undefined)
-		mocks.createQuery.mockReturnValue({
-			data: {
-				data: [{ id: '1' }],
-			},
-		})
+		mocks.createQuery.mockReturnValue({ data: { data: [{ id: '1' }] } })
 		mocks.createQueryEnabledFn.mockImplementation(({ getEnabled }) => {
 			return () => getEnabled() !== false
 		})
 		mocks.createQueryFn.mockReturnValue(vi.fn())
-		mocks.createQueryKey.mockReturnValue(['posts'])
+		mocks.createQueryKey.mockReturnValue(['posts', 'getMany'])
 		mocks.createSubscribeCallback.mockReturnValue(vi.fn())
 		mocks.createSuccessHandler.mockReturnValue(vi.fn())
 		mocks.getSubscribeChannel.mockReturnValue('resources/posts')
-		mocks.getSubscribeParams.mockReturnValue({
-			resource: 'posts',
-			type: 'list',
-		})
-		mocks.resolveQueryProps.mockImplementation(({ resource }: { resource: string }) => ({
+		mocks.getSubscribeParams.mockReturnValue({ resource: 'posts', type: 'many' })
+		mocks.resolveQueryProps.mockImplementation(({ resource, ids }: { resource: string, ids: string[] }) => ({
 			resource,
+			ids,
 			fetcherName: 'default',
-			pagination: undefined,
-			sorters: undefined,
-			filters: undefined,
 			meta: undefined,
 		}))
-		mocks.useCheckError.mockReturnValue({
-			mutateAsync: vi.fn(),
-		})
+		mocks.useCheckError.mockReturnValue({ mutateAsync: vi.fn() })
 		mocks.useFetchersContext.mockReturnValue({})
 		mocks.useNotify.mockReturnValue({})
 		mocks.useQueryClientContext.mockReturnValue({})
-		mocks.useRealtimeOptions.mockReturnValue({
-			value: {
-				mode: 'auto',
-			},
-		})
+		mocks.useRealtimeOptions.mockReturnValue({ value: { mode: 'auto' } })
 		mocks.useTranslate.mockReturnValue(vi.fn())
-	})
-
-	it('should expose records accessor and subscribe params', () => {
-		const result = useGetList({
-			resource: 'posts',
-		} as any)
-
-		expect(result.records).toEqual([{ id: '1' }])
-		expect(mocks.useSubscribe).toHaveBeenCalledTimes(1)
-
-		const subscribeProps = mocks.useSubscribe.mock.calls[0][0]()
-		expect(subscribeProps).toMatchObject({
-			channel: 'resources/posts',
-			params: {
-				resource: 'posts',
-				type: 'list',
-			},
-			actions: ['any'],
-		})
-		expect(subscribeProps.enabled()).toBe(true)
 	})
 
 	it('should preserve the previous enabled snapshot when accessor props change', () => {
 		let isEnabled = $state(false)
 
-		useGetList(() => ({
+		useGetMany(() => ({
 			resource: 'posts',
+			ids: ['1'],
 			queryOptions: {
 				enabled: isEnabled,
 			},
-		}) as any)
+		}))
 
 		const getQueryOptions = mocks.createQuery.mock.calls[0][0]
 		const disabledOptions = getQueryOptions()

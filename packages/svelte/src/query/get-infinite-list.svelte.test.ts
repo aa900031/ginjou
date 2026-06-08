@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { useGetList } from './get-list.svelte'
+import { useGetInfiniteList } from './get-infinite-list.svelte'
 
 const mocks = vi.hoisted(() => ({
-	createQuery: vi.fn(),
+	createInfiniteQuery: vi.fn(),
 	createQueryEnabledFn: vi.fn(),
 	createQueryFn: vi.fn(),
 	createQueryKey: vi.fn(),
@@ -10,6 +10,10 @@ const mocks = vi.hoisted(() => ({
 	createSuccessHandler: vi.fn(),
 	createErrorHandler: vi.fn(),
 	createPlacholerDataFn: vi.fn(),
+	createGetNextPageParamFn: vi.fn(),
+	createGetPreviousPageParamFn: vi.fn(),
+	getInitialPageParam: vi.fn(),
+	getRecords: vi.fn(),
 	getSubscribeChannel: vi.fn(),
 	getSubscribeParams: vi.fn(),
 	resolveQueryProps: vi.fn(),
@@ -30,19 +34,25 @@ vi.mock('@ginjou/core', () => ({
 		Any: 'any',
 	},
 	GetList: {
+		createQueryKey: mocks.createQueryKey,
+		getSubscribeParams: mocks.getSubscribeParams,
+	},
+	GetInfiniteList: {
 		createErrorHandler: mocks.createErrorHandler,
+		createGetNextPageParamFn: mocks.createGetNextPageParamFn,
+		createGetPreviousPageParamFn: mocks.createGetPreviousPageParamFn,
 		createPlacholerDataFn: mocks.createPlacholerDataFn,
 		createQueryEnabledFn: mocks.createQueryEnabledFn,
 		createQueryFn: mocks.createQueryFn,
-		createQueryKey: mocks.createQueryKey,
 		createSuccessHandler: mocks.createSuccessHandler,
-		getSubscribeParams: mocks.getSubscribeParams,
+		getInitialPageParam: mocks.getInitialPageParam,
+		getRecords: mocks.getRecords,
 		resolveQueryProps: mocks.resolveQueryProps,
 	},
 }))
 
 vi.mock('@tanstack/svelte-query', () => ({
-	createQuery: mocks.createQuery,
+	createInfiniteQuery: mocks.createInfiniteQuery,
 }))
 
 vi.mock('tanstack-query-callbacks/svelte', () => ({
@@ -74,100 +84,58 @@ vi.mock('./query-client', () => ({
 	useQueryClientContext: mocks.useQueryClientContext,
 }))
 
-describe('useGetList', () => {
+describe('useGetInfiniteList', () => {
 	beforeEach(() => {
-		mocks.createErrorHandler.mockReset()
-		mocks.createPlacholerDataFn.mockReset()
-		mocks.createQuery.mockReset()
-		mocks.createQueryEnabledFn.mockReset()
-		mocks.createQueryFn.mockReset()
-		mocks.createQueryKey.mockReset()
-		mocks.createSubscribeCallback.mockReset()
-		mocks.createSuccessHandler.mockReset()
-		mocks.getSubscribeChannel.mockReset()
-		mocks.getSubscribeParams.mockReset()
-		mocks.resolveQueryProps.mockReset()
-		mocks.useCheckError.mockReset()
-		mocks.useFetchersContext.mockReset()
-		mocks.useNotify.mockReset()
-		mocks.useQueryCallbacks.mockReset()
-		mocks.useQueryClientContext.mockReset()
-		mocks.useRealtimeOptions.mockReset()
-		mocks.useSubscribe.mockReset()
-		mocks.useTranslate.mockReset()
+		for (const mock of Object.values(mocks))
+			mock.mockReset()
 
 		mocks.createErrorHandler.mockReturnValue(vi.fn())
+		mocks.createGetNextPageParamFn.mockReturnValue(vi.fn())
+		mocks.createGetPreviousPageParamFn.mockReturnValue(vi.fn())
 		mocks.createPlacholerDataFn.mockReturnValue(undefined)
-		mocks.createQuery.mockReturnValue({
-			data: {
-				data: [{ id: '1' }],
-			},
-		})
+		mocks.createInfiniteQuery.mockReturnValue({ data: undefined })
 		mocks.createQueryEnabledFn.mockImplementation(({ getEnabled }) => {
 			return () => getEnabled() !== false
 		})
 		mocks.createQueryFn.mockReturnValue(vi.fn())
-		mocks.createQueryKey.mockReturnValue(['posts'])
+		mocks.createQueryKey.mockReturnValue(['posts', 'getList'])
 		mocks.createSubscribeCallback.mockReturnValue(vi.fn())
 		mocks.createSuccessHandler.mockReturnValue(vi.fn())
+		mocks.getInitialPageParam.mockReturnValue(1)
+		mocks.getRecords.mockReturnValue(undefined)
 		mocks.getSubscribeChannel.mockReturnValue('resources/posts')
-		mocks.getSubscribeParams.mockReturnValue({
-			resource: 'posts',
-			type: 'list',
-		})
-		mocks.resolveQueryProps.mockImplementation(({ resource }: { resource: string }) => ({
+		mocks.getSubscribeParams.mockReturnValue({ resource: 'posts', type: 'list' })
+		mocks.resolveQueryProps.mockImplementation(({ resource, pagination }: { resource: string, pagination: { current: number, perPage: number } }) => ({
 			resource,
+			pagination,
 			fetcherName: 'default',
-			pagination: undefined,
 			sorters: undefined,
 			filters: undefined,
 			meta: undefined,
 		}))
-		mocks.useCheckError.mockReturnValue({
-			mutateAsync: vi.fn(),
-		})
+		mocks.useCheckError.mockReturnValue({ mutateAsync: vi.fn() })
 		mocks.useFetchersContext.mockReturnValue({})
 		mocks.useNotify.mockReturnValue({})
 		mocks.useQueryClientContext.mockReturnValue({})
-		mocks.useRealtimeOptions.mockReturnValue({
-			value: {
-				mode: 'auto',
-			},
-		})
+		mocks.useRealtimeOptions.mockReturnValue({ value: { mode: 'auto' } })
 		mocks.useTranslate.mockReturnValue(vi.fn())
-	})
-
-	it('should expose records accessor and subscribe params', () => {
-		const result = useGetList({
-			resource: 'posts',
-		} as any)
-
-		expect(result.records).toEqual([{ id: '1' }])
-		expect(mocks.useSubscribe).toHaveBeenCalledTimes(1)
-
-		const subscribeProps = mocks.useSubscribe.mock.calls[0][0]()
-		expect(subscribeProps).toMatchObject({
-			channel: 'resources/posts',
-			params: {
-				resource: 'posts',
-				type: 'list',
-			},
-			actions: ['any'],
-		})
-		expect(subscribeProps.enabled()).toBe(true)
 	})
 
 	it('should preserve the previous enabled snapshot when accessor props change', () => {
 		let isEnabled = $state(false)
 
-		useGetList(() => ({
+		useGetInfiniteList(() => ({
 			resource: 'posts',
+			pagination: {
+				current: 1,
+				perPage: 10,
+			},
 			queryOptions: {
 				enabled: isEnabled,
 			},
-		}) as any)
+		}))
 
-		const getQueryOptions = mocks.createQuery.mock.calls[0][0]
+		const getQueryOptions = mocks.createInfiniteQuery.mock.calls[0][0]
 		const disabledOptions = getQueryOptions()
 		expect(disabledOptions.enabled()).toBe(false)
 
