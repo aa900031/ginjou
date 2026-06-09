@@ -92,7 +92,7 @@ describe('createCombineFn', () => {
 		expect(result.isLoading).toBe(true)
 	})
 
-it('should keep data undefined when any child query has an error', () => {
+	it('should keep data undefined when any child query has an error', () => {
 		const error = new Error('boom')
 		const result = combine([
 			createResult({
