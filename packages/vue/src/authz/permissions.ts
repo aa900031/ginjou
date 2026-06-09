@@ -48,9 +48,12 @@ export function usePermissions<
 		authz,
 		getParams,
 	})
-	const enabledFn = Permissions.createQueryEnabledFn({
-		getAuthz: () => authz,
-		getEnabled: () => unref(props?.queryOptions)?.enabled,
+	const enabledFn = computed(() => {
+		const queryOptions = unref(props?.queryOptions)
+		return Permissions.createQueryEnabledFn({
+			getAuthz: () => authz,
+			getEnabled: () => queryOptions?.enabled,
+		})
 	})
 	const query = useQuery<GetPermissionsResult<TData>, TError>(
 		computed(() => ({
@@ -58,11 +61,7 @@ export function usePermissions<
 			...unref(props?.queryOptions) as any,
 			queryKey,
 			queryFn,
-			enabled: () => {
-				// eslint-disable-next-line ts/no-unused-expressions
-				unref(props?.queryOptions)?.enabled
-				return enabledFn
-			},
+			enabled: () => unref(enabledFn),
 		})),
 		queryClient,
 	)

@@ -53,20 +53,19 @@ export function useCanAccess<
 		authz,
 		getParams: () => unref(params),
 	})
-	const enabledFn = CanAccess.createQueryEnabledFn({
-		getAuthz: () => authz,
-		getEnabled: () => unref(props.queryOptions)?.enabled,
+	const enabledFn = computed(() => {
+		const queryOptions = unref(props.queryOptions)
+		return CanAccess.createQueryEnabledFn({
+			getAuthz: () => authz,
+			getEnabled: () => queryOptions?.enabled,
+		})
 	})
 	const query = useQuery<AccessCanResult, TError>(
 		computed(() => ({
 			...unref(props.queryOptions),
 			queryKey,
 			queryFn,
-			enabled: () => {
-				// eslint-disable-next-line ts/no-unused-expressions
-				unref(props?.queryOptions)?.enabled
-				return enabledFn
-			},
+			enabled: () => unref(enabledFn),
 			retry: false,
 		})),
 		queryClient,

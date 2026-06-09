@@ -71,12 +71,15 @@ export function useGetOne<
 	const queryKey = $derived.by(() => GetOne.createQueryKey({
 		props: queryProps,
 	}))
-	const enabledFn = GetOne.createQueryEnabledFn({
-		getEnabled: () => resolvedProps.queryOptions?.enabled,
-		getQueryKey: () => queryKey,
-		getId: () => queryProps.id,
-		getQueryOptions: () => resolvedProps.queryOptions,
-		queryClient,
+	const enabledFn = $derived.by(() => {
+		const queryOptions = resolvedProps.queryOptions
+		return GetOne.createQueryEnabledFn({
+			getEnabled: () => queryOptions?.enabled,
+			getQueryKey: () => queryKey,
+			getId: () => queryProps.id,
+			getQueryOptions: () => queryOptions,
+			queryClient,
+		})
 	})
 	const queryFn = GetOne.createQueryFn<TData>({
 		fetchers,

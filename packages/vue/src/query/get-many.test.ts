@@ -1,6 +1,6 @@
 import { RealtimeAction, SubscribeType } from '@ginjou/core'
 import { describe, expect, it, vi } from 'vitest'
-import { unref } from 'vue-demi'
+import { computed, nextTick, ref, unref } from 'vue-demi'
 import { MockFetchers, queryClient } from '../../test/mock-fetcher'
 import { expectUnsubscribeCalled, MockRealtimes, subscribeFn } from '../../test/mock-realtime'
 import { mountTestApp } from '../../test/mount'
@@ -80,6 +80,37 @@ describe('useGetMany', () => {
 
 			expect(unref(result.isFetched)).toBeFalsy()
 			expect(subscribeFn).not.toBeCalled()
+		})
+
+		it('should fetch and subscribe when computed queryOptions.enabled becomes true', async () => {
+			const isEnabled = ref(false)
+			const queryOptions = computed(() => ({
+				enabled: unref(isEnabled),
+			}))
+
+			const { result } = mountTestApp(
+				() => useGetMany({
+					resource: 'posts',
+					ids: ['1', '2'],
+					queryOptions,
+				}),
+				{
+					queryClient,
+					fetchers: MockFetchers,
+					realtime: MockRealtimes,
+				},
+			)
+
+			expect(unref(result.isFetched)).toBeFalsy()
+			expect(subscribeFn).not.toBeCalled()
+
+			isEnabled.value = true
+			await nextTick()
+
+			await vi.waitFor(() => {
+				expect(unref(result.isFetched)).toBeTruthy()
+			})
+			expect(subscribeFn).toBeCalled()
 		})
 	})
 })

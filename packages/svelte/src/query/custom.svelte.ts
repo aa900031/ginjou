@@ -84,11 +84,14 @@ export function useCustom<
 		fetchers,
 		getProps: () => queryProps,
 	})
-	const enabledFn = Custom.createQueryEnabledFn<TData, TError, TResultData>({
-		getQueryKey: () => queryKey,
-		getEnabled: () => resolvedProps.queryOptions?.enabled,
-		getQueryOptions: () => resolvedProps.queryOptions,
-		queryClient,
+	const enabledFn = $derived.by(() => {
+		const queryOptions = resolvedProps.queryOptions
+		return Custom.createQueryEnabledFn<TData, TError, TResultData>({
+			getQueryKey: () => queryKey,
+			getEnabled: () => queryOptions?.enabled,
+			getQueryOptions: () => queryOptions,
+			queryClient,
+		})
 	})
 	const handleSuccess = Custom.createSuccessHandler<TData, TResultData, TQuery, TPayload>({
 		notify,

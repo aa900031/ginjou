@@ -50,9 +50,12 @@ export function useCanAccess<
 		authz,
 		getParams: () => params,
 	})
-	const enabledFn = CanAccess.createQueryEnabledFn({
-		getAuthz: () => authz,
-		getEnabled: () => resolvedProps.queryOptions?.enabled,
+	const enabledFn = $derived.by(() => {
+		const queryOptions = resolvedProps.queryOptions
+		return CanAccess.createQueryEnabledFn({
+			getAuthz: () => authz,
+			getEnabled: () => queryOptions?.enabled,
+		})
 	})
 
 	const query = createQuery<AccessCanResult, TError>(

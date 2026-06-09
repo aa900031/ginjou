@@ -72,13 +72,16 @@ export function useGetMany<
 		aggregate: extract(resolvedProps.aggregate),
 	}))
 	const queryKey = $derived.by(() => GetMany.createQueryKey({ props: queryProps }))
-	const queryEnabled = GetMany.createQueryEnabledFn({
-		getEnabled: () => resolvedProps.queryOptions?.enabled,
-		getQueryKey: () => queryKey,
-		getIds: () => queryProps.ids,
-		getResource: () => queryProps.resource,
-		getQueryOptions: () => resolvedProps.queryOptions,
-		queryClient,
+	const enabledFn = $derived.by(() => {
+		const queryOptions = resolvedProps.queryOptions
+		return GetMany.createQueryEnabledFn({
+			getEnabled: () => queryOptions?.enabled,
+			getQueryKey: () => queryKey,
+			getIds: () => queryProps.ids,
+			getResource: () => queryProps.resource,
+			getQueryOptions: () => queryOptions,
+			queryClient,
+		})
 	})
 	const queryFn = GetMany.createQueryFn<TData, TResultData, TError>({
 		fetchers,
@@ -109,7 +112,7 @@ export function useGetMany<
 			...resolvedProps.queryOptions,
 			queryKey,
 			queryFn,
-			enabled: queryEnabled,
+			enabled: enabledFn,
 			placeholderData,
 		}),
 		() => queryClient,
@@ -143,7 +146,7 @@ export function useGetMany<
 		callback,
 		meta: queryProps.meta,
 		actions: [RealtimeAction.Any],
-		enabled: queryEnabled,
+		enabled: enabledFn,
 	}), context)
 
 	return withAccessors(query, {

@@ -80,12 +80,15 @@ export function useGetInfiniteList<
 	const initialPageParam = $derived.by(() => GetInfiniteList.getInitialPageParam({
 		props: queryProps,
 	}))
-	const enabledFn = GetInfiniteList.createQueryEnabledFn({
-		getEnabled: () => resolvedProps.queryOptions?.enabled,
-		getQueryKey: () => queryKey,
-		getResource: () => queryProps.resource,
-		getQueryOptions: () => resolvedProps.queryOptions,
-		queryClient,
+	const enabledFn = $derived.by(() => {
+		const queryOptions = resolvedProps.queryOptions
+		return GetInfiniteList.createQueryEnabledFn({
+			getEnabled: () => queryOptions?.enabled,
+			getQueryKey: () => queryKey,
+			getResource: () => queryProps.resource,
+			getQueryOptions: () => queryOptions,
+			queryClient,
+		})
 	})
 	const queryFn = GetInfiniteList.createQueryFn<TData, TPageParam>({
 		getProps,

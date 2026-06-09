@@ -49,9 +49,12 @@ export function useGetIdentity<
 		auth,
 		getParams: () => resolvedProps?.params,
 	})
-	const enabledFn = Identity.createQueryEnabledFn({
-		getEnabled: () => resolvedProps?.queryOptions?.enabled,
-		getAuth: () => auth,
+	const enabledFn = $derived.by(() => {
+		const queryOptions = resolvedProps?.queryOptions
+		return Identity.createQueryEnabledFn({
+			getEnabled: () => queryOptions?.enabled,
+			getAuth: () => auth,
+		})
 	})
 
 	const query = createQuery<GetIdentityResult<TData>, TError>(

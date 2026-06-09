@@ -49,9 +49,12 @@ export function usePermissions<
 		authz,
 		getParams: () => resolvedProps?.params,
 	})
-	const enabledFn = Permissions.createQueryEnabledFn({
-		getAuthz: () => authz,
-		getEnabled: () => resolvedProps?.queryOptions?.enabled,
+	const enabledFn = $derived.by(() => {
+		const queryOptions = resolvedProps?.queryOptions
+		return Permissions.createQueryEnabledFn({
+			getAuthz: () => authz,
+			getEnabled: () => queryOptions?.enabled,
+		})
 	})
 
 	const query = createQuery<GetPermissionsResult<TData>, TError>(

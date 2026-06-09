@@ -48,9 +48,12 @@ export function useGetIdentity<
 		auth,
 		getParams,
 	})
-	const enabledFn = Identity.createQueryEnabledFn({
-		getEnabled: () => unref(props?.queryOptions)?.enabled,
-		getAuth: () => auth,
+	const enabledFn = computed(() => {
+		const queryOptions = unref(props?.queryOptions)
+		return Identity.createQueryEnabledFn({
+			getEnabled: () => queryOptions?.enabled,
+			getAuth: () => auth,
+		})
 	})
 	const query = useQuery<GetIdentityResult<TData>, TError>(
 		computed(() => ({
@@ -58,11 +61,7 @@ export function useGetIdentity<
 			...unref(props?.queryOptions) as any,
 			queryKey,
 			queryFn,
-			enabled: () => {
-				// eslint-disable-next-line ts/no-unused-expressions
-				unref(props?.queryOptions)?.enabled
-				return enabledFn
-			},
+			enabled: () => unref(enabledFn),
 		})),
 		queryClient,
 	)
