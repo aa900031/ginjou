@@ -314,7 +314,7 @@ function createCombinedResult<
 	const failureCount = results.reduce((count, result) => Math.max(count, result.failureCount), 0)
 	let promiseCache: Promise<GetManyResult<TData>> | undefined
 
-	return {
+	const result = {
 		data,
 		dataUpdatedAt,
 		error,
@@ -344,13 +344,20 @@ function createCombinedResult<
 		)),
 		status,
 		fetchStatus,
-		get promise() {
+	} as QueryObserverResult<GetManyResult<TData>, TError>
+
+	Object.defineProperty(result, 'promise', {
+		configurable: true,
+		enumerable: false,
+		get() {
 			promiseCache ??= Promise.all(results.map(result => result.promise)).then(items => ({
 				data: items.map(item => item.data),
 			}))
 			return promiseCache
 		},
-	} as QueryObserverResult<GetManyResult<TData>, TError>
+	})
+
+	return result
 }
 
 function getMinUpdatedAt(

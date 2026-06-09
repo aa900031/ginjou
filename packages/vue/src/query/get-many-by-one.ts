@@ -1,6 +1,6 @@
 import type { ToMaybeRefs } from '@bouzu/vue-helper'
 import type { BaseRecord, GetManyResult, GetOneResult } from '@ginjou/core'
-import type { QueryObserverResult, UseQueryOptions, UseQueryReturnType } from '@tanstack/vue-query'
+import type { QueryObserverResult, UseQueryReturnType } from '@tanstack/vue-query'
 import type { Simplify } from 'type-fest'
 import type { Ref } from 'vue-demi'
 import type { UseCheckErrorContext } from '../auth'
@@ -43,27 +43,6 @@ export type UseGetManyByOneResult<
 	}
 >
 
-interface UseGetManyByOneQueryDescriptor<
-	TData extends BaseRecord,
-	TError,
-	TResultData extends BaseRecord,
-> {
-	queryFnData: GetOneResult<TData>
-	error: TError
-	data: GetOneResult<TResultData>
-}
-
-type UseGetManyByOneQueryOption<
-	TData extends BaseRecord,
-	TError,
-	TResultData extends BaseRecord,
-> = UseQueryOptions<
-	GetOneResult<TData>,
-	TError,
-	GetOneResult<TResultData>,
-	GetOneResult<TData>
->
-
 export function useGetManyByOne<
 	TData extends BaseRecord = BaseRecord,
 	TError = unknown,
@@ -91,18 +70,19 @@ export function useGetManyByOne<
 		}).map((queryOption) => {
 			const enabled = queryOption.enabled
 			return {
-				// FIXME: type
-				...queryOption as any,
-				// vue-query expects a zero-arg getter here and will unwrap it before
-				// handing the boolean option back to query-core.
+				...queryOption,
 				enabled: enabled == null ? undefined : () => enabled,
 			}
-		}) as UseGetManyByOneQueryOption<TData, TError, TResultData>[]
+		})
 	})
 	const combineFn = GetManyByOne.createCombineFn<TResultData, TError>()
 
 	const queries = useQueries<
-		UseGetManyByOneQueryDescriptor<TData, TError, TResultData>[],
+		{
+			queryFnData: GetOneResult<TData>
+			error: TError
+			data: GetOneResult<TResultData>
+		}[],
 		QueryObserverResult<GetManyResult<TResultData>, TError>
 	>(
 		{
