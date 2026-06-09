@@ -21,6 +21,7 @@ const ginjouComposableNames = [
 	'useGetInfiniteList',
 	'useGetList',
 	'useGetMany',
+	'useGetManyByOne',
 	'useGetOne',
 	'useInfiniteList',
 	'useList',
@@ -46,6 +47,7 @@ const ginjouComposableNames = [
 const asyncComposableNames = [
 	'useAsyncGetOne',
 	'useAsyncGetMany',
+	'useAsyncGetManyByOne',
 	'useAsyncGetList',
 	'useAsyncGetInfiniteList',
 	'useAsyncShow',

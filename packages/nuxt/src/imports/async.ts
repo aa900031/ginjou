@@ -11,6 +11,10 @@ const composables = [
 		name: 'useAsyncGetMany',
 	},
 	{
+		from: './runtime/composables/get-many-by-one',
+		name: 'useAsyncGetManyByOne',
+	},
+	{
 		from: './runtime/composables/get-list',
 		name: 'useAsyncGetList',
 	},
