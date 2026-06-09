@@ -9,6 +9,7 @@ See [Data](https://ginjou.pages.dev/raw/guides/data.md) for the lower-level quer
 | List query | Fetch a list without page-controller state |
 | One-record query | Fetch one record by id |
 | Many-record query | Fetch multiple records by id set |
+| Many-by-one query | Fetch multiple records by known ids through per-id one-record queries when cache reuse or per-id query control matters |
 | Infinite-list query | Infinite pagination without page-controller behavior |
 | Custom query | Read from a non-resource endpoint when the backend adapter supports it |
 
@@ -24,6 +25,7 @@ See [Data](https://ginjou.pages.dev/raw/guides/data.md) for the lower-level quer
 ## Query And Mutation Options
 
 - Query options cover `enabled`, retry behavior, placeholder data, callbacks, and other read-side controls.
+- Per-id fan-out reads may also expose per-child query options in the adapter layer.
 - Mutation options cover lifecycle callbacks and mutation-specific settings.
 
 ## Cache Invalidation
