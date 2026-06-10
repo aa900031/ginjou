@@ -257,7 +257,7 @@ function createPendingResult<
 		status: 'pending',
 		isError: false,
 		isPending: true,
-		isLoading: results.some(result => result.isLoading || result.isPending),
+		isLoading: results.some(result => result.isLoading),
 		isLoadingError: false,
 		isRefetchError: false,
 		isSuccess: false,

@@ -92,6 +92,26 @@ describe('createCombineFn', () => {
 		expect(result.isLoading).toBe(true)
 	})
 
+	it('should not report loading when pending child queries are disabled', () => {
+		const result = combine([
+			createResult({
+				data: { data: { id: '1', title: 'A' } },
+				isSuccess: true,
+				status: 'success',
+			}),
+			createResult({
+				isEnabled: false,
+				isPending: true,
+				isLoading: false,
+				status: 'pending',
+			}),
+		])
+
+		expect(result.status).toBe('pending')
+		expect(result.isPending).toBe(true)
+		expect(result.isLoading).toBe(false)
+	})
+
 	it('should keep data undefined when any child query has an error', () => {
 		const error = new Error('boom')
 		const result = combine([
