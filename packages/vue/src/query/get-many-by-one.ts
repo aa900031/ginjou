@@ -37,7 +37,10 @@ export type UseGetManyByOneResult<
 	TError = unknown,
 	TResultData extends BaseRecord = TData,
 > = Simplify<
-	& UseQueryReturnType2<TResultData, TError>
+	& Omit<
+		UseQueryReturnType<GetManyResult<TResultData>, TError>,
+		| 'suspense'
+	>
 	& {
 		records: Ref<TResultData[] | undefined>
 	}
@@ -95,7 +98,7 @@ export function useGetManyByOne<
 		queryClient,
 	)
 
-	const query = {
+	return {
 		data: toRef(() => unref(queries).data),
 		dataUpdatedAt: toRef(() => unref(queries).dataUpdatedAt),
 		error: toRef(() => unref(queries).error) as Ref<TError> | Ref<null>, // FIXME: type
@@ -122,18 +125,6 @@ export function useGetManyByOne<
 		fetchStatus: toRef(() => unref(queries).fetchStatus),
 		promise: toRef(() => unref(queries).promise),
 		refetch: opts => unref(queries).refetch(opts),
-	} satisfies UseQueryReturnType2<TResultData, TError>
-
-	return {
-		...query,
 		records: toRef(() => unref(queries).data?.data),
-	} satisfies UseGetManyByOneResult<TData, TError, TResultData>
+	}
 }
-
-type UseQueryReturnType2<
-	TResultData extends BaseRecord,
-	TError,
-> = Omit<
-	UseQueryReturnType<GetManyResult<TResultData>, TError>,
-	| 'suspense'
->
