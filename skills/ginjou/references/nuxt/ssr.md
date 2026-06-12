@@ -11,7 +11,6 @@ These composables are auto-imported by the `@ginjou/nuxt` module:
 | --- | --- | --- |
 | `useAsyncGetOne` | `useGetOne` | SSR-safe single record fetch |
 | `useAsyncGetMany` | `useGetMany` | SSR-safe batch record fetch |
-| `useAsyncGetManyByOne` | `useGetManyByOne` | SSR-safe per-id multi-record fetch |
 | `useAsyncGetList` | `useGetList` | SSR-safe paginated list query |
 | `useAsyncGetInfiniteList` | `useGetInfiniteList` | SSR-safe infinite query |
 | `useAsyncShow` | `useShow` | SSR-safe show controller |

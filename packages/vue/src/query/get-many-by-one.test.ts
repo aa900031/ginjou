@@ -40,6 +40,42 @@ describe('useGetManyByOne', () => {
 		}, expect.any(Object))
 	})
 
+	it('should expose refetch and refetch each underlying query', async () => {
+		const getOne = createGetOneMock()
+
+		const { result } = mountTestApp(
+			() => useGetManyByOne({
+				resource: 'posts',
+				ids: ['1', '2'],
+			}),
+			{
+				queryClient,
+				fetchers: createFetchers(getOne),
+			},
+		)
+
+		await vi.waitFor(() => {
+			expect(unref(result.isSuccess)).toBeTruthy()
+		})
+
+		expect(result.refetch).toEqual(expect.any(Function))
+		await result.refetch()
+
+		expect(getOne).toHaveBeenCalledTimes(4)
+		expect(getOne).toHaveBeenNthCalledWith(3, {
+			resource: 'posts',
+			id: '1',
+			meta: undefined,
+			fetcherName: 'default',
+		}, expect.any(Object))
+		expect(getOne).toHaveBeenNthCalledWith(4, {
+			resource: 'posts',
+			id: '2',
+			meta: undefined,
+			fetcherName: 'default',
+		}, expect.any(Object))
+	})
+
 	it('should react to ids changes', async () => {
 		const getOne = createGetOneMock()
 		const ids = ref(['1'])

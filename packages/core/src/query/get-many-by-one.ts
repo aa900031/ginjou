@@ -339,9 +339,7 @@ function createCombinedResult<
 		isEnabled: results.some(result => result.isEnabled),
 		refetch: (options?: RefetchOptions) => Promise.all(
 			results.map(result => result.refetch(options)),
-		).then(refetchedResults => createCombineFn<TData, TError>()(
-			refetchedResults as QueryObserverResult<GetOneResult<TData>, TError>[],
-		)),
+		).then(refetchedResults => createCombineFn<TData, TError>()(refetchedResults)),
 		status,
 		fetchStatus,
 	} as QueryObserverResult<GetManyResult<TData>, TError>

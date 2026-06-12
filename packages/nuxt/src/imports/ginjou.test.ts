@@ -47,7 +47,6 @@ const ginjouComposableNames = [
 const asyncComposableNames = [
 	'useAsyncGetOne',
 	'useAsyncGetMany',
-	'useAsyncGetManyByOne',
 	'useAsyncGetList',
 	'useAsyncGetInfiniteList',
 	'useAsyncShow',

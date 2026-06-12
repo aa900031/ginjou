@@ -37,7 +37,7 @@ export type UseGetManyByOneResult<
 	TError = unknown,
 	TResultData extends BaseRecord = TData,
 > = Simplify<
-	& UseQueryReturnType<GetManyResult<TResultData>, TError>
+	& UseQueryReturnType2<TResultData, TError>
 	& {
 		records: Ref<TResultData[] | undefined>
 	}
@@ -68,10 +68,10 @@ export function useGetManyByOne<
 			queryOptions,
 			queryClient,
 		}).map((queryOption) => {
-			const enabled = queryOption.enabled
+			const { enabled, ...rest } = queryOption
 			return {
-				...queryOption,
-				enabled: enabled == null ? undefined : () => enabled,
+				...rest,
+				enabled: () => enabled,
 			}
 		})
 	})
@@ -98,7 +98,7 @@ export function useGetManyByOne<
 	const query = {
 		data: toRef(() => unref(queries).data),
 		dataUpdatedAt: toRef(() => unref(queries).dataUpdatedAt),
-		error: toRef(() => unref(queries).error),
+		error: toRef(() => unref(queries).error) as Ref<TError> | Ref<null>, // FIXME: type
 		errorUpdatedAt: toRef(() => unref(queries).errorUpdatedAt),
 		failureCount: toRef(() => unref(queries).failureCount),
 		failureReason: toRef(() => unref(queries).failureReason),
@@ -121,15 +121,19 @@ export function useGetManyByOne<
 		status: toRef(() => unref(queries).status),
 		fetchStatus: toRef(() => unref(queries).fetchStatus),
 		promise: toRef(() => unref(queries).promise),
-		suspense: async () => {
-			await unref(queries).promise
-			return unref(queries) as QueryObserverResult<GetManyResult<TResultData>, TError>
-		},
 		refetch: opts => unref(queries).refetch(opts),
-	} as UseQueryReturnType<GetManyResult<TResultData>, TError>
+	} satisfies UseQueryReturnType2<TResultData, TError>
 
 	return {
 		...query,
 		records: toRef(() => unref(queries).data?.data),
-	} as UseGetManyByOneResult<TData, TError, TResultData>
+	} satisfies UseGetManyByOneResult<TData, TError, TResultData>
 }
+
+type UseQueryReturnType2<
+	TResultData extends BaseRecord,
+	TError,
+> = Omit<
+	UseQueryReturnType<GetManyResult<TResultData>, TError>,
+	| 'suspense'
+>
