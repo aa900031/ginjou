@@ -84,7 +84,7 @@ export type Props<
 	}
 >
 
-export function getOptionsForQueries<
+export function getQueriesOptions<
 	TData extends BaseRecord,
 	TError,
 	TResultData extends BaseRecord,

@@ -4,7 +4,7 @@ import { useGetManyByOne } from './get-many-by-one.svelte'
 const mocks = vi.hoisted(() => ({
 	createCombineFn: vi.fn(),
 	createQueries: vi.fn(),
-	getOptionsForQueries: vi.fn(),
+	getQueriesOptions: vi.fn(),
 	resolveQueryProps: vi.fn(),
 	useFetchersContext: vi.fn(),
 	useQueryClientContext: vi.fn(),
@@ -13,7 +13,7 @@ const mocks = vi.hoisted(() => ({
 vi.mock('@ginjou/core', () => ({
 	GetManyByOne: {
 		createCombineFn: mocks.createCombineFn,
-		getOptionsForQueries: mocks.getOptionsForQueries,
+		getQueriesOptions: mocks.getQueriesOptions,
 		resolveQueryProps: mocks.resolveQueryProps,
 	},
 }))
@@ -34,7 +34,7 @@ describe('useGetManyByOne', () => {
 	beforeEach(() => {
 		mocks.createCombineFn.mockReset()
 		mocks.createQueries.mockReset()
-		mocks.getOptionsForQueries.mockReset()
+		mocks.getQueriesOptions.mockReset()
 		mocks.resolveQueryProps.mockReset()
 		mocks.useFetchersContext.mockReset()
 		mocks.useQueryClientContext.mockReset()
@@ -45,7 +45,7 @@ describe('useGetManyByOne', () => {
 				data: [{ id: '1' }, { id: '2' }],
 			},
 		})
-		mocks.getOptionsForQueries.mockReturnValue([
+		mocks.getQueriesOptions.mockReturnValue([
 			{
 				queryKey: ['posts', '1'],
 				enabled: true,
@@ -95,7 +95,7 @@ describe('useGetManyByOne', () => {
 			},
 			fetcherName: undefined,
 		})
-		expect(mocks.getOptionsForQueries).toHaveBeenCalledWith({
+		expect(mocks.getQueriesOptions).toHaveBeenCalledWith({
 			queryProps: {
 				ids: ['1', '2'],
 				resource: 'posts',
