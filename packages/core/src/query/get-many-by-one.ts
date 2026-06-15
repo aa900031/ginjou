@@ -132,38 +132,7 @@ export function createCombineFn<
 	TResultData extends BaseRecord,
 	TError,
 >(): (results: QueryObserverResult<GetOneResult<TResultData>, TError>[]) => QueryObserverResult<GetManyResult<TResultData>, TError> {
-	return function combine(results) {
-		if (results.length === 0) {
-			return createSuccessResult<TResultData, TError>({
-				data: [],
-				dataUpdatedAt: 0,
-				results,
-			})
-		}
-
-		const firstError = results.find(result => result.error != null)
-		const isComplete = results.every(result => result.data?.data != null)
-		const hasError = firstError != null
-
-		if (!hasError && isComplete) {
-			return createSuccessResult<TResultData, TError>({
-				data: results.map(result => result.data!.data),
-				dataUpdatedAt: getMinUpdatedAt(results.map(result => result.dataUpdatedAt)),
-				results,
-			})
-		}
-
-		if (hasError) {
-			return createErrorResult<TResultData, TError>({
-				error: firstError.error as TError,
-				results,
-			})
-		}
-
-		return createPendingResult<TResultData, TError>({
-			results,
-		})
-	}
+	return combineResults
 }
 
 interface CreateCombinedResultProps<
@@ -171,6 +140,7 @@ interface CreateCombinedResultProps<
 	TError,
 > {
 	results: QueryObserverResult<GetOneResult<TData>, TError>[]
+	state: CombinedResultState<TData, TError>
 }
 
 interface CreateSuccessResultProps<
@@ -181,6 +151,29 @@ interface CreateSuccessResultProps<
 	dataUpdatedAt: number
 }
 
+interface CombinedResultState<
+	TData extends BaseRecord,
+	TError,
+> {
+	data: TData[]
+	dataUpdatedAt: number
+	firstError: TError | null
+	isComplete: boolean
+	isFetching: boolean
+	isPaused: boolean
+	isRefetching: boolean
+	errorUpdatedAt: number
+	errorUpdateCount: number
+	failureCount: number
+	isFetched: boolean
+	isFetchedAfterMount: boolean
+	isStale: boolean
+	isEnabled: boolean
+	isLoading: boolean
+	hasRefetchError: boolean
+	hasPlaceholderData: boolean
+}
+
 function createSuccessResult<
 	TData extends BaseRecord,
 	TError,
@@ -189,10 +182,12 @@ function createSuccessResult<
 		data,
 		dataUpdatedAt,
 		results,
+		state,
 	}: CreateSuccessResultProps<TData, TError>,
 ): QueryObserverResult<GetManyResult<TData>, TError> {
 	return createCombinedResult<TData, TError>({
 		results,
+		state,
 		data: {
 			data,
 		},
@@ -205,7 +200,7 @@ function createSuccessResult<
 		isLoadingError: false,
 		isRefetchError: false,
 		isSuccess: true,
-		isPlaceholderData: results.some(result => result.isPlaceholderData),
+		isPlaceholderData: state.hasPlaceholderData,
 	})
 }
 
@@ -223,10 +218,12 @@ function createErrorResult<
 	{
 		error,
 		results,
+		state,
 	}: CreateErrorResultProps<TData, TError>,
 ): QueryObserverResult<GetManyResult<TData>, TError> {
 	return createCombinedResult<TData, TError>({
 		results,
+		state,
 		data: undefined,
 		dataUpdatedAt: 0,
 		error,
@@ -234,8 +231,8 @@ function createErrorResult<
 		isError: true,
 		isPending: false,
 		isLoading: false,
-		isLoadingError: !results.some(result => result.isRefetchError),
-		isRefetchError: results.some(result => result.isRefetchError),
+		isLoadingError: !state.hasRefetchError,
+		isRefetchError: state.hasRefetchError,
 		isSuccess: false,
 		isPlaceholderData: false,
 	})
@@ -247,17 +244,19 @@ function createPendingResult<
 >(
 	{
 		results,
+		state,
 	}: CreateCombinedResultProps<TData, TError>,
 ): QueryObserverResult<GetManyResult<TData>, TError> {
 	return createCombinedResult<TData, TError>({
 		results,
+		state,
 		data: undefined,
 		dataUpdatedAt: 0,
 		error: null,
 		status: 'pending',
 		isError: false,
 		isPending: true,
-		isLoading: results.some(result => result.isLoading),
+		isLoading: state.isLoading,
 		isLoadingError: false,
 		isRefetchError: false,
 		isSuccess: false,
@@ -288,6 +287,7 @@ function createCombinedResult<
 >(
 	{
 		results,
+		state,
 		data,
 		dataUpdatedAt,
 		error,
@@ -301,17 +301,17 @@ function createCombinedResult<
 		isPlaceholderData,
 	}: CreateCombinedResultInput<TData, TError>,
 ): QueryObserverResult<GetManyResult<TData>, TError> {
-	const isFetching = results.some(result => result.isFetching)
-	const isPaused = results.some(result => result.isPaused)
+	const isFetching = state.isFetching
+	const isPaused = state.isPaused
 	const fetchStatus = isFetching
 		? 'fetching'
 		: isPaused
 			? 'paused'
 			: 'idle'
-	const isRefetching = results.some(result => result.isRefetching)
-	const errorUpdatedAt = getMaxUpdatedAt(results.map(result => result.errorUpdatedAt))
-	const errorUpdateCount = results.reduce((count, result) => count + result.errorUpdateCount, 0)
-	const failureCount = results.reduce((count, result) => Math.max(count, result.failureCount), 0)
+	const isRefetching = state.isRefetching
+	const errorUpdatedAt = state.errorUpdatedAt
+	const errorUpdateCount = state.errorUpdateCount
+	const failureCount = state.failureCount
 	let promiseCache: Promise<GetManyResult<TData>> | undefined
 
 	const result = {
@@ -323,8 +323,8 @@ function createCombinedResult<
 		failureReason: error,
 		errorUpdateCount,
 		isError,
-		isFetched: results.every(result => result.isFetched),
-		isFetchedAfterMount: results.every(result => result.isFetchedAfterMount),
+		isFetched: state.isFetched,
+		isFetchedAfterMount: state.isFetchedAfterMount,
 		isFetching,
 		isLoading,
 		isPending,
@@ -334,14 +334,14 @@ function createCombinedResult<
 		isPlaceholderData,
 		isRefetchError,
 		isRefetching,
-		isStale: results.some(result => result.isStale),
+		isStale: state.isStale,
 		isSuccess,
-		isEnabled: results.some(result => result.isEnabled),
+		isEnabled: state.isEnabled,
 		status,
 		fetchStatus,
 		refetch: (options?: RefetchOptions) => Promise.all(
 			results.map(result => result.refetch(options)),
-		).then(refetchedResults => createCombineFn<TData, TError>()(refetchedResults)),
+		).then(refetchedResults => combineResults<TData, TError>(refetchedResults)),
 	} as QueryObserverResult<GetManyResult<TData>, TError>
 
 	Object.defineProperty(result, 'promise', {
@@ -358,22 +358,131 @@ function createCombinedResult<
 	return result
 }
 
-function getMinUpdatedAt(
-	values: number[],
-): number {
-	return values.reduce((minValue, value) => {
-		if (value === 0)
-			return minValue
-		if (minValue === 0)
-			return value
-		return Math.min(minValue, value)
-	}, 0)
+function combineResults<
+	TData extends BaseRecord,
+	TError,
+>(
+	results: QueryObserverResult<GetOneResult<TData>, TError>[],
+): QueryObserverResult<GetManyResult<TData>, TError> {
+	const state = collectCombinedResultState(results)
+
+	if (state.firstError == null && state.isComplete) {
+		return createSuccessResult<TData, TError>({
+			data: state.data,
+			dataUpdatedAt: state.dataUpdatedAt,
+			results,
+			state,
+		})
+	}
+
+	if (state.firstError != null) {
+		return createErrorResult<TData, TError>({
+			error: state.firstError,
+			results,
+			state,
+		})
+	}
+
+	return createPendingResult<TData, TError>({
+		results,
+		state,
+	})
 }
 
-function getMaxUpdatedAt(
-	values: number[],
+function collectCombinedResultState<
+	TData extends BaseRecord,
+	TError,
+>(
+	results: QueryObserverResult<GetOneResult<TData>, TError>[],
+): CombinedResultState<TData, TError> {
+	// eslint-disable-next-line unicorn/no-new-array
+	const data = new Array<TData>(results.length)
+	let dataUpdatedAt = 0
+	let firstError: TError | null = null
+	let isComplete = true
+	let isFetching = false
+	let isPaused = false
+	let isRefetching = false
+	let errorUpdatedAt = 0
+	let errorUpdateCount = 0
+	let failureCount = 0
+	let isFetched = true
+	let isFetchedAfterMount = true
+	let isStale = false
+	let isEnabled = false
+	let isLoading = false
+	let hasRefetchError = false
+	let hasPlaceholderData = false
+
+	for (let index = 0; index < results.length; index++) {
+		const result = results[index]!
+		const record = result.data?.data
+		if (record == null) {
+			isComplete = false
+		}
+		else {
+			data[index] = record
+			dataUpdatedAt = updateMinUpdatedAt(dataUpdatedAt, result.dataUpdatedAt)
+		}
+
+		if (firstError == null && result.error != null)
+			firstError = result.error as TError
+		if (result.isFetching)
+			isFetching = true
+		if (result.isPaused)
+			isPaused = true
+		if (result.isRefetching)
+			isRefetching = true
+		if (result.errorUpdatedAt > errorUpdatedAt)
+			errorUpdatedAt = result.errorUpdatedAt
+		errorUpdateCount += result.errorUpdateCount
+		failureCount = Math.max(failureCount, result.failureCount)
+		if (!result.isFetched)
+			isFetched = false
+		if (!result.isFetchedAfterMount)
+			isFetchedAfterMount = false
+		if (result.isStale)
+			isStale = true
+		if (result.isEnabled)
+			isEnabled = true
+		if (result.isLoading)
+			isLoading = true
+		if (result.isRefetchError)
+			hasRefetchError = true
+		if (result.isPlaceholderData)
+			hasPlaceholderData = true
+	}
+
+	return {
+		data,
+		dataUpdatedAt,
+		firstError,
+		isComplete,
+		isFetching,
+		isPaused,
+		isRefetching,
+		errorUpdatedAt,
+		errorUpdateCount,
+		failureCount,
+		isFetched,
+		isFetchedAfterMount,
+		isStale,
+		isEnabled,
+		isLoading,
+		hasRefetchError,
+		hasPlaceholderData,
+	}
+}
+
+function updateMinUpdatedAt(
+	currentMin: number,
+	value: number,
 ): number {
-	return values.reduce((maxValue, value) => Math.max(maxValue, value), 0)
+	if (value === 0)
+		return currentMin
+	if (currentMin === 0)
+		return value
+	return Math.min(currentMin, value)
 }
 
 function resolveQueryOptions<

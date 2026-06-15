@@ -1,6 +1,6 @@
 import type { QueryObserverResult } from '@tanstack/query-core'
 import type { BaseRecord, GetOneResult } from './fetcher'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { createCombineFn } from './get-many-by-one'
 
 interface Post extends BaseRecord {
@@ -132,6 +132,108 @@ describe('createCombineFn', () => {
 		expect(result.data).toBeUndefined()
 		expect(result.error).toBe(error)
 		expect(result.isError).toBe(true)
+	})
+
+	it('should aggregate child query metadata without rescanning semantics changing', () => {
+		const result = combine([
+			createResult({
+				data: { data: { id: '1', title: 'A' } },
+				dataUpdatedAt: 20,
+				errorUpdatedAt: 3,
+				errorUpdateCount: 2,
+				failureCount: 1,
+				isPlaceholderData: true,
+				isFetching: true,
+				isRefetching: true,
+				isStale: true,
+				isSuccess: true,
+				status: 'success',
+			}),
+			createResult({
+				data: { data: { id: '2', title: 'B' } },
+				dataUpdatedAt: 10,
+				errorUpdatedAt: 7,
+				errorUpdateCount: 4,
+				failureCount: 5,
+				isFetched: false,
+				isFetchedAfterMount: false,
+				isEnabled: false,
+				isSuccess: true,
+				status: 'success',
+			}),
+		])
+
+		expect(result.isPlaceholderData).toBe(true)
+		expect(result.isFetching).toBe(true)
+		expect(result.fetchStatus).toBe('fetching')
+		expect(result.isRefetching).toBe(true)
+		expect(result.errorUpdatedAt).toBe(7)
+		expect(result.errorUpdateCount).toBe(6)
+		expect(result.failureCount).toBe(5)
+		expect(result.isFetched).toBe(false)
+		expect(result.isFetchedAfterMount).toBe(false)
+		expect(result.isStale).toBe(true)
+		expect(result.isEnabled).toBe(true)
+	})
+
+	it('should report refetch errors without marking them as loading errors', () => {
+		const error = new Error('boom')
+		const result = combine([
+			createResult({
+				data: { data: { id: '1', title: 'A' } },
+				isSuccess: true,
+				status: 'success',
+			}),
+			createResult({
+				error,
+				isError: true,
+				isRefetchError: true,
+				status: 'error',
+			}),
+		])
+
+		expect(result.isError).toBe(true)
+		expect(result.isLoadingError).toBe(false)
+		expect(result.isRefetchError).toBe(true)
+	})
+
+	it('should refetch each child query and recombine the updated result', async () => {
+		const firstRefetch = vi.fn(async () => createResult({
+			data: { data: { id: '3', title: 'C' } },
+			isSuccess: true,
+			status: 'success',
+		}))
+		const secondRefetch = vi.fn(async () => createResult({
+			data: { data: { id: '4', title: 'D' } },
+			isSuccess: true,
+			status: 'success',
+		}))
+		const result = combine([
+			createResult({
+				data: { data: { id: '1', title: 'A' } },
+				isSuccess: true,
+				status: 'success',
+				refetch: firstRefetch,
+			}),
+			createResult({
+				data: { data: { id: '2', title: 'B' } },
+				isSuccess: true,
+				status: 'success',
+				refetch: secondRefetch,
+			}),
+		])
+
+		const refetched = await result.refetch()
+
+		expect(firstRefetch).toHaveBeenCalledOnce()
+		expect(secondRefetch).toHaveBeenCalledOnce()
+		expect(refetched.data).toEqual({
+			data: [
+				{ id: '3', title: 'C' },
+				{ id: '4', title: 'D' },
+			],
+		})
+		expect(refetched.status).toBe('success')
 	})
 
 	it('should lazily read child promises only when combined promise is accessed', async () => {
