@@ -169,7 +169,6 @@ interface CombinedResultState<
 	isFetchedAfterMount: boolean
 	isStale: boolean
 	isEnabled: boolean
-	isLoading: boolean
 	hasRefetchError: boolean
 	hasPlaceholderData: boolean
 }
@@ -196,7 +195,6 @@ function createSuccessResult<
 		status: 'success',
 		isError: false,
 		isPending: false,
-		isLoading: false,
 		isLoadingError: false,
 		isRefetchError: false,
 		isSuccess: true,
@@ -230,7 +228,6 @@ function createErrorResult<
 		status: 'error',
 		isError: true,
 		isPending: false,
-		isLoading: false,
 		isLoadingError: !state.hasRefetchError,
 		isRefetchError: state.hasRefetchError,
 		isSuccess: false,
@@ -256,7 +253,6 @@ function createPendingResult<
 		status: 'pending',
 		isError: false,
 		isPending: true,
-		isLoading: state.isLoading,
 		isLoadingError: false,
 		isRefetchError: false,
 		isSuccess: false,
@@ -274,7 +270,6 @@ interface CreateCombinedResultInput<
 	status: 'pending' | 'error' | 'success'
 	isError: boolean
 	isPending: boolean
-	isLoading: boolean
 	isLoadingError: boolean
 	isRefetchError: boolean
 	isSuccess: boolean
@@ -294,7 +289,6 @@ function createCombinedResult<
 		status,
 		isError,
 		isPending,
-		isLoading,
 		isLoadingError,
 		isRefetchError,
 		isSuccess,
@@ -308,6 +302,9 @@ function createCombinedResult<
 		: isPaused
 			? 'paused'
 			: 'idle'
+	// tanstack derives isLoading from the result's own status, not from the children's
+	// isLoading: isLoading = isPending && isFetching (see queryObserver createResult).
+	const isLoading = isPending && isFetching
 	const isRefetching = state.isRefetching
 	const errorUpdatedAt = state.errorUpdatedAt
 	const errorUpdateCount = state.errorUpdateCount
@@ -410,7 +407,6 @@ function collectCombinedResultState<
 	let isFetchedAfterMount = true
 	let isStale = false
 	let isEnabled = false
-	let isLoading = false
 	let hasRefetchError = false
 	let hasPlaceholderData = false
 
@@ -445,8 +441,6 @@ function collectCombinedResultState<
 			isStale = true
 		if (result.isEnabled)
 			isEnabled = true
-		if (result.isLoading)
-			isLoading = true
 		if (result.isRefetchError)
 			hasRefetchError = true
 		if (result.isPlaceholderData)
@@ -468,7 +462,6 @@ function collectCombinedResultState<
 		isFetchedAfterMount,
 		isStale,
 		isEnabled,
-		isLoading,
 		hasRefetchError,
 		hasPlaceholderData,
 	}

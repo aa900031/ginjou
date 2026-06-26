@@ -82,6 +82,8 @@ describe('createCombineFn', () => {
 			createResult({
 				isPending: true,
 				isLoading: true,
+				isFetching: true,
+				fetchStatus: 'fetching',
 				status: 'pending',
 			}),
 		])
