@@ -25,7 +25,7 @@ defineAuthzContext(defineAuthz({
 
 `useCanAccess()` runs one action-level access check.
 
-> ⚠️ **Warning:** The `canAccess` method in your authorization provider must return a **boolean** value. `useCanAccess` exposes the result as `{ can: boolean }`.
+> ⚠️ **Warning:** The provider's `access` method must return `{ can: boolean, reason?: string }` — not a bare boolean. `useCanAccess` exposes it as `data.value?.can`.
 
 ```ts
 import { useCanAccess } from '@ginjou/vue'

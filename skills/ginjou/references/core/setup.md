@@ -4,6 +4,8 @@
 
 Ginjou uses a **provider model**: feature code calls shared contracts (fetcher, auth, router, etc.) without knowing which adapter implements them. Register adapters once at the app boundary; feature code stays adapter-agnostic.
 
+Official framework adapters exist only for **Vue** (`@ginjou/vue`), **Nuxt** (`@ginjou/nuxt`), and **Svelte** (`@ginjou/svelte`). There is **no adapter for React, Solid, Angular, or any other framework** — `@ginjou/core` is framework-agnostic, so supporting one means writing a custom adapter that binds the core contracts (fetcher, auth, router, resource, notification, realtime, i18n) to that framework's reactivity. Don't assume hooks or packages exist for an unsupported framework.
+
 ## Required And Optional Contexts
 
 At least one fetcher contract is required for data operations. Add everything else only when the app actually needs that capability.

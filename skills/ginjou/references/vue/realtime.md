@@ -19,6 +19,49 @@ defineRealtimeContext({
 })
 ```
 
+### Bridging Supabase Realtime
+
+Map the contract onto `supabase.channel(...)`. `subscribe` returns a string key;
+`unsubscribe` tears the channel down with that key. `RealtimeAction` values are
+`'*'` (Any), `'created'`, `'updated'`, `'deleted'`; the `callback` receives a
+`RealtimeEvent` — `{ channel, action, payload, date, meta? }`.
+
+```ts
+import { RealtimeAction } from '@ginjou/core'
+import { defineRealtimeContext } from '@ginjou/vue'
+
+const channels = new Map<string, ReturnType<typeof supabase.channel>>()
+const TO_ACTION = { INSERT: RealtimeAction.Created, UPDATE: RealtimeAction.Updated, DELETE: RealtimeAction.Deleted }
+
+defineRealtimeContext({
+	subscribe: ({ channel, callback }) => {
+		const key = `${channel}:${crypto.randomUUID()}`
+		const ch = supabase
+			.channel(key)
+			.on('postgres_changes', { event: '*', schema: 'public', table: channel }, (e) => {
+				callback({ channel, action: TO_ACTION[e.eventType], payload: e.new ?? e.old, date: new Date() })
+			})
+			.subscribe()
+		channels.set(key, ch)
+		return key
+	},
+	unsubscribe: (key) => {
+		const ch = channels.get(key)
+		if (ch) {
+			supabase.removeChannel(ch)
+			channels.delete(key)
+		}
+	},
+	options: { mode: 'auto' },
+})
+```
+
+With `mode: 'auto'`, ginjou invalidates the matching list/detail queries on each
+event, so `useGetList({ resource: 'orders' })` refetches automatically — no
+per-component wiring. The Supabase transport must already exist; the provider
+only binds it. If it is ever removed, fall back to TanStack Query
+`refetchInterval` polling rather than a non-existent ginjou polling flag.
+
 ## Automatic Query Subscription
 
 `useGetList`, `useGetOne`, `useGetMany`, and `useGetInfiniteList` auto-subscribe when their realtime path is active. `useCustom` does not; add an explicit `realtime.channel` when custom-query realtime is required.

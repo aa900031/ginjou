@@ -47,6 +47,28 @@ const { save } = useEdit({
 
 Without notification context, manual notify calls are no-ops and undoable flows are unsafe. Prefer pessimistic timing or explicit confirmation instead.
 
+### Rendering the undo affordance
+
+For undoable mode, Ginjou calls the provider's `open` with a **progress**
+notification your toast must render with an undo control:
+
+| Field | Meaning |
+| --- | --- |
+| `type` | `'progress'` |
+| `message` | Text to show |
+| `key` | Stable id; pass to `close(key)` |
+| `timeout` | Undo window in ms (from the mutation's `undoableTimeout`, default `5000`) |
+| `onFinish` | Call when the window elapses (commit) |
+| `onCancel` | Call when the user clicks undo (rollback) |
+
+So `open` should branch on `params.type === 'progress'`, wire the toast's undo
+button to `params.onCancel`, and wire dismissal/timeout to `params.onFinish`. Set
+the duration from the mutation call:
+
+```ts
+await deleteOne({ resource: 'posts', id: '1', mutationMode: 'undoable', undoableTimeout: 5000 })
+```
+
 ## Rules
 
 - Register `defineNotificationContext` unconditionally at the app root.

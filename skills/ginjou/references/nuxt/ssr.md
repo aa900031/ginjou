@@ -25,6 +25,19 @@ These composables are auto-imported by the `@ginjou/nuxt` module:
 
 > ⚠️ **Warning:** In SSR, always use `useAsyncShow` instead of `useShow`. `useShow` is a client-only controller that does not resolve during server rendering.
 
+## Calling `useAsync*`
+
+Each `useAsync*` takes the **same options** as its Vue counterpart and returns an
+`AsyncResult` — an object that is also a Promise. Await it in `<script setup>` so
+it resolves during server render and hydrates without a client refetch:
+
+```ts
+const { records, total } = await useAsyncList({ resource: 'posts' })
+```
+
+Once resolved, the fields (`records`, `total`, controller state, etc.) match the
+Vue counterpart.
+
 ## Server vs Client Boundary
 
 - Use `useAsync*` composables in SSR-capable setup flows.

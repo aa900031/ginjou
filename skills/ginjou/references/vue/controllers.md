@@ -33,6 +33,15 @@ setSorters([{ field: 'createdAt', order: 'desc' }])
 | `sorters` / `setSorters` | Reactive sorter state and update function |
 | `total` | Total count from query data |
 | `pageCount` | Derived page count |
+| `isLoading` / `isPending` | Initial-load flag (drives the loading state) |
+| `isError` / `error` | Error flag and error object (drive the error state) |
+| `data` | Raw underlying vue-query result |
+
+The loading/error fields spread from the underlying `@tanstack/vue-query`
+result. Render the empty state from `records` being empty or `undefined`,
+loading from `isLoading` / `isPending`, and errors from `isError` / `error`.
+Pass initial `pagination` (`{ current, perPage }`), `sorters`, and `filters` via
+the constructor options; change them at runtime with the setters above.
 
 For non-page queries (widgets, dialogs), use `useGetList` from data composables instead of `useList`.
 

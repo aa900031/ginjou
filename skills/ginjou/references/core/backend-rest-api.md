@@ -31,6 +31,24 @@ const fetcher = createFetcher({
 })
 ```
 
+For a token that **changes after login**, read it at request time with an
+`onRequest` interceptor instead of baking it into `defaults` (which captures the
+value once):
+
+```typescript
+const client = createFetch({}).create({
+	onRequest({ options }) {
+		options.headers = { ...options.headers, Authorization: `Bearer ${getToken()}` }
+	},
+})
+const fetcher = createFetcher({ url: 'https://api.example.com', client })
+```
+
+`createFetcher` accepts only `url` and `client` — there is no `headers` /
+`getHeaders` option, so dynamic auth lives in the client. Token storage and
+retrieval (`getToken`) are entirely app-side; the auth contract does not manage
+them.
+
 ## Support Matrix
 
 | Support level | Methods |
@@ -56,6 +74,27 @@ Standard resource methods build their final path from the fetcher base URL plus 
 For `getList`, Ginjou pagination uses `pagination.current` for the page number and `pagination.perPage` for the page size. The REST API adapter converts those values into json-server-style `_start` and `_end` query params, so `current: 2, perPage: 5` becomes `_start=5` and `_end=10`.
 
 Compared with the official `@ginjou/with-supabase` adapter, the pagination inputs stay the same (`current` plus `perPage`), but Supabase applies them through Postgrest `range(start, end)` calls instead of exposing `_start` and `_end` in the request URL.
+
+### Filter And Sort Serialization
+
+`getList` maps filters to json-server query params by operator:
+
+| Filter | Query param |
+| --- | --- |
+| `{ field, operator: eq }` | `?{field}={value}` (bare) |
+| `{ field: 'q', operator: eq }` | `?q={value}` — json-server full-text search |
+| `{ field, operator: contains }` | `?{field}_like={value}` |
+| `{ field, operator: ne \| gte \| lte }` | `?{field}_{operator}={value}` |
+
+So a keyword search is a filter on the literal field `q`:
+`setFilters([{ field: 'q', operator: FilterOperator.eq, value }], 'replace')`.
+
+> ⚠️ **Warning:** `FilterOperator.or` and `FilterOperator.and` are **not**
+> supported by this adapter — they throw. Use field-level operators only.
+
+Sorters become `_sort` / `_order`, comma-joined for multiple keys:
+`[{ field: 'a', order: 'asc' }, { field: 'b', order: 'desc' }]` →
+`?_sort=a,b&_order=asc,desc`.
 
 `custom` uses the passed `url` directly instead of recombining it with the base URL, and it forwards `payload` as query parameters rather than as a request body.
 

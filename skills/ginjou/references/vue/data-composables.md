@@ -27,6 +27,28 @@ const { records } = useGetList({
 
 All query composables forward `queryOptions`.
 
+### `useGetInfiniteList`
+
+Infinite scroll in a widget (not a page). Same options as `useGetList` —
+`resource`, `pagination: { current, perPage }`, `sorters`, `filters`, `meta`,
+`fetcherName` — plus infinite-query result fields.
+
+```vue
+<script setup lang="ts">
+import { useGetInfiniteList } from '@ginjou/vue'
+
+const { records, fetchNextPage, hasNextPage, isFetching } = useGetInfiniteList({
+	resource: 'comments',
+	pagination: { current: 1, perPage: 20 },
+	sorters: [{ field: 'createdAt', order: 'desc' }],
+})
+</script>
+```
+
+> ⚠️ **Warning:** `records` is **page-grouped** (`TResultData[][]`), not a flat
+> array — render it with a nested loop. Call `fetchNextPage()` (gated by
+> `hasNextPage`) from your intersection observer.
+
 ## Mutation Composables
 
 | Composable | Use it for |

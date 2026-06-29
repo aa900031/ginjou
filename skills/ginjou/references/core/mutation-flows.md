@@ -42,6 +42,9 @@ The three supported modes have different user-facing behavior and redirect timin
 Undoable flows require a notification capability. Without notification support,
 do not model the flow as undoable.
 
+The undo window is `undoableTimeout` (milliseconds) on the mutation props,
+default `5000`. It only applies when `mutationMode: 'undoable'`.
+
 ## Local Form State Rule
 
 Never bind page inputs directly to fetched record objects. Copy fetched data
