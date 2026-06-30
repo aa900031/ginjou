@@ -15,7 +15,7 @@
 				"Pagination uses `pagination.current` and `pagination.perPage` (NOT `page` / `pageSize` / `limit` / `offset`).",
 				"Search filter uses `{ field: 'q', operator: 'eq', value }` (json-server `q` form), not an invented `search` prop.",
 				"Mentions REST adapter produces `_start` / `_end` for pagination and `_sort` / `_order` for sorting (json-server-style).",
-				"Cites at least one of: `references/vue/setup.md`, `references/vue/controllers.md` or `references/vue/data-composables.md`, `references/core/backend-rest-api.md` (or their remote URLs)."
+				"Cites at least one of: `references/setup/vue.md`, `references/controllers/vue.md` or `references/data/vue.md`, `references/backends/rest-api.md` (or their remote URLs)."
 			]
 		},
 		{
@@ -30,7 +30,7 @@
 				"Either explicitly mentions Supabase adapter does not implement `custom`, `updateMany`, or `deleteMany`, OR avoids using those methods anywhere.",
 				"For redirect after create/edit, uses `useCreate.redirect` / `useEdit.redirect` as `false`, a resource-action string, or a navigation object — does NOT pass a raw path string to redirect, AND does NOT invent a `redirectTo` prop on the controller.",
 				"For preserving query string on redirect to list, uses raw router-params navigation (e.g. `useGo` / `useNavigateTo` with raw `to` + `keepQuery: true`), not action-based redirect with `keepQuery`.",
-				"Cites at least one of `references/core/backend-supabase.md`, `references/vue/forms.md`, `references/vue/controllers.md`, `references/core/mutation-flows.md` (or their remote URLs)."
+				"Cites at least one of `references/backends/supabase.md`, `references/forms/vue.md`, `references/controllers/vue.md`, `references/forms/behavior.md` (or their remote URLs)."
 			]
 		},
 		{
@@ -46,7 +46,7 @@
 				"Layout / button code reads auth state via `useAuthenticated()` and treats login state as `data?.authenticated`, NOT by directly reading `localStorage` or `document.cookie` to decide UI.",
 				"Form component uses `useLogin()` / `useLogout()` from `@ginjou/vue` (NOT a fabricated `useAuth` returning `{ login, logout }`).",
 				"Mentions that built-in data query/mutation composables already invoke `checkError` automatically (so feature pages do not need to re-wrap every fetch with `useCheckError`).",
-				"Cites at least one of `references/core/authentication.md`, `references/vue/authentication.md` (or their remote URLs)."
+				"Cites `references/authentication/vue.md` (or its remote URL)."
 			]
 		},
 		{
@@ -62,7 +62,7 @@
 				"Page uses `useAsyncList` (controller) or `useAsyncGetList` for SSR-friendly initial fetch — NOT a manual `useAsyncData` wrapping `useList`, NOT a fabricated `useNuxtList`.",
 				"Mentions that Directus `getList()` excludes archived records by default OR mentions `meta.aggregate` runtime default `{ countDistinct: 'id' }`.",
 				"Does NOT recommend `useAsyncCreate` / `useAsyncCreateOne` (they don't exist); mutations stay on the normal `useCreateOne` etc.",
-				"Cites at least one of `references/nuxt/setup.md`, `references/nuxt/ssr.md`, `references/core/backend-directus.md` (or their remote URLs)."
+				"Cites at least one of `references/setup/nuxt.md`, `references/ssr/nuxt.md`, `references/backends/directus.md` (or their remote URLs)."
 			]
 		},
 		{
@@ -77,7 +77,7 @@
 				"Distinguishes realtime modes: `auto` invalidates queries (refetch) and `manual` runs the callback only — they are not collapsed into the same behavior.",
 				"For the no-transport fallback, recommends polling via TanStack Query `refetchInterval` on `useGetList`, OR a manual refresh affordance / last-updated indicator. Does NOT invent a ginjou `polling`, `pollInterval`, or `mode: 'polling'` flag.",
 				"Either mentions that `useCustom` does NOT auto-subscribe and needs `realtime.channel` to opt in, OR avoids implying realtime is automatic for `useCustom`.",
-				"Cites at least one of `references/core/realtime.md`, `references/vue/realtime.md` (or their remote URLs)."
+				"Cites `references/realtime/vue.md` (or its remote URL)."
 			]
 		},
 		{
@@ -93,7 +93,7 @@
 				"Either uses `usePermissions()` for broader UI snapshot or explicitly distinguishes action-level checks from permission snapshots — does NOT collapse them into one composable.",
 				"Explicitly states that `defineAuthContext` (authn) and `defineAuthzContext` (authz) are independent providers — does NOT confuse / merge them.",
 				"Does NOT route session expiry / login redirect through the authz layer (that stays in auth `checkError`).",
-				"Cites at least one of `references/core/authorization.md`, `references/vue/authorization.md` (or their remote URLs)."
+				"Cites `references/authorization/vue.md` (or its remote URL)."
 			]
 		},
 		{
@@ -108,7 +108,7 @@
 				"`useTranslate()` is treated as a function return value (e.g. `const t = useTranslate(); t('key')`) — NOT destructured as `const { t } = useTranslate()`.",
 				"For locale switching, uses `useLocale()` and treats it as a writable `Ref<string>` (e.g. `locale.value = 'zh-TW'`) — NOT a fabricated `useSetLocale()` / `useChangeLocale()` returning a setter function.",
 				"Does NOT recommend reading vue-i18n's `useI18n()` directly inside ginjou-wired components when ginjou translation is the goal — ginjou composables are the boundary.",
-				"Cites at least one of `references/core/i18n.md`, `references/vue/i18n.md` (or their remote URLs)."
+				"Cites `references/i18n/vue.md` (or its remote URL)."
 			]
 		},
 		{
@@ -124,7 +124,7 @@
 				"Undoable delete uses `useDeleteOne` (or `useEdit`) with `mutationMode: 'undoable'` — explicitly states `useCreate` does NOT support `mutationMode`.",
 				"Acknowledges progress-notification shape (`type: 'progress'`, `key`, `timeout`, `onFinish`, `onCancel`) is what the provider must render for undoable to work — NOT a fabricated `undoable: true` toast option.",
 				"Manual notify calls use the standard message shape `{ type: 'success' | 'error', message, description?, key? }` — NOT a fabricated `{ severity, summary, detail }` (PrimeVue) or `{ title, body }` (custom).",
-				"Cites at least one of `references/core/notifications.md`, `references/vue/notifications.md` (or their remote URLs)."
+				"Cites `references/notifications/vue.md` (or its remote URL)."
 			]
 		},
 		{
@@ -139,13 +139,13 @@
 				"Pagination shape is `{ perPage: 20 }` (and optionally `current`) — NOT `pageSize` / `limit` / `take`.",
 				"Sorters are an array of `{ field, order }` (e.g. `[{ field: 'createdAt', order: 'desc' }]`) — NOT a string `'createdAt:desc'` and NOT `{ sortBy, sortOrder }`.",
 				"Explicitly explains why `useGetInfiniteList` (non-page) is preferred over `useList` here (widget vs. page controller) — does NOT recommend `useList` for an embedded widget.",
-				"Cites at least one of `references/vue/data-composables.md`, `references/vue/controllers.md`, `references/core/data-flow.md` (or their remote URLs)."
+				"Cites at least one of `references/data/vue.md`, `references/controllers/vue.md`, `references/data/behavior.md` (or their remote URLs)."
 			]
 		},
 		{
 			"id": 10,
 			"dir_name": "vue-edit-form-optimistic",
-			"prompt": "Vue 3 + REST API。`/posts/:id/edit` 編輯頁。表單用普通 reactive object，submit 時要樂觀更新（optimistic：UI 馬上更新，失敗 rollback），cancel 按鈕跳回 list。請給我完整 component 程式碼。",
+			"prompt": "Vue 3 + REST API。`/posts/:id/edit` 編輯頁。表單用普通 reactive object，submit 時要樂觀更新（optimistic：UI 馬上更新，失敗 rollback），cancel 按鈕跳回 list 並保留 list 原本的篩選 / query string。請給我完整 component 程式碼。",
 			"expected_output": "Use `useEdit({ resource, id, mutationMode: 'optimistic' })`. Read `record` reactive ref and copy into local `formData` via `watch` (with `immediate, deep`). Call `save(formData)` directly — not via params wrapper. Mention `useCreate` does NOT support `mutationMode` (only `useEdit`/update/delete do). For cancel keepQuery use `useGo` / `useNavigateTo` with `keepQuery: true` instead of built-in `redirect`.",
 			"files": [],
 			"expectations": [
@@ -155,7 +155,7 @@
 				"`mutationMode` values are `'optimistic' | 'pessimistic' | 'undoable'` — NOT a fabricated `'optimistic-update'` / `optimistic: true` flag.",
 				"Either explicitly states `useCreate` does not support `mutationMode` OR avoids ever pairing `useCreate` with `mutationMode` in this answer.",
 				"For the cancel/back navigation that preserves query string, uses `useGo` or `useNavigateTo` with `keepQuery: true` — does NOT add `keepQuery` to `useEdit`'s built-in `redirect` (which doesn't support it).",
-				"Cites at least one of `references/vue/forms.md`, `references/core/mutation-flows.md` (or their remote URLs)."
+				"Cites at least one of `references/forms/vue.md`, `references/forms/behavior.md` (or their remote URLs)."
 			]
 		}
 	]
