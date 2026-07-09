@@ -25,7 +25,7 @@ export type CreateSuccessNotifyParamsFn<
 > = (
 	data: TData,
 	props: TProps,
-) => NotifyParamsResult
+) => NotifyParamsResult | undefined
 
 export type CreateErrorNotifyParamsFn<
 	TError,
@@ -33,7 +33,7 @@ export type CreateErrorNotifyParamsFn<
 > = (
 	error: TError,
 	props: TProps,
-) => NotifyParamsResult
+) => NotifyParamsResult | undefined
 
 export function resolveSuccessNotifyParams<
 	TData extends BaseRecord,
