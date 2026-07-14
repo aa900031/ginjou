@@ -30,14 +30,14 @@ for:
 | --- | --- | --- |
 | Vue 3 | `@ginjou/vue` | Supported |
 | Nuxt 3/4 | `@ginjou/nuxt` (builds on `@ginjou/vue`) | Supported |
-| Svelte 5 | `@ginjou/svelte` | Supported |
 | React | - | Not available |
+| Svelte | - | Not available |
 | Solid | - | Not available |
 | Angular | - | Not available |
 
 When an unsupported framework is detected:
 
-1. State that Ginjou currently provides Vue, Nuxt, and Svelte adapters only.
+1. State that Ginjou currently provides Vue and Nuxt adapters only.
 2. Explain that `@ginjou/core` is framework-agnostic and defines all contracts
   (fetcher, auth, router, resource, notification, realtime, i18n).
 3. To use Ginjou with another framework, the developer must build a custom
@@ -52,8 +52,7 @@ Framework cues:
 
 - **Vue**: `@ginjou/vue`, `defineXxxContext`, `useXxx`, `App.vue`, `script setup`, `vue-router`
 - **Nuxt**: `@ginjou/nuxt`, `nuxt.config.ts`, `useAsync*`, auto-import, SSR, `app.vue`
-- **Svelte**: `@ginjou/svelte`, `App.svelte`, Svelte 5 runes such as `$derived`, `MaybeAccessor`, `svelte-spa-router`
-- **Unsupported**: React, Next.js, Remix, SvelteKit, Solid, Angular, or any `@ginjou/<framework>` that does not exist
+- **Unsupported**: React, Next.js, Remix, Svelte, SvelteKit, Solid, Angular, or any `@ginjou/<framework>` that does not exist
 
 ## Generic CRUD Intake
 
@@ -69,9 +68,9 @@ usage:
 1. Detect the problem domain: auth, authorization, router, i18n, realtime, or data+CRUD.
 2. Detect framework cues. If an unsupported framework is detected, stop normal routing and follow the Supported Framework Policy above. Only treat a framework as unsupported when it is the primary Ginjou integration target, not when mentioned incidentally in a multi-framework context.
 3. If no framework cue is present:
-   - For conceptual questions, answer with core concepts first without defaulting to Vue, Nuxt, or Svelte.
+   - For conceptual questions, answer with core concepts first without defaulting to Vue or Nuxt.
    - For implementation questions, ask one clarifying question about framework (and backend if also unknown) before proceeding.
-4. Detect the framework: Vue, Nuxt, or Svelte.
+4. Detect the framework: Vue or Nuxt.
 5. Detect the backend: REST API, Supabase, Directus, or mixed.
 6. Detect the UI surface: standard page, option-loading field, router-only helper flow, or custom UI flow.
 7. Detect whether the answer depends on route-derived resource, action, id, path resolution, or current location.
@@ -85,52 +84,49 @@ usage:
 Only recommend capabilities documented in the matching reference. Type-level
 existence without implementation confirmation is unverified.
 
-Reference files are organized into four layers:
+Reference files are organized into three layers:
 
 - `core/` - Framework-agnostic contracts, capabilities, and behavior models.
 - `vue/` - Vue 3 adapter: composables, context setup, and reactive API.
 - `nuxt/` - Nuxt 3/4 incremental layer: module setup, auto-imports, and SSR.
-- `svelte/` - Svelte 5 adapter: composables, rune-oriented reactivity, and context setup.
 
 Load core references first, then add the framework layer only when setup or API
 syntax is needed.
 
-| Problem | Core reference | Vue reference | Nuxt reference | Svelte reference | Why |
-| --- | --- | --- | --- | --- | --- |
-| Provider model, backend selection, multi-backend | [core/setup.md](./references/core/setup.md) | [vue/setup.md](./references/vue/setup.md) | [nuxt/setup.md](./references/nuxt/setup.md) | [svelte/setup.md](./references/svelte/setup.md) | Core defines the provider model; adapters define wiring. |
-| Backend: REST API | [core/backend-rest-api.md](./references/core/backend-rest-api.md) | - | - | - | Adapter is framework-agnostic. |
-| Backend: Supabase | [core/backend-supabase.md](./references/core/backend-supabase.md) | - | - | - | Adapter is framework-agnostic. |
-| Backend: Directus | [core/backend-directus.md](./references/core/backend-directus.md) | - | - | - | Adapter is framework-agnostic. |
-| Route mapping, resources, nested routes | [core/resources.md](./references/core/resources.md) | [vue/resources.md](./references/vue/resources.md) | - | - | Core defines resource model; adapter references add composables when documented. |
-| Navigation helpers, `keepQuery` / `keepHash` | [core/router.md](./references/core/router.md) | [vue/router.md](./references/vue/router.md) | [nuxt/router.md](./references/nuxt/router.md) | - | Core defines contract; adapter references add hooks when documented. |
-| List, show pages, option-loading | [core/controllers.md](./references/core/controllers.md) | [vue/controllers.md](./references/vue/controllers.md) | - | - | Core defines patterns; adapter references add controller APIs when documented. |
-| Create, edit pages, mutation modes | [core/mutation-flows.md](./references/core/mutation-flows.md) | [vue/forms.md](./references/vue/forms.md) | - | - | Core defines flows; adapter references add ergonomics when documented. |
-| Non-page queries, mutations, widgets, dialogs | [core/data-flow.md](./references/core/data-flow.md) | [vue/data-composables.md](./references/vue/data-composables.md) | - | [svelte/data-composables.md](./references/svelte/data-composables.md) | Core defines the model; adapter references add composables. |
-| Auth lifecycle | [core/authentication.md](./references/core/authentication.md) | [vue/authentication.md](./references/vue/authentication.md) | - | - | Core defines the contract. |
-| Access control | [core/authorization.md](./references/core/authorization.md) | [vue/authorization.md](./references/vue/authorization.md) | - | - | Core defines the contract. |
-| Notification wiring, undoable | [core/notifications.md](./references/core/notifications.md) | [vue/notifications.md](./references/vue/notifications.md) | - | - | Core defines the contract. |
-| Realtime subscriptions, fallback | [core/realtime.md](./references/core/realtime.md) | [vue/realtime.md](./references/vue/realtime.md) | - | - | Core defines the contract. |
-| Translation, locale | [core/i18n.md](./references/core/i18n.md) | [vue/i18n.md](./references/vue/i18n.md) | - | - | Core defines the contract. |
-| Nuxt SSR, async composables | - | - | [nuxt/ssr.md](./references/nuxt/ssr.md) | - | Nuxt-only incremental layer. |
+| Problem | Core reference | Vue reference | Nuxt reference | Why |
+| --- | --- | --- | --- | --- |
+| Provider model, backend selection, multi-backend | [core/setup.md](./references/core/setup.md) | [vue/setup.md](./references/vue/setup.md) | [nuxt/setup.md](./references/nuxt/setup.md) | Core defines the provider model; adapters define wiring. |
+| Backend: REST API | [core/backend-rest-api.md](./references/core/backend-rest-api.md) | - | - | Adapter is framework-agnostic. |
+| Backend: Supabase | [core/backend-supabase.md](./references/core/backend-supabase.md) | - | - | Adapter is framework-agnostic. |
+| Backend: Directus | [core/backend-directus.md](./references/core/backend-directus.md) | - | - | Adapter is framework-agnostic. |
+| Route mapping, resources, nested routes | [core/resources.md](./references/core/resources.md) | [vue/resources.md](./references/vue/resources.md) | - | Core defines resource model; Vue adds composables. |
+| Navigation helpers, `keepQuery` / `keepHash` | [core/router.md](./references/core/router.md) | [vue/router.md](./references/vue/router.md) | [nuxt/router.md](./references/nuxt/router.md) | Core defines contract; adapters define hooks. |
+| List, show pages, option-loading | [core/controllers.md](./references/core/controllers.md) | [vue/controllers.md](./references/vue/controllers.md) | - | Core defines patterns; Vue adds `useList`, `useSelect`, and related APIs. |
+| Create, edit pages, mutation modes | [core/mutation-flows.md](./references/core/mutation-flows.md) | [vue/forms.md](./references/vue/forms.md) | - | Core defines flows; Vue adds `useCreate`, `useEdit`, and mutation ergonomics. |
+| Non-page queries, mutations, widgets, dialogs | [core/data-flow.md](./references/core/data-flow.md) | [vue/data-composables.md](./references/vue/data-composables.md) | - | Core defines the model; Vue adds composables. |
+| Auth lifecycle | [core/authentication.md](./references/core/authentication.md) | [vue/authentication.md](./references/vue/authentication.md) | - | Core defines the contract; Vue adds composables. |
+| Access control | [core/authorization.md](./references/core/authorization.md) | [vue/authorization.md](./references/vue/authorization.md) | - | Core defines the contract. |
+| Notification wiring, undoable | [core/notifications.md](./references/core/notifications.md) | [vue/notifications.md](./references/vue/notifications.md) | - | Core defines the contract. |
+| Realtime subscriptions, fallback | [core/realtime.md](./references/core/realtime.md) | [vue/realtime.md](./references/vue/realtime.md) | - | Core defines the contract. |
+| Translation, locale | [core/i18n.md](./references/core/i18n.md) | [vue/i18n.md](./references/vue/i18n.md) | - | Core defines the contract. |
+| Nuxt SSR, async composables | - | - | [nuxt/ssr.md](./references/nuxt/ssr.md) | Nuxt-only incremental layer. |
 
 ## Reference Chains
 
 | Situation | Read order | Guard rail |
 | --- | --- | --- |
-| Pure concept or architecture | matching core reference | Do not default to Vue, Nuxt, or Svelte unless setup or API syntax is required. |
+| Pure concept or architecture | matching core reference | Do not default to Vue or Nuxt unless setup or API syntax is required. |
 | Vue implementation | matching core reference -> matching vue reference | Start from core contracts, then add Vue context setup or composable syntax. |
 | Nuxt implementation | matching core reference -> matching vue reference -> matching nuxt reference | Nuxt is incremental on top of Vue, so do not skip the Vue layer. |
-| Svelte implementation | matching core reference -> matching svelte reference | Start from core contracts, then add Svelte context setup or rune syntax only when documented in the Svelte references. |
 | Unsupported framework | matching core reference -> Supported Framework Policy | Use core architecture plus custom-adapter guidance without inventing framework APIs. |
 
 ## Core Guard Rails
 
 - In the first sentence, name the most likely Ginjou pattern or reference path.
-- Do not default to Vue, Nuxt, or Svelte when framework is unspecified. Answer with core concepts first.
+- Do not default to Vue when framework is unspecified. Answer with core concepts first.
 - If one routing branch is still ambiguous, ask one minimal clarifying question; combine framework and backend only when both are needed for implementation guidance.
 - Separate standard CRUD pages, option-loading fields, router-only helpers, and custom UI flows before naming APIs.
-- Load core references first. Add Vue only when reactive API or context setup matters. Add Svelte only when rune syntax, `MaybeAccessor`, or context setup matters. Add Nuxt only when module setup, auto-imports, or SSR behavior matters.
-- When Svelte is selected and no matching Svelte adapter reference exists, stay on core contracts plus confirmed `@ginjou/svelte` references. Do not invent undocumented Svelte-specific helpers.
+- Load core references first. Add Vue only when reactive API or context setup matters. Add Nuxt only when module setup, auto-imports, or SSR behavior matters.
 - Do not invent hooks, packages, or setup patterns for unsupported frameworks.
 - Nuxt is an incremental layer on top of Vue, not a separate framework branch.
 - Include backend-specific safety or capability checks before recommending syntax when adapter behavior changes the answer.
@@ -148,5 +144,5 @@ Every answer should:
 2. State the hard prerequisite or boundary, such as root setup, route mapping, notification wiring, locale completeness, or transport availability.
 3. Include backend-specific safety output before recommending a pattern when adapter behavior matters.
 4. Provide a fallback when the required capability is unavailable or unconfirmed.
-5. When an unsupported framework is in scope, follow the Supported Framework Policy: state Vue/Nuxt/Svelte-only status, explain core is framework-agnostic, and never fabricate non-existent hooks or packages.
+5. When an unsupported framework is in scope, follow the Supported Framework Policy: state Vue/Nuxt-only status, explain core is framework-agnostic, and never fabricate non-existent hooks or packages.
 6. Ask at most one clarifying question, and only after the routing chain and current safety boundaries are already clear.

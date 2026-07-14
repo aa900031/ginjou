@@ -9,7 +9,6 @@ Use this reference for non-page reads and writes in Vue. See [Data](https://ginj
 | `useGetList` | List reads without page-controller state | `records`, `data`, `isFetching` |
 | `useGetOne` | Single-record reads | `record`, `data`, `isFetching` |
 | `useGetMany` | Multi-id reads | `records`, `data`, `isFetching` |
-| `useGetManyByOne` | Multi-id reads backed by per-id `getOne` queries | `records`, `data`, `isFetching` |
 | `useGetInfiniteList` | Infinite reads without list-controller state | `records`, `fetchNextPage`, `hasNextPage` |
 | `useCustom` | Non-resource GET flows | `record` or `data`, `isFetching` |
 
@@ -26,42 +25,7 @@ const { records } = useGetList({
 
 > ⚠️ **Warning:** For non-page data queries (widgets, dialogs, dashboards), use `useGetList` — not `useSelect` (option-loading only) or `useList` (page controller).
 
-All query composables forward `queryOptions`. `useGetManyByOne` also accepts a function form; Ginjou calls it once per id with `{ id, index }` and uses the return value as that child `getOne` query's options.
-
-## `useGetManyByOne`
-
-`useGetManyByOne()` fans a known id list into one `getOne` query per id, then combines those child queries into one result with `records`.
-
-Use it when shared related records such as users or authors can appear under multiple parent records and existing single-record cache entries should be reused.
-
-> ⚠️ **Warning:** Do not describe `useGetManyByOne` as if it called `fetcher.getMany`. It is a per-id `getOne` fan-out helper.
-
-```ts
-import { useGetList, useGetManyByOne } from '@ginjou/vue'
-import { computed } from 'vue'
-
-const postsQuery = useGetList<{
-	id: string
-	userId: string
-}>({
-	resource: 'posts',
-})
-
-const userIds = computed(() =>
-	Array.from(new Set((postsQuery.records.value ?? []).map(post => post.userId))),
-)
-
-const usersQuery = useGetManyByOne<{
-	id: string
-	name: string
-}>({
-	resource: 'users',
-	ids: userIds,
-	queryOptions: ({ index }) => ({
-		staleTime: index === 0 ? 60_000 : 5_000,
-	}),
-})
-```
+All query composables forward `queryOptions`.
 
 ## Mutation Composables
 
@@ -136,7 +100,6 @@ REST API and Directus support custom endpoints; the official Supabase adapter do
 ## Rules
 
 - Use `useGetList`, `useGetOne`, `useGetMany`, and `useGetInfiniteList` for non-page reads.
-- Use `useGetManyByOne` when known ids should stay on per-record `getOne` cache entries or need per-id `queryOptions`.
 - Use `useCreateOne`, `useUpdateOne`, and `useDeleteOne` for non-page CRUD mutations.
 - Use `useCustom` and `useCustomMutation` only when the active backend adapter supports custom endpoints.
 - Prefer batch composables over manual loops for bulk operations.
