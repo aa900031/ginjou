@@ -365,7 +365,7 @@ const aggregExecGetMany = createAggregrateFn(
 				resolves: [],
 			}
 			obj[key].args.push(args)
-			obj[key].resolves.push(allResolves[index])
+			obj[key].resolves.push(allResolves[index]!)
 
 			return obj
 		}, {} as ResourceMap)
@@ -382,7 +382,9 @@ const aggregExecGetMany = createAggregrateFn(
 			).filter(Boolean)
 
 			const args = value.args[0]
-			args[0] = { ...args[0], ids }
+			if (!args)
+				throw new Error('Panic')
+			args[0] = { ...args?.[0], ids }
 
 			result.push([
 				args,

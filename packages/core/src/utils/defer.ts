@@ -1,7 +1,7 @@
 import type { Promisable } from 'type-fest'
 
 export class AbortDefer extends Error {
-	name = 'AbortDefer'
+	override name = 'AbortDefer'
 }
 
 export interface DeferResult<TResult> {

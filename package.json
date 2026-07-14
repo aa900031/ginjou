@@ -19,7 +19,8 @@
 		"dev:nuxt": "turbo run dev --filter=@ginjou/nuxt",
 		"dev:docs": "turbo run dev --filter=@ginjou/docs",
 		"release:pkgs": "turbo run release --concurrency=1 --filter='./packages/*'",
-		"lint": "eslint . --cache --cache-location ./node_modules/.cache/eslint"
+		"lint": "eslint . --cache --cache-location ./node_modules/.cache/eslint",
+		"typecheck:pkgs": "turbo run typecheck --filter='./packages/*'"
 	},
 	"devDependencies": {
 		"@aa900031/eslint-config": "^6.0.0",
@@ -32,8 +33,10 @@
 		"npm-run-all2": "^9.0.1",
 		"release-it": "^20.0.1",
 		"sirv-cli": "^3.0.1",
+		"svelte-check": "^4.7.2",
 		"turbo": "^2.9.14",
 		"typescript": "^5.9.3",
-		"vitest": "^4.1.7"
+		"vitest": "^4.1.7",
+		"vue-tsc": "^3.3.7"
 	}
 }

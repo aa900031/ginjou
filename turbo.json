@@ -20,6 +20,15 @@
 			"cache": false,
 			"persistent": true
 		},
+		"typecheck": {
+			"dependsOn": ["^typecheck"],
+			"inputs": [
+				"src/**/*",
+				"tsconfig.json",
+				"tsconfig.*.json"
+			],
+			"outputs": []
+		},
 		"release": {
 			"dependsOn": ["^release"],
 			"cache": false

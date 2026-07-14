@@ -44,6 +44,8 @@
 		"build:module-prepare": "nuxt-module-build prepare",
 		"dev:playground": "nuxi dev playground",
 		"dev": "run-s --silent build:prepare dev:playground",
+		"typecheck": "run-s --silent build:prepare typecheck:run",
+		"typecheck:run": "vue-tsc -p tsconfig.types.json",
 		"release": "release-it"
 	},
 	"peerDependencies": {

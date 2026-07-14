@@ -42,6 +42,7 @@
 	},
 	"scripts": {
 		"build": "tsdown",
+		"typecheck": "tsc -p tsconfig.types.json",
 		"release": "release-it"
 	},
 	"peerDependencies": {

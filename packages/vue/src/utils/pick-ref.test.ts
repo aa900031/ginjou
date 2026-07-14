@@ -44,7 +44,7 @@ describe('pickRef', () => {
 			current: 1,
 		})
 		const result = pickRef(props, ({ prop, prev }) => {
-			return (prev ?? 0) + prop.current
+			return (prev as number | undefined ?? 0) + prop.current
 		})
 
 		expect(unref(result)).toBe(1)
