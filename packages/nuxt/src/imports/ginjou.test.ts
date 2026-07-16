@@ -21,6 +21,7 @@ const ginjouComposableNames = [
 	'useGetInfiniteList',
 	'useGetList',
 	'useGetMany',
+	'useGetManyByOne',
 	'useGetOne',
 	'useInfiniteList',
 	'useList',

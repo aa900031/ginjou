@@ -20,6 +20,7 @@ const composables = [
 	'useGetInfiniteList',
 	'useGetList',
 	'useGetMany',
+	'useGetManyByOne',
 	'useGetOne',
 	// 'useGo',
 	// 'useI18nContext',

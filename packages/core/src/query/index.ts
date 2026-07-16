@@ -13,15 +13,17 @@ export type {
 export * as GetInfiniteList from './get-infinite-list'
 export * as GetList from './get-list'
 export * as GetMany from './get-many'
+export * as GetManyByOne from './get-many-by-one'
 export * as GetOne from './get-one'
+
 export type {
 	InvalidatesProps,
 	InvalidateTargetType,
 } from './invalidate'
-
 export {
 	InvalidateTarget,
 } from './invalidate'
+
 export type {
 	MutationModeProps,
 	MutationModeValues,
@@ -41,15 +43,14 @@ export type {
 	OptimisticUpdateProps,
 	OptimisticUpdateRule,
 } from './optimistic-update'
-
 export type {
 	CreateSubscribeCallbackProps,
 	GetSubscribeChannelProps,
 } from './realtime'
+
 export {
 	createSubscribeCallback,
 	getSubscribeChannel,
 } from './realtime'
-
 export * as UpdateOne from './update'
 export * as UpdateMany from './update-many'
