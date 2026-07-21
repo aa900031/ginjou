@@ -26,12 +26,12 @@
 		"@storybook/react-vite": "^10.4.1",
 		"@types/react": "^19.2.15",
 		"@types/react-dom": "^19.2.3",
-		"@vitejs/plugin-react": "^5.2.0",
+		"@vitejs/plugin-react": "^6.0.3",
 		"react": "^19.2.6",
 		"react-dom": "^19.2.6",
 		"remark-gfm": "^4.0.1",
 		"storybook": "^10.4.1",
-		"vite": "^7.3.3",
+		"vite": "^8.1.5",
 		"wait-on": "^9.0.10"
 	}
 }
