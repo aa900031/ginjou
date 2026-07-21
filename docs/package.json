@@ -11,7 +11,7 @@
 		"@barzhsieh/nuxt-content-mermaid": "^2.2.3",
 		"better-sqlite3": "^12.10.0",
 		"docus": "^5.11.0",
-		"nuxt": "^4.4.6",
+		"nuxt": "^4.5.0",
 		"tailwindcss": "^4.3.0"
 	}
 }
