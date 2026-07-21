@@ -54,7 +54,7 @@
 	"dependencies": {
 		"@ginjou/vue": "workspace:^",
 		"@ginjou/with-vue-router": "workspace:^",
-		"local-pkg": "^1.1.2"
+		"local-pkg": "^1.2.1"
 	},
 	"devDependencies": {
 		"@ginjou/vite-config": "workspace:*",
