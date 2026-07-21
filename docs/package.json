@@ -9,9 +9,10 @@
 	},
 	"dependencies": {
 		"@barzhsieh/nuxt-content-mermaid": "^2.2.3",
-		"better-sqlite3": "^12.10.0",
-		"docus": "^5.11.0",
+		"better-sqlite3": "^12.11.1",
+		"docus": "^5.12.3",
+		"h3": "1.15.11",
 		"nuxt": "^4.5.0",
-		"tailwindcss": "^4.3.0"
+		"tailwindcss": "^4.3.3"
 	}
 }

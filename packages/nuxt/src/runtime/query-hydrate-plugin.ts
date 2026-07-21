@@ -1,4 +1,7 @@
 import type { DehydratedState } from '@tanstack/vue-query'
+// Ignore TS2742 errors.
+// eslint-disable-next-line unused-imports/no-unused-imports
+import type { ObjectPlugin } from '#app'
 import { getQueryClients, setQueryClientDehydrateState } from '@ginjou/vue'
 import { dehydrate } from '@tanstack/vue-query'
 import { defineNuxtPlugin, useState } from '#imports'
