@@ -11,10 +11,10 @@
 		"./args": "./src/args.ts"
 	},
 	"dependencies": {
-		"@faker-js/faker": "^10.4.0",
+		"@faker-js/faker": "^10.5.0",
 		"@ginjou/core": "workspace:^",
-		"@msw/data": "^1.1.6",
-		"msw": "^2.14.6",
+		"@msw/data": "^1.1.7",
+		"msw": "^2.15.0",
 		"msw-storybook-addon": "2.0.7",
 		"zod": "^4.4.3"
 	},
