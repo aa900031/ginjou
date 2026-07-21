@@ -1,9 +1,13 @@
 name: Release
 
 on:
+  # NOTE: pushing >3 tags in one `git push` fires ZERO tag events (GitHub limitation),
+  # so releases are triggered explicitly via workflow_dispatch (see scripts/release).
+  # The tag trigger is kept as a fallback for single-package releases (<=3 tags).
   push:
     tags:
       - '\@ginjou/*\@[0-9]+\.[0-9]+\.[0-9]+*'
+  workflow_dispatch:
 
 jobs:
   publish-npm:
