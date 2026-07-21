@@ -104,5 +104,5 @@ function isAuthError(error: unknown): boolean {
 	if (!isClientError(error))
 		return false
 
-	return !!error.errors.find(err => AuthErrors.includes(err.extensions.code))
+	return error.errors.some(err => AuthErrors.includes(err.extensions.code))
 }

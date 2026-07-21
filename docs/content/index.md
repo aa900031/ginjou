@@ -4,6 +4,8 @@ seo:
   description: Ginjou organizes common data-driven workflows into a flexible core that's easy to start with and adapt as your app grows.
 ---
 
+<!-- eslint-disable markdown/no-missing-atx-heading-space -->
+
 ::u-page-hero
 ---
 orientation: horizontal

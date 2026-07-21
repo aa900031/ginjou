@@ -9,17 +9,17 @@ export function withAccessors<
 ): Merge<TBase, AccessorValues<TAccessor>> {
 	return new Proxy(base, {
 		get(target, prop, receiver) {
-			if (Object.prototype.hasOwnProperty.call(accessors, prop))
+			if (Object.hasOwn(accessors, prop))
 				return callGetter(accessors[prop as string])
 			return Reflect.get(target, prop, receiver)
 		},
 		set(target, prop, value, receiver) {
-			if (Object.prototype.hasOwnProperty.call(accessors, prop))
+			if (Object.hasOwn(accessors, prop))
 				return callSetter(accessors[prop as string], value)
 			return Reflect.set(target, prop, value, receiver)
 		},
 		has(target, prop) {
-			if (Object.prototype.hasOwnProperty.call(accessors, prop))
+			if (Object.hasOwn(accessors, prop))
 				return true
 			return Reflect.has(target, prop)
 		},

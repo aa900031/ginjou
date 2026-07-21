@@ -1,5 +1,5 @@
-import { useNuxtApp } from '#imports'
 import { getCurrentInstance, onServerPrefetch } from 'vue'
+import { useNuxtApp } from '#imports'
 
 export type AsyncResult<
 	T extends Record<string, unknown>,

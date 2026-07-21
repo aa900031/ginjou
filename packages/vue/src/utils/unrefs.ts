@@ -11,7 +11,7 @@ export function unrefs<T extends Record<string, MaybeRef<any>>>(
 ): UnwrapRefs<T> {
 	const result = {} as UnwrapRefs<T>
 	for (const key in value) {
-		if (Object.prototype.hasOwnProperty.call(value, key))
+		if (Object.hasOwn(value, key))
 			result[key] = unref(value[key])
 	}
 
