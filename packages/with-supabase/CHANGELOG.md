@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.11
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/with-supabase@0.1.0-beta.10...${npm.name}@0.1.0-beta.11)
+
+### 💅 Refactors
+
+-  ⚠️ Resource & controller (#119) ([ad718e9](https://github.com/aa900031/ginjou/commit/ad718e94f14c2f9a0596cb3117ab69b1efaee529))
+
+### 🏡 Chore
+
+-  Add typecheck for pkgs ([b4055fc](https://github.com/aa900031/ginjou/commit/b4055fc01fbfa352c7fc10c32c5a397c686ab968))
+-  **deps:** Update none major deps ([00445f3](https://github.com/aa900031/ginjou/commit/00445f3788cfe64bfbce7b12e830693c381bd81b))
+
+
+### ⚠️ Breaking Changes
+
+-  resource & controller (#119) ([ad718e9](https://github.com/aa900031/ginjou/commit/ad718e94f14c2f9a0596cb3117ab69b1efaee529))
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.10
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/with-supabase@0.1.0-beta.9...${npm.name}@0.1.0-beta.10)
