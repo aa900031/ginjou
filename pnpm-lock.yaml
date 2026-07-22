@@ -66,7 +66,7 @@ importers:
         specifier: ^5.12.3
         version: 5.12.3(e8c4f30e2c92773fe6677d800d50eeb1)
       h3:
-        specifier: 1.15.11
+        specifier: ^1.15.11
         version: 1.15.11
       nuxt:
         specifier: ^4.5.0
