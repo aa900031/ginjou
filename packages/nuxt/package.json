@@ -54,7 +54,8 @@
 	"dependencies": {
 		"@ginjou/vue": "workspace:^",
 		"@ginjou/with-vue-router": "workspace:^",
-		"local-pkg": "^1.2.1"
+		"local-pkg": "^1.2.1",
+		"verkit": "^0.1.2"
 	},
 	"devDependencies": {
 		"@ginjou/vite-config": "workspace:*",
@@ -62,6 +63,7 @@
 		"@nuxt/module-builder": "^1.0.2",
 		"@nuxt/schema": "^4.5.0",
 		"@nuxt/test-utils": "^4.0.3",
+		"h3": "^1.15.11",
 		"nuxt": "^4.5.0"
 	}
 }

@@ -13,8 +13,7 @@ export default defineNuxtPlugin({
 
 		if (import.meta.server) {
 			nuxt.hooks.hook('app:rendered', () => {
-				const clients = getQueryClients()
-
+				const clients = getQueryClients(nuxt.vueApp)
 				dehydratedStateMap.value = Object.fromEntries(
 					[...clients].map(([key, client]) => [key, dehydrate(client)]),
 				)
@@ -23,7 +22,7 @@ export default defineNuxtPlugin({
 
 		if (import.meta.client && dehydratedStateMap.value != null) {
 			for (const [key, value] of Object.entries(dehydratedStateMap.value)) {
-				setQueryClientDehydrateState(key, value)
+				setQueryClientDehydrateState(nuxt.vueApp, key, value)
 			}
 		}
 	},
