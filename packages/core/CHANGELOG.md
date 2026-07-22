@@ -3,6 +3,39 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.20
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/core@0.1.0-beta.19...${npm.name}@0.1.0-beta.20)
+
+### 🚀 Enhancements
+
+-  **vue,svelte:** UseGetManyByOne (#124) ([32140b1](https://github.com/aa900031/ginjou/commit/32140b1ec252a5517e54803ed3add5b170fe8b7d))
+
+### 🩹 Fixes
+
+-  Create notify params result can be undefined ([06b13e9](https://github.com/aa900031/ginjou/commit/06b13e98342d32b1cf6f568df57f7acd5b7da943))
+-  None reactive query enabled (#123) ([0659d0c](https://github.com/aa900031/ginjou/commit/0659d0c31d9e2f675bf4d3347bdcd3ac81dd3d67))
+
+### 💅 Refactors
+
+-  ⚠️ Resource & controller (#119) ([ad718e9](https://github.com/aa900031/ginjou/commit/ad718e94f14c2f9a0596cb3117ab69b1efaee529))
+
+### 🏡 Chore
+
+-  Add typecheck for pkgs ([b4055fc](https://github.com/aa900031/ginjou/commit/b4055fc01fbfa352c7fc10c32c5a397c686ab968))
+-  **deps:** Update none major deps ([00445f3](https://github.com/aa900031/ginjou/commit/00445f3788cfe64bfbce7b12e830693c381bd81b))
+-  **deps:** Update tanstack query and lib ecosystem ([c037d8d](https://github.com/aa900031/ginjou/commit/c037d8d43fcc33943300250ca97624fe46e7d1c3))
+-  **deps:** Update tanstack query serials ([5a0907d](https://github.com/aa900031/ginjou/commit/5a0907d5bc5bb5f0a3177a4fb1095a612f2bf0ec))
+
+
+### ⚠️ Breaking Changes
+
+-  resource & controller (#119) ([ad718e9](https://github.com/aa900031/ginjou/commit/ad718e94f14c2f9a0596cb3117ab69b1efaee529))
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.19
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/core@0.1.0-beta.18...${npm.name}@0.1.0-beta.19)
