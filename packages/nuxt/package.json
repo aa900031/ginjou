@@ -63,6 +63,7 @@
 		"@nuxt/module-builder": "^1.0.2",
 		"@nuxt/schema": "^4.5.0",
 		"@nuxt/test-utils": "^4.0.3",
+		"h3": "^1.15.11",
 		"nuxt": "^4.5.0"
 	}
 }
