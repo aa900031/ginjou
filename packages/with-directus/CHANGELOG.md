@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.14
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/with-directus@0.1.0-beta.13...${npm.name}@0.1.0-beta.14)
+
+### 🏡 Chore
+
+-  Add typecheck for pkgs ([b4055fc](https://github.com/aa900031/ginjou/commit/b4055fc01fbfa352c7fc10c32c5a397c686ab968))
+-  **deps:** Update eslint and config ([7f4baff](https://github.com/aa900031/ginjou/commit/7f4baffbffac2eca3fec56ba4436c406030252bc))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.13
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/with-directus@0.1.0-beta.12...${npm.name}@0.1.0-beta.13)
