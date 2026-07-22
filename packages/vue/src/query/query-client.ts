@@ -1,26 +1,37 @@
 import type { DehydratedState, QueryClientConfig } from '@tanstack/vue-query'
 import type { Simplify } from 'type-fest'
-import type { InjectionKey } from 'vue-demi'
+import type { App, InjectionKey } from 'vue-demi'
 import { hydrate, QueryClient } from '@tanstack/vue-query'
 import { injectLocal, provideLocal, tryOnBeforeMount, tryOnUnmounted } from '@vueuse/shared'
+import { getCurrentInstance } from 'vue-demi'
+import { useStableId } from '../utils/id'
+
+interface AppState {
+	queryClient: QueryClient | undefined
+	dehydratedState: DehydratedState | undefined
+}
 
 const KEY: InjectionKey<QueryClient> = Symbol('@ginjou/query-client')
-const queryClientMap = new Map<string, QueryClient>()
-const dehydratedStateMap = new Map<string, DehydratedState>()
+const apps = new WeakMap<App, Map<string, AppState>>()
 
 export function defineQueryClientContext(
 	value?: QueryClientConfig | QueryClient,
-	key = 'default',
 ): QueryClient {
+	const instance = getCurrentInstance()
+	if (!instance)
+		throw new Error('defineQueryClientContext() is called when there is no active component')
+
+	const key = useStableId()
+	const state = getState(instance.appContext.app, key)
 	value = createQueryClient(value)
 
-	const dehydratedState = dehydratedStateMap.get(key)
+	const dehydratedState = state.dehydratedState
 	if (dehydratedState) {
 		hydrate(value, dehydratedState)
-		dehydratedStateMap.delete(key)
+		state.dehydratedState = undefined
 	}
 
-	queryClientMap.set(key, value)
+	state.queryClient = value
 
 	provideLocal(KEY, value)
 	provideLocal('VUE_QUERY_CLIENT', value)
@@ -28,7 +39,7 @@ export function defineQueryClientContext(
 	tryOnBeforeMount(() => value.mount(), true)
 	tryOnUnmounted(() => {
 		value.unmount()
-		queryClientMap.delete(key)
+		apps.get(instance.appContext.app)?.delete(key)
 	})
 
 	return value
@@ -55,15 +66,25 @@ export function useQueryClientContext(
 	return value
 }
 
-export function getQueryClients(): Map<string, QueryClient> {
-	return new Map([...queryClientMap])
+export function getQueryClients(app: App): Map<string, QueryClient> {
+	const states = apps.get(app)
+	const result = new Map<string, QueryClient>()
+	if (!states)
+		return result
+	for (const [key, value] of states) {
+		if (value.queryClient)
+			result.set(key, value.queryClient)
+	}
+	return result
 }
 
 export function setQueryClientDehydrateState(
+	app: App,
 	key: string,
 	value: DehydratedState,
 ): void {
-	dehydratedStateMap.set(key, value)
+	const state = getState(app, key)
+	state.dehydratedState = value
 }
 
 function createQueryClient(
@@ -77,4 +98,26 @@ function createQueryClient(
 		return new QueryClient(value)
 
 	throw new Error(`[@ginjou/vue] Unsupported query client context value: ${String(value)}`)
+}
+
+function getState(
+	vueApp: App,
+	key: string,
+): AppState {
+	let states = apps.get(vueApp)
+	if (!states) {
+		states = new Map()
+		apps.set(vueApp, states)
+	}
+
+	let state = states.get(key)
+	if (!state) {
+		state = {
+			queryClient: undefined,
+			dehydratedState: undefined,
+		}
+		states.set(key, state)
+	}
+
+	return state
 }
