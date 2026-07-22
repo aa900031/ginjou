@@ -3,6 +3,45 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.16
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/nuxt@0.1.0-beta.15...${npm.name}@0.1.0-beta.16)
+
+### 🚀 Enhancements
+
+-  **vue,svelte:** UseGetManyByOne (#124) ([32140b1](https://github.com/aa900031/ginjou/commit/32140b1ec252a5517e54803ed3add5b170fe8b7d))
+
+### 🩹 Fixes
+
+-  **vue,nuxt:** Share same state at per request on server side (#126) ([506a615](https://github.com/aa900031/ginjou/commit/506a615e8a7c141811969450a9562c165e5c29f0))
+
+### 💅 Refactors
+
+-  ⚠️ Resource & controller (#119) ([ad718e9](https://github.com/aa900031/ginjou/commit/ad718e94f14c2f9a0596cb3117ab69b1efaee529))
+
+### 📖 Documentation
+
+-  Controller replace resource ([d65485e](https://github.com/aa900031/ginjou/commit/d65485efa198d8b481cfbfca92c1aa08afaa5a7d))
+
+### 🏡 Chore
+
+-  Add typecheck for pkgs ([b4055fc](https://github.com/aa900031/ginjou/commit/b4055fc01fbfa352c7fc10c32c5a397c686ab968))
+-  **deps:** Update eslint and config ([7f4baff](https://github.com/aa900031/ginjou/commit/7f4baffbffac2eca3fec56ba4436c406030252bc))
+-  **deps:** Update none major deps ([00445f3](https://github.com/aa900031/ginjou/commit/00445f3788cfe64bfbce7b12e830693c381bd81b))
+-  **deps:** Update nuxt and docus ([3be74d1](https://github.com/aa900031/ginjou/commit/3be74d1e364b381e29caf55a616d25b87fa10447))
+-  **deps:** Update tanstack query and lib ecosystem ([c037d8d](https://github.com/aa900031/ginjou/commit/c037d8d43fcc33943300250ca97624fe46e7d1c3))
+-  **deps:** Upgrade docus, nuxt to latset version ([d67df68](https://github.com/aa900031/ginjou/commit/d67df6832696189d82e66fba099453bb2c48b5e5))
+-  **deps:** Upgrade infra deps (#121) ([9342a69](https://github.com/aa900031/ginjou/commit/9342a698d718dcc76872aceef43e9e8c6ef6bcb5))
+
+
+### ⚠️ Breaking Changes
+
+-  resource & controller (#119) ([ad718e9](https://github.com/aa900031/ginjou/commit/ad718e94f14c2f9a0596cb3117ab69b1efaee529))
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.15
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/nuxt@0.1.0-beta.14...${npm.name}@0.1.0-beta.15)
