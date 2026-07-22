@@ -7,6 +7,8 @@ const KEY = Symbol('@ginjou/use-id')
 
 type UseIdFn = () => string
 
+const defaultUseId: UseIdFn = isGreaterOrEqual(version, '3.5.0') ? useId : useAppId
+
 export function defineUseId(
 	fn: UseIdFn,
 ): UseIdFn {
@@ -14,40 +16,20 @@ export function defineUseId(
 	return fn
 }
 
-export const useStableId: (
-	prefix?: string,
-) => string = isGreaterOrEqual(version, '3.5.0')
-	? (
-			prefix = 'ginjou',
-		) => {
-			let id: string
-
-			const injected = injectLocal<UseIdFn | undefined>(KEY, undefined)
-			if (injected) {
-				id = injected()
-			}
-			else {
-				id = useId()
-			}
-			return prefix ? `${prefix}-${id}` : id
-		}
-	: (
-			prefix = 'ginjou',
-		) => {
-			let id: string
-
-			const injected = injectLocal<UseIdFn | undefined>(KEY, undefined)
-			if (injected) {
-				id = injected()
-			}
-			else {
-				id = useAppId()
-			}
-
-			return prefix ? `${prefix}-${id}` : id
-		}
+export function useStableId(
+	prefix = 'ginjou',
+): string {
+	let id: string
+	const injected = injectLocal<UseIdFn | undefined>(KEY, undefined)
+	if (injected != null)
+		id = injected()
+	else
+		id = defaultUseId()
+	return prefix ? `${prefix}-${id}` : id
+}
 
 const AppIdCount = new WeakMap<App, number>()
+
 function useAppId(): string {
 	const instance = getCurrentInstance()
 	if (!instance)
