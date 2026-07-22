@@ -203,6 +203,9 @@ importers:
       '@nuxt/ui':
         specifier: ^4.10.0
         version: 4.10.0(3a76f2c26e6b699c748b37dbe94c5e8c)
+      h3:
+        specifier: ^1.15.11
+        version: 1.15.11
       nuxt:
         specifier: ^4.5.0
         version: 4.5.0(@babel/plugin-syntax-jsx@7.29.7(@babel/core@7.29.7(supports-color@10.2.2)))(@babel/plugin-syntax-typescript@7.29.7(@babel/core@7.29.7(supports-color@10.2.2)))(@modelcontextprotocol/sdk@1.29.0(supports-color@10.2.2)(zod@4.4.3))(@parcel/watcher@2.6.0)(@types/node@24.13.3)(@vue/compiler-sfc@3.5.40)(better-sqlite3@12.11.1)(crossws@0.4.10(srvx@0.11.22))(db0@0.3.4(better-sqlite3@12.11.1))(esbuild@0.28.1)(eslint@10.7.0(jiti@2.7.0)(supports-color@10.2.2))(ioredis@5.11.1(supports-color@10.2.2))(lightningcss@1.33.0)(magicast@0.5.3)(meow@13.2.0)(optionator@0.9.4)(oxc-parser@0.140.0)(rollup-plugin-visualizer@7.0.1(rolldown@1.2.0)(rollup@4.62.2))(rollup@4.62.2)(srvx@0.11.22)(supports-color@10.2.2)(terser@5.49.0)(typescript@5.9.3)(vite@8.1.5(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.0)(yaml@2.9.0))(vue-tsc@3.3.7(typescript@5.9.3))(yaml@2.9.0)

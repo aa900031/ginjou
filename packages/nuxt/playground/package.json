@@ -13,6 +13,7 @@
 		"@ginjou/vue": "workspace:^",
 		"@ginjou/with-rest-api": "workspace:^",
 		"@nuxt/ui": "^4.10.0",
+		"h3": "^1.15.11",
 		"nuxt": "^4.5.0",
 		"tailwindcss": "^4.3.3"
 	}
