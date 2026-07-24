@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Post } from './api/posts'
+import type { Post } from '@ginjou/storybook-shared/mock-data'
 import { useInfiniteList } from '@ginjou/vue'
 import Button from './components/Button.vue'
 import FieldLabel from './components/FieldLabel.vue'

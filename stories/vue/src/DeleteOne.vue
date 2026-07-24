@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { MutationModeValues } from '@ginjou/core'
-import type { Post } from './api/posts'
+import type { Post } from '@ginjou/storybook-shared/mock-data'
 import { useDeleteOne, useList } from '@ginjou/vue'
 import Button from './components/Button.vue'
 import LocaleBadge from './components/LocaleBadge.vue'

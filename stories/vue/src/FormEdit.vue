@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { MutationModeValues } from '@ginjou/core'
-import type { Post, PostFormData, PostRawFormData } from './api/posts'
+import type { Post, PostFormData, PostRawFormData } from '@ginjou/storybook-shared/mock-data'
 import { useEdit } from '@ginjou/vue'
 import { reactive, toRef, watch } from 'vue'
 import Button from './components/Button.vue'

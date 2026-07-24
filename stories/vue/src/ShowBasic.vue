@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Post } from './api/posts'
+import type { Post } from '@ginjou/storybook-shared/mock-data'
 import { useShow } from '@ginjou/vue'
 import JsonOutput from './components/JsonOutput.vue'
 import LocaleBadge from './components/LocaleBadge.vue'

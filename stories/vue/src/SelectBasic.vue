@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Post } from './api/posts'
+import type { Post } from '@ginjou/storybook-shared/mock-data'
 import { useSelect } from '@ginjou/vue'
 import { ref } from 'vue'
 import FieldLabel from './components/FieldLabel.vue'

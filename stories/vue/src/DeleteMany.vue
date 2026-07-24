@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { MutationModeValues } from '@ginjou/core'
-import type { Post } from './api/posts'
+import type { Post } from '@ginjou/storybook-shared/mock-data'
 import { useDeleteMany, useList } from '@ginjou/vue'
 import { ref, unref } from 'vue'
 import Button from './components/Button.vue'

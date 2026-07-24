@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Post } from './api/posts'
+import type { Post } from '@ginjou/storybook-shared/mock-data'
 import { FilterOperator } from '@ginjou/core'
 import { useList } from '@ginjou/vue'
 import { reactive, unref, watch } from 'vue'

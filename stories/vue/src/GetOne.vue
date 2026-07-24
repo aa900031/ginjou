@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Post } from './api/posts'
+import type { Post } from '@ginjou/storybook-shared/mock-data'
 import { useGetOne } from '@ginjou/vue'
 import Card from './components/Card.vue'
 import JsonOutput from './components/JsonOutput.vue'

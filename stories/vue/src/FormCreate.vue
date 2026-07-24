@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Post, PostFormData, PostRawFormData } from './api/posts'
+import type { Post, PostFormData, PostRawFormData } from '@ginjou/storybook-shared/mock-data'
 import { useCreate } from '@ginjou/vue'
 import { reactive, shallowRef, toRef } from 'vue'
 import Button from './components/Button.vue'
