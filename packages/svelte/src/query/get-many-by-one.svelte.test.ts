@@ -58,9 +58,6 @@ describe('useGetManyByOne', () => {
 		mocks.resolveQueryProps.mockReturnValue({
 			ids: ['1', '2'],
 			resource: 'posts',
-			meta: {
-				scope: 'admin',
-			},
 			fetcherName: 'default',
 		})
 		mocks.useFetchersContext.mockReturnValue({
@@ -90,18 +87,12 @@ describe('useGetManyByOne', () => {
 		expect(mocks.resolveQueryProps).toHaveBeenCalledWith({
 			ids: ['1', '2'],
 			resource: 'posts',
-			meta: {
-				scope: 'admin',
-			},
 			fetcherName: undefined,
 		})
 		expect(mocks.getQueriesOptions).toHaveBeenCalledWith({
 			queryProps: {
 				ids: ['1', '2'],
 				resource: 'posts',
-				meta: {
-					scope: 'admin',
-				},
 				fetcherName: 'default',
 			},
 			fetchers: {
@@ -110,6 +101,9 @@ describe('useGetManyByOne', () => {
 			queryOptions,
 			queryClient: {
 				name: 'query-client',
+			},
+			meta: {
+				scope: 'admin',
 			},
 		})
 
