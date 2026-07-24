@@ -45,11 +45,11 @@
 		"typecheck": "tsc -p tsconfig.types.json",
 		"release": "release-it"
 	},
-	"dependencies": {
-		"jsurl2": "2.2.0"
-	},
 	"peerDependencies": {
 		"@ginjou/core": "workspace:^"
+	},
+	"dependencies": {
+		"jsurl2": "2.2.0"
 	},
 	"devDependencies": {
 		"@ginjou/core": "workspace:^",
