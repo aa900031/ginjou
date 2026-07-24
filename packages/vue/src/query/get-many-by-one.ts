@@ -60,12 +60,12 @@ export function useGetManyByOne<
 	const queryProps = computed(() => GetManyByOne.resolveQueryProps({
 		ids: unref(props.ids),
 		resource: unref(props.resource),
-		meta: unref(props.meta),
 		fetcherName: unref(props.fetcherName),
 	}))
 	const options = computed(() => {
 		const queryOptions = unref(props.queryOptions)
 		return GetManyByOne.getQueriesOptions<TData, TError, TResultData>({
+			meta: unref(props.meta),
 			queryProps: unref(queryProps),
 			fetchers,
 			queryOptions,

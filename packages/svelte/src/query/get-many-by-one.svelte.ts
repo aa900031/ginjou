@@ -67,10 +67,10 @@ export function useGetManyByOne<
 	const queryProps = $derived.by(() => GetManyByOne.resolveQueryProps({
 		ids: extract(resolvedProps.ids),
 		resource: extract(resolvedProps.resource),
-		meta: extract(resolvedProps.meta),
 		fetcherName: extract(resolvedProps.fetcherName),
 	}))
 	const options = $derived.by(() => GetManyByOne.getQueriesOptions<TData, TError, TResultData>({
+		meta: resolvedProps.meta,
 		queryProps,
 		fetchers,
 		queryOptions: resolvedProps.queryOptions,
