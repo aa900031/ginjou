@@ -22,7 +22,8 @@ describe('filters codec', () => {
 
 		const value = stringifyFilters(filters)
 
-		expect(value).toBe('profile%2Ename:eq:s.a%7Eb%3Ac~views:gte:n.100~featured:eq:b.1~deletedAt:eq:z~category:in:j.%5B%22news%22%2C%22guide%22%5D~optional:eq:u')
+		expect(value).toBe('!!profile.name~eq~a*-b:c~~!views~gte~100~~!featured~eq~_T~~!deletedAt~eq~_N~~!category~in~!news~guide~~~!optional~eq~_U')
+		expect(value).not.toMatch(/[[\]()]|%5B|%5D|%28|%29/i)
 		expect(parseFilters(value)).toEqual(filters)
 	})
 
@@ -54,8 +55,17 @@ describe('filters codec', () => {
 
 		const value = stringifyFilters(filters)
 
-		expect(value).toBe('status:eq:s.published~or@search%2Ev1.title:contains:s.ginjou~or@search%2Ev1.and_0.views:gte:n.100~or@search%2Ev1.and_0.featured:eq:b.1~or@search%2Ev1.and_1.likes:gte:n.50~or@search%2Ev1.or:')
+		expect(value).toBe('!!status~eq~published~~!or~!!title~contains~ginjou~~!and~!!views~gte~100~~!featured~eq~_T~~~~!and~!!likes~gte~50~~~~!or~!~~~search.v1')
 		expect(parseFilters(value)).toEqual(filters)
+	})
+
+	it('should reject malformed filters', () => {
+		expect(() => parseFilters('!status~eq~published')).toThrow('Invalid filter')
+		expect(() => parseFilters('!!status~or~published')).toThrow('Invalid logical filter')
+	})
+
+	it('should parse an empty query value', () => {
+		expect(parseFilters('')).toEqual([])
 	})
 
 	it('should expose a syncRoute-compatible codec', () => {
@@ -75,8 +85,16 @@ describe('sorters codec', () => {
 
 		const value = stringifySorters(sorters)
 
-		expect(value).toBe('createdAt:desc~profile%3Aname:asc')
+		expect(value).toBe('!!createdAt~desc~~!profile:name~asc')
 		expect(parseSorters(value)).toEqual(sorters)
+	})
+
+	it('should reject malformed sorters', () => {
+		expect(() => parseSorters('!!createdAt~sideways')).toThrow('Invalid sorter')
+	})
+
+	it('should parse an empty query value', () => {
+		expect(parseSorters('')).toEqual([])
 	})
 
 	it('should expose a syncRoute-compatible codec', () => {
