@@ -206,6 +206,43 @@ describe('useGetManyByOne', () => {
 			fetcherName: 'default',
 		}, expect.any(Object))
 	})
+
+	it('should generate distinct metadata for each query and fetcher', async () => {
+		const meta = vi.fn(({ id, index }: { id: RecordKey, index: number }) => ({ id, index }))
+		const getOne = createGetOneMock()
+
+		const { result } = mountTestApp(
+			() => useGetManyByOne({
+				resource: 'posts',
+				ids: ['1', '2'],
+				meta,
+			}),
+			{
+				queryClient,
+				fetchers: createFetchers(getOne),
+			},
+		)
+
+		await vi.waitFor(() => {
+			expect(unref(result.isSuccess)).toBeTruthy()
+		})
+
+		expect(meta).toHaveBeenNthCalledWith(1, { id: '1', index: 0 })
+		expect(meta).toHaveBeenNthCalledWith(2, { id: '2', index: 1 })
+		expect(meta.mock.results[0]?.value).not.toBe(meta.mock.results[1]?.value)
+		expect(getOne).toHaveBeenNthCalledWith(1, {
+			resource: 'posts',
+			id: '1',
+			meta: { id: '1', index: 0 },
+			fetcherName: 'default',
+		}, expect.any(Object))
+		expect(getOne).toHaveBeenNthCalledWith(2, {
+			resource: 'posts',
+			id: '2',
+			meta: { id: '2', index: 1 },
+			fetcherName: 'default',
+		}, expect.any(Object))
+	})
 })
 
 function createFetchers(

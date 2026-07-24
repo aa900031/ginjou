@@ -1,7 +1,7 @@
 import type { QueryClient, QueryObserverOptions, QueryObserverResult, RefetchOptions } from '@tanstack/query-core'
 import type { QueryCallbacks } from 'tanstack-query-callbacks'
-import type { SetOptional, Simplify } from 'type-fest'
-import type { BaseRecord, GetManyProps, GetManyResult, GetOneResult, RecordKey } from './fetcher'
+import type { Simplify } from 'type-fest'
+import type { BaseRecord, GetManyResult, GetOneResult, Meta, RecordKey } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import { GetOne } from '.'
 import { resolveFetcherProps } from './fetchers'
@@ -24,17 +24,19 @@ export type QueryOptions<
 >
 
 export type QueryProps = Simplify<
-	& SetOptional<
-		GetManyProps,
-		| 'ids'
-		| 'resource'
-	>
 	& FetcherProps
+	& {
+		ids?: string[]
+		resource?: string
+	}
 >
 
 export type ResolvedQueryProps = Simplify<
-	& GetManyProps
 	& ResolvedFetcherProps
+	& {
+		ids: string[]
+		resource: string
+	}
 >
 
 export function resolveQueryProps(
@@ -44,7 +46,6 @@ export function resolveQueryProps(
 		...resolveFetcherProps(props),
 		ids: props.ids ?? [],
 		resource: props.resource ?? '',
-		meta: props.meta,
 	}
 }
 
@@ -71,6 +72,10 @@ export interface GenQueryOptionsForPropsInput {
 	index: number
 }
 
+export type GenQueryMetaFn = (input: GenQueryOptionsForPropsInput) =>
+	| Meta
+	| undefined
+
 export type Props<
 	TData extends BaseRecord,
 	TError,
@@ -78,6 +83,9 @@ export type Props<
 > = Simplify<
 	& QueryProps
 	& {
+		meta?:
+			| Meta
+			| GenQueryMetaFn
 		queryOptions?:
 			| QueryOptionsForProps<TData, TError, TResultData>
 			| GenQueryOptionsForPropsFn<TData, TError, TResultData>
@@ -90,6 +98,10 @@ export function getQueriesOptions<
 	TResultData extends BaseRecord,
 >(
 	props: {
+		meta:
+			| Meta
+			| GenQueryMetaFn
+			| undefined
 		queryProps: ResolvedQueryProps
 		fetchers: Fetchers
 		queryOptions:
@@ -100,8 +112,11 @@ export function getQueriesOptions<
 	},
 ): QueryObserverOptions<GetOneResult<TData>, TError, GetOneResult<TResultData>, GetOneResult<TData>>[] {
 	return props.queryProps.ids.map((id, index) => {
-		const propsForGetOne = resolveGetOneProps(id, props.queryProps)
 		const queryOptionsForProps = resolveQueryOptions({ id, index }, props.queryOptions)
+		const propsForGetOne = {
+			...resolveGetOneProps(id, props.queryProps),
+			meta: resolveQueryMeta({ id, index }, props.meta),
+		}
 		const queryKey = GetOne.createQueryKey({
 			props: propsForGetOne,
 		})
@@ -126,6 +141,18 @@ export function getQueriesOptions<
 			placeholderData: placeholderDataFn,
 		}
 	})
+}
+
+function resolveQueryMeta(
+	input: GenQueryOptionsForPropsInput,
+	meta:
+		| Meta
+		| GenQueryMetaFn
+		| undefined,
+): Meta | undefined {
+	if (typeof meta === 'function')
+		return meta(input)
+	return meta
 }
 
 export function createCombineFn<
