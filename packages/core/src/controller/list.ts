@@ -1,6 +1,7 @@
 import type { Simplify, ValueOf } from 'type-fest'
 import type { BaseRecord, Filter, Filters, GetList, GetListResult, Pagination, Sort, Sorters } from '../query'
 import type { RouterGoParams, RouterLocation } from '../router'
+import type * as SyncRoute from './sync-route'
 import { isEqual, unionWith } from 'es-toolkit'
 import { FilterOperator } from '../query'
 import { RouterGoType } from '../router'
@@ -37,36 +38,9 @@ export type FiltersProp
 	= | Filters
 		| FiltersOptions
 
-export interface SyncRouteOptions {
-	currentPage?:
-		| boolean
-		| {
-			field?: string
-		}
-	perPage?:
-		| boolean
-		| {
-			field?: string
-		}
-	filters?:
-		| boolean
-		| {
-			field?: string
-			parse?: (value: string) => Filters
-			stringify?: (value: Filters) => string
-		}
-	sorters?:
-		| boolean
-		| {
-			field?: string
-			parse?: (value: string) => Sorters
-			stringify?: (value: Sorters) => string
-		}
-}
+export type SyncRouteOptions = SyncRoute.Options
 
-export type SyncRouteProp
-	= | boolean
-		| SyncRouteOptions
+export type SyncRouteProp = SyncRoute.Prop
 
 export type Props<
 	TData extends BaseRecord,
