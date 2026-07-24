@@ -1,0 +1,6 @@
+{
+	"extends": "@ginjou/tsconfig/types.json",
+	"include": [
+		"src/**/*.ts"
+	]
+}

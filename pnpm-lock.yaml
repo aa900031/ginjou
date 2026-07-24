@@ -244,6 +244,21 @@ importers:
         specifier: ^5.56.6
         version: 5.56.6(@typescript-eslint/types@8.64.0)
 
+  packages/sync-route-compact:
+    devDependencies:
+      '@ginjou/core':
+        specifier: workspace:^
+        version: link:../core
+      '@ginjou/tsconfig':
+        specifier: workspace:*
+        version: link:../../internals/tsconfig
+      '@ginjou/tsdown-config':
+        specifier: workspace:*
+        version: link:../../internals/tsdown-config
+      '@ginjou/vite-config':
+        specifier: workspace:*
+        version: link:../../internals/vite-config
+
   packages/vue:
     dependencies:
       '@bouzu/vue-helper':
