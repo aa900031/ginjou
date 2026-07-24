@@ -1,10 +1,10 @@
 import type { BaseRecord } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
-import type { UseGetListContext, UseGetListResult, UseGetManyContext } from '../query'
+import type { UseGetListContext, UseGetListResult, UseGetManyByOneContext } from '../query'
 import type { MaybeAccessor } from '../utils'
 import type { UseResourceContext } from './resource.svelte'
 import { Resource, Select } from '@ginjou/core'
-import { useGetList, useGetMany } from '../query'
+import { useGetList, useGetManyByOne } from '../query'
 import { extract, pickState, unbox, withAccessors } from '../utils'
 import { useResource } from './resource.svelte'
 
@@ -20,7 +20,7 @@ export type UseSelectProps<
 
 export type UseSelectContext = Simplify<
 	& UseGetListContext
-	& UseGetManyContext
+	& UseGetManyByOneContext
 	& UseResourceContext
 >
 
@@ -91,12 +91,12 @@ export function useSelect<
 		queryOptions: resolvedProps?.queryOptionsForOptions,
 	}), context)
 
-	const manyResult = useGetMany<TData, TError, TResultData>(() => ({
+	const manyResult = useGetManyByOne<TData, TError, TResultData>(() => ({
 		resource: resourceName,
 		ids,
 		fetcherName,
 		queryOptions: resolvedProps?.queryOptionsForValue,
-		meta: resolvedProps?.meta,
+		meta: resolvedProps?.metaForValue,
 	}), context)
 
 	const options = $derived.by(() => Select.getOptions({

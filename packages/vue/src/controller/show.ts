@@ -63,7 +63,7 @@ export function useShow<
 		resource: resourceName,
 		id,
 		fetcherName,
-	})
+	}, context)
 
 	watch(defaultId, (val) => {
 		id.value = val
