@@ -1,8 +1,9 @@
 import type { InfiniteData } from '@tanstack/query-core'
 import type { Simplify } from 'type-fest'
+import type { SyncRoute } from '.'
 import type { BaseRecord, Filters, GetInfiniteList, GetInfiniteListResult, Pagination, Sorters } from '../query'
 import type { RouterGoParams } from '../router'
-import type { FiltersProp, SortersProp, SyncRouteProp } from './list'
+import type { FiltersProp, SortersProp } from './list'
 import { isEqual } from 'es-toolkit'
 import { RouterGoType } from '../router'
 import { checkNeedSyncRoute, resolveQueryField, stringifyQueryValue } from './list'
@@ -32,7 +33,7 @@ export type Props<
 		pagination?: PaginationProp<TPageParam>
 		sorters?: SortersProp
 		filters?: FiltersProp
-		syncRoute?: SyncRouteProp
+		syncRoute?: SyncRoute.Prop
 	}
 >
 
@@ -103,7 +104,7 @@ export function getTotal<
 }
 
 export interface ToRouterGoParamsProps {
-	syncRouteFromProp: SyncRouteProp | undefined
+	syncRouteFromProp: SyncRoute.Prop | undefined
 
 	perPageLocation: number | undefined
 	sortersLocation: Sorters | undefined
