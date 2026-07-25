@@ -38,10 +38,6 @@ export type FiltersProp
 	= | Filters
 		| FiltersOptions
 
-export type SyncRouteOptions = SyncRoute.Options
-
-export type SyncRouteProp = SyncRoute.Prop
-
 export type Props<
 	TData extends BaseRecord,
 	TError,
@@ -58,7 +54,7 @@ export type Props<
 		pagination?: PaginationProp<TPageParam>
 		sorters?: SortersProp
 		filters?: FiltersProp
-		syncRoute?: SyncRouteProp
+		syncRoute?: SyncRoute.Prop
 	}
 >
 
@@ -271,8 +267,8 @@ export function getPropSortersMode(
 }
 
 export function checkNeedSyncRoute(
-	syncRoute: SyncRouteProp | undefined,
-): syncRoute is true | SyncRouteOptions {
+	syncRoute: SyncRoute.Prop | undefined,
+): syncRoute is true | SyncRoute.Options {
 	if (syncRoute === false || syncRoute == null)
 		return false
 	return true
@@ -286,8 +282,8 @@ const DEFAULT_QUERY_FIELD = {
 } as const
 
 export function resolveQueryField(
-	type: keyof SyncRouteOptions,
-	syncRoute: true | SyncRouteOptions,
+	type: keyof SyncRoute.Options,
+	syncRoute: true | SyncRoute.Options,
 ): string | undefined {
 	if (syncRoute === true || syncRoute[type] === undefined || syncRoute[type] === true)
 		return DEFAULT_QUERY_FIELD[type]
@@ -301,7 +297,7 @@ export function parseQueryValue<
 	TType extends 'filters' | 'sorters',
 >(
 	type: TType,
-	syncRoute: true | SyncRouteOptions,
+	syncRoute: true | SyncRoute.Options,
 	value: string,
 ): (
 		TType extends 'filters'
@@ -321,7 +317,7 @@ export function stringifyQueryValue<
 	TType extends 'filters' | 'sorters',
 >(
 	type: TType,
-	syncRoute: true | SyncRouteOptions,
+	syncRoute: true | SyncRoute.Options,
 	value: (
 		TType extends 'filters'
 			? Filters
@@ -339,7 +335,7 @@ export function stringifyQueryValue<
 
 export interface GetLocationCurrentPageProps {
 	location: RouterLocation | undefined
-	syncRouteFromProp: SyncRouteProp | undefined
+	syncRouteFromProp: SyncRoute.Prop | undefined
 }
 
 export function getLocationCurrentPage<
@@ -368,7 +364,7 @@ export function getLocationCurrentPage<
 
 export interface GetLocationPerPageProps {
 	location: RouterLocation | undefined
-	syncRouteFromProp: SyncRouteProp | undefined
+	syncRouteFromProp: SyncRoute.Prop | undefined
 }
 
 export function getLocationPerPage(
@@ -393,7 +389,7 @@ export function getLocationPerPage(
 
 export interface GetLocationFiltersProps {
 	location: RouterLocation | undefined
-	syncRouteFromProp: SyncRouteProp | undefined
+	syncRouteFromProp: SyncRoute.Prop | undefined
 }
 
 export function getLocationFilters(
@@ -426,7 +422,7 @@ export function getLocationFilters(
 
 export interface GetLocationSortersProps {
 	location: RouterLocation | undefined
-	syncRouteFromProp: SyncRouteProp | undefined
+	syncRouteFromProp: SyncRoute.Prop | undefined
 }
 
 export function getLocationSorters(
@@ -480,7 +476,7 @@ export interface GetCurrentPageProps<
 	initalPageFromProp: TPageParam | undefined
 	currentPageFromProp: PaginationProp<TPageParam>['current'] | undefined
 	currentPageFromLocation: PaginationProp<TPageParam>['current'] | undefined
-	syncRouteFromProp: SyncRouteProp | undefined
+	syncRouteFromProp: SyncRoute.Prop | undefined
 }
 
 export function getCurrentPage<
@@ -513,7 +509,7 @@ export interface GetPerPageProps<
 > {
 	perPageFromProp: PaginationProp<TPageParam>['perPage'] | undefined
 	perPageFromLocation: PaginationProp<TPageParam>['perPage'] | undefined
-	syncRouteFromProp: SyncRouteProp | undefined
+	syncRouteFromProp: SyncRoute.Prop | undefined
 }
 
 export function getPerPage<
@@ -540,7 +536,7 @@ export interface GetFiltersProps {
 	filtersFromLocation: Filters | undefined
 	filtersFromProp: Filters | undefined
 	filtersPermanentFromProp: FiltersOptions['permanent'] | undefined
-	syncRouteFromProp: SyncRouteProp | undefined
+	syncRouteFromProp: SyncRoute.Prop | undefined
 }
 
 const DEFAULT_FILTERS: Filters = []
@@ -629,7 +625,7 @@ export interface GetSortersProps {
 	sortersFromLocation: Sorters | undefined
 	sortersFromProp: Sorters | undefined
 	sortersPermanentFromProp: SortersOptions['permanent']
-	syncRouteFromProp: SyncRouteProp | undefined
+	syncRouteFromProp: SyncRoute.Prop | undefined
 }
 
 const DEFAULT_SORTERS: Sorters = []
@@ -775,7 +771,7 @@ export function getPageCount<
 export interface ToRouterGoParamsProps<
 	TPageParam,
 > {
-	syncRouteFromProp: SyncRouteProp | undefined
+	syncRouteFromProp: SyncRoute.Prop | undefined
 
 	currentPageLocation: TPageParam | undefined
 	perPageLocation: number | undefined
