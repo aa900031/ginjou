@@ -1,5 +1,5 @@
 import type { FilterOperatorType, Filters } from '@ginjou/core'
-import { FilterOperator } from '@ginjou/core'
+import { FilterOperator, isConditionalFilterOperator } from '@ginjou/core'
 
 export function genFilters(
 	filters?: Filters,
@@ -9,12 +9,10 @@ export function genFilters(
 
 	const result: Record<string, string> = {}
 	filters.forEach((filter) => {
-		switch (filter.operator) {
-			case FilterOperator.or:
-			case FilterOperator.and:
-				throw new Error(
-					`[@ginjou/with-rest-api]: \`operator: ${filter.operator}\` is not supported.`,
-				)
+		if (isConditionalFilterOperator(filter.operator)) {
+			throw new Error(
+				`[@ginjou/with-rest-api]: \`operator: ${filter.operator}\` is not supported.`,
+			)
 		}
 
 		if ('field' in filter) {

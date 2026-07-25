@@ -51,5 +51,3 @@ To check the code against the linting rules:
 ```bash
 pnpm lint
 ```
-
-* **Show Must Go On**：每次準備結束當前回合（相當於 Claude Code `Stop` hook 的時機）時，必須用 Question Tool 提議 2–4 個具體下一步選項。禁止只寫「完成了」或用開放式「要繼續嗎？」收尾。使用者明確說「結束／就這樣」時才可豁免。
