@@ -1,5 +1,5 @@
 import type { Simplify } from 'type-fest'
-import type { BaseRecord, Filters, GetList, GetListResult, GetMany, GetManyResult, Pagination } from '../query'
+import type { BaseRecord, Filters, GetList, GetListResult, GetManyByOne, GetManyResult, Pagination } from '../query'
 import { unionBy } from 'es-toolkit'
 import { get } from 'es-toolkit/compat'
 import { FilterOperator } from '../query'
@@ -22,7 +22,8 @@ export type Props<
 		value?: any | any[] // TODO: generice
 		searchToFilters?: SearchToFiltersFn<any> // TODO: generic
 		queryOptionsForOptions?: NonNullable<GetList.Props<TData, TError, TResultData, TPageParam>['queryOptions']>
-		queryOptionsForValue?: NonNullable<GetMany.Props<TData, TError, TResultData>['queryOptions']>
+		queryOptionsForValue?: NonNullable<GetManyByOne.Props<TData, TError, TResultData>['queryOptions']>
+		metaForValue?: NonNullable<GetManyByOne.Props<TData, TError, TResultData>['meta']>
 	}
 >
 

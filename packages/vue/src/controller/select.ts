@@ -1,12 +1,12 @@
 import type { BaseRecord, Pagination } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
 import type { ComputedRef, Ref } from 'vue-demi'
-import type { UseGetListContext, UseGetListResult, UseGetManyContext } from '../query'
+import type { UseGetListContext, UseGetListResult, UseGetManyByOneContext } from '../query'
 import type { ToMaybeRefs } from '../utils/refs'
 import type { UseResourceContext } from './resource'
 import { Resource, Select } from '@ginjou/core'
 import { computed, ref, unref } from 'vue-demi'
-import { useGetList, useGetMany } from '../query'
+import { useGetList, useGetManyByOne } from '../query'
 import { pickRef } from '../utils/pick-ref'
 import { useResource } from './resource'
 
@@ -21,7 +21,7 @@ export type UseSelectProps<
 
 export type UseSelectContext = Simplify<
 	& UseGetListContext
-	& UseGetManyContext
+	& UseGetManyByOneContext
 	& UseResourceContext
 >
 
@@ -88,15 +88,15 @@ export function useSelect<
 		filters,
 		pagination,
 		queryOptions: props?.queryOptionsForOptions,
-	})
+	}, context)
 
-	const manyResult = useGetMany<TData, TError, TResultData>({
+	const manyResult = useGetManyByOne<TData, TError, TResultData>({
 		resource: resourceName,
 		ids,
 		fetcherName,
 		queryOptions: props?.queryOptionsForValue,
-		meta: props?.meta,
-	})
+		meta: props?.metaForValue,
+	}, context)
 
 	const options = computed(() => Select.getOptions({
 		listData: unref(listResult.data),
