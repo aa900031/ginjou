@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { createSetFiltersFn, createSetSortersFn, SetFilterBehavior } from './list'
+import { createSetFiltersFn, createSetSortersFn, SetFilterBehavior, toRouterGoParams } from './list'
 
 describe('list', () => {
 	describe('createSetFiltersFn', () => {
@@ -172,6 +172,45 @@ describe('list', () => {
 			])
 
 			expect(update).not.toBeCalled()
+		})
+	})
+
+	describe('toRouterGoParams', () => {
+		const sorters = [{ field: 'createdAt', order: 'desc' }] as const
+		const filters = [{ field: 'published', operator: 'eq', value: true }] as const
+
+		it('should return false when route values already match current values', () => {
+			expect(toRouterGoParams({
+				syncRouteFromProp: true,
+				currentPageLocation: 1,
+				perPageLocation: 10,
+				sortersLocation: [...sorters],
+				filtersLocation: [...filters],
+				currentPage: 1,
+				perPage: 10,
+				sorters: [...sorters],
+				filters: [...filters],
+			})).toBe(false)
+		})
+
+		it('should create replace navigation params when values changed', () => {
+			expect(toRouterGoParams({
+				syncRouteFromProp: true,
+				currentPageLocation: 1,
+				perPageLocation: 10,
+				sortersLocation: [{ field: 'title', order: 'asc' }],
+				filtersLocation: [{ field: 'category', operator: 'eq', value: 'news' }],
+				currentPage: 2,
+				perPage: 10,
+				sorters: [...sorters],
+				filters: [...filters],
+			})).toMatchObject({
+				query: {
+					current: '2',
+					sorters: JSON.stringify(sorters),
+					filters: JSON.stringify(filters),
+				},
+			})
 		})
 	})
 })
