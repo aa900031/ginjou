@@ -4,10 +4,11 @@ import type { UseGetInfiniteListContext, UseGetInfiniteListResult } from '../que
 import type { UseGoContext, UseLocationContext } from '../router'
 import type { MaybeAccessor } from '../utils'
 import type { UseResourceContext } from './resource.svelte'
-import { InfiniteList, List, Resource } from '@ginjou/core'
+import { InfiniteList, List, Resource, SyncRoute } from '@ginjou/core'
 import { useGetInfiniteList } from '../query'
 import { useGo, useLocation } from '../router'
 import { deriveState, extract, pickState, unbox, watch, withAccessors } from '../utils'
+import { useControllerContext } from './context'
 import { useResource } from './resource.svelte'
 
 export type UseInfiniteListProps<
@@ -56,9 +57,11 @@ export function useInfiniteList<
 	context?: UseInfiniteListContext,
 ): UseInfiniteListResult<TError, TResultData, TPageParam> {
 	const resolvedProps = $derived(extract(props))
+	const controller = useControllerContext(context)
 	const go = useGo(context)
 	const resource = useResource(() => ({ name: resolvedProps?.resource }), context)
 	const location = useLocation(context)
+	const syncRoute = $derived(SyncRoute.resolve(controller, resolvedProps?.syncRoute))
 
 	const initialPageProp = pickState<TPageParam, InfiniteList.PaginationProp<TPageParam> | undefined>(
 		() => resolvedProps?.pagination,
@@ -104,28 +107,28 @@ export function useInfiniteList<
 	const currentPageLocation = deriveState<TPageParam | undefined, List.GetLocationCurrentPageProps>(
 		() => ({
 			location: unbox(location),
-			syncRouteFromProp: resolvedProps?.syncRoute,
+			syncRouteFromProp: syncRoute,
 		}),
 		List.getLocationCurrentPage,
 	)
 	const perPageLocation = deriveState<number | undefined, List.GetLocationPerPageProps>(
 		() => ({
 			location: unbox(location),
-			syncRouteFromProp: resolvedProps?.syncRoute,
+			syncRouteFromProp: syncRoute,
 		}),
 		List.getLocationPerPage,
 	)
 	const filtersLocation = deriveState<Filters | undefined, List.GetLocationFiltersProps>(
 		() => ({
 			location: unbox(location),
-			syncRouteFromProp: resolvedProps?.syncRoute,
+			syncRouteFromProp: syncRoute,
 		}),
 		List.getLocationFilters,
 	)
 	const sortersLocation = deriveState<Sorters | undefined, List.GetLocationSortersProps>(
 		() => ({
 			location: unbox(location),
-			syncRouteFromProp: resolvedProps?.syncRoute,
+			syncRouteFromProp: syncRoute,
 		}),
 		List.getLocationSorters,
 	)
@@ -144,7 +147,7 @@ export function useInfiniteList<
 			initalPageFromProp: unbox(initialPageProp),
 			currentPageFromProp: unbox(currentPageProp),
 			currentPageFromLocation: unbox(currentPageLocation),
-			syncRouteFromProp: resolvedProps?.syncRoute,
+			syncRouteFromProp: syncRoute,
 		}),
 		List.getCurrentPage,
 	)
@@ -152,7 +155,7 @@ export function useInfiniteList<
 		() => ({
 			perPageFromProp: unbox(perPageProp),
 			perPageFromLocation: unbox(perPageLocation),
-			syncRouteFromProp: resolvedProps?.syncRoute,
+			syncRouteFromProp: syncRoute,
 		}),
 		List.getPerPage,
 	)
@@ -161,7 +164,7 @@ export function useInfiniteList<
 			filtersFromLocation: unbox(filtersLocation),
 			filtersFromProp: unbox(filtersProp),
 			filtersPermanentFromProp: unbox(filtersPermanentProp),
-			syncRouteFromProp: resolvedProps?.syncRoute,
+			syncRouteFromProp: syncRoute,
 		}),
 		List.getFilters,
 	)
@@ -176,7 +179,7 @@ export function useInfiniteList<
 			sortersFromLocation: unbox(sortersLocation),
 			sortersFromProp: unbox(sortersProp),
 			sortersPermanentFromProp: unbox(sortersPermanentProp),
-			syncRouteFromProp: resolvedProps?.syncRoute,
+			syncRouteFromProp: syncRoute,
 		}),
 		List.getSorters,
 	)
@@ -218,7 +221,7 @@ export function useInfiniteList<
 	}))
 
 	watch(() => ({
-		syncRouteFromProp: resolvedProps?.syncRoute,
+		syncRouteFromProp: syncRoute,
 
 		perPageLocation: unbox(perPageLocation),
 		filtersLocation: unbox(filtersLocation),
