@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.21
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/core@0.1.0-beta.20...${npm.name}@0.1.0-beta.21)
+
+### 🚀 Enhancements
+
+-  Dynamic meta for useGetManyByOne (#128) ([0896fb0](https://github.com/aa900031/ginjou/commit/0896fb02dc2854e2b2067ed78f77ca10af18c2db))
+-  Setup sync-route in controller (#130) ([bece526](https://github.com/aa900031/ginjou/commit/bece5261950a103e5f1e681930909477ff336e2c))
+-  Sync route compact (#129) ([d7a44dc](https://github.com/aa900031/ginjou/commit/d7a44dcc85903b4da8f30a5abea7414bfccc62bf))
+-  Use GetManyByOne for selected values (#127) ([63ae516](https://github.com/aa900031/ginjou/commit/63ae5161cac7fa3ee2c8bf21155daa3d89865902))
+
+### 🩹 Fixes
+
+-  **core:** Compare filters/sorters against matching location values in toRouterGoParams (#131) ([e6ed939](https://github.com/aa900031/ginjou/commit/e6ed939930aeaff5247b69d15abf9f68a6fe0a12))
+-  **core:** Types for sync-route ([12440b0](https://github.com/aa900031/ginjou/commit/12440b07592cb6b05eff9ba85f4cc77ae604916e))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.20
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/core@0.1.0-beta.19...${npm.name}@0.1.0-beta.20)
