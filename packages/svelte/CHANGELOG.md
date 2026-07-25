@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.3
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/svelte@0.1.0-beta.2...${npm.name}@0.1.0-beta.3)
+
+### 🚀 Enhancements
+
+-  Dynamic meta for useGetManyByOne (#128) ([0896fb0](https://github.com/aa900031/ginjou/commit/0896fb02dc2854e2b2067ed78f77ca10af18c2db))
+-  Setup sync-route in controller (#130) ([bece526](https://github.com/aa900031/ginjou/commit/bece5261950a103e5f1e681930909477ff336e2c))
+-  Use GetManyByOne for selected values (#127) ([63ae516](https://github.com/aa900031/ginjou/commit/63ae5161cac7fa3ee2c8bf21155daa3d89865902))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.2
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/svelte@0.1.0-beta.1...${npm.name}@0.1.0-beta.2)
