@@ -3,7 +3,7 @@ import type { BaseRecord, Filter, Filters, GetList, GetListResult, Pagination, S
 import type { RouterGoParams, RouterLocation } from '../router'
 import type * as SyncRoute from './sync-route'
 import { isEqual, unionWith } from 'es-toolkit'
-import { FilterOperator } from '../query'
+import { FilterOperator, isLogicalFilterOperator } from '../query'
 import { RouterGoType } from '../router'
 import { getSubValue } from '../utils/sub-value'
 
@@ -935,10 +935,8 @@ function compareFilter(
 	right: Filter,
 ): boolean {
 	if (
-		left.operator !== FilterOperator.and
-		&& left.operator !== FilterOperator.or
-		&& right.operator !== FilterOperator.and
-		&& right.operator !== FilterOperator.or
+		isLogicalFilterOperator(left.operator)
+		&& isLogicalFilterOperator(right.operator)
 	) {
 		return (
 			('field' in left ? left.field : undefined)

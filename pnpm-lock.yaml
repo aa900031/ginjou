@@ -244,6 +244,25 @@ importers:
         specifier: ^5.56.6
         version: 5.56.6(@typescript-eslint/types@8.64.0)
 
+  packages/sync-route-compact:
+    dependencies:
+      jsurl2:
+        specifier: 2.2.0
+        version: 2.2.0
+    devDependencies:
+      '@ginjou/core':
+        specifier: workspace:^
+        version: link:../core
+      '@ginjou/tsconfig':
+        specifier: workspace:*
+        version: link:../../internals/tsconfig
+      '@ginjou/tsdown-config':
+        specifier: workspace:*
+        version: link:../../internals/tsdown-config
+      '@ginjou/vite-config':
+        specifier: workspace:*
+        version: link:../../internals/vite-config
+
   packages/vue:
     dependencies:
       '@bouzu/vue-helper':
@@ -8037,6 +8056,9 @@ packages:
   js-yaml@4.3.0:
     resolution: {integrity: sha512-1td788aAnnZ5qs7V2QIRl1owjtYpbKt749Y3xauqQgwIIGF/xXWz1wMTEBx5O3LK3lXLVuqXPdPxj2BoFHaW9Q==}
     hasBin: true
+
+  jsurl2@2.2.0:
+    resolution: {integrity: sha512-jFwgc2G7eVMF6/uyxsF+7DbNEg7fj7SRWmJuVfu/SAOK0iIH9gOpLK9FL1jLvENCXS7kYsYcmFxRFQFyQEb7jg==}
 
   jsdoc-type-pratt-parser@7.2.0:
     resolution: {integrity: sha512-dh140MMgjyg3JhJZY/+iEzW+NO5xR2gpbDFKHqotCmexElVntw7GjWjt511+C/Ef02RU5TKYrJo/Xlzk+OLaTw==}
@@ -19908,6 +19930,8 @@ snapshots:
   js-yaml@4.3.0:
     dependencies:
       argparse: 2.0.1
+
+  jsurl2@2.2.0: {}
 
   jsdoc-type-pratt-parser@7.2.0: {}
 

@@ -19,6 +19,18 @@ export const SortOrder = {
 
 export type SortOrderType = ValueOf<typeof SortOrder>
 
+export function isSortOrder(
+	value: unknown,
+): value is SortOrderType {
+	switch (value) {
+		case SortOrder.Asc:
+		case SortOrder.Desc:
+			return true
+		default:
+			return false
+	}
+}
+
 export interface Sort {
 	field: string
 	order: SortOrderType
@@ -79,6 +91,30 @@ export interface ConditionalFilter {
 export type Filter = (LogicalFilter | ConditionalFilter)
 
 export type Filters = Filter[]
+
+export function isFilterOperator(
+	operator: unknown,
+): operator is FilterOperatorType {
+	return (Object.values(FilterOperator) as unknown[]).includes(operator)
+}
+
+export function isConditionalFilterOperator(
+	operator: unknown,
+): operator is ConditionalFilter['operator'] {
+	switch (operator) {
+		case FilterOperator.and:
+		case FilterOperator.or:
+			return true
+		default:
+			return false
+	}
+}
+
+export function isLogicalFilterOperator(
+	operator: unknown,
+): operator is LogicalFilter['operator'] {
+	return !isConditionalFilterOperator(operator) && isFilterOperator(operator)
+}
 
 export interface CursorOnlyNext<
 	TPageParam,

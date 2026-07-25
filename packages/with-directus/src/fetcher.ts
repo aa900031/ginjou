@@ -214,7 +214,7 @@ function genFilters(
 	}
 
 	for (const filter of filters) {
-		if (filter.operator !== 'or' && filter.operator !== 'and' && 'field' in filter) {
+		if ('field' in filter) {
 			const { field, value } = filter
 
 			if (value != null) {

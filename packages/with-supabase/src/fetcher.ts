@@ -1,7 +1,7 @@
 import type { FilterOperatorType, Filters, Sorters } from '@ginjou/core'
 import type { PostgrestFilterBuilder } from '@supabase/postgrest-js'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { defineFetcher } from '@ginjou/core'
+import { defineFetcher, isLogicalFilterOperator } from '@ginjou/core'
 
 export interface CreateFetcherProps {
 	client: SupabaseClient
@@ -225,11 +225,7 @@ function applyFilters(
 				const orSyntax = filter.value
 					// eslint-disable-next-line array-callback-return
 					.map((item) => {
-						if (
-							item.operator !== 'or'
-							&& item.operator !== 'and'
-							&& 'field' in item
-						) {
+						if (isLogicalFilterOperator(item.operator) && 'field' in item) {
 							return `${item.field}.${getOperator(item.operator)}.${item.value}`
 						}
 					})
