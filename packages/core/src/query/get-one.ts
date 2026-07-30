@@ -16,7 +16,7 @@ import { getErrorMessage } from '../utils/error'
 import { getQuery, resolveQueryEnableds } from '../utils/query'
 import { getFetcherFn, resolveFetcherProps } from './fetchers'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
-import { createQueryKey as createResourceQueryKey } from './resource'
+import { createQueryKey as genResourceQueryKey } from './resource'
 
 export type QueryOptions<
 	TData extends BaseRecord,
@@ -89,7 +89,7 @@ export function createQueryKey(
 	const { id, meta } = props
 
 	return [
-		...createResourceQueryKey({ props }),
+		...genResourceQueryKey({ props }),
 		'getOne',
 		id,
 		{ meta },

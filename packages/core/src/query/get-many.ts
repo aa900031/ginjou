@@ -19,10 +19,10 @@ import { getErrorMessage } from '../utils/error'
 import { getQuery, resolveQueryEnableds } from '../utils/query'
 import { createAggregrateFn } from './aggregrate'
 import { getFetcherFn, getSafeFetcherFn, resolveFetcherProps } from './fetchers'
-import { createQueryKey as createGetOneQueryKey } from './get-one'
+import { createQueryKey as genGetOneQueryKey } from './get-one'
 import { fakeMany } from './helper'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
-import { createQueryKey as createResourceQueryKey } from './resource'
+import { createQueryKey as genResourceQueryKey } from './resource'
 
 export type QueryOptions<
 	TData extends BaseRecord,
@@ -100,7 +100,7 @@ export function createBaseQueryKey(
 	}: CreateBaseQueryKeyProps,
 ): QueryKey {
 	return [
-		...createResourceQueryKey({ props }),
+		...genResourceQueryKey({ props }),
 		'getMany',
 	]
 }
@@ -407,7 +407,7 @@ function updateCache<
 			continue
 
 		queryClient.setQueryData<GetOneResult<TData>>(
-			createGetOneQueryKey({
+			genGetOneQueryKey({
 				props: { ...props, id: record.id },
 			}),
 			old => old ?? { data: record },
@@ -424,6 +424,6 @@ function findGetOneCached<
 	queryClient: QueryClient,
 ): GetOneResult<TResultData> | undefined {
 	const queryCache = queryClient.getQueryCache()
-	const queryHash = hashKey(createGetOneQueryKey({ props }))
+	const queryHash = hashKey(genGetOneQueryKey({ props }))
 	return queryCache.get<GetOneResult<TData>, TError, GetOneResult<TResultData>>(queryHash)?.state.data
 }
