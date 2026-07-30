@@ -17,7 +17,7 @@ import { NotificationType } from '../notification'
 import { SubscribeType } from '../realtime'
 import { getErrorMessage } from '../utils/error'
 import { getQuery, resolveQueryEnableds } from '../utils/query'
-import { createAggregrateFn } from './aggregrate'
+import { createAggregateFn } from './aggregate'
 import { getFetcherFn, getSafeFetcherFn, resolveFetcherProps } from './fetchers'
 import { createQueryKey as createGetOneQueryKey } from './get-one'
 import { fakeMany } from './helper'
@@ -158,12 +158,15 @@ export function createQueryFn<
 	}
 }
 
-export interface CreatePlacholerDataFnProps {
+export interface CreatePlaceholderDataFnProps {
 	getProps: () => ResolvedQueryProps
 	queryClient: QueryClient
 }
 
-export function createPlacholerDataFn<
+/** @deprecated Use `CreatePlaceholderDataFnProps`. */
+export type CreatePlacholerDataFnProps = CreatePlaceholderDataFnProps
+
+export function createPlaceholderDataFn<
 	TData extends BaseRecord,
 	TError,
 	TResultData extends BaseRecord,
@@ -171,7 +174,7 @@ export function createPlacholerDataFn<
 	{
 		getProps,
 		queryClient,
-	}: CreatePlacholerDataFnProps,
+	}: CreatePlaceholderDataFnProps,
 ): PlaceholderDataFunction<GetManyResult<TData>, TError, GetManyResult<TData>> {
 	return function placeholderDataFn() {
 		const { ids, ...rest } = getProps()
@@ -190,6 +193,9 @@ export function createPlacholerDataFn<
 		} as unknown as GetManyResult<TData>
 	}
 }
+
+/** @deprecated Use `createPlaceholderDataFn`. */
+export const createPlacholerDataFn = createPlaceholderDataFn
 
 export interface CreateSuccessHandlerProps<
 	TResultData extends BaseRecord,
@@ -350,7 +356,7 @@ function execGetMany<
 	return fakeMany(props.ids.map(id => (getOne as any)({ ...props, id }, context)))
 }
 
-const aggregExecGetMany = createAggregrateFn(
+const aggregExecGetMany = createAggregateFn(
 	execGetMany,
 	(allArgs, allResolves) => {
 		type ResourceMap = Record<string, { args: typeof allArgs[0][], resolves: typeof allResolves[0][] }>

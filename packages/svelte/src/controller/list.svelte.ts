@@ -145,7 +145,7 @@ export function useList<
 
 	const currentPage = deriveState<number, List.GetCurrentPageProps<number>>(
 		() => ({
-			initalPageFromProp: unbox(initialPageProp),
+			initialPageFromProp: unbox(initialPageProp),
 			currentPageFromProp: unbox(currentPageProp),
 			currentPageFromLocation: unbox(currentPageLocation),
 			syncRouteFromProp: syncRoute,
@@ -262,7 +262,7 @@ export function useList<
 		_sorters: unbox(sortersState),
 	}), () => {
 		currentPage.value = List.getInitialPage({
-			initalPageFromProp: unbox(initialPageProp),
+			initialPageFromProp: unbox(initialPageProp),
 		})
 	})
 

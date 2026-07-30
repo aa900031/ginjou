@@ -41,7 +41,7 @@ describe('useGetList', () => {
 			})
 		})
 
-		it('should call realtime.unscribe on unmount', async () => {
+		it('should call realtime.unsubscribe on unmount', async () => {
 			const { result, unmount } = mountTestApp(
 				() => useGetList({
 					resource: 'posts',

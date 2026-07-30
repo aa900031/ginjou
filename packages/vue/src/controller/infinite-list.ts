@@ -146,7 +146,7 @@ export function useInfiniteList<
 
 	const currentPage = deriveRef<TPageParam, List.GetCurrentPageProps<TPageParam>>(
 		() => ({
-			initalPageFromProp: unref(initalPageProp),
+			initialPageFromProp: unref(initalPageProp),
 			currentPageFromProp: unref(currentPageProp),
 			currentPageFromLocation: unref(currentPageLocation),
 			syncRouteFromProp: unref(syncRoute),
@@ -248,7 +248,7 @@ export function useInfiniteList<
 		sorters: unref(_sorters),
 	}), () => {
 		currentPage.value = List.getInitialPage({
-			initalPageFromProp: unref(initalPageProp),
+			initialPageFromProp: unref(initalPageProp),
 		})
 	}, {
 		flush: 'sync',

@@ -1,7 +1,12 @@
 import { describe, expect, it, vi } from 'vitest'
-import { createSetFiltersFn, createSetSortersFn, SetFilterBehavior, toRouterGoParams } from './list'
+import { createSetFiltersFn, createSetSortersFn, getInitialPage, SetFilterBehavior, toRouterGoParams } from './list'
 
 describe('list', () => {
+	it('supports corrected and legacy initial page props', () => {
+		expect(getInitialPage({ initialPageFromProp: 2 })).toBe(2)
+		expect(getInitialPage({ initalPageFromProp: 3 })).toBe(3)
+	})
+
 	describe('createSetFiltersFn', () => {
 		it('should return a function', () => {
 			const getFiltersPermanent = vi.fn()

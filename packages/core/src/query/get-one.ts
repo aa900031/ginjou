@@ -258,7 +258,7 @@ export function getSubscribeParams(
 	}
 }
 
-export function createPlacholerDataFn<
+export function createPlaceholderDataFn<
 	TData extends BaseRecord,
 	TError,
 >(): PlaceholderDataFunction<GetOneResult<TData>, TError, GetOneResult<TData>> {
@@ -266,3 +266,6 @@ export function createPlacholerDataFn<
 		return previousData
 	}
 }
+
+/** @deprecated Use `createPlaceholderDataFn`. */
+export const createPlacholerDataFn = createPlaceholderDataFn

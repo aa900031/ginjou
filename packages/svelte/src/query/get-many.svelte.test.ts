@@ -9,7 +9,7 @@ const mocks = vi.hoisted(() => ({
 	createSubscribeCallback: vi.fn(),
 	createSuccessHandler: vi.fn(),
 	createErrorHandler: vi.fn(),
-	createPlacholerDataFn: vi.fn(),
+	createPlaceholderDataFn: vi.fn(),
 	getSubscribeChannel: vi.fn(),
 	getSubscribeParams: vi.fn(),
 	resolveQueryProps: vi.fn(),
@@ -31,7 +31,7 @@ vi.mock('@ginjou/core', () => ({
 	},
 	GetMany: {
 		createErrorHandler: mocks.createErrorHandler,
-		createPlacholerDataFn: mocks.createPlacholerDataFn,
+		createPlaceholderDataFn: mocks.createPlaceholderDataFn,
 		createQueryEnabledFn: mocks.createQueryEnabledFn,
 		createQueryFn: mocks.createQueryFn,
 		createQueryKey: mocks.createQueryKey,
@@ -80,7 +80,7 @@ describe('useGetMany', () => {
 			mock.mockReset()
 
 		mocks.createErrorHandler.mockReturnValue(vi.fn())
-		mocks.createPlacholerDataFn.mockReturnValue(undefined)
+		mocks.createPlaceholderDataFn.mockReturnValue(undefined)
 		mocks.createQuery.mockReturnValue({ data: { data: [{ id: '1' }] } })
 		mocks.createQueryEnabledFn.mockImplementation(({ getEnabled }) => {
 			return () => getEnabled() !== false

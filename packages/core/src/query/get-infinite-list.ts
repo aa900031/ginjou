@@ -338,7 +338,7 @@ export function getRecords<
 	return data?.pages.map(page => page.data)
 }
 
-export function createPlacholerDataFn<
+export function createPlaceholderDataFn<
 	TData extends BaseRecord,
 	TError,
 	TPageParam,
@@ -347,6 +347,9 @@ export function createPlacholerDataFn<
 		return previousData
 	}
 }
+
+/** @deprecated Use `createPlaceholderDataFn`. */
+export const createPlacholerDataFn = createPlaceholderDataFn
 
 function resolvePagination<
 	TPageParam,

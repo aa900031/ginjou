@@ -96,7 +96,7 @@ export function useGetList<
 		getErrorNotify: () => unref(props.errorNotify),
 		emitParent: (...args) => unref(props.queryOptions)?.onError?.(...args),
 	})
-	const placeholderData = GetList.createPlacholerDataFn<TData, TError, TPageParam>()
+	const placeholderData = GetList.createPlaceholderDataFn<TData, TError, TPageParam>()
 	const enabledFn = computed(() => {
 		const queryOptions = unref(props.queryOptions)
 		return GetList.createQueryEnabledFn({

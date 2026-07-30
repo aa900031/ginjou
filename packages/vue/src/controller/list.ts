@@ -147,7 +147,7 @@ export function useList<
 
 	const currentPage = deriveRef<number, any>(
 		() => ({
-			initalPageFromProp: unref(initalPageProp),
+			initialPageFromProp: unref(initalPageProp),
 			currentPageFromProp: unref(currentPageProp),
 			currentPageFromLocation: unref(currentPageLocation),
 			syncRouteFromProp: unref(syncRoute),
@@ -259,7 +259,7 @@ export function useList<
 		_sorters: unref(_sorters),
 	}), () => {
 		currentPage.value = List.getInitialPage({
-			initalPageFromProp: unref(initalPageProp),
+			initialPageFromProp: unref(initalPageProp),
 		})
 	}, {
 		flush: 'sync',
