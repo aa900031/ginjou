@@ -131,7 +131,7 @@ export function createFetcher(
 				method: reqMethod,
 				query: reqQuery,
 				headers,
-				params: payload as any,
+				body: payload as any,
 			})
 
 			return {
