@@ -65,7 +65,7 @@ export function useInfiniteList<
 	const location = useLocation(context)
 	const syncRoute = computed(() => SyncRoute.resolve(controller, unref(props?.syncRoute)))
 
-	const initalPageProp = pickRef<TPageParam, any>(
+	const initialPageProp = pickRef<TPageParam, any>(
 		props?.pagination,
 		List.getPropInitialPage,
 	)
@@ -146,7 +146,7 @@ export function useInfiniteList<
 
 	const currentPage = deriveRef<TPageParam, List.GetCurrentPageProps<TPageParam>>(
 		() => ({
-			initialPageFromProp: unref(initalPageProp),
+			initialPageFromProp: unref(initialPageProp),
 			currentPageFromProp: unref(currentPageProp),
 			currentPageFromLocation: unref(currentPageLocation),
 			syncRouteFromProp: unref(syncRoute),
@@ -248,7 +248,7 @@ export function useInfiniteList<
 		sorters: unref(_sorters),
 	}), () => {
 		currentPage.value = List.getInitialPage({
-			initialPageFromProp: unref(initalPageProp),
+			initialPageFromProp: unref(initialPageProp),
 		})
 	}, {
 		flush: 'sync',
