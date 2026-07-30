@@ -195,7 +195,7 @@ function createAuthz() {
 }
 
 // eslint-disable-next-line ts/explicit-function-return-type
-function createI18n() {
+export function createI18n() {
 	let locale = 'en-US'
 	const messages: Record<string, Record<string, string>> = {
 		'en-US': {
@@ -219,7 +219,7 @@ function createI18n() {
 
 			let result = raw
 			for (const [key, value] of Object.entries(params ?? {}))
-				result = raw.replace(`$${key}`, value)
+				result = result.replace(`$${key}`, value)
 
 			return result
 		},
