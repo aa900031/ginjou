@@ -453,36 +453,24 @@ export function getLocationSorters(
 	return parsed
 }
 
-type InitialPageProp<
+export interface GetInitialPageProps<
 	TPageParam,
->
-	= | {
+> {
 		initialPageFromProp: PaginationProp<TPageParam>['init']
-		/** @deprecated Use `initialPageFromProp`. */
-		initalPageFromProp?: never
-	}
-	| {
-		initialPageFromProp?: never
-		/** @deprecated Use `initialPageFromProp`. */
-		initalPageFromProp: PaginationProp<TPageParam>['init']
-	}
-
-export type GetInitialPageProps<TPageParam> = InitialPageProp<TPageParam>
+}
 
 export function getInitialPage<
 	TPageParam,
 >(
 	{
 		initialPageFromProp,
-		initalPageFromProp,
 	}: GetInitialPageProps<TPageParam>,
 ): TPageParam {
 	return initialPageFromProp
-		?? initalPageFromProp
 		?? 1 as TPageParam
 }
 
-export type GetCurrentPageProps<TPageParam> = InitialPageProp<TPageParam> & {
+export interface GetCurrentPageProps<TPageParam> extends GetInitialPageProps<TPageParam> {
 	currentPageFromProp: PaginationProp<TPageParam>['current'] | undefined
 	currentPageFromLocation: PaginationProp<TPageParam>['current'] | undefined
 	syncRouteFromProp: SyncRoute.Prop | undefined
@@ -493,7 +481,6 @@ export function getCurrentPage<
 >(
 	{
 		initialPageFromProp,
-		initalPageFromProp,
 		currentPageFromProp,
 		currentPageFromLocation,
 		syncRouteFromProp,
@@ -503,13 +490,13 @@ export function getCurrentPage<
 		return currentPageFromLocation
 			?? currentPageFromProp
 			?? getInitialPage({
-				initialPageFromProp: initialPageFromProp ?? initalPageFromProp,
+				initialPageFromProp,
 			})
 	}
 	else {
 		return currentPageFromProp
 			?? getInitialPage({
-				initialPageFromProp: initialPageFromProp ?? initalPageFromProp,
+				initialPageFromProp,
 			})
 	}
 }

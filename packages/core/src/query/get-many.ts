@@ -163,9 +163,6 @@ export interface CreatePlaceholderDataFnProps {
 	queryClient: QueryClient
 }
 
-/** @deprecated Use `CreatePlaceholderDataFnProps`. */
-export type CreatePlacholerDataFnProps = CreatePlaceholderDataFnProps
-
 export function createPlaceholderDataFn<
 	TData extends BaseRecord,
 	TError,
@@ -193,9 +190,6 @@ export function createPlaceholderDataFn<
 		} as unknown as GetManyResult<TData>
 	}
 }
-
-/** @deprecated Use `createPlaceholderDataFn`. */
-export const createPlacholerDataFn = createPlaceholderDataFn
 
 export interface CreateSuccessHandlerProps<
 	TResultData extends BaseRecord,

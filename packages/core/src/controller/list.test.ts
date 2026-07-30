@@ -2,9 +2,8 @@ import { describe, expect, it, vi } from 'vitest'
 import { createSetFiltersFn, createSetSortersFn, getInitialPage, SetFilterBehavior, toRouterGoParams } from './list'
 
 describe('list', () => {
-	it('supports corrected and legacy initial page props', () => {
+	it('gets the initial page', () => {
 		expect(getInitialPage({ initialPageFromProp: 2 })).toBe(2)
-		expect(getInitialPage({ initalPageFromProp: 3 })).toBe(3)
 	})
 
 	describe('createSetFiltersFn', () => {

@@ -266,6 +266,3 @@ export function createPlaceholderDataFn<
 		return previousData
 	}
 }
-
-/** @deprecated Use `createPlaceholderDataFn`. */
-export const createPlacholerDataFn = createPlaceholderDataFn

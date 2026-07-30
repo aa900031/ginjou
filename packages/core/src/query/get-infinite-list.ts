@@ -348,9 +348,6 @@ export function createPlaceholderDataFn<
 	}
 }
 
-/** @deprecated Use `createPlaceholderDataFn`. */
-export const createPlacholerDataFn = createPlaceholderDataFn
-
 function resolvePagination<
 	TPageParam,
 >(
