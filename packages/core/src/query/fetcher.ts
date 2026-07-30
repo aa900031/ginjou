@@ -158,12 +158,6 @@ export interface CreateOneResult<
 	data: TData
 }
 
-/** @deprecated Use CreateOneProps instead. */
-export type CreateProps<TParams extends Params> = CreateOneProps<TParams>
-
-/** @deprecated Use CreateOneResult instead. */
-export type CreateResult<TData extends BaseRecord> = CreateOneResult<TData>
-
 export type CreateOneFn<
 	TData extends BaseRecord,
 	TParams extends Params,
@@ -290,12 +284,6 @@ export interface UpdateOneProps<
 	params: TParams
 	meta?: Meta
 }
-
-/** @deprecated Use UpdateOneProps instead. */
-export type UpdateProps<TParams extends Params> = UpdateOneProps<TParams>
-
-/** @deprecated Use UpdateOneResult instead. */
-export type UpdateResult<TData extends BaseRecord> = UpdateOneResult<TData>
 
 export type UpdateOneFn<
 	TData extends BaseRecord,
