@@ -1,4 +1,4 @@
-import type { AccessCanParams, AccessCanResult } from '@ginjou/core'
+import type { CanAccessParams, CanAccessResult } from '@ginjou/core'
 import type { UseQueryReturnType } from '@tanstack/vue-query'
 import type { Simplify } from 'type-fest'
 import type { UseQueryClientContextProps } from '../query'
@@ -25,7 +25,7 @@ export type UseCanAccessContext = Simplify<
 export type UseCanAccessResult<
 	TError,
 > = Simplify<
-	& UseQueryReturnType<AccessCanResult, TError>
+	& UseQueryReturnType<CanAccessResult, TError>
 >
 
 export function useCanAccess<
@@ -37,7 +37,7 @@ export function useCanAccess<
 	const authz = useAuthzContext({ ...context, strict: true })
 	const queryClient = useQueryClientContext(context)
 
-	const params = computed<AccessCanParams>(() => {
+	const params = computed<CanAccessParams>(() => {
 		return {
 			action: unref(props.action),
 			resource: unref(props.resource),
@@ -60,7 +60,7 @@ export function useCanAccess<
 			getEnabled: () => queryOptions?.enabled,
 		})
 	})
-	const query = useQuery<AccessCanResult, TError>(
+	const query = useQuery<CanAccessResult, TError>(
 		computed(() => ({
 			...unref(props.queryOptions),
 			queryKey,
@@ -70,7 +70,7 @@ export function useCanAccess<
 		})),
 		queryClient,
 	)
-	useQueryCallbacks<AccessCanResult, TError>({
+	useQueryCallbacks<CanAccessResult, TError>({
 		queryKey,
 		queryClient,
 		onSuccess: (...args) => unref(props?.queryOptions)?.onSuccess?.(...args),
