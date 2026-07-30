@@ -12,7 +12,7 @@ export default defineConfig({
 				'packages/*/src/**/*',
 			],
 			exclude: [
-				'packages/with-svelte-spa-router/**/*', // FIXME:
+				'packages/with-svelte-spa-router/src/router.svelte.ts',
 			],
 		},
 		projects: [
