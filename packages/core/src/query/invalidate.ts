@@ -33,9 +33,6 @@ export const InvalidateTarget = {
 
 export type InvalidateTargetValues = ValueOf<typeof InvalidateTarget>
 
-/** @deprecated Use InvalidateTargetValues instead. */
-export type InvalidateTargetType = InvalidateTargetValues
-
 export type TriggerInvalidatesProps = Simplify<
 	& TriggerInvalidateProps
 	& {

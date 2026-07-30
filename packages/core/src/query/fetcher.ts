@@ -19,9 +19,6 @@ export const SortOrder = {
 
 export type SortOrderValues = ValueOf<typeof SortOrder>
 
-/** @deprecated Use SortOrderValues instead. */
-export type SortOrderType = SortOrderValues
-
 export function isSortOrder(
 	value: unknown,
 ): value is SortOrderValues {
@@ -78,9 +75,6 @@ export const FilterOperator = {
 } as const
 
 export type FilterOperatorValues = ValueOf<typeof FilterOperator>
-
-/** @deprecated Use FilterOperatorValues instead. */
-export type FilterOperatorType = FilterOperatorValues
 
 export interface LogicalFilter {
 	field: string

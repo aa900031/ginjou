@@ -10,9 +10,6 @@ export const RealtimeMode = {
 
 export type RealtimeModeValues = ValueOf<typeof RealtimeMode>
 
-/** @deprecated Use RealtimeModeValues instead. */
-export type RealtimeModeValue = RealtimeModeValues
-
 export const RealtimeAction = {
 	Any: '*',
 	Deleted: 'deleted',

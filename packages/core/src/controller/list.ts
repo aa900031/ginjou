@@ -573,9 +573,6 @@ export const SetFilterBehavior = {
 
 export type SetFilterBehaviorValues = ValueOf<typeof SetFilterBehavior>
 
-/** @deprecated Use SetFilterBehaviorValues instead. */
-export type SetFilterBehaviorType = SetFilterBehaviorValues
-
 export type SetFiltersFn = (
 	value: Filters | ((prev: Filters | undefined) => Filters),
 	behavior?: SetFilterBehaviorValues,
