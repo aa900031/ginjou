@@ -93,7 +93,7 @@ export function useGetMany<
 		getErrorNotify: () => unref(props.errorNotify),
 		emitParent: (...args) => unref(props.queryOptions)?.onError?.(...args),
 	})
-	const placeholderData = GetMany.createPlacholerDataFn<TData, TError, TResultData>({
+	const placeholderData = GetMany.createPlaceholderDataFn<TData, TError, TResultData>({
 		getProps,
 		queryClient,
 	})

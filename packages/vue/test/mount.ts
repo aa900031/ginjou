@@ -11,7 +11,7 @@ export function mountSetup<
 	TSetupFn extends () => any,
 >(
 	setup: TSetupFn,
-	Wapper?: (Comp: Component) => DefineComponent,
+	Wrapper?: (Comp: Component) => DefineComponent,
 ): RenderResult & { result: ReturnType<TSetupFn> } {
 	let result: ReturnType<TSetupFn>
 	const Comp = defineComponent({
@@ -21,10 +21,10 @@ export function mountSetup<
 		},
 	})
 
-	const rednered = render(Wapper ? Wapper(Comp) : Comp)
-	;(rednered as any).result = result!
+	const rendered = render(Wrapper ? Wrapper(Comp) : Comp)
+	;(rendered as any).result = result!
 
-	return rednered as any
+	return rendered as any
 }
 
 export interface TestAppContexts {

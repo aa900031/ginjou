@@ -5,7 +5,7 @@ export interface PromiseResolvePair<T> {
 
 export type ResolveArgsResult<TArgs, TResult> = [TArgs, PromiseResolvePair<TResult>[]][]
 
-export function createAggregrateFn<
+export function createAggregateFn<
 	TFn extends (...args: any[]) => Promise<any>,
 	TArgs extends unknown[] = Parameters<TFn>,
 	TResult = Awaited<ReturnType<TFn>>,

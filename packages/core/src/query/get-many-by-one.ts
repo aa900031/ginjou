@@ -131,7 +131,7 @@ export function getQueriesOptions<
 			fetchers: props.fetchers,
 			getProps: () => propsForGetOne,
 		})
-		const placeholderDataFn = GetOne.createPlacholerDataFn<TData, TError>()
+		const placeholderDataFn = GetOne.createPlaceholderDataFn<TData, TError>()
 
 		return {
 			...queryOptionsForProps,

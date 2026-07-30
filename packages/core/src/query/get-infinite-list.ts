@@ -338,7 +338,7 @@ export function getRecords<
 	return data?.pages.map(page => page.data)
 }
 
-export function createPlacholerDataFn<
+export function createPlaceholderDataFn<
 	TData extends BaseRecord,
 	TError,
 	TPageParam,
