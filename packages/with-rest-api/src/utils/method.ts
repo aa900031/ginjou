@@ -3,9 +3,11 @@ export function toMethod(
 ): string {
 	switch (method) {
 		case 'put':
-		case 'post':
-		case 'patch':
 			return 'PUT'
+		case 'post':
+			return 'POST'
+		case 'patch':
+			return 'PATCH'
 		case 'delete':
 			return 'DELETE'
 		default:
