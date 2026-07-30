@@ -14,6 +14,7 @@ const composables = [
 	'useDeleteOne',
 	'useDeleteMany',
 	'useFetchersContext',
+	'useClone',
 	'useCreate',
 	'useEdit',
 	'useGetIdentity',

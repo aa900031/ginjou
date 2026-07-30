@@ -15,7 +15,7 @@ export interface ToPropsWithResource {
 
 export interface ToPropsWithResourceId {
 	resource?: string
-	action: typeof ResourceAction.Type.Edit | typeof ResourceAction.Type.Show
+	action: typeof ResourceAction.Type.Clone | typeof ResourceAction.Type.Edit | typeof ResourceAction.Type.Show
 	id: RecordKey
 	params?: Record<string, any>
 }
@@ -67,6 +67,7 @@ export function createToFn(
 				})
 			}
 			case ResourceAction.Type.Edit:
+			case ResourceAction.Type.Clone:
 			case ResourceAction.Type.Show: {
 				const path = ResourcePath.get({
 					resolved: Resource.resolve(controller, { name: props.resource ?? getResourceFromProp() }),

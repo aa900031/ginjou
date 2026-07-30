@@ -46,6 +46,11 @@ export interface EditResult {
 	id: RecordKey
 }
 
+export interface CloneResult {
+	action: typeof ResourceAction.Type.Clone
+	id: RecordKey
+}
+
 export interface CreateResult {
 	action: typeof ResourceAction.Type.Create
 }
@@ -54,6 +59,7 @@ export type ParseResult
 	= | ListResult
 		| ShowResult
 		| CreateResult
+		| CloneResult
 		| EditResult
 
 export type ParseFn<
@@ -241,6 +247,7 @@ function parseFromRegExp(
 				action,
 			}
 		case ResourceAction.Type.Edit:
+		case ResourceAction.Type.Clone:
 		case ResourceAction.Type.Show: {
 			const index = keys.indexOf('id')
 			if (index < 0)

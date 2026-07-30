@@ -1,3 +1,4 @@
+export * from './clone.svelte'
 export * from './context'
 export * from './create.svelte'
 export * from './edit.svelte'

@@ -20,6 +20,10 @@ const composables = [
 	},
 	// Controllers
 	{
+		from: './runtime/composables/clone',
+		name: 'useAsyncClone',
+	},
+	{
 		from: './runtime/composables/show',
 		name: 'useAsyncShow',
 	},

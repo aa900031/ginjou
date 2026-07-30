@@ -43,13 +43,18 @@ describe('resource.parse', () => {
 		})
 	})
 
-	it('should parse edit and show ids from string patterns', () => {
+	it('should parse clone, edit, and show ids from string patterns', () => {
 		const resource = {
 			name: 'posts',
+			clone: '/posts/:id/clone',
 			edit: '/posts/:id/edit',
 			show: '/posts/:id',
 		}
 
+		expect(parse(resource, { path: '/posts/789/clone' })).toEqual({
+			action: ResourceAction.Type.Clone,
+			id: '789',
+		})
 		expect(parse(resource, { path: '/posts/123/edit' })).toEqual({
 			action: ResourceAction.Type.Edit,
 			id: '123',
@@ -78,7 +83,12 @@ describe('resource.parse', () => {
 		})
 	})
 
-	it('should throw when show or edit patterns do not include an id parameter', () => {
+	it('should throw when clone, show, or edit patterns do not include an id parameter', () => {
+		expect(() => parse({
+			name: 'posts',
+			clone: '/posts/clone',
+		}, { path: '/posts/clone' })).toThrow(`[@ginjou/core] Cannot parse '${ResourceAction.Type.Clone}' resource route because the path pattern does not include an ':id' parameter.`)
+
 		expect(() => parse({
 			name: 'posts',
 			show: '/posts/show',

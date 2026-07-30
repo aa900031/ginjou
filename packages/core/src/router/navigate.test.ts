@@ -349,6 +349,31 @@ describe('navigate', () => {
 			})
 		})
 
+		describe('clone action', () => {
+			it('should navigate to clone action with id', () => {
+				const go = vi.fn()
+				const navigateTo = createToFn({
+					go,
+					getResourceFromProp: () => 'posts',
+					controller: {
+						resources: [{
+							name: 'posts',
+							clone: '/posts/:id/clone',
+						}],
+					},
+				})
+
+				navigateTo({
+					action: ResourceAction.Type.Clone,
+					id: 'source-id',
+				})
+
+				expect(go).toHaveBeenCalledWith({
+					to: '/posts/source-id/clone',
+				})
+			})
+		})
+
 		describe('show action', () => {
 			it('should navigate to show action with id', () => {
 				const go = vi.fn()
