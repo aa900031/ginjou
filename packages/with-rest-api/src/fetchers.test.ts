@@ -327,7 +327,7 @@ describe('createFetcher', () => {
 					customQ: 'query',
 				},
 				headers: customHeaders,
-				params: customPayload,
+				body: customPayload,
 			})
 			expect(result).toEqual({ data: mockData })
 		})
@@ -349,7 +349,7 @@ describe('createFetcher', () => {
 				method: 'GET',
 				query: {},
 				headers: undefined,
-				params: undefined,
+				body: undefined,
 			})
 			expect(result).toEqual({ data: mockData })
 		})
