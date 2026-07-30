@@ -24,9 +24,6 @@ export type UsePermissionsContext = Simplify<
 	& UseQueryClientContextProps
 >
 
-/** @deprecated Use `UsePermissionsContext` instead. */
-export type UserPermissionsContext = UsePermissionsContext
-
 export type UsePermissionsResult<
 	TData,
 	TError,
