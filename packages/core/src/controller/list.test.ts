@@ -108,7 +108,7 @@ describe('list', () => {
 				{ field: 'name', operator: 'eq', value: 'John' },
 			], SetFilterBehavior.Replace)
 
-			expect(getFiltersBehavior).not.toHaveBeenCalledOnce()
+			expect(getFiltersBehavior).not.toHaveBeenCalled()
 			expect(update).toHaveBeenCalledOnce()
 
 			expect(update).toHaveBeenCalledWith([
