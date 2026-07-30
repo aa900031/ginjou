@@ -3,13 +3,10 @@ export function toMethod(
 ): string {
 	switch (method) {
 		case 'put':
-			return 'PUT'
 		case 'post':
-			return 'POST'
 		case 'patch':
-			return 'PATCH'
 		case 'delete':
-			return 'DELETE'
+			return method.toUpperCase()
 		default:
 			return 'GET'
 	}

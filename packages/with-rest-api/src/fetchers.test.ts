@@ -319,7 +319,7 @@ describe('createFetcher', () => {
 			// expect(methodUtil.toMethod).toHaveBeenCalledWith('post'); // Removed
 
 			expect(mockClient.raw).toHaveBeenCalledWith('/custom-endpoint', {
-				method: 'PUT', // Based on actual toMethod
+				method: 'POST', // Based on actual toMethod
 				query: {
 					_order: 'desc', // Based on actual genSorters
 					_sort: 'x', // Based on actual genSorters
