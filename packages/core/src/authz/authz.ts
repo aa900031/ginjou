@@ -13,7 +13,7 @@ export type GetPermissionsFn<
 	params?: TParams,
 ) => Promise<GetPermissionsResult<TData>>
 
-export interface AccessCanParams {
+export interface CanAccessParams {
 	action: LiteralUnion<ResourceAction.TypeValues, string>
 	resource?: string
 	params?: {
@@ -23,17 +23,17 @@ export interface AccessCanParams {
 	meta?: Record<string, any>
 }
 
-export interface AccessCanResult {
+export interface CanAccessResult {
 	can: boolean
 	reason?: string
 }
 
-export type AccessCanFn = (
-	params: AccessCanParams,
-) => AccessCanResult | Promise<AccessCanResult>
+export type CanAccessFn = (
+	params: CanAccessParams,
+) => CanAccessResult | Promise<CanAccessResult>
 
 export interface Authz {
-	access?: AccessCanFn
+	access?: CanAccessFn
 	getPermissions?: GetPermissionsFn<any, any>
 }
 

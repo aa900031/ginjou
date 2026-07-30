@@ -2,18 +2,18 @@ import type { QueryFunction, QueryKey, QueryObserverOptions } from '@tanstack/qu
 import type { QueryCallbacks } from 'tanstack-query-callbacks'
 import type { Simplify } from 'type-fest'
 import type { OriginQueryEnabledFn } from '../utils/query'
-import type { AccessCanParams, AccessCanResult, Authz } from './authz'
+import type { Authz, CanAccessParams, CanAccessResult } from './authz'
 import { resolveQueryEnableds } from '../utils/query'
 
 export type QueryOptions<
 	TError,
 > = Simplify<
 	& QueryObserverOptions<
-		AccessCanResult,
+		CanAccessResult,
 		TError
 	>
 	& QueryCallbacks<
-		AccessCanResult,
+		CanAccessResult,
 		TError
 	>
 >
@@ -21,7 +21,7 @@ export type QueryOptions<
 export type Props<
 	TError,
 > = Simplify<
-	& AccessCanParams
+	& CanAccessParams
 	& {
 		queryOptions?: Omit<
 			QueryOptions<TError>,
@@ -33,7 +33,7 @@ export type Props<
 >
 
 export interface CreateQueryKeyProps {
-	params?: AccessCanParams
+	params?: CanAccessParams
 }
 
 export function createQueryKey(
@@ -53,10 +53,10 @@ export function createQueryKey(
 
 export interface CreateQueryFnProps {
 	authz: Authz | undefined
-	getParams: () => AccessCanParams
+	getParams: () => CanAccessParams
 }
 
-const DEFAULT_ACCESS_CAN_RESULT: AccessCanResult = {
+const DEFAULT_CAN_ACCESS_RESULT: CanAccessResult = {
 	can: true,
 }
 
@@ -65,11 +65,11 @@ export function createQueryFn(
 		authz,
 		getParams,
 	}: CreateQueryFnProps,
-): QueryFunction<AccessCanResult> {
+): QueryFunction<CanAccessResult> {
 	return async function queryFn() {
 		const params = getParams()
 
-		return authz?.access?.(params) ?? DEFAULT_ACCESS_CAN_RESULT
+		return authz?.access?.(params) ?? DEFAULT_CAN_ACCESS_RESULT
 	}
 }
 
@@ -87,7 +87,7 @@ export function createQueryEnabledFn<
 		getAuthz,
 		getEnabled,
 	}: CreateQueryEnabledFnProps<TError>,
-): OriginQueryEnabledFn<AccessCanResult, TError> {
+): OriginQueryEnabledFn<CanAccessResult, TError> {
 	return function enabled(
 		query,
 	) {
