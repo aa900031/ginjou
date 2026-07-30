@@ -15,14 +15,14 @@ describe('genFilters', () => {
 	it('should throw an error for "or" operator', () => {
 		const filters = [{ operator: FilterOperator.or, value: [] }] as any
 		expect(() => genFilters(filters)).toThrowError(
-			'[@ginjou/with-rest-api]: `operator: or` is not supported.',
+			'[@ginjou/with-rest-api] `operator: or` is not supported.',
 		)
 	})
 
 	it('should throw an error for "and" operator', () => {
 		const filters = [{ operator: FilterOperator.and, value: [] }] as any
 		expect(() => genFilters(filters)).toThrowError(
-			'[@ginjou/with-rest-api]: `operator: and` is not supported.',
+			'[@ginjou/with-rest-api] `operator: and` is not supported.',
 		)
 	})
 

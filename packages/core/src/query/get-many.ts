@@ -383,7 +383,7 @@ const aggregExecGetMany = createAggregrateFn(
 
 			const args = value.args[0]
 			if (!args)
-				throw new Error('Panic')
+				throw new Error('[@ginjou/core] Cannot aggregate get-many requests because no request arguments were provided.')
 			args[0] = { ...args?.[0], ids }
 
 			result.push([
