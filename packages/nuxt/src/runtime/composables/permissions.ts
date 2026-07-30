@@ -1,4 +1,4 @@
-import type { UsePermissionsProps, UsePermissionsResult, UserPermissionsContext } from '@ginjou/vue'
+import type { UsePermissionsContext, UsePermissionsProps, UsePermissionsResult } from '@ginjou/vue'
 import type { AsyncResult } from '../utils/async'
 import { usePermissions } from '@ginjou/vue'
 import { withAsync } from '../utils/async'
@@ -9,7 +9,7 @@ export function useAsyncPermissions<
 	TError = unknown,
 >(
 	props?: UsePermissionsProps<TData, TParams, TError>,
-	context?: UserPermissionsContext,
+	context?: UsePermissionsContext,
 ): AsyncResult<UsePermissionsResult<TData, TError>> {
 	const query = usePermissions(props, context)
 	return withAsync(query, async () => {
