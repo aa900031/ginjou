@@ -13,7 +13,7 @@ import { NotificationType } from '../notification'
 import { getErrorMessage } from '../utils/error'
 import { getQuery, resolveQueryEnableds } from '../utils/query'
 import { getFetcherFn, resolveFetcherProps } from './fetchers'
-import { createQueryKey as createGetOneQueryKey } from './get-one'
+import { createQueryKey as genGetOneQueryKey } from './get-one'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
 
 export type QueryOptions<
@@ -376,7 +376,7 @@ function updateCache<
 			continue
 
 		queryClient.setQueryData<GetOneResult<TData>>(
-			createGetOneQueryKey({
+			genGetOneQueryKey({
 				props: { ...props, id: record.id },
 			}),
 			old => old ?? { data: record },
