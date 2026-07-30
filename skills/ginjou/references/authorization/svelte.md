@@ -6,7 +6,7 @@ Access-control wiring and composables for Svelte 5. See [Authorization](https://
 
 ```ts
 interface Authz {
-	access?: AccessCanFn
+	access?: CanAccessFn
 	getPermissions?: GetPermissionsFn<any, any>
 }
 ```

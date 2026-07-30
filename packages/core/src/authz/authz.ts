@@ -32,15 +32,6 @@ export type CanAccessFn = (
 	params: CanAccessParams,
 ) => CanAccessResult | Promise<CanAccessResult>
 
-/** @deprecated Use `CanAccessParams` instead. */
-export type AccessCanParams = CanAccessParams
-
-/** @deprecated Use `CanAccessResult` instead. */
-export type AccessCanResult = CanAccessResult
-
-/** @deprecated Use `CanAccessFn` instead. */
-export type AccessCanFn = CanAccessFn
-
 export interface Authz {
 	access?: CanAccessFn
 	getPermissions?: GetPermissionsFn<any, any>
