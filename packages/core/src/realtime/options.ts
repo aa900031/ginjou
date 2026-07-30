@@ -1,11 +1,11 @@
 import type { SetRequired, Simplify } from 'type-fest'
-import type { RealtimeModeValue, SubscribeCallbackFn } from './realtime'
+import type { RealtimeModeValues, SubscribeCallbackFn } from './realtime'
 import { RealtimeMode } from './realtime'
 
 export interface Input<
 	TPayload,
 > {
-	mode?: RealtimeModeValue
+	mode?: RealtimeModeValues
 	callback?: SubscribeCallbackFn<TPayload>
 	channel?: string
 	params?: Record<string, unknown>
