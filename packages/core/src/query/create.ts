@@ -4,7 +4,7 @@ import type { CheckError } from '../auth'
 import type { Translate } from '../i18n'
 import type { Notify } from '../notification'
 import type { Publish } from '../realtime'
-import type { BaseRecord, CreateOneFn, CreateProps, CreateResult, Params } from './fetcher'
+import type { BaseRecord, CreateOneFn, CreateOneProps, CreateOneResult, Params } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { InvalidatesProps, InvalidateTargetType, ResolvedInvalidatesProps } from './invalidate'
 import type { NotifyProps } from './notify'
@@ -23,10 +23,10 @@ export type MutationProps<
 	TError,
 	TParams extends Params,
 > = Simplify<
-	& Partial<CreateProps<TParams>>
+	& Partial<CreateOneProps<TParams>>
 	& FetcherProps
 	& InvalidatesProps
-	& NotifyProps<CreateResult<TData>, CreateProps<TParams>, TError>
+	& NotifyProps<CreateOneResult<TData>, CreateOneProps<TParams>, TError>
 >
 
 export type ResolvedMutationProps<
@@ -36,7 +36,7 @@ export type ResolvedMutationProps<
 > = Simplify<
 	& OverrideProperties<
 		MutationProps<TData, TError, TParams>,
-		CreateProps<TParams>
+		CreateOneProps<TParams>
 	>
 	& ResolvedFetcherProps
 	& ResolvedInvalidatesProps
@@ -47,7 +47,7 @@ export type MutationOptions<
 	TError,
 	TParams extends Params,
 > = MutationObserverOptions<
-	CreateResult<TData>,
+	CreateOneResult<TData>,
 	TError,
 	MutationProps<TData, TError, TParams>
 >
@@ -77,7 +77,7 @@ export type MutateFn<
 	TError,
 	TParams extends Params,
 > = OptionalMutateSyncFunction<
-	CreateResult<TData>,
+	CreateOneResult<TData>,
 	TError,
 	MutationProps<TData, TError, TParams>
 >
@@ -87,7 +87,7 @@ export type MutateAsyncFn<
 	TError,
 	TParams extends Params,
 > = OptionalMutateAsyncFunction<
-	CreateResult<TData>,
+	CreateOneResult<TData>,
 	TError,
 	MutationProps<TData, TError, TParams>
 >
@@ -221,7 +221,7 @@ export interface CreateMutateFnProps<
 	TParams extends Params,
 > {
 	originFn: OriginMutateSyncFunction<
-		CreateResult<TData>,
+		CreateOneResult<TData>,
 		TError,
 		MutationProps<TData, TError, TParams>
 	>
@@ -247,7 +247,7 @@ export interface CreateMutateAsyncFnProps<
 	TParams extends Params,
 > {
 	originFn: OriginMutateAsyncFunction<
-		CreateResult<TData>,
+		CreateOneResult<TData>,
 		TError,
 		MutationProps<TData, TError, TParams>
 	>
@@ -269,7 +269,7 @@ export function createMutateAsyncFn<
 
 function createPublishEvent(
 	resolvedProps: ResolvedMutationProps<any, any, any>,
-	data: CreateResult<any>,
+	data: CreateOneResult<any>,
 ): Publish.EmitEvent<PublishPayload> {
 	const payload = createPublishPayloadByOne(resolvedProps, data)
 	const meta = createPublishMeta(resolvedProps)
@@ -312,7 +312,7 @@ function resolveProps<
 >(
 	propsFromProps: Props<TData, TError, TParams> | undefined,
 	propsFromFn: MutationProps<TData, TError, TParams>,
-): OverrideProperties<MutationProps<TData, TError, TParams>, CreateProps<TParams>> {
+): OverrideProperties<MutationProps<TData, TError, TParams>, CreateOneProps<TParams>> {
 	const props = {
 		...propsFromProps,
 		...propsFromFn,

@@ -1,6 +1,6 @@
 import type { InvalidateOptions, InvalidateQueryFilters, QueryClient } from '@tanstack/query-core'
 import type { SetRequired, Simplify, ValueOf } from 'type-fest'
-import type { BaseRecord, CreateManyResult, CreateResult, DeleteManyResult, DeleteOneResult, GetManyResult, GetOneResult, RecordKey, UpdateManyResult, UpdateResult } from './fetcher'
+import type { BaseRecord, CreateManyResult, CreateOneResult, DeleteManyResult, DeleteOneResult, GetManyResult, GetOneResult, RecordKey, UpdateManyResult, UpdateOneResult } from './fetcher'
 import { createQueryKey as genGetListQueryKey } from './get-list'
 import { createQueryKey as genGetManyQueryKey } from './get-many'
 import { createQueryKey as genGetOneQueryKey } from './get-one'
@@ -47,9 +47,9 @@ export async function triggerInvalidates<
 	result:
 		| GetOneResult<TResult>
 		| GetManyResult<TResult>
-		| CreateResult<TResult>
+		| CreateOneResult<TResult>
 		| CreateManyResult<TResult>
-		| UpdateResult<TResult>
+		| UpdateOneResult<TResult>
 		| UpdateManyResult<TResult>
 		| DeleteOneResult<TResult>
 		| DeleteManyResult<TResult>
@@ -183,9 +183,9 @@ export async function triggerInvalidate<
 	result:
 		| GetOneResult<TResult>
 		| GetManyResult<TResult>
-		| CreateResult<TResult>
+		| CreateOneResult<TResult>
 		| CreateManyResult<TResult>
-		| UpdateResult<TResult>
+		| UpdateOneResult<TResult>
 		| UpdateManyResult<TResult>
 		| DeleteOneResult<TResult>
 		| DeleteManyResult<TResult>
@@ -201,9 +201,9 @@ export async function triggerInvalidate<
 	result:
 		| GetOneResult<TResult>
 		| GetManyResult<TResult>
-		| CreateResult<TResult>
+		| CreateOneResult<TResult>
 		| CreateManyResult<TResult>
-		| UpdateResult<TResult>
+		| UpdateOneResult<TResult>
 		| UpdateManyResult<TResult>
 		| DeleteOneResult<TResult>
 		| DeleteManyResult<TResult>
