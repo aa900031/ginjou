@@ -17,11 +17,14 @@ export const SortOrder = {
 	Desc: 'desc',
 } as const
 
-export type SortOrderType = ValueOf<typeof SortOrder>
+export type SortOrderValues = ValueOf<typeof SortOrder>
+
+/** @deprecated Use SortOrderValues instead. */
+export type SortOrderType = SortOrderValues
 
 export function isSortOrder(
 	value: unknown,
-): value is SortOrderType {
+): value is SortOrderValues {
 	switch (value) {
 		case SortOrder.Asc:
 		case SortOrder.Desc:
@@ -33,7 +36,7 @@ export function isSortOrder(
 
 export interface Sort {
 	field: string
-	order: SortOrderType
+	order: SortOrderValues
 }
 
 export type Sorters = Sort[]
@@ -74,17 +77,20 @@ export const FilterOperator = {
 	and: 'and',
 } as const
 
-export type FilterOperatorType = ValueOf<typeof FilterOperator>
+export type FilterOperatorValues = ValueOf<typeof FilterOperator>
+
+/** @deprecated Use FilterOperatorValues instead. */
+export type FilterOperatorType = FilterOperatorValues
 
 export interface LogicalFilter {
 	field: string
-	operator: Exclude<FilterOperatorType, 'or' | 'and'>
+	operator: Exclude<FilterOperatorValues, 'or' | 'and'>
 	value: any
 }
 
 export interface ConditionalFilter {
 	key?: string
-	operator: Extract<FilterOperatorType, 'or' | 'and'>
+	operator: Extract<FilterOperatorValues, 'or' | 'and'>
 	value: (LogicalFilter | ConditionalFilter)[]
 }
 
@@ -94,7 +100,7 @@ export type Filters = Filter[]
 
 export function isFilterOperator(
 	operator: unknown,
-): operator is FilterOperatorType {
+): operator is FilterOperatorValues {
 	return (Object.values(FilterOperator) as unknown[]).includes(operator)
 }
 

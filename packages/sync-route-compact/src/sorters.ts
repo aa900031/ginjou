@@ -1,9 +1,9 @@
-import type { Sort, Sorters, SortOrderType } from '@ginjou/core'
+import type { Sort, Sorters, SortOrderValues } from '@ginjou/core'
 import { isSortOrder } from '@ginjou/core'
 import * as JSURL from 'jsurl2'
 import { invalid, parseArray, stringifyOptions } from './utils'
 
-type PackedSorter = [field: string, order: SortOrderType]
+type PackedSorter = [field: string, order: SortOrderValues]
 
 function packSorter(sorter: Sort): PackedSorter {
 	return [sorter.field, sorter.order]

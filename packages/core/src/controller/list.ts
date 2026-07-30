@@ -30,7 +30,7 @@ export type SortersProp
 export interface FiltersOptions {
 	value?: Filters
 	permanent?: Filters
-	behavior?: SetFilterBehaviorType
+	behavior?: SetFilterBehaviorValues
 	mode?: 'server' | 'off'
 }
 
@@ -571,11 +571,14 @@ export const SetFilterBehavior = {
 	Merge: 'merge',
 } as const
 
-export type SetFilterBehaviorType = ValueOf<typeof SetFilterBehavior>
+export type SetFilterBehaviorValues = ValueOf<typeof SetFilterBehavior>
+
+/** @deprecated Use SetFilterBehaviorValues instead. */
+export type SetFilterBehaviorType = SetFilterBehaviorValues
 
 export type SetFiltersFn = (
 	value: Filters | ((prev: Filters | undefined) => Filters),
-	behavior?: SetFilterBehaviorType,
+	behavior?: SetFilterBehaviorValues,
 ) => void
 
 export function createSetFiltersFn(

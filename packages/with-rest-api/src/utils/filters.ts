@@ -1,4 +1,4 @@
-import type { FilterOperatorType, Filters } from '@ginjou/core'
+import type { FilterOperatorValues, Filters } from '@ginjou/core'
 import { FilterOperator, isConditionalFilterOperator } from '@ginjou/core'
 
 export function genFilters(
@@ -32,7 +32,7 @@ export function genFilters(
 }
 
 function getOperator(
-	operator: FilterOperatorType,
+	operator: FilterOperatorValues,
 ): string {
 	switch (operator) {
 		case FilterOperator.ne:

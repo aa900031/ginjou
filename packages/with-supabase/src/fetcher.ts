@@ -1,4 +1,4 @@
-import type { FilterOperatorType, Filters, Sorters } from '@ginjou/core'
+import type { FilterOperatorValues, Filters, Sorters } from '@ginjou/core'
 import type { PostgrestFilterBuilder } from '@supabase/postgrest-js'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { defineFetcher, isLogicalFilterOperator } from '@ginjou/core'
@@ -247,7 +247,7 @@ function applyFilters(
 }
 
 function getOperator(
-	operator: FilterOperatorType,
+	operator: FilterOperatorValues,
 ): string {
 	switch (operator) {
 		case 'ne':
