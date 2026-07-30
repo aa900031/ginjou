@@ -24,6 +24,40 @@ describe('createFetcher', () => {
 		expect(fetcher).toHaveProperty('custom')
 	})
 
+	it('should forward query abort signals', async () => {
+		const controller = new AbortController()
+		const context = { signal: controller.signal } as any
+
+		mockClient.raw
+			.mockResolvedValueOnce({ _data: [], headers: new Headers() })
+			.mockResolvedValueOnce({ _data: { id: 1 } })
+			.mockResolvedValueOnce({ _data: { ok: true } })
+
+		await fetcher.getList({ resource: 'posts' }, context)
+		await fetcher.getOne({ resource: 'posts', id: 1 }, context)
+		await fetcher.custom({ url: '/health', method: 'get' }, context)
+
+		for (const [, options] of mockClient.raw.mock.calls)
+			expect(options.signal).toBe(controller.signal)
+	})
+
+	it('should propagate request cancellation', async () => {
+		const controller = new AbortController()
+		const abortError = new Error('cancelled')
+		mockClient.raw.mockImplementationOnce((_url, options) => new Promise((_resolve, reject) => {
+			options.signal.addEventListener('abort', () => reject(options.signal.reason), { once: true })
+		}))
+
+		const request = fetcher.getOne(
+			{ resource: 'posts', id: 1 },
+			{ signal: controller.signal } as any,
+		)
+		const rejection = expect(request).rejects.toBe(abortError)
+		controller.abort(abortError)
+
+		await rejection
+	})
+
 	// Test getList
 	describe('getList', () => {
 		it('should fetch a list of resources with default parameters', async () => {

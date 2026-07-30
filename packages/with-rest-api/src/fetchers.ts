@@ -18,7 +18,7 @@ export function createFetcher(
 	}: CreateFetcherProps,
 ) {
 	return defineFetcher({
-		getList: async ({ resource, pagination, filters, sorters, meta }) => {
+		getList: async ({ resource, pagination, filters, sorters, meta }, context = undefined) => {
 			const query: {
 				_start?: number
 				_end?: number
@@ -52,6 +52,7 @@ export function createFetcher(
 					...queryFilters,
 				},
 				headers: meta?.headers as any,
+				...(context?.signal ? { signal: context.signal } : {}),
 			})
 
 			const data = response._data!
@@ -62,11 +63,12 @@ export function createFetcher(
 				total: +(total || data.length),
 			}
 		},
-		getOne: async ({ resource, id, meta }) => {
+		getOne: async ({ resource, id, meta }, context = undefined) => {
 			const response = await client.raw(`${resource}/${id}`, {
 				baseURL: `${url}`,
 				method: meta?.method as any ?? 'GET',
 				headers: meta?.headers as any,
+				...(context?.signal ? { signal: context.signal } : {}),
 			})
 
 			return {
@@ -109,15 +111,18 @@ export function createFetcher(
 				data: response._data,
 			}
 		},
-		custom: async ({
-			url,
-			method,
-			filters,
-			sorters,
-			payload,
-			query,
-			headers,
-		}) => {
+		custom: async (
+			{
+				url,
+				method,
+				filters,
+				sorters,
+				payload,
+				query,
+				headers,
+			},
+			context = undefined,
+		) => {
 			const queryFilters = genFilters(filters)
 			const querySorters = genSorters(sorters)
 			const reqMethod = toMethod(method)
@@ -132,6 +137,7 @@ export function createFetcher(
 				query: reqQuery,
 				headers,
 				params: payload as any,
+				...(context && 'signal' in context ? { signal: context.signal } : {}),
 			})
 
 			return {

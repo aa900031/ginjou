@@ -20,12 +20,15 @@ export function createFetcher(
 	}: CreateFetcherProps,
 ) {
 	return defineFetcher({
-		getList: async ({ resource, pagination, filters, sorters, meta }) => {
+		getList: async ({ resource, pagination, filters, sorters, meta }, context = undefined) => {
 			const query = client
 				.from(resource)
 				.select((meta as FetcherMeta)?.select ?? '*', {
 					count: (meta as FetcherMeta)?.count ?? 'exact',
 				})
+
+			if (context?.signal)
+				query.abortSignal(context.signal)
 
 			if (pagination) {
 				const { current, perPage } = pagination
@@ -48,10 +51,13 @@ export function createFetcher(
 				total: count || 0,
 			}
 		},
-		getMany: async ({ resource, ids, meta }) => {
+		getMany: async ({ resource, ids, meta }, context = undefined) => {
 			const query = client
 				.from(resource)
 				.select((meta as FetcherMeta)?.select ?? '*')
+
+			if (context?.signal)
+				query.abortSignal(context.signal)
 
 			if ((meta as FetcherMeta)?.idColumnName)
 				query.in((meta as FetcherMeta).idColumnName!, ids)
@@ -116,10 +122,13 @@ export function createFetcher(
 				data: (data || [])[0] as any,
 			}
 		},
-		getOne: async ({ resource, id, meta }) => {
+		getOne: async ({ resource, id, meta }, context = undefined) => {
 			const query = client
 				.from(resource)
 				.select((meta as FetcherMeta)?.select ?? '*')
+
+			if (context?.signal)
+				query.abortSignal(context.signal)
 
 			if ((meta as FetcherMeta)?.idColumnName)
 				query.eq((meta as FetcherMeta).idColumnName!, id)

@@ -28,7 +28,7 @@ export function createFetcher<
 	}: CreateFetcherProps<TClient>,
 ) {
 	return defineFetcher({
-		getList: async ({ resource, pagination, filters, sorters, meta }) => {
+		getList: async ({ resource, pagination, filters, sorters, meta }, context = undefined) => {
 			const query = cleanDeep({
 				...(meta as FetcherMeta)?.query,
 				meta: (meta as FetcherMeta)?.query?.meta ?? '*',
@@ -40,7 +40,12 @@ export function createFetcher<
 			})
 
 			const fn = getProtectedFunction(resource, 'read', false)
-			const data = await client.request(fn ? fn(query) : sdk.readItems(resource as any, query as any))
+			const readCommand = fn ? fn(query) : (sdk.readItems as any)(resource, query)
+			const data = await client.request(
+				context?.signal
+					? (sdk.withOptions as any)(readCommand, { signal: context.signal })
+					: readCommand,
+			)
 
 			const aggregateOptions = {
 				query: { ...query },
@@ -48,20 +53,30 @@ export function createFetcher<
 			}
 			delete aggregateOptions.query.page
 
-			const aggregate = await client.request(sdk.aggregate(resource as any, aggregateOptions as any))
+			const aggregateCommand = sdk.aggregate(resource as any, aggregateOptions as any)
+			const aggregate = await client.request(
+				context?.signal
+					? sdk.withOptions(aggregateCommand, { signal: context.signal })
+					: aggregateCommand,
+			)
 
 			return {
 				data: data && !Array.isArray(data) ? [data] : data as any,
 				total: (aggregate[0] as any)?.countDistinct[(aggregateOptions.aggregate as any)?.countDistinct ?? 'id'] ?? 0 as number,
 			}
 		},
-		getOne: async ({ resource, id, meta }) => {
+		getOne: async ({ resource, id, meta }, context = undefined) => {
 			const query = cleanDeep({
 				...(meta as FetcherMeta)?.query,
 			})
 
 			const fn = getProtectedFunction(resource, 'read')
-			const data = await client.request(fn ? fn(id, query) : sdk.readItem(resource as any, id, query))
+			const command = fn ? fn(id, query) : (sdk.readItem as any)(resource, id, query)
+			const data = await client.request(
+				context?.signal
+					? (sdk.withOptions as any)(command, { signal: context.signal })
+					: command,
+			)
 
 			return {
 				data: data as any,
@@ -101,54 +116,60 @@ export function createFetcher<
 				data: data as any,
 			}
 		},
-		custom: async ({ url, method, payload, query, headers }) => {
-			let response: any
+		custom: async ({ url, method, payload, query, headers }, context = undefined) => {
+			let command: any
 			switch (method) {
 				case 'put':
-					response = await client.request(() => ({
+					command = () => ({
 						path: url,
 						method: 'PUT',
 						body: JSON.stringify(payload),
 						params: query as any,
 						headers,
-					}))
+					})
 
 					break
 				case 'post':
-					response = await client.request(() => ({
+					command = () => ({
 						path: url,
 						method: 'POST',
 						body: JSON.stringify(payload),
 						params: query as any,
 						headers,
-					}))
+					})
 					break
 				case 'patch':
-					response = await client.request(() => ({
+					command = () => ({
 						path: url,
 						method: 'PATCH',
 						body: JSON.stringify(payload),
 						params: query as any,
 						headers,
-					}))
+					})
 					break
 				case 'delete':
-					response = await client.request(() => ({
+					command = () => ({
 						path: url,
 						method: 'DELETE',
 						params: query as any,
 						headers,
-					}))
+					})
 					break
 				default:
-					response = await client.request(() => ({
+					command = () => ({
 						path: url,
 						method: 'GET',
 						params: query as any,
 						headers,
-					}))
+					})
 					break
 			}
+
+			const response = await client.request(
+				context && 'signal' in context
+					? sdk.withOptions(command, { signal: context.signal })
+					: command,
+			)
 
 			return {
 				data: response,
