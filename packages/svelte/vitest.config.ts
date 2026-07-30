@@ -11,5 +11,6 @@ export default defineProject({
 	},
 	resolve: {
 		alias,
+		conditions: ['browser'],
 	},
 })
