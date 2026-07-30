@@ -456,7 +456,7 @@ export function getLocationSorters(
 export interface GetInitialPageProps<
 	TPageParam,
 > {
-		initialPageFromProp: PaginationProp<TPageParam>['init']
+	initialPageFromProp: PaginationProp<TPageParam>['init']
 }
 
 export function getInitialPage<
