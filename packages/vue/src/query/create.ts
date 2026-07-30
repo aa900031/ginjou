@@ -77,7 +77,7 @@ export function useCreateOne<
 		translate,
 		publish,
 		getProps,
-		onSuccess: unref(props?.mutationOptions)?.onSuccess,
+		onSuccess: (...args) => unref(props?.mutationOptions)?.onSuccess?.(...args),
 		queryClient,
 	})
 	const handleError = CreateOne.createErrorHandler({
@@ -85,7 +85,7 @@ export function useCreateOne<
 		translate,
 		checkError,
 		getProps,
-		onError: unref(props?.mutationOptions)?.onError,
+		onError: (...args) => unref(props?.mutationOptions)?.onError?.(...args),
 	})
 
 	const mutation = useMutation<CreateResult<TData>, TError, CreateOne.MutationProps<TData, TError, TParams>, any>(
