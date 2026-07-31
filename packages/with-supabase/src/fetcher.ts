@@ -19,8 +19,9 @@ export function createFetcher(
 		client,
 	}: CreateFetcherProps,
 ) {
+	// Keep context defaults so inferred fetcher methods accept omitted contexts.
 	return defineFetcher({
-		getList: async ({ resource, pagination, filters, sorters, meta }, context) => {
+		getList: async ({ resource, pagination, filters, sorters, meta }, context = undefined) => {
 			const query = client
 				.from(resource)
 				.select((meta as FetcherMeta)?.select ?? '*', {
@@ -51,7 +52,7 @@ export function createFetcher(
 				total: count || 0,
 			}
 		},
-		getMany: async ({ resource, ids, meta }, context) => {
+		getMany: async ({ resource, ids, meta }, context = undefined) => {
 			const query = client
 				.from(resource)
 				.select((meta as FetcherMeta)?.select ?? '*')
@@ -122,7 +123,7 @@ export function createFetcher(
 				data: (data || [])[0] as any,
 			}
 		},
-		getOne: async ({ resource, id, meta }, context) => {
+		getOne: async ({ resource, id, meta }, context = undefined) => {
 			const query = client
 				.from(resource)
 				.select((meta as FetcherMeta)?.select ?? '*')

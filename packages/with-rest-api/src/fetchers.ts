@@ -17,8 +17,9 @@ export function createFetcher(
 		client = createFetch({ fetch, Headers, AbortController }),
 	}: CreateFetcherProps,
 ) {
+	// Keep context defaults so inferred fetcher methods accept omitted contexts.
 	return defineFetcher({
-		getList: async ({ resource, pagination, filters, sorters, meta }, context) => {
+		getList: async ({ resource, pagination, filters, sorters, meta }, context = undefined) => {
 			const query: {
 				_start?: number
 				_end?: number
@@ -63,7 +64,7 @@ export function createFetcher(
 				total: +(total || data.length),
 			}
 		},
-		getOne: async ({ resource, id, meta }, context) => {
+		getOne: async ({ resource, id, meta }, context = undefined) => {
 			const response = await client.raw(`${resource}/${id}`, {
 				baseURL: `${url}`,
 				method: meta?.method as any ?? 'GET',
@@ -121,7 +122,7 @@ export function createFetcher(
 				query,
 				headers,
 			},
-			context,
+			context = undefined,
 		) => {
 			const queryFilters = genFilters(filters)
 			const querySorters = genSorters(sorters)

@@ -27,8 +27,9 @@ export function createFetcher<
 		client,
 	}: CreateFetcherProps<TClient>,
 ) {
+	// Keep context defaults so inferred fetcher methods accept omitted contexts.
 	return defineFetcher({
-		getList: async ({ resource, pagination, filters, sorters, meta }, context) => {
+		getList: async ({ resource, pagination, filters, sorters, meta }, context = undefined) => {
 			const query = cleanDeep({
 				...(meta as FetcherMeta)?.query,
 				meta: (meta as FetcherMeta)?.query?.meta ?? '*',
@@ -65,7 +66,7 @@ export function createFetcher<
 				total: (aggregate[0] as any)?.countDistinct[(aggregateOptions.aggregate as any)?.countDistinct ?? 'id'] ?? 0 as number,
 			}
 		},
-		getOne: async ({ resource, id, meta }, context) => {
+		getOne: async ({ resource, id, meta }, context = undefined) => {
 			const query = cleanDeep({
 				...(meta as FetcherMeta)?.query,
 			})
@@ -116,7 +117,7 @@ export function createFetcher<
 				data: data as any,
 			}
 		},
-		custom: async ({ url, method, payload, query, headers }, context) => {
+		custom: async ({ url, method, payload, query, headers }, context = undefined) => {
 			let command: any
 			switch (method) {
 				case 'put':
