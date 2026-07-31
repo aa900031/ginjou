@@ -92,11 +92,15 @@ export async function checkEntries(
 		if (!entry.shouldBlock(input))
 			continue
 
+		let settle: ((value: boolean) => void) | undefined
 		const proceeded = await new Promise<boolean>((resolve) => {
+			settle = resolve
 			entry.resolve?.(false)
 			entry.resolve = resolve
 		})
-		entry.resolve = undefined
+
+		if (entry.resolve === settle)
+			entry.resolve = undefined
 
 		if (!proceeded)
 			return false

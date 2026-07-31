@@ -1,7 +1,8 @@
 import type { RouterBlockerHandle, RouterBlockShouldInput } from './router'
+import type { Entry } from './router-blocker'
 import { describe, expect, it, vi } from 'vitest'
 import { RouterBlockerAction } from './router'
-import { createShouldBlockFn, handleChangeLocation, proceed, reset, State } from './router-blocker'
+import { checkEntries, createShouldBlockFn, handleChangeLocation, proceed, reset, State } from './router-blocker'
 
 function createBlockerContext(
 	action: RouterBlockShouldInput['action'],
@@ -126,5 +127,63 @@ describe('reset', () => {
 
 		expect(setState).toHaveBeenCalledWith(State.Unblocked)
 		expect(handle.reset).toHaveBeenCalledOnce()
+	})
+})
+
+describe('checkEntries', () => {
+	const input = createBlockerContext(RouterBlockerAction.Push)
+
+	it('should allow the navigation when no entry blocks it', async () => {
+		const entries: Entry[] = [{ shouldBlock: () => false }, { shouldBlock: () => false }]
+
+		await expect(checkEntries(entries, input)).resolves.toBe(true)
+	})
+
+	it('should hold the navigation until the blocking entry settles', async () => {
+		const entry: Entry = { shouldBlock: () => true }
+
+		const pending = checkEntries([entry], input)
+
+		expect(entry.resolve).toBeTypeOf('function')
+		await expect(Promise.race([pending, 'pending'])).resolves.toBe('pending')
+
+		entry.resolve!(true)
+		await expect(pending).resolves.toBe(true)
+		expect(entry.resolve).toBeUndefined()
+	})
+
+	it('should refuse the navigation when an entry resets', async () => {
+		const entry: Entry = { shouldBlock: () => true }
+
+		const pending = checkEntries([entry], input)
+		entry.resolve!(false)
+
+		await expect(pending).resolves.toBe(false)
+	})
+
+	it('should ask the remaining entries once one proceeds', async () => {
+		const first: Entry = { shouldBlock: () => true }
+		const second = vi.fn(() => false)
+
+		const pending = checkEntries([first, { shouldBlock: second }], input)
+		first.resolve!(true)
+
+		await expect(pending).resolves.toBe(true)
+		expect(second).toHaveBeenCalledWith(input)
+	})
+
+	it('should keep the newer navigation settleable when it supersedes an older one', async () => {
+		const entry: Entry = { shouldBlock: () => true }
+
+		const superseded = checkEntries([entry], input)
+		const latest = checkEntries([entry], input)
+
+		// Taking over releases the navigation that was being held.
+		await expect(superseded).resolves.toBe(false)
+
+		// ...but the one that took over is still held, and must still be settleable.
+		expect(entry.resolve).toBeTypeOf('function')
+		entry.resolve!(true)
+		await expect(latest).resolves.toBe(true)
 	})
 })
