@@ -81,6 +81,7 @@ export interface SaveFnParams<
 	getQueryData: () => GetOneResult<TQueryResultData> | undefined
 	navigateTo: Navigate.ToFn
 	mutateFn: UpdateMutateFn<TMutationData, TMutationError, TMutationParams>
+	setWarnUnsavedActive?: (value: boolean) => void
 }
 
 export function createSaveFn<
@@ -97,9 +98,12 @@ export function createSaveFn<
 		getQueryData,
 		navigateTo,
 		mutateFn,
+		setWarnUnsavedActive,
 	}: SaveFnParams<TMutationParams, TMutationData, TMutationError, TQueryResultData>,
 ): SaveFn<TMutationParams, TMutationData> {
 	return async function saveFn(params) {
+		setWarnUnsavedActive?.(false)
+
 		const mutationMode = getMutationMode()
 		const isPessimistic = mutationMode == null || mutationMode === MutationMode.Pessimistic
 		const id = getId() ?? params.id

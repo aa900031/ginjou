@@ -551,6 +551,53 @@ describe('edit controller', () => {
 			})
 		})
 
+		describe('setWarnUnsavedActive', () => {
+			const baseProps = {
+				getId: () => 1,
+				getResourceName: () => 'posts',
+				getMutationMode: () => MutationMode.Pessimistic,
+				getRedirect: () => undefined,
+				getQueryData,
+				navigateTo: vi.fn(),
+			}
+
+			it('should deactivate the unsaved guard when saveFn is called', async () => {
+				const setWarnUnsavedActive = vi.fn()
+				const saveFn = createSaveFn({
+					...baseProps,
+					mutateFn: vi.fn().mockResolvedValue({ data: { id: 1 } }),
+					setWarnUnsavedActive,
+				})
+
+				await saveFn({ title: 'Updated' })
+
+				expect(setWarnUnsavedActive).toHaveBeenCalledWith(false)
+			})
+
+			it('should not reactivate the unsaved guard when the mutation rejects', async () => {
+				const setWarnUnsavedActive = vi.fn()
+				const saveFn = createSaveFn({
+					...baseProps,
+					mutateFn: vi.fn().mockRejectedValue(new Error('Update failed')),
+					setWarnUnsavedActive,
+				})
+
+				await expect(saveFn({ title: 'Updated' })).rejects.toThrow('Update failed')
+
+				expect(setWarnUnsavedActive).toHaveBeenCalledOnce()
+				expect(setWarnUnsavedActive).toHaveBeenCalledWith(false)
+			})
+
+			it('should not throw when setWarnUnsavedActive is not provided', async () => {
+				const saveFn = createSaveFn({
+					...baseProps,
+					mutateFn: vi.fn().mockResolvedValue({ data: { id: 1 } }),
+				})
+
+				await expect(saveFn({ title: 'Updated' })).resolves.toBeDefined()
+			})
+		})
+
 		it('should return the result from mutateFn', async () => {
 			const getId = vi.fn(() => 1)
 			const getResourceName = vi.fn(() => 'posts')

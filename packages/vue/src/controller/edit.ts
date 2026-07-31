@@ -1,15 +1,18 @@
 import type { BaseRecord, Params } from '@ginjou/core'
+import type { MaybeRef } from '@vueuse/shared'
 import type { Simplify } from 'type-fest'
 import type { Ref } from 'vue-demi'
 import type { UseGetOneContext, UseGetOneResult, UseUpdateOneContext, UseUpdateOneResult } from '../query'
 import type { UseGoContext, UseNavigateToContext } from '../router'
 import type { ToMaybeRefs } from '../utils/refs'
 import type { UseResourceContext } from './resource'
-import { Edit, Resource } from '@ginjou/core'
+import type { UseWarnUnsavedContext } from './warn-unsaved'
+import { Edit, Resource, WarnUnsaved } from '@ginjou/core'
 import { computed, unref } from 'vue-demi'
 import { useGetOne, useUpdateOne } from '../query'
 import { useNavigateTo } from '../router'
 import { useResource } from './resource'
+import { useWarnUnsaved } from './warn-unsaved'
 
 export type UseEditProps<
 	TQueryData extends BaseRecord,
@@ -18,8 +21,13 @@ export type UseEditProps<
 	TQueryResultData extends BaseRecord,
 	TMutationData extends BaseRecord,
 	TMutationError,
-> = ToMaybeRefs<
-	Edit.Props<TQueryData, TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError>
+> = Simplify<
+	& ToMaybeRefs<
+		Edit.Props<TQueryData, TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError>
+	>
+	& {
+		warnUnsaved?: MaybeRef<WarnUnsaved.Prop>
+	}
 >
 
 export type UseEditContext = Simplify<
@@ -28,6 +36,7 @@ export type UseEditContext = Simplify<
 	& UseUpdateOneContext
 	& UseGoContext
 	& UseNavigateToContext
+	& UseWarnUnsavedContext
 >
 
 export type UseEditResult<
@@ -46,6 +55,7 @@ export type UseEditResult<
 		query: UseGetOneResult<TQueryError, TQueryResultData>
 		isLoading: Ref<boolean>
 		save: Edit.SaveFn<TMutationParams, TMutationData>
+		warnUnsavedActive: Ref<boolean>
 	}
 >
 
@@ -96,6 +106,11 @@ export function useEdit<
 		isUpdatePending: unref(mutation.isPending),
 	}))
 
+	const { active: warnUnsavedActive } = useWarnUnsaved({
+		enabled: computed(() => WarnUnsaved.getPropsEnabledFromProp(unref(props?.warnUnsaved))),
+		confirm: computed(() => WarnUnsaved.getPropsConfirmFromProp(unref(props?.warnUnsaved))),
+	}, context)
+
 	const save = Edit.createSaveFn<TMutationParams, TMutationData, TMutationError, TQueryResultData>({
 		getId: () => unref(id),
 		getResourceName: () => unref(resourceName),
@@ -104,6 +119,9 @@ export function useEdit<
 		getQueryData: () => unref(query.data),
 		navigateTo,
 		mutateFn: mutation.mutateAsync,
+		setWarnUnsavedActive: (value) => {
+			warnUnsavedActive.value = value
+		},
 	})
 
 	return {
@@ -112,5 +130,6 @@ export function useEdit<
 		isLoading,
 		query,
 		save,
+		warnUnsavedActive,
 	}
 }
