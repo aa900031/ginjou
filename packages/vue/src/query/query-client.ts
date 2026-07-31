@@ -19,7 +19,7 @@ export function defineQueryClientContext(
 ): QueryClient {
 	const instance = getCurrentInstance()
 	if (!instance)
-		throw new Error('defineQueryClientContext() is called when there is no active component')
+		throw new Error('[@ginjou/vue] Cannot define query client context outside an active component. Call defineQueryClientContext() inside setup().')
 
 	const key = useStableId()
 	const state = getState(instance.appContext.app)

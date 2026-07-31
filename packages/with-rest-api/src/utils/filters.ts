@@ -11,7 +11,7 @@ export function genFilters(
 	filters.forEach((filter) => {
 		if (isConditionalFilterOperator(filter.operator)) {
 			throw new Error(
-				`[@ginjou/with-rest-api]: \`operator: ${filter.operator}\` is not supported.`,
+				`[@ginjou/with-rest-api] \`operator: ${filter.operator}\` is not supported.`,
 			)
 		}
 

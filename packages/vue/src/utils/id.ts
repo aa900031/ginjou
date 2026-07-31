@@ -33,7 +33,7 @@ const AppIdCount = new WeakMap<App, number>()
 function useAppId(): string {
 	const instance = getCurrentInstance()
 	if (!instance)
-		throw new Error('useStableId() is called when there is no active component')
+		throw new Error('[@ginjou/vue] Cannot create a stable ID outside an active component. Call useStableId() inside setup().')
 
 	let count = AppIdCount.get(instance.appContext.app) ?? 0
 	++count

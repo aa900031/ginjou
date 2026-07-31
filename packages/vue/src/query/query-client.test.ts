@@ -5,6 +5,12 @@ import { mountSetup } from '../../test/mount'
 import { defineQueryClientContext, getQueryClients, setQueryClientDehydrateState } from './query-client'
 
 describe('query-client global pollution', () => {
+	it('rejects defining context outside setup', () => {
+		expect(() => defineQueryClientContext()).toThrowError(
+			'[@ginjou/vue] Cannot define query client context outside an active component. Call defineQueryClientContext() inside setup().',
+		)
+	})
+
 	// Two apps = two concurrent SSR requests sharing the same module.
 	// getQueryClients() must return only the client of the app it is asked about,
 	// otherwise request A dehydrates request B's data -> cross-request leak.
