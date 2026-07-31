@@ -10,12 +10,6 @@ export interface CreateFetcherProps {
 	client?: $Fetch
 }
 
-function getSignal(context: unknown): AbortSignal | undefined {
-	return context && typeof context === 'object' && 'signal' in context
-		? context.signal as AbortSignal
-		: undefined
-}
-
 // eslint-disable-next-line ts/explicit-function-return-type
 export function createFetcher(
 	{
@@ -151,4 +145,10 @@ export function createFetcher(
 			}
 		},
 	})
+}
+
+function getSignal(context: unknown): AbortSignal | undefined {
+	return context && typeof context === 'object' && 'signal' in context
+		? context.signal as AbortSignal
+		: undefined
 }
