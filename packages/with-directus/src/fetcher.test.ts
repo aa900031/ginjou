@@ -19,6 +19,7 @@ vi.mock('@directus/sdk', async (importOriginal) => {
 		createUser: vi.fn((...args) => ['createUser', ...args]),
 		updateUser: vi.fn((...args) => ['updateUser', ...args]),
 		deleteUser: vi.fn((...args) => ['deleteUser', ...args]),
+		withOptions: vi.fn((command, options) => ({ command, options })),
 	}
 })
 
@@ -42,6 +43,24 @@ describe('createFetcher', () => {
 		expect(fetcher.updateOne).toBeInstanceOf(Function)
 		expect(fetcher.deleteOne).toBeInstanceOf(Function)
 		expect(fetcher.custom).toBeInstanceOf(Function)
+	})
+
+	it('should forward the same query abort signal to every request', async () => {
+		const controller = new AbortController()
+		const context = { signal: controller.signal } as any
+		mockClient.request
+			.mockResolvedValueOnce([])
+			.mockResolvedValueOnce([{ countDistinct: { id: 0 } }])
+			.mockResolvedValueOnce({ id: 1 })
+			.mockResolvedValueOnce({ ok: true })
+
+		await fetcher.getList({ resource: 'posts' }, context)
+		await fetcher.getOne({ resource: 'posts', id: 1 }, context)
+		await fetcher.custom({ url: '/health', method: 'get' }, context)
+
+		expect(sdk.withOptions).toHaveBeenCalledTimes(4)
+		for (const [, options] of vi.mocked(sdk.withOptions).mock.calls)
+			expect((options as RequestInit).signal).toBe(controller.signal)
 	})
 
 	describe('getList', () => {
@@ -68,6 +87,7 @@ describe('createFetcher', () => {
 			})
 
 			expect(mockClient.request).toHaveBeenCalledTimes(2)
+			expect(sdk.withOptions).not.toHaveBeenCalled()
 			const readItemsQuery = {
 				fields: ['id', 'title'],
 				meta: '*',
