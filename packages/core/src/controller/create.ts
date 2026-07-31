@@ -1,5 +1,5 @@
 import type { SetOptional } from 'type-fest'
-import type { BaseRecord, CreateResult, Params } from '../query'
+import type { BaseRecord, CreateOneResult, Params } from '../query'
 import type {
 	MutateAsyncFn as CreateMutateFn,
 	Props as CreateProps,
@@ -19,7 +19,7 @@ export type Props<
 		| 'params'
 	>
 	& {
-		redirect?: RedirectOptions<CreateResult<TMutationData>>
+		redirect?: RedirectOptions<CreateOneResult<TMutationData>>
 	},
 	'resource'
 >
@@ -39,7 +39,7 @@ export function getIsLoading(
 export type SaveFn<
 	TMutationData extends BaseRecord,
 	TMutationParams,
-> = (params: TMutationParams) => Promise<CreateResult<TMutationData>>
+> = (params: TMutationParams) => Promise<CreateOneResult<TMutationData>>
 
 export interface SaveFnParams<
 	TMutationData extends BaseRecord,
@@ -48,7 +48,7 @@ export interface SaveFnParams<
 > {
 	navigateTo: Navigate.ToFn
 	getResourceName: () => string | undefined
-	getRedirect: () => RedirectOptions<CreateResult<TMutationData>> | undefined
+	getRedirect: () => RedirectOptions<CreateOneResult<TMutationData>> | undefined
 	mutateFn: CreateMutateFn<TMutationData, TMutationError, TMutationParams>
 }
 

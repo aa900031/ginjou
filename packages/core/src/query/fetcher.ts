@@ -144,7 +144,7 @@ export type Cursor<
 		| CursorOnlyPrev<TPageParam>
 		| CursorBi<TPageParam>
 
-export interface CreateProps<
+export interface CreateOneProps<
 	TParams extends Params,
 > {
 	resource: string
@@ -152,7 +152,7 @@ export interface CreateProps<
 	meta?: Meta
 }
 
-export interface CreateResult<
+export interface CreateOneResult<
 	TData extends BaseRecord,
 > {
 	data: TData
@@ -162,9 +162,9 @@ export type CreateOneFn<
 	TData extends BaseRecord,
 	TParams extends Params,
 > = (
-	props: CreateProps<TParams>,
+	props: CreateOneProps<TParams>,
 	context?: MutationFunctionContext,
-) => Promise<CreateResult<TData>>
+) => Promise<CreateOneResult<TData>>
 
 export interface CreateManyProps<
 	TParams extends Params,
@@ -270,13 +270,13 @@ export type CustomFn<
 	context?: QueryFunctionContext | MutationFunctionContext,
 ) => Promise<CustomResult<TData>>
 
-export interface UpdateResult<
+export interface UpdateOneResult<
 	TData extends BaseRecord,
 > {
 	data: TData
 }
 
-export interface UpdateProps<
+export interface UpdateOneProps<
 	TParams extends Params,
 > {
 	resource: string
@@ -289,9 +289,9 @@ export type UpdateOneFn<
 	TData extends BaseRecord,
 	TParams extends Params,
 > = (
-	props: UpdateProps<TParams>,
+	props: UpdateOneProps<TParams>,
 	context?: MutationFunctionContext,
-) => Promise<UpdateResult<TData>>
+) => Promise<UpdateOneResult<TData>>
 
 export interface UpdateManyProps<
 	TParams extends Params,

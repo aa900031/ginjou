@@ -4,7 +4,7 @@ import type { CheckError } from '../auth'
 import type { Translate } from '../i18n'
 import type { Notify } from '../notification'
 import type { Publish } from '../realtime'
-import type { BaseRecord, Params, UpdateOneFn, UpdateProps, UpdateResult } from './fetcher'
+import type { BaseRecord, Params, UpdateOneFn, UpdateOneProps, UpdateOneResult } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { InvalidatesProps, InvalidateTargetValues, ResolvedInvalidatesProps } from './invalidate'
 import type { MutationModeProps, ResolvedMutationModeProps } from './mutation-mode'
@@ -32,12 +32,12 @@ export type MutationProps<
 	TError,
 	TParams extends Params,
 > = Simplify<
-	& Partial<UpdateProps<TParams>>
+	& Partial<UpdateOneProps<TParams>>
 	& FetcherProps
 	& InvalidatesProps
-	& NotifyProps<UpdateResult<TData>, UpdateProps<TParams>, TError>
+	& NotifyProps<UpdateOneResult<TData>, UpdateOneProps<TParams>, TError>
 	& MutationModeProps
-	& OptimisticUpdateProps<TData, TParams, UpdateProps<TParams>['id']>
+	& OptimisticUpdateProps<TData, TParams, UpdateOneProps<TParams>['id']>
 >
 
 export type ResolvedMutationProps<
@@ -47,7 +47,7 @@ export type ResolvedMutationProps<
 > = Simplify<
 	& OverrideProperties<
 		MutationProps<TData, TError, TParams>,
-		UpdateProps<TParams>
+		UpdateOneProps<TParams>
 	>
 	& ResolvedFetcherProps
 	& ResolvedInvalidatesProps
@@ -65,7 +65,7 @@ export type MutationOptions<
 	TError,
 	TParams extends Params,
 > = MutationObserverOptions<
-	UpdateResult<TData>,
+	UpdateOneResult<TData>,
 	TError,
 	MutationProps<TData, TError, TParams>,
 	MutationContext<TData>
@@ -96,7 +96,7 @@ export type MutateFn<
 	TError,
 	TParams extends Params,
 > = OptionalMutateSyncFunction<
-	UpdateResult<TData>,
+	UpdateOneResult<TData>,
 	TError,
 	MutationProps<TData, TError, TParams>,
 	MutationContext<TData>
@@ -107,7 +107,7 @@ export type MutateAsyncFn<
 	TError,
 	TParams extends Params,
 > = OptionalMutateAsyncFunction<
-	UpdateResult<TData>,
+	UpdateOneResult<TData>,
 	TError,
 	MutationProps<TData, TError, TParams>,
 	MutationContext<TData>
@@ -139,7 +139,7 @@ export function createMutationFn<
 	return async function mutationFn(props, context) {
 		const resolvedProps = resolveMutationProps(getProps(), props)
 		const updateOne = getFetcherFn(resolvedProps, fetchers, 'updateOne') as UpdateOneFn<TData, TParams>
-		const executeFn = (): Promise<UpdateResult<TData>> => updateOne(resolvedProps, context)
+		const executeFn = (): Promise<UpdateOneResult<TData>> => updateOne(resolvedProps, context)
 
 		switch (resolvedProps.mutationMode) {
 			case MutationMode.Undoable: {
@@ -220,7 +220,7 @@ export function createMutateHandler<
 					dispatchSuccessNotify(
 						notify,
 						translate,
-						{ data: resolvedProps.params } as unknown as UpdateResult<TData>,
+						{ data: resolvedProps.params } as unknown as UpdateOneResult<TData>,
 						resolvedProps,
 					)
 				}, 0)
@@ -395,7 +395,7 @@ export interface CreateMutateFnProps<
 	TParams extends Params,
 > {
 	originFn: OriginMutateSyncFunction<
-		UpdateResult<TData>,
+		UpdateOneResult<TData>,
 		TError,
 		MutationProps<TData, TError, TParams>,
 		MutationContext<TData>
@@ -422,7 +422,7 @@ export interface CreateMutateAsyncFnProps<
 	TParams extends Params,
 > {
 	originFn: OriginMutateAsyncFunction<
-		UpdateResult<TData>,
+		UpdateOneResult<TData>,
 		TError,
 		MutationProps<TData, TError, TParams>,
 		MutationContext<TData>
@@ -445,7 +445,7 @@ export function createMutateAsyncFn<
 
 function createPublishEvent(
 	resolvedProps: ResolvedMutationProps<any, any, any>,
-	data: UpdateResult<any>,
+	data: UpdateOneResult<any>,
 ): Publish.EmitEvent<PublishPayload> {
 	const payload = createPublishPayloadByOne(resolvedProps, data)
 	const meta = createPublishMeta(resolvedProps)
@@ -490,7 +490,7 @@ function resolveProps<
 >(
 	propsFromProps: Props<TData, TError, TParams> | undefined,
 	propsFromFn: MutationProps<TData, TError, TParams>,
-): OverrideProperties<MutationProps<TData, TError, TParams>, UpdateProps<TParams>> {
+): OverrideProperties<MutationProps<TData, TError, TParams>, UpdateOneProps<TParams>> {
 	const props = {
 		...propsFromProps,
 		...propsFromFn,
@@ -524,7 +524,7 @@ function updateCache<
 			{ queryKey: genBaseGetListQueryKey({ props }) },
 			typeof listOptimisticUpdate === 'function'
 				? createOptimisticUpdaterFn(listOptimisticUpdate, props.params, props.id)
-				: createModifyListItemUpdaterFn<TData, TParams, TPageParam, UpdateProps<TParams>['id']>(props.id, props.params),
+				: createModifyListItemUpdaterFn<TData, TParams, TPageParam, UpdateOneProps<TParams>['id']>(props.id, props.params),
 		)
 	}
 	if (shouldApplyOptimisticUpdate(manyOptimisticUpdate)) {
@@ -532,7 +532,7 @@ function updateCache<
 			{ queryKey: genBaseGetManyQueryKey({ props }) },
 			typeof manyOptimisticUpdate === 'function'
 				? createOptimisticUpdaterFn(manyOptimisticUpdate, props.params, props.id)
-				: createModifyManyUpdaterFn<TData, TParams, UpdateProps<TParams>['id']>(props.id, props.params),
+				: createModifyManyUpdaterFn<TData, TParams, UpdateOneProps<TParams>['id']>(props.id, props.params),
 		)
 	}
 	if (shouldApplyOptimisticUpdate(oneOptimisticUpdate)) {
@@ -550,7 +550,7 @@ function dispatchSuccessNotify<
 >(
 	notify: Notify.Fn,
 	translate: Translate.Fn<any>,
-	data: UpdateResult<TData>,
+	data: UpdateOneResult<TData>,
 	resolvedProps: ResolvedMutationProps<TData, any, any>,
 ): void {
 	notify(

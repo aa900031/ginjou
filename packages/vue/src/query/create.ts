@@ -1,4 +1,4 @@
-import type { BaseRecord, CreateResult, Params } from '@ginjou/core'
+import type { BaseRecord, CreateOneResult, Params } from '@ginjou/core'
 import type { UseMutationReturnType } from '@tanstack/vue-query'
 import type { OverrideProperties, Simplify } from 'type-fest'
 import type { UseCheckErrorContext } from '../auth'
@@ -42,7 +42,7 @@ export type UseCreateOneResult<
 	TParams extends Params,
 > = OverrideProperties<
 	UseMutationReturnType<
-		CreateResult<TData>,
+		CreateOneResult<TData>,
 		TError,
 		CreateOne.MutationProps<TData, TError, TParams>,
 		any
@@ -88,7 +88,7 @@ export function useCreateOne<
 		onError: (...args) => unref(props?.mutationOptions)?.onError?.(...args),
 	})
 
-	const mutation = useMutation<CreateResult<TData>, TError, CreateOne.MutationProps<TData, TError, TParams>, any>(
+	const mutation = useMutation<CreateOneResult<TData>, TError, CreateOne.MutationProps<TData, TError, TParams>, any>(
 		computed(() => ({
 			...unref(props?.mutationOptions),
 			mutationFn,
