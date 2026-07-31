@@ -10,6 +10,12 @@ export interface CreateFetcherProps {
 	client?: $Fetch
 }
 
+function getSignal(context: unknown): AbortSignal | undefined {
+	return context && typeof context === 'object' && 'signal' in context
+		? context.signal as AbortSignal
+		: undefined
+}
+
 // eslint-disable-next-line ts/explicit-function-return-type
 export function createFetcher(
 	{
@@ -18,7 +24,7 @@ export function createFetcher(
 	}: CreateFetcherProps,
 ) {
 	return defineFetcher({
-		getList: async ({ resource, pagination, filters, sorters, meta }, context = undefined) => {
+		getList: async ({ resource, pagination, filters, sorters, meta }, context) => {
 			const query: {
 				_start?: number
 				_end?: number
@@ -52,7 +58,7 @@ export function createFetcher(
 					...queryFilters,
 				},
 				headers: meta?.headers as any,
-				...(context?.signal ? { signal: context.signal } : {}),
+				signal: getSignal(context),
 			})
 
 			const data = response._data!
@@ -63,12 +69,12 @@ export function createFetcher(
 				total: +(total || data.length),
 			}
 		},
-		getOne: async ({ resource, id, meta }, context = undefined) => {
+		getOne: async ({ resource, id, meta }, context) => {
 			const response = await client.raw(`${resource}/${id}`, {
 				baseURL: `${url}`,
 				method: meta?.method as any ?? 'GET',
 				headers: meta?.headers as any,
-				...(context?.signal ? { signal: context.signal } : {}),
+				signal: getSignal(context),
 			})
 
 			return {
@@ -121,7 +127,7 @@ export function createFetcher(
 				query,
 				headers,
 			},
-			context = undefined,
+			context,
 		) => {
 			const queryFilters = genFilters(filters)
 			const querySorters = genSorters(sorters)
@@ -137,7 +143,7 @@ export function createFetcher(
 				query: reqQuery,
 				headers,
 				params: payload as any,
-				...(context && 'signal' in context ? { signal: context.signal } : {}),
+				signal: getSignal(context),
 			})
 
 			return {
