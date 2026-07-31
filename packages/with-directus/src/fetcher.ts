@@ -28,7 +28,7 @@ export function createFetcher<
 	}: CreateFetcherProps<TClient>,
 ) {
 	return defineFetcher({
-		getList: async ({ resource, pagination, filters, sorters, meta }, context = undefined) => {
+		getList: async ({ resource, pagination, filters, sorters, meta }, context) => {
 			const query = cleanDeep({
 				...(meta as FetcherMeta)?.query,
 				meta: (meta as FetcherMeta)?.query?.meta ?? '*',
@@ -65,7 +65,7 @@ export function createFetcher<
 				total: (aggregate[0] as any)?.countDistinct[(aggregateOptions.aggregate as any)?.countDistinct ?? 'id'] ?? 0 as number,
 			}
 		},
-		getOne: async ({ resource, id, meta }, context = undefined) => {
+		getOne: async ({ resource, id, meta }, context) => {
 			const query = cleanDeep({
 				...(meta as FetcherMeta)?.query,
 			})
@@ -116,7 +116,7 @@ export function createFetcher<
 				data: data as any,
 			}
 		},
-		custom: async ({ url, method, payload, query, headers }, context = undefined) => {
+		custom: async ({ url, method, payload, query, headers }, context) => {
 			let command: any
 			switch (method) {
 				case 'put':

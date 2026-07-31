@@ -20,7 +20,7 @@ export function createFetcher(
 	}: CreateFetcherProps,
 ) {
 	return defineFetcher({
-		getList: async ({ resource, pagination, filters, sorters, meta }, context = undefined) => {
+		getList: async ({ resource, pagination, filters, sorters, meta }, context) => {
 			const query = client
 				.from(resource)
 				.select((meta as FetcherMeta)?.select ?? '*', {
@@ -51,7 +51,7 @@ export function createFetcher(
 				total: count || 0,
 			}
 		},
-		getMany: async ({ resource, ids, meta }, context = undefined) => {
+		getMany: async ({ resource, ids, meta }, context) => {
 			const query = client
 				.from(resource)
 				.select((meta as FetcherMeta)?.select ?? '*')
@@ -122,7 +122,7 @@ export function createFetcher(
 				data: (data || [])[0] as any,
 			}
 		},
-		getOne: async ({ resource, id, meta }, context = undefined) => {
+		getOne: async ({ resource, id, meta }, context) => {
 			const query = client
 				.from(resource)
 				.select((meta as FetcherMeta)?.select ?? '*')
