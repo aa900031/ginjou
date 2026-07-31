@@ -180,6 +180,16 @@ describe('handleBlocked', () => {
 		expect(props.proceed).not.toHaveBeenCalled()
 	})
 
+	it('should reset when confirm rejects', async () => {
+		const props = createProps({ confirm: vi.fn(() => Promise.reject(new Error('nope'))) })
+
+		await handleBlocked(props)
+
+		expect(props.setConfirming.mock.calls).toEqual([[true], [false]])
+		expect(props.reset).toHaveBeenCalledOnce()
+		expect(props.proceed).not.toHaveBeenCalled()
+	})
+
 	it('should await an async confirm', async () => {
 		let resolveConfirm: (value: boolean) => void
 		const props = createProps({

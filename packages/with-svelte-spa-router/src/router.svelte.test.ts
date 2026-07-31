@@ -4,6 +4,17 @@ import type { Router, RouterBlockerHandle } from '@ginjou/core'
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { createRouter } from './router.svelte'
 
+// `createRouter()` is meant to run during component init, so `onDestroy` is stubbed
+// to expose the teardown the test can call by hand.
+const mocks = vi.hoisted(() => ({
+	onDestroy: vi.fn(),
+}))
+
+vi.mock('svelte', async importOriginal => ({
+	...await importOriginal<typeof import('svelte')>(),
+	onDestroy: mocks.onDestroy,
+}))
+
 let router: Router
 const handles: RouterBlockerHandle[] = []
 
@@ -24,7 +35,6 @@ function dispatchBeforeUnload(): Event {
 // `createRouter()` registers a global `beforeunload` listener, so it is created once
 // for the whole file and every blocker is unregistered between tests.
 beforeAll(() => {
-	vi.spyOn(console, 'warn').mockImplementation(() => {})
 	router = createRouter()
 })
 
@@ -65,11 +75,18 @@ describe('createRouter', () => {
 			expect(dispatchBeforeUnload().defaultPrevented).toBe(false)
 		})
 
-		it('should warn once about the missing before-navigation hook', () => {
-			register(() => false)
-			register(() => false)
+		it('should stop preventing unload after the router is destroyed', () => {
+			mocks.onDestroy.mockClear()
+			const scoped = createRouter()
+			const handle = scoped.blocker!(() => true)
 
-			expect(console.warn).toHaveBeenCalledTimes(1)
+			expect(dispatchBeforeUnload().defaultPrevented).toBe(true)
+
+			mocks.onDestroy.mock.calls[0][0]()
+
+			expect(dispatchBeforeUnload().defaultPrevented).toBe(false)
+
+			handle.unregister()
 		})
 	})
 })

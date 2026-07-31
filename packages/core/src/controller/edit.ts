@@ -102,8 +102,6 @@ export function createSaveFn<
 	}: SaveFnParams<TMutationParams, TMutationData, TMutationError, TQueryResultData>,
 ): SaveFn<TMutationParams, TMutationData> {
 	return async function saveFn(params) {
-		setWarnUnsavedActive?.(false)
-
 		const mutationMode = getMutationMode()
 		const isPessimistic = mutationMode == null || mutationMode === MutationMode.Pessimistic
 		const id = getId() ?? params.id
@@ -111,6 +109,8 @@ export function createSaveFn<
 			throw new Error('[@ginjou/core] Cannot save edit mutation without an id. Pass an id prop or include id in the mutation params.')
 
 		if (!isPessimistic) {
+			setWarnUnsavedActive?.(false)
+
 			setTimeout(() => {
 				redirectTo({
 					redirect: getRedirect() ?? ResourceAction.Type.Show,
@@ -133,6 +133,8 @@ export function createSaveFn<
 		}, {
 			onSuccess: (data) => {
 				if (isPessimistic) {
+					setWarnUnsavedActive?.(false)
+
 					redirectTo({
 						redirect: getRedirect() ?? ResourceAction.Type.Show,
 						resource: getResourceName(),

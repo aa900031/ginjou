@@ -561,11 +561,14 @@ describe('edit controller', () => {
 				navigateTo: vi.fn(),
 			}
 
-			it('should deactivate the unsaved guard when saveFn is called', async () => {
+			it('should deactivate the unsaved guard when the mutation succeeds', async () => {
 				const setWarnUnsavedActive = vi.fn()
 				const saveFn = createSaveFn({
 					...baseProps,
-					mutateFn: vi.fn().mockResolvedValue({ data: { id: 1 } }),
+					mutateFn: vi.fn().mockImplementation((_, options) => {
+						options?.onSuccess({ data: { id: 1 } })
+						return Promise.resolve({ data: { id: 1 } })
+					}),
 					setWarnUnsavedActive,
 				})
 
@@ -574,7 +577,7 @@ describe('edit controller', () => {
 				expect(setWarnUnsavedActive).toHaveBeenCalledWith(false)
 			})
 
-			it('should not reactivate the unsaved guard when the mutation rejects', async () => {
+			it('should keep the unsaved guard when the mutation rejects', async () => {
 				const setWarnUnsavedActive = vi.fn()
 				const saveFn = createSaveFn({
 					...baseProps,
@@ -584,7 +587,20 @@ describe('edit controller', () => {
 
 				await expect(saveFn({ title: 'Updated' })).rejects.toThrow('Update failed')
 
-				expect(setWarnUnsavedActive).toHaveBeenCalledOnce()
+				expect(setWarnUnsavedActive).not.toHaveBeenCalled()
+			})
+
+			it('should deactivate the unsaved guard before an optimistic redirect', async () => {
+				const setWarnUnsavedActive = vi.fn()
+				const saveFn = createSaveFn({
+					...baseProps,
+					getMutationMode: () => MutationMode.Optimistic,
+					mutateFn: vi.fn().mockRejectedValue(new Error('Update failed')),
+					setWarnUnsavedActive,
+				})
+
+				await expect(saveFn({ title: 'Updated' })).rejects.toThrow('Update failed')
+
 				expect(setWarnUnsavedActive).toHaveBeenCalledWith(false)
 			})
 

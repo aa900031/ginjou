@@ -120,7 +120,13 @@ export async function handleBlocked(
 		return
 
 	setConfirming(true)
-	const confirmed = await confirm()
+	let confirmed: boolean
+	try {
+		confirmed = await confirm()
+	}
+	catch {
+		confirmed = false
+	}
 	setConfirming(false)
 
 	if (confirmed)

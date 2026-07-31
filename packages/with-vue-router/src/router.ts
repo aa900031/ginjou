@@ -45,6 +45,7 @@ export function createRouter() {
 				continue
 
 			const proceed = await new Promise<boolean>((resolve) => {
+				entry.resolve?.(false)
 				entry.resolve = resolve
 			})
 			entry.resolve = undefined
@@ -106,7 +107,6 @@ export function createRouter() {
 			return {
 				unregister: () => {
 					blockerEntries.delete(entry)
-					// Do not leave a pending navigation hanging.
 					entry.resolve?.(true)
 				},
 				proceed: () => entry.resolve?.(true),

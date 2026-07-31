@@ -21,9 +21,14 @@ const go = useGo()
 
 const formData = reactive<PostRawFormData>({})
 
+let hydratedId: Post['id'] | undefined
 watch(record, (val) => {
+	if (val == null || val.id === hydratedId)
+		return
+
+	hydratedId = val.id
 	Object.assign(formData, val)
-}, { immediate: true, deep: true })
+}, { immediate: true })
 
 async function handleSubmit() {
 	await save(formData as PostFormData)

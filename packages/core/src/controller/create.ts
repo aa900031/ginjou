@@ -67,12 +67,12 @@ export function createSaveFn<
 	}: SaveFnParams<TMutationData, TMutationParams, TMutationError>,
 ): SaveFn<TMutationData, TMutationParams> {
 	return async function saveFn(params) {
-		setWarnUnsavedActive?.(false)
-
 		return mutateFn({
 			params,
 		}, {
 			onSuccess: (data) => {
+				setWarnUnsavedActive?.(false)
+
 				redirectTo({
 					redirect: getRedirect() ?? ResourceAction.Type.List,
 					resource: getResourceName(),
