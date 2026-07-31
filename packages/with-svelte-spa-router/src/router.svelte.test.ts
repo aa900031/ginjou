@@ -1,29 +1,27 @@
 // @vitest-environment happy-dom
 
-import type { Router, RouterBlockerHandle } from '@ginjou/core'
-import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
-import { createRouter } from './router.svelte'
+import type { RouterBlockerHandle } from '@ginjou/core'
+import type { SpaRouter } from './router.svelte'
+import { mount, unmount } from 'svelte'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import RouterHost from '../test/RouterHost.svelte'
 
-// `createRouter()` is meant to run during component init, so `onDestroy` is stubbed
-// to expose the teardown the test can call by hand.
-const mocks = vi.hoisted(() => ({
-	onDestroy: vi.fn(),
-}))
+let router: SpaRouter
+let app: Record<string, any> | undefined
 
-vi.mock('svelte', async importOriginal => ({
-	...await importOriginal<typeof import('svelte')>(),
-	onDestroy: mocks.onDestroy,
-}))
+/** The last test tears the host down itself, so `afterEach` must not do it twice. */
+function destroyHost(): void {
+	if (app == null)
+		return
 
-let router: Router
-const handles: RouterBlockerHandle[] = []
+	unmount(app)
+	app = undefined
+}
 
 function register(
-	shouldBlock: Parameters<NonNullable<Router['blocker']>>[0],
+	shouldBlock: Parameters<NonNullable<SpaRouter['blocker']>>[0],
 ): RouterBlockerHandle {
-	const handle = router.blocker!(shouldBlock)
-	handles.push(handle)
-	return handle
+	return router.blocker!(shouldBlock)
 }
 
 function dispatchBeforeUnload(): Event {
@@ -32,14 +30,23 @@ function dispatchBeforeUnload(): Event {
 	return event
 }
 
-// `createRouter()` registers a global `beforeunload` listener, so it is created once
-// for the whole file and every blocker is unregistered between tests.
-beforeAll(() => {
-	router = createRouter()
+beforeEach(async () => {
+	window.location.hash = '#/posts'
+	// `hashchange` is what tells `svelte-spa-router` about the new hash, and it is queued.
+	await new Promise(resolve => setTimeout(resolve, 0))
+	app = mount(RouterHost, {
+		target: document.body,
+		props: {
+			onready: (value: SpaRouter) => {
+				router = value
+			},
+		},
+	})
 })
 
 afterEach(() => {
-	handles.splice(0).forEach(handle => handle.unregister())
+	destroyHost()
+	document.body.innerHTML = ''
 })
 
 describe('createRouter', () => {
@@ -63,7 +70,7 @@ describe('createRouter', () => {
 			dispatchBeforeUnload()
 
 			expect(shouldBlock).toHaveBeenCalledWith({
-				currentLocation: expect.objectContaining({ path: expect.any(String) }),
+				currentLocation: expect.objectContaining({ path: '/posts' }),
 				nextLocation: undefined,
 				action: 'unload',
 			})
@@ -76,17 +83,12 @@ describe('createRouter', () => {
 		})
 
 		it('should stop preventing unload after the router is destroyed', () => {
-			mocks.onDestroy.mockClear()
-			const scoped = createRouter()
-			const handle = scoped.blocker!(() => true)
-
+			register(() => true)
 			expect(dispatchBeforeUnload().defaultPrevented).toBe(true)
 
-			mocks.onDestroy.mock.calls[0][0]()
+			destroyHost()
 
 			expect(dispatchBeforeUnload().defaultPrevented).toBe(false)
-
-			handle.unregister()
 		})
 	})
 })

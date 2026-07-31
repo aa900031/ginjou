@@ -1,5 +1,5 @@
 import type { ValueOf } from 'type-fest'
-import type { RouterBlockerHandle, RouterBlockShouldFn } from './router'
+import type { RouterBlockerHandle, RouterBlockShouldFn, RouterBlockShouldInput } from './router'
 import { RouterBlockerAction } from './router'
 
 export const State = {
@@ -77,4 +77,30 @@ export function reset(
 ): void {
 	props.setState(State.Unblocked)
 	props.handle.reset()
+}
+
+export interface Entry {
+	shouldBlock: RouterBlockShouldFn
+	resolve?: (value: boolean) => void
+}
+
+export async function checkEntries(
+	entries: Iterable<Entry>,
+	input: RouterBlockShouldInput,
+): Promise<boolean> {
+	for (const entry of [...entries]) {
+		if (!entry.shouldBlock(input))
+			continue
+
+		const proceeded = await new Promise<boolean>((resolve) => {
+			entry.resolve?.(false)
+			entry.resolve = resolve
+		})
+		entry.resolve = undefined
+
+		if (!proceeded)
+			return false
+	}
+
+	return true
 }

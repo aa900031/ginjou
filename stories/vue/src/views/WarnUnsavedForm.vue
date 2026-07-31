@@ -8,6 +8,7 @@ import FieldLabel from '../components/FieldLabel.vue'
 import Form from '../components/Form.vue'
 import InlineActions from '../components/InlineActions.vue'
 import Input from '../components/Input.vue'
+import LocaleBadge from '../components/LocaleBadge.vue'
 import PageTitle from '../components/PageTitle.vue'
 import Select from '../components/Select.vue'
 import Stack from '../components/Stack.vue'
@@ -38,6 +39,7 @@ async function handleSubmit() {
 <template>
 	<StoryShell>
 		<Stack>
+			<LocaleBadge />
 			<PageTitle>Warn Unsaved</PageTitle>
 
 			<Card>

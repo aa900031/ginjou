@@ -1,8 +1,10 @@
-import type { Router, RouterBlockerHandle, RouterBlockShouldFn, RouterGoParams, RouterLocation } from '@ginjou/core'
+import type { Router, RouterBlockerHandle, RouterBlockShouldFn, RouterBlockShouldInput, RouterGoParams, RouterLocation } from '@ginjou/core'
+import type { Blocker } from './blocker.svelte'
 import type { QueryParser, QueryStringifier } from './location'
 import { defineRouter, RouterBlockerAction } from '@ginjou/core'
 import { onDestroy } from 'svelte'
 import { pop, push, replace, router } from 'svelte-spa-router'
+import { createBlocker } from './blocker.svelte'
 import { buildPath, defaultParseQuery, defaultStringifyQuery, toLocation } from './location'
 
 export interface CreateRouterOptions {
@@ -10,23 +12,32 @@ export interface CreateRouterOptions {
 	stringifyQuery?: QueryStringifier
 }
 
-export function createRouter(options?: CreateRouterOptions): Router {
+export type SpaRouter
+	= & Router
+		& Pick<Blocker, 'createBlockerCondition' | 'withBlocker'>
+
+export function createRouter(options?: CreateRouterOptions): SpaRouter {
 	const parseQuery = options?.parseQuery ?? defaultParseQuery
 	const stringifyQuery = options?.stringifyQuery ?? defaultStringifyQuery
-	const shouldBlocks = new Set<RouterBlockShouldFn>()
+	const blocker = createBlocker({ parseQuery })
 
+	// The blocker's accepted location, not the raw hash: the hash moves before a route
+	// pre-condition runs, so while a navigation is held the hash points at a page that is not
+	// mounted and `router.params` still belongs to the page that is. Falls back to the hash
+	// until the first navigation is accepted, so a router without `withBlocker` is unaffected.
 	const getLocation = (): RouterLocation<any> =>
-		toLocation(router.location, router.querystring, router.params, parseQuery)
+		blocker.acceptedLocation
+		?? toLocation(router.location, router.querystring, router.params, parseQuery)
 
 	const stopBeforeUnload = addBeforeUnload((event) => {
-		const context = {
+		const input: RouterBlockShouldInput = {
 			currentLocation: getLocation(),
 			nextLocation: undefined,
 			action: RouterBlockerAction.Unload,
 		}
 
-		for (const shouldBlock of shouldBlocks) {
-			if (shouldBlock(context)) {
+		for (const entry of blocker.entries) {
+			if (entry.shouldBlock(input)) {
 				event.preventDefault()
 				event.returnValue = true
 				return
@@ -36,10 +47,10 @@ export function createRouter(options?: CreateRouterOptions): Router {
 
 	onDestroy(() => {
 		stopBeforeUnload()
-		shouldBlocks.clear()
+		blocker.clear()
 	})
 
-	return defineRouter({
+	const _router = defineRouter({
 		go: (params: RouterGoParams): void => {
 			const path = buildPath(params, router.location, router.querystring, parseQuery, stringifyQuery)
 			if (params.type === 'replace')
@@ -57,23 +68,28 @@ export function createRouter(options?: CreateRouterOptions): Router {
 		onChangeLocation: (handler: (location: RouterLocation<any>) => void) => {
 			return $effect.root(() => {
 				$effect(() => {
-					handler(toLocation(router.location, router.querystring, router.params, parseQuery))
+					handler(getLocation())
 				})
 			})
 		},
 		blocker: (shouldBlock: RouterBlockShouldFn): RouterBlockerHandle => {
-			const entry: RouterBlockShouldFn = context => shouldBlock(context)
-			shouldBlocks.add(entry)
+			const entry = blocker.add(shouldBlock)
 
 			return {
-				unregister: () => {
-					shouldBlocks.delete(entry)
-				},
-				proceed: () => {},
-				reset: () => {},
+				unregister: () => blocker.remove(entry),
+				proceed: () => entry.resolve?.(true),
+				reset: () => entry.resolve?.(false),
 			}
 		},
 	})
+
+	return Object.assign(
+		_router,
+		{
+			createBlockerCondition: blocker.createBlockerCondition,
+			withBlocker: blocker.withBlocker,
+		},
+	)
 }
 
 function addBeforeUnload(handler: (event: BeforeUnloadEvent) => void) {

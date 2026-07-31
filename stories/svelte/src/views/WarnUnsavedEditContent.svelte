@@ -7,6 +7,7 @@
 	import Form from '../components/Form.svelte'
 	import InlineActions from '../components/InlineActions.svelte'
 	import Input from '../components/Input.svelte'
+	import LocaleBadge from '../components/LocaleBadge.svelte'
 	import PageTitle from '../components/PageTitle.svelte'
 	import Select from '../components/Select.svelte'
 	import Stack from '../components/Stack.svelte'
@@ -42,13 +43,14 @@
 </script>
 
 <Stack>
+	<LocaleBadge />
 	<PageTitle>Warn Unsaved</PageTitle>
 
 	<Card>
-		<strong>@ginjou/with-svelte-spa-router only guards tab close / reload.</strong>
-		It cannot intercept in-app navigation, so change a field and then close or reload the tab
-		to see the browser's leave warning. The navigation buttons below are kept for comparison:
-		they will <em>not</em> prompt. Submitting clears the guard.
+		Change a field, then hit one of the navigation buttons: a native confirm shows up.
+		Cancel keeps you on this page, OK leaves. Submitting clears the guard, so navigating
+		after a successful save is silent. Closing / reloading the tab triggers the browser's
+		own leave warning.
 	</Card>
 
 	<Card>
@@ -76,10 +78,10 @@
 
 	<InlineActions>
 		<Button type="button" onclick={() => go({ to: '/posts' })}>
-			Go to list (not intercepted)
+			Go to list
 		</Button>
 		<Button type="button" onclick={() => go({ to: `/posts/${edit.record?.id}` })}>
-			Go to show (not intercepted)
+			Go to show
 		</Button>
 	</InlineActions>
 </Stack>

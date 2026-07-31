@@ -17,5 +17,7 @@ export default defineProject({
 	},
 	resolve: {
 		alias,
+		// Without this `svelte` resolves to its server build, where `mount()` is unavailable.
+		conditions: ['browser'],
 	},
 })
