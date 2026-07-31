@@ -6,7 +6,7 @@ import type { Notify } from '../notification'
 import type { Publish } from '../realtime'
 import type { BaseRecord, Params, UpdateManyFn, UpdateManyProps, UpdateManyResult, UpdateOneFn } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
-import type { InvalidatesProps, InvalidateTargetType, ResolvedInvalidatesProps } from './invalidate'
+import type { InvalidatesProps, InvalidateTargetValues, ResolvedInvalidatesProps } from './invalidate'
 import type { MutationModeProps, ResolvedMutationModeProps } from './mutation-mode'
 import type { NotifyProps } from './notify'
 import type { OptimisticUpdateProps } from './optimistic-update'
@@ -469,7 +469,7 @@ function createPublishEvent(
 	}
 }
 
-const DEFAULT_INVALIDATES: InvalidateTargetType[] = [
+const DEFAULT_INVALIDATES: InvalidateTargetValues[] = [
 	InvalidateTarget.List,
 	InvalidateTarget.Many,
 	InvalidateTarget.One,

@@ -18,7 +18,7 @@ export * as GetOne from './get-one'
 
 export type {
 	InvalidatesProps,
-	InvalidateTargetType,
+	InvalidateTargetValues,
 } from './invalidate'
 export {
 	InvalidateTarget,

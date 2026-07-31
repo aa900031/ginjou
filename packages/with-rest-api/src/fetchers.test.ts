@@ -353,7 +353,7 @@ describe('createFetcher', () => {
 			// expect(methodUtil.toMethod).toHaveBeenCalledWith('post'); // Removed
 
 			expect(mockClient.raw).toHaveBeenCalledWith('/custom-endpoint', {
-				method: 'PUT', // Based on actual toMethod
+				method: 'POST', // Based on actual toMethod
 				query: {
 					_order: 'desc', // Based on actual genSorters
 					_sort: 'x', // Based on actual genSorters
@@ -361,7 +361,7 @@ describe('createFetcher', () => {
 					customQ: 'query',
 				},
 				headers: customHeaders,
-				params: customPayload,
+				body: customPayload,
 			})
 			expect(result).toEqual({ data: mockData })
 		})
@@ -383,7 +383,7 @@ describe('createFetcher', () => {
 				method: 'GET',
 				query: {},
 				headers: undefined,
-				params: undefined,
+				body: undefined,
 			})
 			expect(result).toEqual({ data: mockData })
 		})

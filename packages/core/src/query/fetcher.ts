@@ -17,11 +17,11 @@ export const SortOrder = {
 	Desc: 'desc',
 } as const
 
-export type SortOrderType = ValueOf<typeof SortOrder>
+export type SortOrderValues = ValueOf<typeof SortOrder>
 
 export function isSortOrder(
 	value: unknown,
-): value is SortOrderType {
+): value is SortOrderValues {
 	switch (value) {
 		case SortOrder.Asc:
 		case SortOrder.Desc:
@@ -33,7 +33,7 @@ export function isSortOrder(
 
 export interface Sort {
 	field: string
-	order: SortOrderType
+	order: SortOrderValues
 }
 
 export type Sorters = Sort[]
@@ -74,17 +74,17 @@ export const FilterOperator = {
 	and: 'and',
 } as const
 
-export type FilterOperatorType = ValueOf<typeof FilterOperator>
+export type FilterOperatorValues = ValueOf<typeof FilterOperator>
 
 export interface LogicalFilter {
 	field: string
-	operator: Exclude<FilterOperatorType, 'or' | 'and'>
+	operator: Exclude<FilterOperatorValues, 'or' | 'and'>
 	value: any
 }
 
 export interface ConditionalFilter {
 	key?: string
-	operator: Extract<FilterOperatorType, 'or' | 'and'>
+	operator: Extract<FilterOperatorValues, 'or' | 'and'>
 	value: (LogicalFilter | ConditionalFilter)[]
 }
 
@@ -94,7 +94,7 @@ export type Filters = Filter[]
 
 export function isFilterOperator(
 	operator: unknown,
-): operator is FilterOperatorType {
+): operator is FilterOperatorValues {
 	return (Object.values(FilterOperator) as unknown[]).includes(operator)
 }
 
@@ -144,7 +144,7 @@ export type Cursor<
 		| CursorOnlyPrev<TPageParam>
 		| CursorBi<TPageParam>
 
-export interface CreateProps<
+export interface CreateOneProps<
 	TParams extends Params,
 > {
 	resource: string
@@ -152,7 +152,7 @@ export interface CreateProps<
 	meta?: Meta
 }
 
-export interface CreateResult<
+export interface CreateOneResult<
 	TData extends BaseRecord,
 > {
 	data: TData
@@ -162,9 +162,9 @@ export type CreateOneFn<
 	TData extends BaseRecord,
 	TParams extends Params,
 > = (
-	props: CreateProps<TParams>,
+	props: CreateOneProps<TParams>,
 	context?: MutationFunctionContext,
-) => Promise<CreateResult<TData>>
+) => Promise<CreateOneResult<TData>>
 
 export interface CreateManyProps<
 	TParams extends Params,
@@ -270,13 +270,13 @@ export type CustomFn<
 	context?: QueryFunctionContext | MutationFunctionContext,
 ) => Promise<CustomResult<TData>>
 
-export interface UpdateResult<
+export interface UpdateOneResult<
 	TData extends BaseRecord,
 > {
 	data: TData
 }
 
-export interface UpdateProps<
+export interface UpdateOneProps<
 	TParams extends Params,
 > {
 	resource: string
@@ -289,9 +289,9 @@ export type UpdateOneFn<
 	TData extends BaseRecord,
 	TParams extends Params,
 > = (
-	props: UpdateProps<TParams>,
+	props: UpdateOneProps<TParams>,
 	context?: MutationFunctionContext,
-) => Promise<UpdateResult<TData>>
+) => Promise<UpdateOneResult<TData>>
 
 export interface UpdateManyProps<
 	TParams extends Params,

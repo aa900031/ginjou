@@ -2,13 +2,10 @@ import { describe, expect, it } from 'vitest'
 import { toMethod } from './method'
 
 describe('toMethod', () => {
-	it('should return "PUT" for "put", "post", "patch"', () => {
+	it('should preserve body methods', () => {
 		expect(toMethod('put')).toBe('PUT')
-		expect(toMethod('post')).toBe('PUT')
-		expect(toMethod('patch')).toBe('PUT')
-	})
-
-	it('should return "DELETE" for "delete"', () => {
+		expect(toMethod('post')).toBe('POST')
+		expect(toMethod('patch')).toBe('PATCH')
 		expect(toMethod('delete')).toBe('DELETE')
 	})
 

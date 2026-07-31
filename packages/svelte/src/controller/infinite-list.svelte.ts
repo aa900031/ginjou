@@ -144,7 +144,7 @@ export function useInfiniteList<
 
 	const currentPage = deriveState<TPageParam, List.GetCurrentPageProps<TPageParam>>(
 		() => ({
-			initalPageFromProp: unbox(initialPageProp),
+			initialPageFromProp: unbox(initialPageProp),
 			currentPageFromProp: unbox(currentPageProp),
 			currentPageFromLocation: unbox(currentPageLocation),
 			syncRouteFromProp: syncRoute,
@@ -253,7 +253,7 @@ export function useInfiniteList<
 		_sorters: unbox(sortersState),
 	}), () => {
 		currentPage.value = List.getInitialPage({
-			initalPageFromProp: unbox(initialPageProp),
+			initialPageFromProp: unbox(initialPageProp),
 		})
 	})
 

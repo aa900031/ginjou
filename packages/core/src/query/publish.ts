@@ -1,4 +1,4 @@
-import type { CreateManyResult, CreateResult, DeleteManyResult, DeleteOneResult, Meta, RecordKey, UpdateManyResult, UpdateResult } from './fetcher'
+import type { CreateManyResult, CreateOneResult, DeleteManyResult, DeleteOneResult, Meta, RecordKey, UpdateManyResult, UpdateOneResult } from './fetcher'
 import { uniq } from 'es-toolkit'
 
 export interface PublishPayload {
@@ -9,7 +9,7 @@ export function createPublishPayloadByOne(
 	props: {
 		id: RecordKey
 	} | Record<string, any>,
-	data: CreateResult<any> | UpdateResult<any> | DeleteOneResult<any>,
+	data: CreateOneResult<any> | UpdateOneResult<any> | DeleteOneResult<any>,
 ): PublishPayload {
 	const idFromProp = 'id' in props ? props.id : undefined
 	const idFromData = data.data.id

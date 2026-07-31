@@ -1,4 +1,4 @@
-import type { BaseRecord, Params, UpdateResult } from '@ginjou/core'
+import type { BaseRecord, Params, UpdateOneResult } from '@ginjou/core'
 import type { CreateMutationResult } from '@tanstack/svelte-query'
 import type { OverrideProperties, Simplify } from 'type-fest'
 import type { UseCheckErrorContext } from '../auth'
@@ -41,7 +41,7 @@ export type UseUpdateOneResult<
 	TParams extends Params,
 > = OverrideProperties<
 	CreateMutationResult<
-		UpdateResult<TData>,
+		UpdateOneResult<TData>,
 		TError,
 		UpdateOne.MutationProps<TData, TError, TParams>,
 		UpdateOne.MutationContext<TData>
@@ -104,7 +104,7 @@ export function useUpdateOne<
 	})
 
 	const mutation = createMutation<
-		UpdateResult<TData>,
+		UpdateOneResult<TData>,
 		TError,
 		UpdateOne.MutationProps<TData, TError, TParams>,
 		UpdateOne.MutationContext<TData>

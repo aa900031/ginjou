@@ -1,8 +1,8 @@
 import type { MutationFunction, MutationKey, MutationObserverOptions } from '@tanstack/query-core'
 import type { OriginMutateAsyncFunction } from '../query/types'
 import type { RouterGoFn } from '../router'
-import type { Logout } from './'
 import type { Auth, CheckAuthErrorFn, CheckAuthErrorResult } from './auth'
+import type * as Logout from './logout'
 import { getRedirectToByObject } from './helper'
 
 export type MutationOptions<

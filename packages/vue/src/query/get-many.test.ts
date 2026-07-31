@@ -40,7 +40,7 @@ describe('useGetMany', () => {
 			})
 		})
 
-		it('should call realtime.unscribe on unmount', async () => {
+		it('should call realtime.unsubscribe on unmount', async () => {
 			const { result, unmount } = mountTestApp(
 				() => useGetMany({
 					resource: 'posts',

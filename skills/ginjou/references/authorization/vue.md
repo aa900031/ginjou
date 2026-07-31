@@ -6,7 +6,7 @@ Use this reference for Vue authz wiring and authz composables. See [Authorizatio
 
 ```ts
 interface Authz {
-	access?: AccessCanFn
+	access?: CanAccessFn
 	getPermissions?: GetPermissionsFn<any, any>
 }
 ```

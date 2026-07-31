@@ -104,7 +104,7 @@ export function useGetList<
 		getErrorNotify: () => resolvedProps.errorNotify,
 		emitParent: (...args) => resolvedProps.queryOptions?.onError?.(...args),
 	})
-	const placeholderData = GetList.createPlacholerDataFn<TData, TError, TPageParam>()
+	const placeholderData = GetList.createPlaceholderDataFn<TData, TError, TPageParam>()
 
 	const query = createQuery<GetListResult<TData, TPageParam>, TError, GetListResult<TResultData, TPageParam>>(
 		() => ({

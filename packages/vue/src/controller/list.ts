@@ -62,7 +62,7 @@ export function useList<
 	const location = useLocation(context)
 	const syncRoute = computed(() => SyncRoute.resolve(controller, unref(props?.syncRoute)))
 
-	const initalPageProp = pickRef<number, any>(
+	const initialPageProp = pickRef<number, any>(
 		props?.pagination,
 		List.getPropInitialPage,
 	)
@@ -147,7 +147,7 @@ export function useList<
 
 	const currentPage = deriveRef<number, any>(
 		() => ({
-			initalPageFromProp: unref(initalPageProp),
+			initialPageFromProp: unref(initialPageProp),
 			currentPageFromProp: unref(currentPageProp),
 			currentPageFromLocation: unref(currentPageLocation),
 			syncRouteFromProp: unref(syncRoute),
@@ -259,7 +259,7 @@ export function useList<
 		_sorters: unref(_sorters),
 	}), () => {
 		currentPage.value = List.getInitialPage({
-			initalPageFromProp: unref(initalPageProp),
+			initialPageFromProp: unref(initialPageProp),
 		})
 	}, {
 		flush: 'sync',

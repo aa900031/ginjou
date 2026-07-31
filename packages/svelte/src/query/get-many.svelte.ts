@@ -88,7 +88,7 @@ export function useGetMany<
 		queryClient,
 		getProps,
 	})
-	const placeholderData = GetMany.createPlacholerDataFn<TData, TError, TResultData>({
+	const placeholderData = GetMany.createPlaceholderDataFn<TData, TError, TResultData>({
 		getProps,
 		queryClient,
 	})

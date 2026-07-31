@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from 'vitest'
-import { createAggregrateFn } from './aggregrate'
+import { createAggregateFn } from './aggregate'
 
-describe('aggregrate', () => {
+describe('aggregate', () => {
 	it('should run 1 times, and return [6,6,6]', async () => {
 		const fn = vi.fn(async (r: number): Promise<number> => r)
-		const aggregrateFn = createAggregrateFn(
+		const aggregateFn = createAggregateFn(
 			fn,
 			(allArgs, allResolves) => [
 				[
@@ -17,9 +17,9 @@ describe('aggregrate', () => {
 		)
 
 		const result = await Promise.all([
-			aggregrateFn(1),
-			aggregrateFn(2),
-			aggregrateFn(3),
+			aggregateFn(1),
+			aggregateFn(2),
+			aggregateFn(3),
 		])
 
 		expect(result).toEqual([6, 6, 6])

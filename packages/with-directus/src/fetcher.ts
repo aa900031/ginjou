@@ -1,5 +1,5 @@
 import type { DirectusClient, RestClient } from '@directus/sdk'
-import type { ConditionalFilter, FilterOperatorType, Filters, LogicalFilter, Sorters } from '@ginjou/core'
+import type { ConditionalFilter, FilterOperatorValues, Filters, LogicalFilter, Sorters } from '@ginjou/core'
 import * as sdk from '@directus/sdk'
 import { defineFetcher, SortOrder } from '@ginjou/core'
 import cleanDeep from 'clean-deep'
@@ -289,7 +289,7 @@ function genConditionalFilter(
 }
 
 function getClientOperator(
-	operator: FilterOperatorType,
+	operator: FilterOperatorValues,
 ): string | undefined {
 	switch (operator) {
 		case 'eq':

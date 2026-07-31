@@ -16,9 +16,9 @@ import { SubscribeType } from '../realtime'
 import { getErrorMessage } from '../utils/error'
 import { getQuery, resolveQueryEnableds } from '../utils/query'
 import { getFetcherFn, resolveFetcherProps } from './fetchers'
-import { createQueryKey as createGetOneQueryKey } from './get-one'
+import { createQueryKey as genGetOneQueryKey } from './get-one'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
-import { createQueryKey as createResourceQueryKey } from './resource'
+import { createQueryKey as genResourceQueryKey } from './resource'
 
 export type QueryOptions<
 	TData extends BaseRecord,
@@ -97,7 +97,7 @@ export function createBaseQueryKey(
 	}: CreateBaseQueryKeyProps,
 ): QueryKey {
 	return [
-		...createResourceQueryKey({ props }),
+		...genResourceQueryKey({ props }),
 		'getList',
 	]
 }
@@ -314,7 +314,7 @@ export function getSubscribeParams<
 	}
 }
 
-export function createPlacholerDataFn<
+export function createPlaceholderDataFn<
 	TData extends BaseRecord,
 	TError,
 	TPageParam,
@@ -337,7 +337,7 @@ function updateCache<
 			continue
 
 		queryClient.setQueryData<GetOneResult<TData>>(
-			createGetOneQueryKey({
+			genGetOneQueryKey({
 				props: { ...props, id: record.id },
 			}),
 			old => old ?? { data: record },
