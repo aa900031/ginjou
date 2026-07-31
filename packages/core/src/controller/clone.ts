@@ -1,14 +1,14 @@
 import type { SetOptional } from 'type-fest'
 import type { BaseRecord, CreateResult, Meta, Params, RecordKey } from '../query'
-import type {
-	MutateAsyncFn as CreateMutateFn,
-	Props as CreateProps,
-} from '../query/create'
+import type { Props as CreateProps } from '../query/create'
 import type { Props as GetOneProps } from '../query/get-one'
-import type { Navigate } from '../router'
+import type { SaveFn, SaveFnParams } from './create'
 import type { RedirectOptions } from './redirect-to'
-import type * as Resource from './resource'
 import { createSaveFn as createCreateSaveFn } from './create'
+import * as Resource from './resource'
+import * as ResourceAction from './resource-action'
+
+export type { SaveFn, SaveFnParams }
 
 export type Props<
 	TQueryData extends BaseRecord,
@@ -43,9 +43,11 @@ export function getId(
 		idFromProp,
 	}: GetIdProps,
 ): RecordKey | undefined {
-	return idFromProp
-		?? (resource && 'action' in resource && resource.action === 'clone' ? resource.id : undefined)
-		?? undefined
+	return Resource.getIdForAction({
+		resource,
+		action: ResourceAction.Type.Clone,
+		idFromProp,
+	})
 }
 
 export interface GetIsLoadingParams {
@@ -62,22 +64,6 @@ export function getIsLoading(
 	return isQueryFetching || isCreatePending
 }
 
-export type SaveFn<
-	TMutationData extends BaseRecord,
-	TMutationParams,
-> = (params: TMutationParams) => Promise<CreateResult<TMutationData>>
-
-export interface SaveFnParams<
-	TMutationData extends BaseRecord,
-	TMutationParams extends Params,
-	TMutationError,
-> {
-	navigateTo: Navigate.ToFn
-	getResourceName: () => string | undefined
-	getRedirect: () => RedirectOptions<CreateResult<TMutationData>> | undefined
-	mutateFn: CreateMutateFn<TMutationData, TMutationError, TMutationParams>
-}
-
 export function createSaveFn<
 	TMutationData extends BaseRecord,
 	TMutationParams extends Params,
@@ -88,9 +74,9 @@ export function createSaveFn<
 	const save = createCreateSaveFn(params)
 
 	return async function saveFn(mutationParams) {
-		if (mutationParams.id != null)
-			console.warn('[@ginjou/core] Clone mutation params include an id. The id will be passed to createOne unchanged.')
-
-		return save(mutationParams)
+		// The source record's id must never reach createOne, or the backend either
+		// rejects the duplicate key or overwrites the record being cloned.
+		const { id: _id, ...params } = mutationParams ?? {}
+		return save(params as TMutationParams)
 	}
 }

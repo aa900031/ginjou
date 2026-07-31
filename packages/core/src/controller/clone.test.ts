@@ -41,12 +41,11 @@ describe('clone controller', () => {
 		})).toBe(false)
 	})
 
-	it('should preserve params, warn about an id, and redirect to list', async () => {
+	it('should strip the source id from the params and redirect to list', async () => {
 		const result: CreateResult<BaseRecord> = {
 			data: { id: 'copy-id', title: 'Copy' },
 		}
 		const navigateTo = vi.fn()
-		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
 		const mutateFn = vi.fn().mockImplementation((_, options) => {
 			options?.onSuccess(result)
 			return Promise.resolve(result)
@@ -57,21 +56,17 @@ describe('clone controller', () => {
 			getRedirect: () => undefined,
 			mutateFn,
 		})
-		const params = { id: 'source-id', title: 'Copy' }
 
-		await save(params)
+		await save({ id: 'source-id', title: 'Copy' })
 
-		expect(warn).toHaveBeenCalledOnce()
 		expect(mutateFn).toHaveBeenCalledWith(
-			{ params },
+			{ params: { title: 'Copy' } },
 			expect.objectContaining({ onSuccess: expect.any(Function) }),
 		)
 		expect(navigateTo).toHaveBeenCalledWith({
 			resource: 'posts',
 			action: ResourceAction.Type.List,
 		})
-
-		warn.mockRestore()
 	})
 
 	it('should honor an explicit clone redirect with the created id', async () => {

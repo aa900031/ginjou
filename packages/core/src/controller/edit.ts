@@ -7,9 +7,9 @@ import type {
 } from '../query/update'
 import type { Navigate } from '../router'
 import type { RedirectOptions } from './redirect-to'
-import type * as Resource from './resource'
 import { MutationMode } from '../query'
 import { redirectTo } from './redirect-to'
+import * as Resource from './resource'
 import * as ResourceAction from './resource-action'
 
 export type Props<
@@ -44,9 +44,11 @@ export function getId(
 		idFromProp,
 	}: GetIdProps,
 ): RecordKey | undefined {
-	return idFromProp
-		?? (resource && 'action' in resource && resource.action === 'edit' ? resource.id : undefined)
-		?? undefined
+	return Resource.getIdForAction({
+		resource,
+		action: ResourceAction.Type.Edit,
+		idFromProp,
+	})
 }
 
 export interface GetIsLoadingParams {

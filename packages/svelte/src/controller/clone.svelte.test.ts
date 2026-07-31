@@ -62,4 +62,38 @@ describe('useClone', () => {
 		expect(result.query).toBe(query)
 		expect(result.isLoading).toBe(false)
 	})
+
+	it('should keep the source id out of the create mutation and of save', async () => {
+		let getCreateProps: (() => Record<string, any>) | undefined
+		const created = { data: { id: 'copy-id' } }
+		const mutateAsync = vi.fn().mockImplementation((_, options) => {
+			options?.onSuccess(created)
+			return Promise.resolve(created)
+		})
+		const navigateTo = vi.fn()
+		mocks.useNavigateTo.mockReturnValue(navigateTo)
+		mocks.useGetOne.mockReturnValue({
+			record: undefined,
+			isFetching: false,
+		})
+		mocks.useCreateOne.mockImplementation((props) => {
+			getCreateProps = props
+			return { isPending: false, mutateAsync }
+		})
+
+		const result = useClone({ id: 'source-id' })
+
+		expect(getCreateProps?.().id).toBeUndefined()
+
+		await result.save({ id: 'source-id', title: 'Copy' })
+
+		expect(mutateAsync).toHaveBeenCalledWith(
+			{ params: { title: 'Copy' } },
+			expect.objectContaining({ onSuccess: expect.any(Function) }),
+		)
+		expect(navigateTo).toHaveBeenCalledWith({
+			resource: 'posts',
+			action: 'list',
+		})
+	})
 })

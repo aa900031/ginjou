@@ -82,11 +82,14 @@ export function useClone<
 		queryOptions: resolvedProps?.queryOptions,
 	}), context)
 
-	const mutation = useCreateOne<TMutationData, TMutationParams, TMutationError>(() => ({
-		...resolvedProps,
-		resource: resourceName,
-		fetcherName,
-	}), context)
+	const mutation = useCreateOne<TMutationData, TMutationParams, TMutationError>(() => {
+		const { id: _id, ...createProps } = resolvedProps ?? {}
+		return {
+			...createProps,
+			resource: resourceName,
+			fetcherName,
+		}
+	}, context)
 
 	const isLoading = $derived.by(() => Clone.getIsLoading({
 		isQueryFetching: query.isFetching,

@@ -81,8 +81,9 @@ export function useClone<
 		queryOptions: props?.queryOptions,
 	}, context)
 
+	const { id: _id, ...createProps } = props ?? {}
 	const mutation = useCreateOne<TMutationData, TMutationParams, TMutationError>({
-		...props,
+		...createProps,
 		resource: resourceName,
 		fetcherName,
 	}, context)

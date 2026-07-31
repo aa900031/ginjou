@@ -190,6 +190,25 @@ export function getFetcherName(
 	return fetcherNameFromProp ?? resource?.resource.meta?.fetcherName
 }
 
+export interface GetIdForActionParams {
+	resource: Resolved | undefined
+	action: ResourceAction.TypeValues
+	idFromProp: RecordKey | undefined
+}
+
+export function getIdForAction(
+	{
+		resource,
+		action,
+		idFromProp,
+	}: GetIdForActionParams,
+): RecordKey | undefined {
+	return idFromProp
+		?? (resource && 'action' in resource && resource.action === action && 'id' in resource
+			? resource.id
+			: undefined)
+}
+
 const resourceMapCache = new WeakMap<Raw[], Map<string, Raw>>()
 
 function getResourceMap<
