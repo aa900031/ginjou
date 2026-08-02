@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
 	onDestroy: vi.fn(),
 	useRouterContext: vi.fn(),
 	watchRuns: [] as Array<() => void>,
+	stopWatch: vi.fn(),
 }))
 
 vi.mock('svelte', () => ({
@@ -28,7 +29,7 @@ vi.mock('../utils/watch.svelte', () => ({
 		if (options?.immediate)
 			run()
 
-		return () => {}
+		return mocks.stopWatch
 	},
 }))
 
@@ -84,6 +85,7 @@ describe('useRouteBlocker', () => {
 		mocks.onDestroy.mockReset()
 		mocks.useRouterContext.mockReset()
 		mocks.watchRuns.length = 0
+		mocks.stopWatch.mockReset()
 	})
 
 	it('should transition unblocked -> blocked -> proceeding -> unblocked', () => {
@@ -232,6 +234,7 @@ describe('useRouteBlocker', () => {
 
 		expect(handle.unregister).toHaveBeenCalledOnce()
 		expect(unsubscribe).toHaveBeenCalledOnce()
+		expect(mocks.stopWatch).toHaveBeenCalledOnce()
 	})
 
 	it('should degrade to a no-op when blocker is not implemented', () => {

@@ -51,14 +51,28 @@ export function isChangingRoute(
 	if (from.matched.length === 0)
 		return false
 
-	return isLeavingRoute(to, from) || !keepsRouteParams(to.params, from.params)
+	return isLeavingRoute(to, from) || !keepsRouteParams(to, from)
 }
 
 function keepsRouteParams(
-	to: RouteParams,
-	from: RouteParams,
+	to: RouteLocationNormalized,
+	from: RouteLocationNormalized,
 ): boolean {
-	return Object.entries(from).every(([key, value]) => isSameParamValue(to[key], value))
+	// The union of both sides, so a param the destination adds counts too: `/posts -> /posts/1` on
+	// the same record refetches on the new id just like a change of id would.
+	// Exempt when the destination entered a child record — `matched` is a root-to-leaf chain and the
+	// leaf is still matched here, so a longer chain means new records, and the params they bring
+	// belong to them rather than to the record the component is bound to.
+	const keys = to.matched.length > from.matched.length
+		? Object.keys(from.params)
+		: new Set([...Object.keys(from.params), ...Object.keys(to.params)])
+
+	for (const key of keys) {
+		if (!isSameParamValue(to.params[key], from.params[key]))
+			return false
+	}
+
+	return true
 }
 
 function isSameParamValue(

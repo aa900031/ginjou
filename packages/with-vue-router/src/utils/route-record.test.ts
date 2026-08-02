@@ -106,6 +106,13 @@ describe('isChangingRoute', () => {
 		)).toBe(false)
 	})
 
+	it('should be changing when the same record gains a param', () => {
+		expect(isChangingRoute(
+			createLocation([edit], { id: '1' }),
+			createLocation([edit], {}),
+		)).toBe(true)
+	})
+
 	it('should not be changing when entering a child route', () => {
 		const posts = createRecord('posts')
 		const detail = createRecord('post-detail')

@@ -91,6 +91,9 @@ export function createRouter() {
 				muted = false
 				notify()
 			})
+			onScopeDispose(() => {
+				mutedSubscriptions.delete(unmuteOnFailure)
+			})
 
 			mutedSubscriptions.add(unmuteOnFailure)
 
@@ -144,6 +147,11 @@ export function createRouter() {
 		stopBeforeEach()
 		stopAfterEach()
 		stopBeforeUnload?.()
+
+		blockerEntries.forEach((entry) => {
+			blockerEntries.delete(entry)
+			entry.resolve?.(true)
+		})
 	}
 }
 

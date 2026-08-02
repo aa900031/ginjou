@@ -2,7 +2,7 @@
 
 import type { RouteDetail } from 'svelte-spa-router'
 import { wrap } from 'svelte-spa-router/wrap'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, onTestFinished, vi } from 'vitest'
 import { createBlocker } from './blocker.svelte'
 import { defaultParseQuery } from './location'
 
@@ -104,6 +104,7 @@ describe('createBlockerCondition', () => {
 		const condition = blocker.createBlockerCondition()
 		const entry = blocker.add(() => true)
 		const back = vi.spyOn(window.history, 'back').mockImplementation(() => {})
+		onTestFinished(() => back.mockRestore())
 
 		await condition(detail('/posts/1/edit'))
 
@@ -114,13 +115,13 @@ describe('createBlockerCondition', () => {
 		await pending
 
 		expect(back).toHaveBeenCalledOnce()
-		back.mockRestore()
 	})
 
 	it('should leave the history alone when a cancelled navigation was a traversal', async () => {
 		const condition = blocker.createBlockerCondition()
 		const entry = blocker.add(() => true)
 		const back = vi.spyOn(window.history, 'back').mockImplementation(() => {})
+		onTestFinished(() => back.mockRestore())
 
 		await condition(detail('/posts/1/edit'))
 
@@ -132,7 +133,6 @@ describe('createBlockerCondition', () => {
 		await pending
 
 		expect(back).not.toHaveBeenCalled()
-		back.mockRestore()
 	})
 
 	it('should not block the restore navigation it just made', async () => {
