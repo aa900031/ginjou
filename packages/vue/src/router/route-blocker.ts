@@ -51,9 +51,8 @@ export function useRouteBlocker(
 	//
 	// `flush: 'sync'` is insurance, not a fix for anything demonstrated: vue-router reaches
 	// `beforeEach` off a promise chain at least two microtasks after `push()` returns, so a
-	// pre-flush watcher would win that race anyway. It costs nothing here — the source
-	// short-circuits on `enabled` before it reads `state`, so a `setState` from inside a guard
-	// cannot re-enter this.
+	// pre-flush watcher would win that race anyway. A `setState` from inside a guard cannot
+	// re-enter this either, because `watch` does not fire on an unchanged source.
 	watch(
 		() => RouteBlocker.shouldRegister({
 			enabled: unref(props.enabled),

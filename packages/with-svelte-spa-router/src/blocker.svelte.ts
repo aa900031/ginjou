@@ -25,7 +25,7 @@ interface AcceptedNavigation {
 const VISITED = '__ginjou_visited'
 
 function markVisited(): void {
-	if (window.history.state?.[VISITED] === true)
+	if (!isNewEntry())
 		return
 
 	// Merged, never replaced: svelte-spa-router keeps its scroll position on the same object.
@@ -96,7 +96,8 @@ export function createBlocker(
 		target: string,
 		location: RouterLocation,
 	): void {
-		accepted = { target, location }
+		if (accepted?.target !== target)
+			accepted = { target, location }
 		markVisited()
 	}
 
@@ -107,22 +108,8 @@ export function createBlocker(
 			// Read before anything is awaited: `restore` rewrites the entry we are standing on.
 			const pushed = isNewEntry()
 
-			// Already settled: the restore below, a navigation to the location we are already on,
-			// or a second copy of this condition on the same route.
-			if (accepted?.target === target) {
-				markVisited()
-				return true
-			}
-
 			const location = toLocation(detail.location, detail.querystring, detail.params, parseQuery)
-
-			// First navigation of the session, there is nothing to leave yet.
-			if (accepted == null) {
-				accept(target, location)
-				return true
-			}
-
-			if (accepted.location.path === location.path) {
+			if (accepted == null || accepted.location.path === location.path) {
 				accept(target, location)
 				return true
 			}

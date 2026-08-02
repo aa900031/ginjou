@@ -1,7 +1,7 @@
 import type { RouterBlockerHandle, RouterBlockShouldInput } from './router'
 import type { Entry } from './router-blocker'
 import { describe, expect, it, vi } from 'vitest'
-import { checkEntries, createShouldBlockFn, getEnabled, handleChangeLocation, proceed, reset, shouldRegister, State } from './router-blocker'
+import { checkEntries, createShouldBlockFn, handleChangeLocation, proceed, reset, shouldRegister, State } from './router-blocker'
 
 /** A missing `nextLocation` is what marks the page being unloaded rather than navigated. */
 function createBlockerContext(
@@ -20,14 +20,6 @@ function createHandle(): RouterBlockerHandle {
 		reset: vi.fn(),
 	}
 }
-
-describe('getEnabled', () => {
-	it('should register unless told otherwise', () => {
-		expect(getEnabled(undefined)).toBe(true)
-		expect(getEnabled(true)).toBe(true)
-		expect(getEnabled(false)).toBe(false)
-	})
-})
 
 describe('shouldRegister', () => {
 	it('should register while enabled', () => {

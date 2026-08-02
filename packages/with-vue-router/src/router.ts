@@ -26,7 +26,7 @@ export function createRouter() {
 	const getLocation = (): RouterLocation<RouteParsedMeta> => toLocation(router.currentRoute.value)
 
 	const stopBeforeEach = router.beforeEach((to, from) => {
-		if (!isChangingRoute(to, from))
+		if (blockerEntries.size === 0 || !isChangingRoute(to, from))
 			return true
 
 		return RouteBlocker.checkEntries(blockerEntries, {
@@ -148,10 +148,8 @@ export function createRouter() {
 		stopAfterEach()
 		stopBeforeUnload?.()
 
-		blockerEntries.forEach((entry) => {
-			blockerEntries.delete(entry)
-			entry.resolve?.(true)
-		})
+		blockerEntries.forEach(entry => entry.resolve?.(true))
+		blockerEntries.clear()
 	}
 }
 

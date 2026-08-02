@@ -16,12 +16,6 @@ export interface Props {
 
 export const defaultEnabled = true
 
-export function getEnabled(
-	enabled: Props['enabled'],
-): boolean {
-	return enabled ?? defaultEnabled
-}
-
 export interface ShouldRegisterProps {
 	enabled: Props['enabled']
 	state: StateValues
@@ -30,7 +24,10 @@ export interface ShouldRegisterProps {
 export function shouldRegister(
 	props: ShouldRegisterProps,
 ): boolean {
-	return getEnabled(props.enabled) || props.state !== State.Unblocked
+	return (
+		props.enabled ?? defaultEnabled
+	)
+	|| props.state !== State.Unblocked
 }
 
 export interface CreateShouldBlockFnProps {
