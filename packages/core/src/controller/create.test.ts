@@ -1,4 +1,4 @@
-import type { BaseRecord, CreateResult } from '../query'
+import type { BaseRecord, CreateOneResult } from '../query'
 import type { Navigate } from '../router'
 import { describe, expect, it, vi } from 'vitest'
 import { createSaveFn, getIsLoading } from './create'
@@ -71,7 +71,7 @@ describe('create controller', () => {
 			const navigateTo = vi.fn()
 			const getResourceName = vi.fn(() => 'posts')
 			const getRedirect = vi.fn(() => undefined)
-			const mockData: CreateResult<BaseRecord> = {
+			const mockData: CreateOneResult<BaseRecord> = {
 				data: { id: 1, title: 'Test' },
 			}
 			const mutateFn = vi.fn().mockImplementation((_, options) => {
@@ -99,7 +99,7 @@ describe('create controller', () => {
 			const navigateTo = vi.fn()
 			const getResourceName = vi.fn(() => 'posts')
 			const getRedirect = vi.fn(() => ResourceAction.Type.Create)
-			const mockData: CreateResult<BaseRecord> = {
+			const mockData: CreateOneResult<BaseRecord> = {
 				data: { id: 1, title: 'Test' },
 			}
 			const mutateFn = vi.fn().mockImplementation((_, options) => {
@@ -127,7 +127,7 @@ describe('create controller', () => {
 			const navigateTo = vi.fn()
 			const getResourceName = vi.fn(() => 'posts')
 			const getRedirect = vi.fn(() => ResourceAction.Type.Edit)
-			const mockData: CreateResult<BaseRecord> = {
+			const mockData: CreateOneResult<BaseRecord> = {
 				data: { id: 1, title: 'Test' },
 			}
 			const mutateFn = vi.fn().mockImplementation((_, options) => {
@@ -156,7 +156,7 @@ describe('create controller', () => {
 			const navigateTo = vi.fn()
 			const getResourceName = vi.fn(() => 'posts')
 			const getRedirect = vi.fn(() => ResourceAction.Type.Show)
-			const mockData: CreateResult<BaseRecord> = {
+			const mockData: CreateOneResult<BaseRecord> = {
 				data: { id: 1, title: 'Test' },
 			}
 			const mutateFn = vi.fn().mockImplementation((_, options) => {
@@ -188,7 +188,7 @@ describe('create controller', () => {
 				to: '/custom/path',
 			}
 			const getRedirect = vi.fn(() => () => customNavProps)
-			const mockData: CreateResult<BaseRecord> = {
+			const mockData: CreateOneResult<BaseRecord> = {
 				data: { id: 1, title: 'Test' },
 			}
 			const mutateFn = vi.fn().mockImplementation((_, options) => {
@@ -214,7 +214,7 @@ describe('create controller', () => {
 			const getResourceName = vi.fn(() => 'posts')
 			const redirectFn = vi.fn(() => ResourceAction.Type.List)
 			const getRedirect = vi.fn(() => redirectFn)
-			const mockData: CreateResult<BaseRecord> = {
+			const mockData: CreateOneResult<BaseRecord> = {
 				data: { id: 1, title: 'Test' },
 			}
 			const mutateFn = vi.fn().mockImplementation((_, options) => {
@@ -238,11 +238,11 @@ describe('create controller', () => {
 		it('should handle redirect function returning different actions based on data', async () => {
 			const navigateTo = vi.fn()
 			const getResourceName = vi.fn(() => 'posts')
-			const redirectFn = vi.fn((data: CreateResult<BaseRecord>) => {
+			const redirectFn = vi.fn((data: CreateOneResult<BaseRecord>) => {
 				return data.data.id ? ResourceAction.Type.Edit : ResourceAction.Type.List
 			})
 			const getRedirect = vi.fn(() => redirectFn)
-			const mockData: CreateResult<BaseRecord> = {
+			const mockData: CreateOneResult<BaseRecord> = {
 				data: { id: 1, title: 'Test' },
 			}
 			const mutateFn = vi.fn().mockImplementation((_, options) => {
@@ -270,7 +270,7 @@ describe('create controller', () => {
 			const navigateTo = vi.fn()
 			const getResourceName = vi.fn(() => undefined)
 			const getRedirect = vi.fn(() => undefined)
-			const mockData: CreateResult<BaseRecord> = {
+			const mockData: CreateOneResult<BaseRecord> = {
 				data: { id: 1, title: 'Test' },
 			}
 			const mutateFn = vi.fn().mockImplementation((_, options) => {
@@ -298,7 +298,7 @@ describe('create controller', () => {
 			const navigateTo = vi.fn()
 			const getResourceName = vi.fn(() => 'posts')
 			const getRedirect = vi.fn(() => undefined)
-			const mockData: CreateResult<BaseRecord> = {
+			const mockData: CreateOneResult<BaseRecord> = {
 				data: { id: 1, title: 'Test' },
 			}
 			const mutateFn = vi.fn().mockResolvedValue(mockData)
@@ -337,7 +337,7 @@ describe('create controller', () => {
 			const navigateTo = vi.fn()
 			const getResourceName = vi.fn(() => 'posts')
 			const getRedirect = vi.fn(() => undefined)
-			const mockData: CreateResult<BaseRecord> = {
+			const mockData: CreateOneResult<BaseRecord> = {
 				data: { id: 1, title: 'Test', meta: { tags: ['a', 'b'] } },
 			}
 			const mutateFn = vi.fn().mockResolvedValue(mockData)
@@ -365,7 +365,7 @@ describe('create controller', () => {
 			const navigateTo = vi.fn()
 			const getResourceName = vi.fn(() => 'posts')
 			const getRedirect = vi.fn(() => ResourceAction.Type.List)
-			const mockData: CreateResult<BaseRecord> = {
+			const mockData: CreateOneResult<BaseRecord> = {
 				data: { title: 'Test' }, // No id
 			}
 			const mutateFn = vi.fn().mockImplementation((_, options) => {

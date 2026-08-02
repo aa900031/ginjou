@@ -1,5 +1,5 @@
 import type { SetOptional } from 'type-fest'
-import type { BaseRecord, GetOneResult, Meta, MutationModeValues, Params, RecordKey, UpdateResult } from '../query'
+import type { BaseRecord, GetOneResult, Meta, MutationModeValues, Params, RecordKey, UpdateOneResult } from '../query'
 import type { Props as GetOneProps } from '../query/get-one'
 import type {
 	MutateAsyncFn as UpdateMutateFn,
@@ -25,7 +25,7 @@ export type Props<
 		| 'params'
 	>
 	& {
-		redirect?: RedirectOptions<UpdateResult<TMutationData>>
+		redirect?: RedirectOptions<UpdateOneResult<TMutationData>>
 		queryMeta?: Meta
 		queryOptions?: GetOneProps<TQueryData, TQueryError, TQueryResultData>['queryOptions']
 	},
@@ -68,7 +68,7 @@ export function getIsLoading(
 export type SaveFn<
 	TMutationParams,
 	TMutationData extends BaseRecord,
-> = (params: TMutationParams) => Promise<UpdateResult<TMutationData>>
+> = (params: TMutationParams) => Promise<UpdateOneResult<TMutationData>>
 
 export interface SaveFnParams<
 	TMutationParams extends Params,
@@ -79,7 +79,7 @@ export interface SaveFnParams<
 	getId: () => RecordKey | undefined
 	getResourceName: () => string | undefined
 	getMutationMode: () => MutationModeValues | undefined
-	getRedirect: () => RedirectOptions<UpdateResult<TMutationData>> | undefined
+	getRedirect: () => RedirectOptions<UpdateOneResult<TMutationData>> | undefined
 	getQueryData: () => GetOneResult<TQueryResultData> | undefined
 	navigateTo: Navigate.ToFn
 	mutateFn: UpdateMutateFn<TMutationData, TMutationError, TMutationParams>

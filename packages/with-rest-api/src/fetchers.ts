@@ -17,8 +17,9 @@ export function createFetcher(
 		client = createFetch({ fetch, Headers, AbortController }),
 	}: CreateFetcherProps,
 ) {
+	// Keep context defaults so inferred fetcher methods accept omitted contexts.
 	return defineFetcher({
-		getList: async ({ resource, pagination, filters, sorters, meta }) => {
+		getList: async ({ resource, pagination, filters, sorters, meta }, context = undefined) => {
 			const query: {
 				_start?: number
 				_end?: number
@@ -52,6 +53,7 @@ export function createFetcher(
 					...queryFilters,
 				},
 				headers: meta?.headers as any,
+				signal: getSignal(context),
 			})
 
 			const data = response._data!
@@ -62,11 +64,12 @@ export function createFetcher(
 				total: +(total || data.length),
 			}
 		},
-		getOne: async ({ resource, id, meta }) => {
+		getOne: async ({ resource, id, meta }, context = undefined) => {
 			const response = await client.raw(`${resource}/${id}`, {
 				baseURL: `${url}`,
 				method: meta?.method as any ?? 'GET',
 				headers: meta?.headers as any,
+				signal: getSignal(context),
 			})
 
 			return {
@@ -109,15 +112,18 @@ export function createFetcher(
 				data: response._data,
 			}
 		},
-		custom: async ({
-			url,
-			method,
-			filters,
-			sorters,
-			payload,
-			query,
-			headers,
-		}) => {
+		custom: async (
+			{
+				url,
+				method,
+				filters,
+				sorters,
+				payload,
+				query,
+				headers,
+			},
+			context = undefined,
+		) => {
 			const queryFilters = genFilters(filters)
 			const querySorters = genSorters(sorters)
 			const reqMethod = toMethod(method)
@@ -131,7 +137,8 @@ export function createFetcher(
 				method: reqMethod,
 				query: reqQuery,
 				headers,
-				params: payload as any,
+				body: payload as any,
+				signal: getSignal(context),
 			})
 
 			return {
@@ -139,4 +146,10 @@ export function createFetcher(
 			}
 		},
 	})
+}
+
+function getSignal(context: unknown): AbortSignal | undefined {
+	return context && typeof context === 'object' && 'signal' in context
+		? context.signal as AbortSignal
+		: undefined
 }

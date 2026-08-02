@@ -39,7 +39,11 @@ export function createAuth<
 ) {
 	return defineAuth({
 		login: async (params?: LoginParams) => {
-			switch (params?.type) {
+			if (!params)
+				throw new Error('[@ginjou/with-directus] Login params are required.')
+
+			const { type } = params
+			switch (type) {
 				case 'password':
 					await client.login(params.params.email, params.params.password, params.params.options)
 					break
@@ -49,6 +53,8 @@ export function createAuth<
 						provider: params.params.provider,
 					})
 					break
+				default:
+					throw new Error(`[@ginjou/with-directus] Unsupported login type: ${String(type)}`)
 			}
 		},
 		logout: async () => {

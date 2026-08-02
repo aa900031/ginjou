@@ -9,7 +9,7 @@ const mocks = vi.hoisted(() => ({
 	createSubscribeCallback: vi.fn(),
 	createSuccessHandler: vi.fn(),
 	createErrorHandler: vi.fn(),
-	createPlacholerDataFn: vi.fn(),
+	createPlaceholderDataFn: vi.fn(),
 	createGetNextPageParamFn: vi.fn(),
 	createGetPreviousPageParamFn: vi.fn(),
 	getInitialPageParam: vi.fn(),
@@ -41,7 +41,7 @@ vi.mock('@ginjou/core', () => ({
 		createErrorHandler: mocks.createErrorHandler,
 		createGetNextPageParamFn: mocks.createGetNextPageParamFn,
 		createGetPreviousPageParamFn: mocks.createGetPreviousPageParamFn,
-		createPlacholerDataFn: mocks.createPlacholerDataFn,
+		createPlaceholderDataFn: mocks.createPlaceholderDataFn,
 		createQueryEnabledFn: mocks.createQueryEnabledFn,
 		createQueryFn: mocks.createQueryFn,
 		createSuccessHandler: mocks.createSuccessHandler,
@@ -92,7 +92,7 @@ describe('useGetInfiniteList', () => {
 		mocks.createErrorHandler.mockReturnValue(vi.fn())
 		mocks.createGetNextPageParamFn.mockReturnValue(vi.fn())
 		mocks.createGetPreviousPageParamFn.mockReturnValue(vi.fn())
-		mocks.createPlacholerDataFn.mockReturnValue(undefined)
+		mocks.createPlaceholderDataFn.mockReturnValue(undefined)
 		mocks.createInfiniteQuery.mockReturnValue({ data: undefined })
 		mocks.createQueryEnabledFn.mockImplementation(({ getEnabled }) => {
 			return () => getEnabled() !== false

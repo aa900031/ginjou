@@ -87,8 +87,17 @@ describe('createAuth', () => {
 			)
 		})
 
-		it('should not call client.login if params are not provided', async () => {
-			await authProvider.login()
+		it('should reject if params are not provided', async () => {
+			await expect(authProvider.login()).rejects.toThrow(
+				'[@ginjou/with-directus] Login params are required.',
+			)
+			expect(mockClient.login).not.toHaveBeenCalled()
+		})
+
+		it('should reject an unsupported login type', async () => {
+			await expect(authProvider.login({ type: 'magic-link' } as any)).rejects.toThrow(
+				'[@ginjou/with-directus] Unsupported login type: magic-link',
+			)
 			expect(mockClient.login).not.toHaveBeenCalled()
 		})
 	})

@@ -19,7 +19,7 @@ export type UsePermissionsProps<
 	Permissions.Props<TData, TParams, TError>
 >
 
-export type UserPermissionsContext = Simplify<
+export type UsePermissionsContext = Simplify<
 	& UseAuthzContextFromProps
 	& UseQueryClientContextProps
 >
@@ -38,7 +38,7 @@ export function usePermissions<
 	TError = unknown,
 >(
 	props?: UsePermissionsProps<TData, TParams, TError>,
-	context?: UserPermissionsContext,
+	context?: UsePermissionsContext,
 ): UsePermissionsResult<TData, TError> {
 	const authz = useAuthzContext(context)
 	const queryClient = useQueryClientContext(context)

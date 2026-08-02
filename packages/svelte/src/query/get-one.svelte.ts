@@ -99,7 +99,7 @@ export function useGetOne<
 		getErrorNotify: () => resolvedProps.errorNotify,
 		emitParent: (...args) => resolvedProps.queryOptions?.onError?.(...args),
 	})
-	const placeholderData = GetOne.createPlacholerDataFn<TData, TError>()
+	const placeholderData = GetOne.createPlaceholderDataFn<TData, TError>()
 
 	const query = createQuery<GetOneResult<TData>, TError, GetOneResult<TResultData>>(
 		() => ({

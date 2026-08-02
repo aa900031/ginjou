@@ -1,12 +1,12 @@
 import type { InvalidateOptions, InvalidateQueryFilters, QueryClient } from '@tanstack/query-core'
 import type { SetRequired, Simplify, ValueOf } from 'type-fest'
-import type { BaseRecord, CreateManyResult, CreateResult, DeleteManyResult, DeleteOneResult, GetManyResult, GetOneResult, RecordKey, UpdateManyResult, UpdateResult } from './fetcher'
+import type { BaseRecord, CreateManyResult, CreateOneResult, DeleteManyResult, DeleteOneResult, GetManyResult, GetOneResult, RecordKey, UpdateManyResult, UpdateOneResult } from './fetcher'
 import { createQueryKey as genGetListQueryKey } from './get-list'
 import { createQueryKey as genGetManyQueryKey } from './get-many'
 import { createQueryKey as genGetOneQueryKey } from './get-one'
 
 export interface InvalidatesProps {
-	invalidates?: InvalidateTargetType[]
+	invalidates?: InvalidateTargetValues[]
 }
 
 export type ResolvedInvalidatesProps = SetRequired<
@@ -16,7 +16,7 @@ export type ResolvedInvalidatesProps = SetRequired<
 
 export function resolveInvalidateProps(
 	props: InvalidatesProps,
-	defaultValue: InvalidateTargetType[],
+	defaultValue: InvalidateTargetValues[],
 ): ResolvedInvalidatesProps {
 	return {
 		invalidates: props.invalidates ?? defaultValue,
@@ -31,12 +31,12 @@ export const InvalidateTarget = {
 	One: 'one',
 } as const
 
-export type InvalidateTargetType = ValueOf<typeof InvalidateTarget>
+export type InvalidateTargetValues = ValueOf<typeof InvalidateTarget>
 
 export type TriggerInvalidatesProps = Simplify<
 	& TriggerInvalidateProps
 	& {
-		invalidates: InvalidateTargetType[] | false
+		invalidates: InvalidateTargetValues[] | false
 	}
 >
 
@@ -47,9 +47,9 @@ export async function triggerInvalidates<
 	result:
 		| GetOneResult<TResult>
 		| GetManyResult<TResult>
-		| CreateResult<TResult>
+		| CreateOneResult<TResult>
 		| CreateManyResult<TResult>
-		| UpdateResult<TResult>
+		| UpdateOneResult<TResult>
 		| UpdateManyResult<TResult>
 		| DeleteOneResult<TResult>
 		| DeleteManyResult<TResult>
@@ -183,9 +183,9 @@ export async function triggerInvalidate<
 	result:
 		| GetOneResult<TResult>
 		| GetManyResult<TResult>
-		| CreateResult<TResult>
+		| CreateOneResult<TResult>
 		| CreateManyResult<TResult>
-		| UpdateResult<TResult>
+		| UpdateOneResult<TResult>
 		| UpdateManyResult<TResult>
 		| DeleteOneResult<TResult>
 		| DeleteManyResult<TResult>
@@ -197,13 +197,13 @@ export async function triggerInvalidate<
 	TResult extends BaseRecord,
 >(
 	props: any,
-	target: InvalidateTargetType,
+	target: InvalidateTargetValues,
 	result:
 		| GetOneResult<TResult>
 		| GetManyResult<TResult>
-		| CreateResult<TResult>
+		| CreateOneResult<TResult>
 		| CreateManyResult<TResult>
-		| UpdateResult<TResult>
+		| UpdateOneResult<TResult>
 		| UpdateManyResult<TResult>
 		| DeleteOneResult<TResult>
 		| DeleteManyResult<TResult>

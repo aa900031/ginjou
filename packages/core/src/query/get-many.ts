@@ -17,12 +17,12 @@ import { NotificationType } from '../notification'
 import { SubscribeType } from '../realtime'
 import { getErrorMessage } from '../utils/error'
 import { getQuery, resolveQueryEnableds } from '../utils/query'
-import { createAggregrateFn } from './aggregrate'
+import { createAggregateFn } from './aggregate'
 import { getFetcherFn, getSafeFetcherFn, resolveFetcherProps } from './fetchers'
-import { createQueryKey as createGetOneQueryKey } from './get-one'
+import { createQueryKey as genGetOneQueryKey } from './get-one'
 import { fakeMany } from './helper'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
-import { createQueryKey as createResourceQueryKey } from './resource'
+import { createQueryKey as genResourceQueryKey } from './resource'
 
 export type QueryOptions<
 	TData extends BaseRecord,
@@ -100,7 +100,7 @@ export function createBaseQueryKey(
 	}: CreateBaseQueryKeyProps,
 ): QueryKey {
 	return [
-		...createResourceQueryKey({ props }),
+		...genResourceQueryKey({ props }),
 		'getMany',
 	]
 }
@@ -158,12 +158,12 @@ export function createQueryFn<
 	}
 }
 
-export interface CreatePlacholerDataFnProps {
+export interface CreatePlaceholderDataFnProps {
 	getProps: () => ResolvedQueryProps
 	queryClient: QueryClient
 }
 
-export function createPlacholerDataFn<
+export function createPlaceholderDataFn<
 	TData extends BaseRecord,
 	TError,
 	TResultData extends BaseRecord,
@@ -171,7 +171,7 @@ export function createPlacholerDataFn<
 	{
 		getProps,
 		queryClient,
-	}: CreatePlacholerDataFnProps,
+	}: CreatePlaceholderDataFnProps,
 ): PlaceholderDataFunction<GetManyResult<TData>, TError, GetManyResult<TData>> {
 	return function placeholderDataFn() {
 		const { ids, ...rest } = getProps()
@@ -350,7 +350,7 @@ function execGetMany<
 	return fakeMany(props.ids.map(id => (getOne as any)({ ...props, id }, context)))
 }
 
-const aggregExecGetMany = createAggregrateFn(
+const aggregExecGetMany = createAggregateFn(
 	execGetMany,
 	(allArgs, allResolves) => {
 		type ResourceMap = Record<string, { args: typeof allArgs[0][], resolves: typeof allResolves[0][] }>
@@ -383,7 +383,7 @@ const aggregExecGetMany = createAggregrateFn(
 
 			const args = value.args[0]
 			if (!args)
-				throw new Error('Panic')
+				throw new Error('[@ginjou/core] Cannot aggregate get-many requests because no request arguments were provided.')
 			args[0] = { ...args?.[0], ids }
 
 			result.push([
@@ -407,7 +407,7 @@ function updateCache<
 			continue
 
 		queryClient.setQueryData<GetOneResult<TData>>(
-			createGetOneQueryKey({
+			genGetOneQueryKey({
 				props: { ...props, id: record.id },
 			}),
 			old => old ?? { data: record },
@@ -424,6 +424,6 @@ function findGetOneCached<
 	queryClient: QueryClient,
 ): GetOneResult<TResultData> | undefined {
 	const queryCache = queryClient.getQueryCache()
-	const queryHash = hashKey(createGetOneQueryKey({ props }))
+	const queryHash = hashKey(genGetOneQueryKey({ props }))
 	return queryCache.get<GetOneResult<TData>, TError, GetOneResult<TResultData>>(queryHash)?.state.data
 }

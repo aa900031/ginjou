@@ -1,4 +1,4 @@
-import type { AccessCanParams, AccessCanResult } from '@ginjou/core'
+import type { CanAccessParams, CanAccessResult } from '@ginjou/core'
 import type { CreateQueryResult } from '@tanstack/svelte-query'
 import type { Simplify } from 'type-fest'
 import type { UseQueryClientContextProps } from '../query'
@@ -25,7 +25,7 @@ export type UseCanAccessContext = Simplify<
 export type UseCanAccessResult<
 	TError,
 > = CreateQueryResult<
-	AccessCanResult,
+	CanAccessResult,
 	TError
 >
 
@@ -39,7 +39,7 @@ export function useCanAccess<
 	const queryClient = useQueryClientContext(context)
 
 	const resolvedProps = $derived(extract(props))
-	const params = $derived.by((): AccessCanParams => ({
+	const params = $derived.by((): CanAccessParams => ({
 		action: resolvedProps.action,
 		resource: resolvedProps.resource,
 		params: resolvedProps.params,
@@ -58,7 +58,7 @@ export function useCanAccess<
 		})
 	})
 
-	const query = createQuery<AccessCanResult, TError>(
+	const query = createQuery<CanAccessResult, TError>(
 		() => ({
 			...resolvedProps.queryOptions,
 			queryKey,
@@ -74,7 +74,7 @@ export function useCanAccess<
 	const handleError: NonNullable<CanAccess.QueryOptions<TError>['onError']> = (...args) =>
 		resolvedProps.queryOptions?.onError?.(...args)
 
-	useQueryCallbacks<AccessCanResult, TError>(() => ({
+	useQueryCallbacks<CanAccessResult, TError>(() => ({
 		queryKey,
 		queryClient,
 		onSuccess: handleSuccess,

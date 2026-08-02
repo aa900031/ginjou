@@ -11,9 +11,6 @@ export default defineConfig({
 			include: [
 				'packages/*/src/**/*',
 			],
-			exclude: [
-				'packages/with-svelte-spa-router/**/*', // FIXME:
-			],
 		},
 		projects: [
 			'packages/*',
