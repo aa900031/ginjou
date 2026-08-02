@@ -1,4 +1,4 @@
-import type { BaseRecord, CreateResult } from '../query'
+import type { BaseRecord, CreateOneResult } from '../query'
 import { describe, expect, it, vi } from 'vitest'
 import { createSaveFn, getId, getIsLoading } from './clone'
 import * as ResourceAction from './resource-action'
@@ -42,7 +42,7 @@ describe('clone controller', () => {
 	})
 
 	it('should strip the source id from the params and redirect to list', async () => {
-		const result: CreateResult<BaseRecord> = {
+		const result: CreateOneResult<BaseRecord> = {
 			data: { id: 'copy-id', title: 'Copy' },
 		}
 		const navigateTo = vi.fn()
@@ -70,7 +70,7 @@ describe('clone controller', () => {
 	})
 
 	it('should honor an explicit clone redirect with the created id', async () => {
-		const result: CreateResult<BaseRecord> = {
+		const result: CreateOneResult<BaseRecord> = {
 			data: { id: 'copy-id' },
 		}
 		const navigateTo = vi.fn()

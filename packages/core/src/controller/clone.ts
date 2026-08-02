@@ -1,5 +1,5 @@
 import type { SetOptional } from 'type-fest'
-import type { BaseRecord, CreateResult, Meta, Params, RecordKey } from '../query'
+import type { BaseRecord, CreateOneResult, Meta, Params, RecordKey } from '../query'
 import type { Props as CreateProps } from '../query/create'
 import type { Props as GetOneProps } from '../query/get-one'
 import type { SaveFn, SaveFnParams } from './create'
@@ -24,7 +24,7 @@ export type Props<
 	>
 	& {
 		id: RecordKey
-		redirect?: RedirectOptions<CreateResult<TMutationData>>
+		redirect?: RedirectOptions<CreateOneResult<TMutationData>>
 		queryMeta?: Meta
 		queryOptions?: GetOneProps<TQueryData, TQueryError, TQueryResultData>['queryOptions']
 	},
