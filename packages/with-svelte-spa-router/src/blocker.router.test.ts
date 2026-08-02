@@ -27,6 +27,9 @@ async function settle(): Promise<void> {
 beforeEach(async () => {
 	resetProbe()
 	conditionsFailed = 0
+	// Two entries, set before the app is mounted so neither of them runs a route.
+	window.location.hash = `#${LIST_PATH}`
+	await new Promise(resolve => setTimeout(resolve, 0))
 	window.location.hash = `#${EDIT_PATH}`
 	app = mount(BlockerApp, {
 		target: document.body,

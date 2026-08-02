@@ -1,11 +1,11 @@
 import type { RouterBlockerHandle, RouterBlockShouldFn, RouterBlockShouldInput, RouterGoParams, RouterLocation } from '@ginjou/core'
 import type { SetRequired, Simplify } from 'type-fest'
 import type { LocationAsRelativeRaw, RouteLocationNormalizedLoaded, RouteLocationOptions } from 'vue-router'
-import { defineRouter, RouteBlocker, RouterBlockerAction } from '@ginjou/core'
-import { onScopeDispose, watch } from 'vue-demi'
+import { defineRouter, RouteBlocker } from '@ginjou/core'
+import { onActivated, onDeactivated, onScopeDispose, watch } from 'vue-demi'
 import { onBeforeRouteLeave, useRouter } from 'vue-router'
 import { toLocation, toRouteLocation } from './location'
-import { isLeavingRoute } from './utils/route-record'
+import { isChangingRoute } from './utils/route-record'
 
 export type RouteGoMeta = Simplify<
 	| RouteLocationOptions
@@ -26,30 +26,24 @@ export function createRouter() {
 	const getLocation = (): RouterLocation<RouteParsedMeta> => toLocation(router.currentRoute.value)
 
 	const stopBeforeEach = router.beforeEach((to, from) => {
-		if (!isLeavingRoute(to, from))
+		if (!isChangingRoute(to, from))
 			return true
 
 		return RouteBlocker.checkEntries(blockerEntries, {
 			currentLocation: toLocation(from),
 			nextLocation: toLocation(to as RouteLocationNormalizedLoaded),
-			action: RouterBlockerAction.Push,
 		})
 	})
 
-	const stopBeforeUnload = addBeforeUnload((event) => {
-		const input: RouterBlockShouldInput = {
-			currentLocation: getLocation(),
-			nextLocation: undefined,
-			action: RouterBlockerAction.Unload,
-		}
+	let stopBeforeUnload: (() => void) | undefined
 
-		for (const entry of blockerEntries) {
-			if (entry.shouldBlock(input)) {
-				event.preventDefault()
-				event.returnValue = true
-				return
-			}
-		}
+	// One listener for the whole router rather than one per subscription: `onChangeLocation`
+	// callers are not obliged to call the teardown it returns, so a per-subscription guard would
+	// outlive every component that ever used `useLocation`.
+	const mutedSubscriptions = new Set<() => void>()
+	const stopAfterEach = router.afterEach((_to, _from, failure) => {
+		if (failure != null)
+			mutedSubscriptions.forEach(unmute => unmute())
 	})
 
 	onScopeDispose(cleanup)
@@ -71,21 +65,59 @@ export function createRouter() {
 		},
 		getLocation,
 		onChangeLocation: (handler) => {
-			const stopWatch = watch(router.currentRoute, (val) => {
-				handler(toLocation(val))
-			})
-			onBeforeRouteLeave(stopWatch)
+			let muted = false
+			let cached = false
+			const notify = (): void => handler(toLocation(router.currentRoute.value))
 
-			return stopWatch
+			// Only while the component is still where it was. Once it has been deactivated the
+			// leave committed, and a later navigation failing elsewhere in the app says nothing
+			// about this subscription.
+			const unmuteOnFailure = (): void => {
+				if (!cached)
+					muted = false
+			}
+
+			onBeforeRouteLeave(() => {
+				muted = true
+			})
+			onDeactivated(() => {
+				cached = true
+			})
+			onActivated(() => {
+				cached = false
+				if (!muted)
+					return
+
+				muted = false
+				notify()
+			})
+
+			mutedSubscriptions.add(unmuteOnFailure)
+
+			const stopWatch = watch(router.currentRoute, () => {
+				if (!muted)
+					notify()
+			})
+
+			return () => {
+				mutedSubscriptions.delete(unmuteOnFailure)
+				stopWatch()
+			}
 		},
 		blocker: (shouldBlock: RouterBlockShouldFn): RouterBlockerHandle => {
 			const entry: RouteBlocker.Entry = { shouldBlock }
 			blockerEntries.add(entry)
+			stopBeforeUnload ??= addBeforeUnload(handleBeforeUnload)
 
 			return {
 				unregister: () => {
 					blockerEntries.delete(entry)
 					entry.resolve?.(true)
+
+					if (blockerEntries.size === 0) {
+						stopBeforeUnload?.()
+						stopBeforeUnload = undefined
+					}
 				},
 				proceed: () => entry.resolve?.(true),
 				reset: () => entry.resolve?.(false),
@@ -93,9 +125,25 @@ export function createRouter() {
 		},
 	})
 
+	function handleBeforeUnload(event: BeforeUnloadEvent): void {
+		const input: RouterBlockShouldInput = {
+			currentLocation: getLocation(),
+			nextLocation: undefined,
+		}
+
+		for (const entry of blockerEntries) {
+			if (entry.shouldBlock(input)) {
+				event.preventDefault()
+				event.returnValue = true
+				return
+			}
+		}
+	}
+
 	function cleanup(): void {
 		stopBeforeEach()
-		stopBeforeUnload()
+		stopAfterEach()
+		stopBeforeUnload?.()
 	}
 }
 

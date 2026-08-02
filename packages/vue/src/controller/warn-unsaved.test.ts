@@ -1,5 +1,5 @@
 import type { Router, RouterBlockShouldFn, RouterLocation } from '@ginjou/core'
-import { RouterBlockerAction, WarnUnsaved } from '@ginjou/core'
+import { WarnUnsaved } from '@ginjou/core'
 import { describe, expect, it, vi } from 'vitest'
 import { nextTick, unref } from 'vue-demi'
 import { mountSetup } from '../../test/mount'
@@ -9,6 +9,7 @@ const LOCATION: RouterLocation = { path: '/posts/1/edit' }
 
 function createMockRouter() {
 	let shouldBlock: RouterBlockShouldFn | undefined
+	let changeLocation: ((value: RouterLocation) => void) | undefined
 
 	const handle = {
 		unregister: vi.fn(),
@@ -21,7 +22,10 @@ function createMockRouter() {
 		back: vi.fn(),
 		resolve: vi.fn(),
 		getLocation: () => LOCATION,
-		onChangeLocation: () => vi.fn(),
+		onChangeLocation: (handler) => {
+			changeLocation = handler
+			return vi.fn()
+		},
 		blocker: (fn) => {
 			shouldBlock = fn
 			return handle
@@ -31,10 +35,11 @@ function createMockRouter() {
 	return {
 		router,
 		handle,
+		isRegistered: () => shouldBlock != null,
+		emitChangeLocation: () => changeLocation?.({ path: '/posts' }),
 		callShouldBlock: () => shouldBlock!({
 			currentLocation: LOCATION,
 			nextLocation: { path: '/posts' },
-			action: RouterBlockerAction.Push,
 		}),
 	}
 }
@@ -76,7 +81,7 @@ describe('useWarnUnsaved', () => {
 	})
 
 	it('should not block when disabled', () => {
-		const { router, callShouldBlock } = createMockRouter()
+		const { router, isRegistered } = createMockRouter()
 		const confirm = vi.fn(() => true)
 
 		const { result } = mountSetup(() => useWarnUnsaved({ enabled: false, confirm }, { router }))
@@ -84,7 +89,7 @@ describe('useWarnUnsaved', () => {
 		result.active.value = true
 
 		expect(unref(result.state)).toBe(WarnUnsaved.State.Inactive)
-		expect(callShouldBlock()).toBe(false)
+		expect(isRegistered()).toBe(false)
 		expect(confirm).not.toHaveBeenCalled()
 	})
 
@@ -109,5 +114,6 @@ describe('useWarnUnsaved', () => {
 		await vi.waitFor(() => {
 			expect(unref(result.state)).toBe(WarnUnsaved.State.Active)
 		})
+		expect(result.active.value).toBe(true)
 	})
 })

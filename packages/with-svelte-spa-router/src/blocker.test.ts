@@ -51,7 +51,6 @@ describe('createBlockerCondition', () => {
 				path: '/posts',
 				query: { page: '2' },
 			}),
-			action: 'push',
 		})
 	})
 
@@ -95,6 +94,47 @@ describe('createBlockerCondition', () => {
 		expect(window.location.hash).toBe('#/posts/1/edit')
 	})
 
+	// Cancelling a push leaves the entry it created behind, now holding a copy of the location we
+	// restored to, so Back would land on the copy and appear to do nothing. `history.state` is what
+	// separates the two: a fragment push always creates an entry with a null state, and every entry
+	// the user has stood on carries a mark. happy-dom copies the state onto a pushed entry instead
+	// of nulling it, so these drive the state directly rather than through a hash assignment; the
+	// end-to-end behaviour is verified against Chrome.
+	it('should step off the entry a cancelled push left behind', async () => {
+		const condition = blocker.createBlockerCondition()
+		const entry = blocker.add(() => true)
+		const back = vi.spyOn(window.history, 'back').mockImplementation(() => {})
+
+		await condition(detail('/posts/1/edit'))
+
+		window.location.hash = '#/posts'
+		window.history.replaceState(null, '')
+		const pending = condition(detail('/posts'))
+		entry.resolve!(false)
+		await pending
+
+		expect(back).toHaveBeenCalledOnce()
+		back.mockRestore()
+	})
+
+	it('should leave the history alone when a cancelled navigation was a traversal', async () => {
+		const condition = blocker.createBlockerCondition()
+		const entry = blocker.add(() => true)
+		const back = vi.spyOn(window.history, 'back').mockImplementation(() => {})
+
+		await condition(detail('/posts/1/edit'))
+
+		window.location.hash = '#/posts'
+		// An entry the user has stood on before: going back created it, nothing to step off.
+		window.history.replaceState({ __ginjou_visited: true }, '')
+		const pending = condition(detail('/posts'))
+		entry.resolve!(false)
+		await pending
+
+		expect(back).not.toHaveBeenCalled()
+		back.mockRestore()
+	})
+
 	it('should not block the restore navigation it just made', async () => {
 		const condition = blocker.createBlockerCondition()
 		const shouldBlock = vi.fn(() => true)
@@ -108,6 +148,36 @@ describe('createBlockerCondition', () => {
 
 		await expect(condition(detail('/posts/1/edit'))).resolves.toBe(true)
 		expect(shouldBlock).not.toHaveBeenCalled()
+	})
+
+	it('should not block a change of query alone', async () => {
+		const condition = blocker.createBlockerCondition()
+		const shouldBlock = vi.fn(() => true)
+		blocker.add(shouldBlock)
+
+		await condition(detail('/posts', 'page=1'))
+
+		await expect(condition(detail('/posts', 'page=2'))).resolves.toBe(true)
+		expect(shouldBlock).not.toHaveBeenCalled()
+		expect(blocker.acceptedLocation).toMatchObject({ query: { page: '2' } })
+	})
+
+	it('should invalidate a held run that a later navigation superseded', async () => {
+		const condition = blocker.createBlockerCondition()
+		const entry = blocker.add(() => true)
+
+		await condition(detail('/posts/1/edit'))
+
+		window.location.hash = '#/posts'
+		const held = condition(detail('/posts'))
+
+		window.location.hash = '#/posts/1/edit'
+		await expect(condition(detail('/posts/1/edit'))).resolves.toBe(true)
+
+		entry.resolve!(true)
+
+		await expect(held).resolves.toBe(false)
+		expect(blocker.acceptedLocation).toMatchObject({ path: '/posts/1/edit' })
 	})
 
 	it('should not block a navigation to the location already displayed', async () => {
@@ -153,10 +223,33 @@ describe('createBlockerCondition', () => {
 		const entry = blocker.add(() => true)
 
 		await condition(detail('/posts/1/edit'))
+
+		window.location.hash = '#/posts'
 		const pending = condition(detail('/posts'))
 		blocker.remove(entry)
 
 		await expect(pending).resolves.toBe(true)
+		expect(window.location.hash).toBe('#/posts')
+	})
+
+	it('should leave the URL to the newer navigation when it takes the hold over', async () => {
+		const condition = blocker.createBlockerCondition()
+		const entry = blocker.add(() => true)
+
+		await condition(detail('/posts/1/edit'))
+
+		window.location.hash = '#/posts'
+		const superseded = condition(detail('/posts'))
+		window.location.hash = '#/users'
+		const latest = condition(detail('/users'))
+
+		await expect(superseded).resolves.toBe(false)
+		// The restore belongs to whoever still owns the navigation, and that is the newer run.
+		expect(window.location.hash).toBe('#/users')
+
+		entry.resolve!(true)
+		await expect(latest).resolves.toBe(true)
+		expect(blocker.acceptedLocation).toMatchObject({ path: '/users' })
 	})
 
 	it('should not block after the blocker is removed', async () => {
@@ -266,7 +359,7 @@ describe('withBlocker', () => {
 			component: wrapped.component,
 			props: { foo: 'bar' },
 			userData: { baz: 'qux' },
-			conditions: [expect.any(Function), expect.any(Function)],
+			conditions: [expect.any(Function), wrapped.conditions![0]],
 		})
 		// The router rejects a route that lost this marker.
 		expect((routes['/posts'] as any)._sveltesparouter).toBe(true)

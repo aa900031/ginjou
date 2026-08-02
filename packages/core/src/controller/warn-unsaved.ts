@@ -23,7 +23,9 @@ export type StateValues = ValueOf<typeof State>
 export const DEFAULT_MESSAGE = 'You have unsaved changes. Are you sure you want to leave this page?'
 
 // eslint-disable-next-line no-alert -- the native confirm is the documented default, callers override it
-const defaultConfirm: ConfirmFn = () => globalThis.confirm?.(DEFAULT_MESSAGE) ?? true
+export const defaultConfirm: ConfirmFn = () => globalThis.confirm?.(DEFAULT_MESSAGE) ?? true
+
+export const defaultEnabled = false
 
 export function getPropsEnabledFromProp(
 	prop: Prop,
@@ -54,7 +56,7 @@ export function getEnabled(
 	if (fromProp != null)
 		return fromProp
 
-	return getPropsEnabledFromProp(fromController) ?? false
+	return getPropsEnabledFromProp(fromController) ?? defaultEnabled
 }
 
 export interface GetConfirmProps {
@@ -103,14 +105,6 @@ export interface HandleBlockedProps {
 	reset: () => void
 }
 
-/**
- * Asks the user for confirmation while a navigation is blocked, then lets the
- * blocker proceed or resets it.
- *
- * Meant for framework layer hooks such as `useWarnUnsaved`, which own the
- * reactive `confirming` flag and translate their route blocker state into the
- * `blocked` boolean.
- */
 export async function handleBlocked(
 	props: HandleBlockedProps,
 ): Promise<void> {

@@ -72,7 +72,6 @@ describe('createRouter', () => {
 			expect(shouldBlock).toHaveBeenCalledWith({
 				currentLocation: expect.objectContaining({ path: '/posts' }),
 				nextLocation: undefined,
-				action: 'unload',
 			})
 		})
 

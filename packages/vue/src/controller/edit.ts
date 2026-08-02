@@ -70,6 +70,8 @@ export function useEdit<
 	props?: UseEditProps<TQueryData, TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError>,
 	context?: UseEditContext,
 ): UseEditResult<TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError> {
+	const { warnUnsaved, ...mutationProps } = props ?? {}
+
 	const resource = useResource({ name: props?.resource }, context)
 	const navigateTo = useNavigateTo(props, context)
 
@@ -95,7 +97,7 @@ export function useEdit<
 	}, context)
 
 	const mutation = useUpdateOne<TMutationData, TMutationParams, TMutationError>({
-		...props,
+		...mutationProps,
 		resource: resourceName,
 		id,
 		fetcherName,
@@ -107,8 +109,8 @@ export function useEdit<
 	}))
 
 	const { active: warnUnsavedActive } = useWarnUnsaved({
-		enabled: computed(() => WarnUnsaved.getPropsEnabledFromProp(unref(props?.warnUnsaved))),
-		confirm: computed(() => WarnUnsaved.getPropsConfirmFromProp(unref(props?.warnUnsaved))),
+		enabled: computed(() => WarnUnsaved.getPropsEnabledFromProp(unref(warnUnsaved))),
+		confirm: computed(() => WarnUnsaved.getPropsConfirmFromProp(unref(warnUnsaved))),
 	}, context)
 
 	const save = Edit.createSaveFn<TMutationParams, TMutationData, TMutationError, TQueryResultData>({

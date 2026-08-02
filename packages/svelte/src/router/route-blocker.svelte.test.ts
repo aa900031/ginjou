@@ -5,6 +5,7 @@ import { useRouteBlocker } from './route-blocker.svelte'
 const mocks = vi.hoisted(() => ({
 	onDestroy: vi.fn(),
 	useRouterContext: vi.fn(),
+	watchRuns: [] as Array<() => void>,
 }))
 
 vi.mock('svelte', () => ({
@@ -15,13 +16,32 @@ vi.mock('./context', () => ({
 	useRouterContext: mocks.useRouterContext,
 }))
 
+vi.mock('../utils/watch.svelte', () => ({
+	watch(
+		source: () => unknown,
+		callback: (value: unknown, oldValue: unknown) => void,
+		options?: { immediate?: boolean },
+	) {
+		const run = (): void => callback(source(), undefined)
+
+		mocks.watchRuns.push(run)
+		if (options?.immediate)
+			run()
+
+		return () => {}
+	},
+}))
+
+function flushWatch(): void {
+	mocks.watchRuns.forEach(run => run())
+}
+
 function createBlockerContext(
-	action: RouterBlockShouldInput['action'],
+	unload = false,
 ): RouterBlockShouldInput {
 	return {
 		currentLocation: { pathname: '/current' } as any,
-		nextLocation: action === 'unload' ? undefined : { pathname: '/next' } as any,
-		action,
+		nextLocation: unload ? undefined : { pathname: '/next' } as any,
 	}
 }
 
@@ -54,7 +74,7 @@ function createRouter() {
 		router,
 		handle,
 		unsubscribe,
-		callShouldBlock: (action: RouterBlockShouldInput['action']) => shouldBlock!(createBlockerContext(action)),
+		callShouldBlock: (unload?: boolean) => shouldBlock!(createBlockerContext(unload)),
 		emitChangeLocation: () => onChange!(),
 	}
 }
@@ -63,6 +83,7 @@ describe('useRouteBlocker', () => {
 	beforeEach(() => {
 		mocks.onDestroy.mockReset()
 		mocks.useRouterContext.mockReset()
+		mocks.watchRuns.length = 0
 	})
 
 	it('should transition unblocked -> blocked -> proceeding -> unblocked', () => {
@@ -73,7 +94,7 @@ describe('useRouteBlocker', () => {
 
 		expect(result.state).toBe('unblocked')
 
-		expect(callShouldBlock('push')).toBe(true)
+		expect(callShouldBlock()).toBe(true)
 		expect(result.state).toBe('blocked')
 
 		result.proceed()
@@ -90,7 +111,7 @@ describe('useRouteBlocker', () => {
 
 		const result = useRouteBlocker(() => ({ shouldBlock: true }))
 
-		callShouldBlock('push')
+		callShouldBlock()
 		expect(result.state).toBe('blocked')
 
 		result.reset()
@@ -98,14 +119,81 @@ describe('useRouteBlocker', () => {
 		expect(handle.reset).toHaveBeenCalledOnce()
 	})
 
-	it('should not block when shouldBlock is false', () => {
-		const { router, callShouldBlock } = createRouter()
+	it('should register by default', () => {
+		const { router } = createRouter()
 		mocks.useRouterContext.mockReturnValue(router)
 
-		const result = useRouteBlocker(() => ({ shouldBlock: false }))
+		useRouteBlocker(() => ({ shouldBlock: false }))
 
-		expect(callShouldBlock('push')).toBe(false)
+		expect(router.blocker).toHaveBeenCalledOnce()
+	})
+
+	it('should register and unregister with enabled', () => {
+		const { router, handle } = createRouter()
+		mocks.useRouterContext.mockReturnValue(router)
+		let enabled = $state(false)
+
+		useRouteBlocker(() => ({ enabled, shouldBlock: true }))
+
+		expect(router.blocker).not.toHaveBeenCalled()
+
+		enabled = true
+		flushWatch()
+		expect(router.blocker).toHaveBeenCalledOnce()
+
+		enabled = false
+		flushWatch()
+		expect(handle.unregister).toHaveBeenCalledOnce()
+	})
+
+	it('should keep the entry while a navigation is held on it', () => {
+		const { router, handle, callShouldBlock } = createRouter()
+		mocks.useRouterContext.mockReturnValue(router)
+		let enabled = $state(true)
+
+		const result = useRouteBlocker(() => ({ enabled, shouldBlock: true }))
+
+		expect(callShouldBlock()).toBe(true)
+		expect(result.state).toBe('blocked')
+
+		enabled = false
+		flushWatch()
+		expect(handle.unregister).not.toHaveBeenCalled()
+
+		result.reset()
+		flushWatch()
 		expect(result.state).toBe('unblocked')
+		expect(handle.unregister).toHaveBeenCalledOnce()
+	})
+
+	it('should stay registered while shouldBlock is false', () => {
+		const { router, handle, callShouldBlock } = createRouter()
+		mocks.useRouterContext.mockReturnValue(router)
+		let shouldBlock = $state(true)
+
+		useRouteBlocker(() => ({ enabled: true, shouldBlock }))
+
+		shouldBlock = false
+		flushWatch()
+
+		expect(handle.unregister).not.toHaveBeenCalled()
+		expect(callShouldBlock()).toBe(false)
+	})
+
+	it('should keep the entry through proceed', () => {
+		const { router, handle, callShouldBlock } = createRouter()
+		mocks.useRouterContext.mockReturnValue(router)
+		let shouldBlock = $state(true)
+
+		const result = useRouteBlocker(() => ({ enabled: true, shouldBlock }))
+
+		expect(callShouldBlock()).toBe(true)
+		shouldBlock = false
+		result.proceed()
+		flushWatch()
+
+		expect(handle.proceed).toHaveBeenCalledOnce()
+		expect(handle.unregister).not.toHaveBeenCalled()
 	})
 
 	it('should keep the state untouched on unload', () => {
@@ -114,23 +202,23 @@ describe('useRouteBlocker', () => {
 
 		const result = useRouteBlocker(() => ({ shouldBlock: true }))
 
-		expect(callShouldBlock('unload')).toBe(true)
+		expect(callShouldBlock(true)).toBe(true)
 		expect(result.state).toBe('unblocked')
 	})
 
 	it('should support a shouldBlock function receiving the context', () => {
 		const { router, callShouldBlock } = createRouter()
 		mocks.useRouterContext.mockReturnValue(router)
-		const fn = vi.fn((context: RouterBlockShouldInput): boolean => context.action !== 'unload')
+		const fn = vi.fn((context: RouterBlockShouldInput): boolean => context.nextLocation != null)
 
 		const result = useRouteBlocker(() => ({ shouldBlock: fn }))
 
-		expect(callShouldBlock('push')).toBe(true)
+		expect(callShouldBlock()).toBe(true)
 		expect(result.state).toBe('blocked')
-		expect(fn.mock.calls[0][0]).toEqual(createBlockerContext('push'))
+		expect(fn.mock.calls[0][0]).toEqual(createBlockerContext())
 
-		expect(callShouldBlock('unload')).toBe(false)
-		expect(fn.mock.calls[1][0]).toEqual(createBlockerContext('unload'))
+		expect(callShouldBlock(true)).toBe(false)
+		expect(fn.mock.calls[1][0]).toEqual(createBlockerContext(true))
 	})
 
 	it('should unregister and unsubscribe on destroy', () => {

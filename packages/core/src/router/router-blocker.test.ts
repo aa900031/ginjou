@@ -1,16 +1,15 @@
 import type { RouterBlockerHandle, RouterBlockShouldInput } from './router'
 import type { Entry } from './router-blocker'
 import { describe, expect, it, vi } from 'vitest'
-import { RouterBlockerAction } from './router'
-import { checkEntries, createShouldBlockFn, handleChangeLocation, proceed, reset, State } from './router-blocker'
+import { checkEntries, createShouldBlockFn, getEnabled, handleChangeLocation, proceed, reset, shouldRegister, State } from './router-blocker'
 
+/** A missing `nextLocation` is what marks the page being unloaded rather than navigated. */
 function createBlockerContext(
-	action: RouterBlockShouldInput['action'],
+	unload = false,
 ): RouterBlockShouldInput {
 	return {
 		currentLocation: { path: '/posts' },
-		nextLocation: action === RouterBlockerAction.Unload ? undefined : { path: '/posts/1' },
-		action,
+		nextLocation: unload ? undefined : { path: '/posts/1' },
 	}
 }
 
@@ -22,13 +21,37 @@ function createHandle(): RouterBlockerHandle {
 	}
 }
 
+describe('getEnabled', () => {
+	it('should register unless told otherwise', () => {
+		expect(getEnabled(undefined)).toBe(true)
+		expect(getEnabled(true)).toBe(true)
+		expect(getEnabled(false)).toBe(false)
+	})
+})
+
+describe('shouldRegister', () => {
+	it('should register while enabled', () => {
+		expect(shouldRegister({ enabled: undefined, state: State.Unblocked })).toBe(true)
+		expect(shouldRegister({ enabled: true, state: State.Unblocked })).toBe(true)
+	})
+
+	it('should let the entry go once disabled and idle', () => {
+		expect(shouldRegister({ enabled: false, state: State.Unblocked })).toBe(false)
+	})
+
+	it('should keep the entry while a navigation is riding on it', () => {
+		expect(shouldRegister({ enabled: false, state: State.Blocked })).toBe(true)
+		expect(shouldRegister({ enabled: false, state: State.Proceeding })).toBe(true)
+	})
+})
+
 describe('createShouldBlockFn', () => {
 	it('should return the current value without touching the state on unload', () => {
 		for (const value of [true, false]) {
 			const setState = vi.fn()
 			const shouldBlock = createShouldBlockFn({ getShouldBlock: () => value, setState })
 
-			expect(shouldBlock(createBlockerContext(RouterBlockerAction.Unload))).toBe(value)
+			expect(shouldBlock(createBlockerContext(true))).toBe(value)
 			expect(setState).not.toHaveBeenCalled()
 		}
 	})
@@ -37,7 +60,7 @@ describe('createShouldBlockFn', () => {
 		const setState = vi.fn()
 		const shouldBlock = createShouldBlockFn({ getShouldBlock: () => false, setState })
 
-		expect(shouldBlock(createBlockerContext(RouterBlockerAction.Push))).toBe(false)
+		expect(shouldBlock(createBlockerContext())).toBe(false)
 		expect(setState).not.toHaveBeenCalled()
 	})
 
@@ -45,7 +68,7 @@ describe('createShouldBlockFn', () => {
 		const setState = vi.fn()
 		const shouldBlock = createShouldBlockFn({ getShouldBlock: () => true, setState })
 
-		expect(shouldBlock(createBlockerContext(RouterBlockerAction.Push))).toBe(true)
+		expect(shouldBlock(createBlockerContext())).toBe(true)
 		expect(setState).toHaveBeenCalledWith(State.Blocked)
 	})
 
@@ -53,7 +76,7 @@ describe('createShouldBlockFn', () => {
 		const setState = vi.fn()
 		const fn = vi.fn((_context: RouterBlockShouldInput): boolean => true)
 		const shouldBlock = createShouldBlockFn({ getShouldBlock: () => fn, setState })
-		const context = createBlockerContext(RouterBlockerAction.Push)
+		const context = createBlockerContext()
 
 		shouldBlock(context)
 
@@ -66,7 +89,7 @@ describe('createShouldBlockFn', () => {
 			const setState = vi.fn()
 			const shouldBlock = createShouldBlockFn({ getShouldBlock: () => (): boolean => value, setState })
 
-			expect(shouldBlock(createBlockerContext(RouterBlockerAction.Push))).toBe(value)
+			expect(shouldBlock(createBlockerContext())).toBe(value)
 
 			if (value)
 				expect(setState).toHaveBeenCalledWith(State.Blocked)
@@ -80,7 +103,7 @@ describe('createShouldBlockFn', () => {
 			const setState = vi.fn()
 			const shouldBlock = createShouldBlockFn({ getShouldBlock: () => (): boolean => value, setState })
 
-			expect(shouldBlock(createBlockerContext(RouterBlockerAction.Unload))).toBe(value)
+			expect(shouldBlock(createBlockerContext(true))).toBe(value)
 			expect(setState).not.toHaveBeenCalled()
 		}
 	})
@@ -131,7 +154,7 @@ describe('reset', () => {
 })
 
 describe('checkEntries', () => {
-	const input = createBlockerContext(RouterBlockerAction.Push)
+	const input = createBlockerContext()
 
 	it('should allow the navigation when no entry blocks it', async () => {
 		const entries: Entry[] = [{ shouldBlock: () => false }, { shouldBlock: () => false }]
@@ -170,6 +193,36 @@ describe('checkEntries', () => {
 
 		await expect(pending).resolves.toBe(true)
 		expect(second).toHaveBeenCalledWith(input)
+	})
+
+	it('should skip an entry removed before its turn', async () => {
+		const holder: Entry = { shouldBlock: () => true }
+		const queued = vi.fn(() => true)
+		const entries = new Set<Entry>([holder, { shouldBlock: queued }])
+
+		const pending = checkEntries(entries, input)
+
+		// The queued entry's owner goes away while the user is still deciding on the hold. Asking it
+		// anyway would install a `resolve` nobody holds the handle for any more.
+		entries.delete([...entries][1])
+		holder.resolve!(true)
+
+		await expect(pending).resolves.toBe(true)
+		expect(queued).not.toHaveBeenCalled()
+	})
+
+	it('should ask an entry registered while the navigation is held', async () => {
+		const holder: Entry = { shouldBlock: () => true }
+		const entries = new Set<Entry>([holder])
+
+		const pending = checkEntries(entries, input)
+
+		const late = vi.fn(() => false)
+		entries.add({ shouldBlock: late })
+		holder.resolve!(true)
+
+		await expect(pending).resolves.toBe(true)
+		expect(late).toHaveBeenCalledWith(input)
 	})
 
 	it('should keep the newer navigation settleable when it supersedes an older one', async () => {

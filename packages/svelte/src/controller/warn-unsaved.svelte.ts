@@ -42,7 +42,8 @@ export function useWarnUnsaved(
 	let confirming = $state(false)
 
 	const blocker = useRouteBlocker(() => ({
-		shouldBlock: enabled && active,
+		enabled,
+		shouldBlock: active,
 	}), context)
 
 	watch(() => blocker.state, (value) => {

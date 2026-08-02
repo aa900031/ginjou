@@ -1,5 +1,4 @@
 import type { Router, RouterBlockShouldFn, RouterBlockShouldInput, RouterLocation } from '@ginjou/core'
-import { RouterBlockerAction } from '@ginjou/core'
 import { describe, expect, it, vi } from 'vitest'
 import { ref, unref } from 'vue-demi'
 import { mountSetup } from '../../test/mount'
@@ -8,12 +7,11 @@ import { useRouteBlocker } from './route-blocker'
 const LOCATION: RouterLocation = { path: '/posts' }
 
 function createBlockerContext(
-	action: RouterBlockShouldInput['action'] = RouterBlockerAction.Push,
+	unload = false,
 ): RouterBlockShouldInput {
 	return {
 		currentLocation: LOCATION,
-		nextLocation: action === RouterBlockerAction.Unload ? undefined : { path: '/posts/1' },
-		action,
+		nextLocation: unload ? undefined : { path: '/posts/1' },
 	}
 }
 
@@ -24,7 +22,9 @@ function createMockRouter(
 	let changeLocation: ((value: RouterLocation) => void) | undefined
 
 	const handle = {
-		unregister: vi.fn(),
+		unregister: vi.fn(() => {
+			shouldBlock = undefined
+		}),
 		proceed: vi.fn(),
 		reset: vi.fn(),
 	}
@@ -51,7 +51,8 @@ function createMockRouter(
 	return {
 		router,
 		handle,
-		callShouldBlock: (action?: RouterBlockShouldInput['action']) => shouldBlock!(createBlockerContext(action)),
+		isRegistered: () => shouldBlock != null,
+		callShouldBlock: (unload?: boolean) => shouldBlock!(createBlockerContext(unload)),
 		emitChangeLocation: () => changeLocation?.({ path: '/posts/1' }),
 	}
 }
@@ -91,32 +92,102 @@ describe('useRouteBlocker', () => {
 		expect(unref(result.state)).toBe('unblocked')
 	})
 
-	it('should not change state on unload action', () => {
+	it('should not change state when the page is unloading', () => {
 		const { router, callShouldBlock } = createMockRouter()
 
 		const { result } = mountSetup(() => useRouteBlocker({ shouldBlock: true }, { router }))
 
-		expect(callShouldBlock(RouterBlockerAction.Unload)).toBe(true)
+		expect(callShouldBlock(true)).toBe(true)
 		expect(unref(result.state)).toBe('unblocked')
 	})
 
 	it('should support a shouldBlock function receiving the context', () => {
 		const { router, callShouldBlock } = createMockRouter()
-		const fn = vi.fn((context: RouterBlockShouldInput): boolean => context.action !== RouterBlockerAction.Unload)
+		const fn = vi.fn((context: RouterBlockShouldInput): boolean => context.nextLocation != null)
 
 		const { result } = mountSetup(() => useRouteBlocker({ shouldBlock: fn }, { router }))
 
-		expect(callShouldBlock(RouterBlockerAction.Push)).toBe(true)
+		expect(callShouldBlock()).toBe(true)
 		expect(unref(result.state)).toBe('blocked')
 		expect(fn).toHaveBeenCalledOnce()
-		expect(fn.mock.calls[0][0]).toEqual(createBlockerContext(RouterBlockerAction.Push))
+		expect(fn.mock.calls[0][0]).toEqual(createBlockerContext())
 
-		expect(callShouldBlock(RouterBlockerAction.Unload)).toBe(false)
-		expect(fn.mock.calls[1][0]).toEqual(createBlockerContext(RouterBlockerAction.Unload))
+		expect(callShouldBlock(true)).toBe(false)
+		expect(fn.mock.calls[1][0]).toEqual(createBlockerContext(true))
 
 		// unwrapping must use `unref`, not `toValue` — otherwise the fn is called as a 0-arg getter
 		for (const [context] of fn.mock.calls)
 			expect(context).toBeDefined()
+	})
+
+	it('should register by default', () => {
+		const { router, isRegistered } = createMockRouter()
+
+		mountSetup(() => useRouteBlocker({ shouldBlock: false }, { router }))
+
+		expect(isRegistered()).toBe(true)
+	})
+
+	it('should register and unregister with enabled', () => {
+		const { router, handle, isRegistered } = createMockRouter()
+		const enabled = ref(false)
+
+		mountSetup(() => useRouteBlocker({ enabled, shouldBlock: true }, { router }))
+
+		expect(isRegistered()).toBe(false)
+
+		enabled.value = true
+		expect(isRegistered()).toBe(true)
+
+		enabled.value = false
+		expect(isRegistered()).toBe(false)
+		expect(handle.unregister).toHaveBeenCalledOnce()
+	})
+
+	it('should keep the entry while a navigation is held on it', () => {
+		const { router, handle, isRegistered, callShouldBlock } = createMockRouter()
+		const enabled = ref(true)
+
+		const { result } = mountSetup(() => useRouteBlocker({ enabled, shouldBlock: true }, { router }))
+
+		expect(callShouldBlock()).toBe(true)
+		expect(unref(result.state)).toBe('blocked')
+
+		enabled.value = false
+		expect(isRegistered()).toBe(true)
+		expect(handle.unregister).not.toHaveBeenCalled()
+
+		result.reset()
+		expect(unref(result.state)).toBe('unblocked')
+		expect(isRegistered()).toBe(false)
+	})
+
+	it('should stay registered while shouldBlock is false', () => {
+		const { router, isRegistered, callShouldBlock } = createMockRouter()
+		const shouldBlock = ref(true)
+
+		mountSetup(() => useRouteBlocker({ enabled: true, shouldBlock }, { router }))
+
+		shouldBlock.value = false
+
+		expect(isRegistered()).toBe(true)
+		expect(callShouldBlock()).toBe(false)
+	})
+
+	it('should keep the entry through proceed', () => {
+		const { router, handle, isRegistered, callShouldBlock } = createMockRouter()
+		const shouldBlock = ref(true)
+
+		const { result } = mountSetup(() => useRouteBlocker({ enabled: true, shouldBlock }, { router }))
+
+		expect(callShouldBlock()).toBe(true)
+		shouldBlock.value = false
+
+		result.proceed()
+
+		expect(handle.proceed).toHaveBeenCalledOnce()
+		expect(handle.unregister).not.toHaveBeenCalled()
+		expect(isRegistered()).toBe(true)
 	})
 
 	it('should unregister on unmount', () => {

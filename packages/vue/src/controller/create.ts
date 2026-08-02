@@ -56,6 +56,8 @@ export function useCreate<
 	props?: UseCreateProps<TMutationData, TMutationParams, TMutationError>,
 	context?: UseCreateContext,
 ): UseCreateResult<TMutationData, TMutationParams, TMutationError> {
+	const { warnUnsaved, ...mutationProps } = props ?? {}
+
 	const resource = useResource({ name: props?.resource }, context)
 	const navigateTo = useNavigateTo(props, context)
 
@@ -69,7 +71,7 @@ export function useCreate<
 	}))
 
 	const mutation = useCreateOne<TMutationData, TMutationParams, TMutationError>({
-		...props,
+		...mutationProps,
 		resource: resourceName,
 		fetcherName,
 	}, context)
@@ -79,8 +81,8 @@ export function useCreate<
 	}))
 
 	const { active: warnUnsavedActive } = useWarnUnsaved({
-		enabled: computed(() => WarnUnsaved.getPropsEnabledFromProp(unref(props?.warnUnsaved))),
-		confirm: computed(() => WarnUnsaved.getPropsConfirmFromProp(unref(props?.warnUnsaved))),
+		enabled: computed(() => WarnUnsaved.getPropsEnabledFromProp(unref(warnUnsaved))),
+		confirm: computed(() => WarnUnsaved.getPropsConfirmFromProp(unref(warnUnsaved))),
 	}, context)
 
 	const save = Create.createSaveFn<TMutationData, TMutationParams, TMutationError>({

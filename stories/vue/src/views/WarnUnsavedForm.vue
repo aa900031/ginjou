@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Post, PostFormData, PostRawFormData } from '@ginjou/storybook-shared/mock-data'
 import { useEdit, useGo } from '@ginjou/vue'
-import { reactive, watch } from 'vue'
+import { computed, reactive, watch } from 'vue'
 import Button from '../components/Button.vue'
 import Card from '../components/Card.vue'
 import FieldLabel from '../components/FieldLabel.vue'
@@ -16,7 +16,7 @@ import StoryShell from '../components/StoryShell.vue'
 
 const { record, save, warnUnsavedActive } = useEdit<Post, PostFormData>({
 	warnUnsaved: true,
-	redirect: false,
+	redirect: 'list',
 })
 const go = useGo()
 
@@ -31,6 +31,15 @@ watch(record, (val) => {
 	Object.assign(formData, val)
 }, { immediate: true })
 
+const isDirty = computed(() =>
+	record.value != null
+	&& (formData.title !== record.value.title || formData.status !== record.value.status),
+)
+
+watch(isDirty, (value) => {
+	warnUnsavedActive.value = value
+}, { immediate: true })
+
 async function handleSubmit() {
 	await save(formData as PostFormData)
 }
@@ -43,10 +52,10 @@ async function handleSubmit() {
 			<PageTitle>Warn Unsaved</PageTitle>
 
 			<Card>
-				Change a field, then hit one of the navigation buttons: a native confirm shows up.
-				Cancel keeps you on this page, OK leaves. Submitting clears the guard, so navigating
-				after a successful save is silent. Closing / reloading the tab triggers the browser's
-				own leave warning.
+				The guard mirrors the form's dirty state: change a field and it arms itself, type the
+				original value back and it disarms. Navigating away while it is armed pops a native
+				confirm — Cancel keeps you here, OK leaves. Closing or reloading the tab triggers
+				the browser's own leave warning.
 			</Card>
 
 			<Card>
@@ -60,7 +69,6 @@ async function handleSubmit() {
 						id="post-title"
 						v-model="formData.title"
 						type="text"
-						@input="warnUnsavedActive = true"
 					/>
 				</FieldLabel>
 				<FieldLabel>
@@ -68,7 +76,6 @@ async function handleSubmit() {
 					<Select
 						id="post-status"
 						v-model="formData.status"
-						@change="warnUnsavedActive = true"
 					>
 						<option value="draft">
 							Draft

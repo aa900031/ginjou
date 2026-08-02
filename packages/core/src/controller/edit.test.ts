@@ -604,6 +604,20 @@ describe('edit controller', () => {
 				expect(setWarnUnsavedActive).toHaveBeenCalledWith(false)
 			})
 
+			it('should not touch the unsaved guard again when an optimistic mutation fails', async () => {
+				const setWarnUnsavedActive = vi.fn()
+				const saveFn = createSaveFn({
+					...baseProps,
+					getMutationMode: () => MutationMode.Optimistic,
+					mutateFn: vi.fn().mockRejectedValue(new Error('Update failed')),
+					setWarnUnsavedActive,
+				})
+
+				await expect(saveFn({ title: 'Updated' })).rejects.toThrow('Update failed')
+
+				expect(setWarnUnsavedActive.mock.calls).toEqual([[false]])
+			})
+
 			it('should not throw when setWarnUnsavedActive is not provided', async () => {
 				const saveFn = createSaveFn({
 					...baseProps,

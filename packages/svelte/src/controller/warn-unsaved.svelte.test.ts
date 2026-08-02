@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
 	watchCalls: [] as Array<{
 		source: () => unknown
 		callback: (value: unknown, oldValue: unknown) => void
+		previous?: unknown
 	}>,
 }))
 
@@ -26,9 +27,12 @@ vi.mock('../utils/watch.svelte', () => ({
 		callback: (value: unknown, oldValue: unknown) => void,
 		options?: { immediate?: boolean },
 	) {
-		mocks.watchCalls.push({ source, callback })
-		if (options?.immediate)
-			callback(source(), undefined)
+		const call = { source, callback, previous: undefined as unknown }
+		mocks.watchCalls.push(call)
+		if (options?.immediate) {
+			call.previous = source()
+			callback(call.previous, undefined)
+		}
 
 		return () => {}
 	},
@@ -62,8 +66,11 @@ function createBlocker() {
 }
 
 function flushWatch() {
-	for (const { source, callback } of mocks.watchCalls)
-		callback(source(), undefined)
+	for (const call of mocks.watchCalls) {
+		const value = call.source()
+		call.callback(value, call.previous)
+		call.previous = value
+	}
 }
 
 describe('useWarnUnsaved', () => {
@@ -134,7 +141,10 @@ describe('useWarnUnsaved', () => {
 
 		expect(result.active).toBe(true)
 		expect(result.state).toBe('inactive')
-		expect(mocks.useRouteBlocker.mock.calls[0][0]().shouldBlock).toBe(false)
+		expect(mocks.useRouteBlocker.mock.calls[0][0]()).toMatchObject({
+			enabled: false,
+			shouldBlock: true,
+		})
 	})
 
 	it('should expose the three states', async () => {
@@ -154,6 +164,7 @@ describe('useWarnUnsaved', () => {
 		expect(result.state).toBe('confirming')
 
 		await vi.waitFor(() => expect(result.state).toBe('active'))
+		expect(result.active).toBe(true)
 	})
 
 	it('should fall back to the controller option', () => {

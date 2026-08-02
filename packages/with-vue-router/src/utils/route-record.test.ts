@@ -1,6 +1,6 @@
-import type { RouteLocationNormalized, RouteRecordNormalized } from 'vue-router'
+import type { RouteLocationNormalized, RouteParams, RouteRecordNormalized } from 'vue-router'
 import { describe, expect, it } from 'vitest'
-import { isLeavingRoute, isSameRouteRecord } from './route-record'
+import { isChangingRoute, isLeavingRoute, isSameRouteRecord } from './route-record'
 
 function createRecord(
 	name: string,
@@ -11,8 +11,9 @@ function createRecord(
 
 function createLocation(
 	matched: RouteRecordNormalized[],
+	params: RouteParams = {},
 ): RouteLocationNormalized {
-	return { matched } as unknown as RouteLocationNormalized
+	return { matched, params } as unknown as RouteLocationNormalized
 }
 
 describe('isSameRouteRecord', () => {
@@ -71,5 +72,68 @@ describe('isLeavingRoute', () => {
 			createLocation([alias]),
 			createLocation([posts]),
 		)).toBe(false)
+	})
+})
+
+describe('isChangingRoute', () => {
+	const edit = createRecord('post-edit')
+
+	it('should not be changing on the first navigation of the session', () => {
+		expect(isChangingRoute(
+			createLocation([edit], { id: '1' }),
+			createLocation([]),
+		)).toBe(false)
+	})
+
+	it('should be changing when the record is left', () => {
+		expect(isChangingRoute(
+			createLocation([createRecord('posts')]),
+			createLocation([edit], { id: '1' }),
+		)).toBe(true)
+	})
+
+	it('should be changing when only the params change', () => {
+		expect(isChangingRoute(
+			createLocation([edit], { id: '2' }),
+			createLocation([edit], { id: '1' }),
+		)).toBe(true)
+	})
+
+	it('should not be changing when the record and the params both stay', () => {
+		expect(isChangingRoute(
+			createLocation([edit], { id: '1' }),
+			createLocation([edit], { id: '1' }),
+		)).toBe(false)
+	})
+
+	it('should not be changing when entering a child route', () => {
+		const posts = createRecord('posts')
+		const detail = createRecord('post-detail')
+
+		expect(isChangingRoute(
+			createLocation([posts, detail], { id: '1' }),
+			createLocation([posts], {}),
+		)).toBe(false)
+	})
+
+	it('should not be changing for an alias with the same params', () => {
+		const alias = createRecord('post-edit-alias', edit)
+
+		expect(isChangingRoute(
+			createLocation([alias], { id: '1' }),
+			createLocation([edit], { id: '1' }),
+		)).toBe(false)
+	})
+
+	it('should compare repeated params by value', () => {
+		expect(isChangingRoute(
+			createLocation([edit], { path: ['a', 'b'] }),
+			createLocation([edit], { path: ['a', 'b'] }),
+		)).toBe(false)
+
+		expect(isChangingRoute(
+			createLocation([edit], { path: ['a', 'b'] }),
+			createLocation([edit], { path: ['a'] }),
+		)).toBe(true)
 	})
 })

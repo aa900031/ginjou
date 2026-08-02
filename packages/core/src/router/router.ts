@@ -65,21 +65,11 @@ export interface Router {
 	blocker?: RouterBlockerFn
 }
 
-export const RouterBlockerAction = {
-	Push: 'push',
-	Replace: 'replace',
-	Pop: 'pop',
-	Unload: 'unload',
-} as const
-
-export type RouterBlockerActionValues = ValueOf<typeof RouterBlockerAction>
-
 export interface RouterBlockShouldInput<
 	TMeta = unknown,
 > {
 	currentLocation: RouterLocation<TMeta>
 	nextLocation: RouterLocation<TMeta> | undefined
-	action: RouterBlockerActionValues
 }
 
 export type RouterBlockShouldFn = (

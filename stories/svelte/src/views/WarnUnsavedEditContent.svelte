@@ -15,7 +15,7 @@
 	const edit = useEdit<Post, PostFormData>(() => ({
 		resource: 'posts',
 		warnUnsaved: true,
-		redirect: false,
+		redirect: 'list',
 	}))
 	const go = useGo()
 
@@ -30,6 +30,15 @@
 			}
 			hydratedRecordId = edit.record.id
 		}
+	})
+
+	const isDirty = $derived(
+		edit.record != null
+		&& (formData.title !== edit.record.title || formData.status !== edit.record.status),
+	)
+
+	$effect(() => {
+		edit.warnUnsavedActive = isDirty
 	})
 
 	async function handleSubmit(event: SubmitEvent): Promise<void> {
@@ -47,10 +56,10 @@
 	<PageTitle>Warn Unsaved</PageTitle>
 
 	<Card>
-		Change a field, then hit one of the navigation buttons: a native confirm shows up.
-		Cancel keeps you on this page, OK leaves. Submitting clears the guard, so navigating
-		after a successful save is silent. Closing / reloading the tab triggers the browser's
-		own leave warning.
+		The guard mirrors the form's dirty state: change a field and it arms itself, type the
+		original value back and it disarms. Navigating away while it is armed pops a native
+		confirm — Cancel keeps you here, OK leaves. Closing or reloading the tab triggers the
+		browser's own leave warning.
 	</Card>
 
 	<Card>
@@ -60,12 +69,12 @@
 	<Form onsubmit={handleSubmit}>
 		<FieldLabel>
 			<span>Title</span>
-			<Input bind:value={formData.title} oninput={() => edit.warnUnsavedActive = true} />
+			<Input bind:value={formData.title} />
 		</FieldLabel>
 
 		<FieldLabel>
 			<span>Status</span>
-			<Select bind:value={formData.status} onchange={() => edit.warnUnsavedActive = true}>
+			<Select bind:value={formData.status}>
 				<option value="draft">Draft</option>
 				<option value="rejected">Rejected</option>
 			</Select>

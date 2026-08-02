@@ -68,11 +68,15 @@ export function useCreate<
 		resourceFromProp: resolvedProps?.resource,
 	}))
 
-	const mutation = useCreateOne<TMutationData, TMutationParams, TMutationError>(() => ({
-		...resolvedProps,
-		resource: resourceName,
-		fetcherName,
-	}), context)
+	const mutation = useCreateOne<TMutationData, TMutationParams, TMutationError>(() => {
+		const { warnUnsaved, ...mutationProps } = resolvedProps ?? {}
+
+		return {
+			...mutationProps,
+			resource: resourceName,
+			fetcherName,
+		}
+	}, context)
 
 	const isLoading = $derived.by(() => Create.getIsLoading({
 		isPending: mutation.isPending,

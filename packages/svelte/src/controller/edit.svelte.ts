@@ -94,12 +94,16 @@ export function useEdit<
 		queryOptions: resolvedProps?.queryOptions,
 	}), context)
 
-	const mutation = useUpdateOne<TMutationData, TMutationParams, TMutationError>(() => ({
-		...resolvedProps,
-		resource: resourceName,
-		id,
-		fetcherName,
-	}), context)
+	const mutation = useUpdateOne<TMutationData, TMutationParams, TMutationError>(() => {
+		const { warnUnsaved, ...mutationProps } = resolvedProps ?? {}
+
+		return {
+			...mutationProps,
+			resource: resourceName,
+			id,
+			fetcherName,
+		}
+	}, context)
 
 	const isLoading = $derived.by(() => Edit.getIsLoading({
 		isQueryFetching: query.isFetching,

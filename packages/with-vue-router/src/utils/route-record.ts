@@ -1,4 +1,4 @@
-import type { RouteLocationNormalized, RouteRecordNormalized } from 'vue-router'
+import type { RouteLocationNormalized, RouteParams, RouteRecordNormalized } from 'vue-router'
 
 /**
  * Reimplementation of vue-router's internal `isSameRouteRecord`, which is not publicly exported.
@@ -33,4 +33,37 @@ export function isLeavingRoute(
 		return false
 
 	return !to.matched.some(record => isSameRouteRecord(record, leaf))
+}
+
+/**
+ * Whether a navigation changes the route the mounted component is bound to, i.e. whether the
+ * blockers have to be consulted.
+ *
+ * Leaving the record is not enough on its own: `/posts/1/edit -> /posts/2/edit` keeps the same
+ * record, so vue-router reuses the component while everything derived from the id refetches and
+ * rehydrates the form over the unsaved edits. Query-only changes touch neither and are excluded.
+ */
+export function isChangingRoute(
+	to: RouteLocationNormalized,
+	from: RouteLocationNormalized,
+): boolean {
+	// `START_LOCATION`: there is no mounted route to change away from.
+	if (from.matched.length === 0)
+		return false
+
+	return isLeavingRoute(to, from) || !keepsRouteParams(to.params, from.params)
+}
+
+function keepsRouteParams(
+	to: RouteParams,
+	from: RouteParams,
+): boolean {
+	return Object.entries(from).every(([key, value]) => isSameParamValue(to[key], value))
+}
+
+function isSameParamValue(
+	a: RouteParams[string] | undefined,
+	b: RouteParams[string] | undefined,
+): boolean {
+	return JSON.stringify(a) === JSON.stringify(b)
 }
