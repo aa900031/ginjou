@@ -30,7 +30,7 @@ export type SortersProp
 export interface FiltersOptions {
 	value?: Filters
 	permanent?: Filters
-	behavior?: SetFilterBehaviorType
+	behavior?: SetFilterBehaviorValues
 	mode?: 'server' | 'off'
 }
 
@@ -456,24 +456,21 @@ export function getLocationSorters(
 export interface GetInitialPageProps<
 	TPageParam,
 > {
-	initalPageFromProp: PaginationProp<TPageParam>['init']
+	initialPageFromProp: PaginationProp<TPageParam>['init']
 }
 
 export function getInitialPage<
 	TPageParam,
 >(
 	{
-		initalPageFromProp,
+		initialPageFromProp,
 	}: GetInitialPageProps<TPageParam>,
 ): TPageParam {
-	return initalPageFromProp
+	return initialPageFromProp
 		?? 1 as TPageParam
 }
 
-export interface GetCurrentPageProps<
-	TPageParam,
-> {
-	initalPageFromProp: TPageParam | undefined
+export interface GetCurrentPageProps<TPageParam> extends GetInitialPageProps<TPageParam> {
 	currentPageFromProp: PaginationProp<TPageParam>['current'] | undefined
 	currentPageFromLocation: PaginationProp<TPageParam>['current'] | undefined
 	syncRouteFromProp: SyncRoute.Prop | undefined
@@ -483,7 +480,7 @@ export function getCurrentPage<
 	TPageParam,
 >(
 	{
-		initalPageFromProp,
+		initialPageFromProp,
 		currentPageFromProp,
 		currentPageFromLocation,
 		syncRouteFromProp,
@@ -493,13 +490,13 @@ export function getCurrentPage<
 		return currentPageFromLocation
 			?? currentPageFromProp
 			?? getInitialPage({
-				initalPageFromProp,
+				initialPageFromProp,
 			})
 	}
 	else {
 		return currentPageFromProp
 			?? getInitialPage({
-				initalPageFromProp,
+				initialPageFromProp,
 			})
 	}
 }
@@ -571,11 +568,11 @@ export const SetFilterBehavior = {
 	Merge: 'merge',
 } as const
 
-export type SetFilterBehaviorType = ValueOf<typeof SetFilterBehavior>
+export type SetFilterBehaviorValues = ValueOf<typeof SetFilterBehavior>
 
 export type SetFiltersFn = (
 	value: Filters | ((prev: Filters | undefined) => Filters),
-	behavior?: SetFilterBehaviorType,
+	behavior?: SetFilterBehaviorValues,
 ) => void
 
 export function createSetFiltersFn(

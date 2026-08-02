@@ -9,7 +9,7 @@ const mocks = vi.hoisted(() => ({
 	createSubscribeCallback: vi.fn(),
 	createSuccessHandler: vi.fn(),
 	createErrorHandler: vi.fn(),
-	createPlacholerDataFn: vi.fn(),
+	createPlaceholderDataFn: vi.fn(),
 	getSubscribeChannel: vi.fn(),
 	getSubscribeParams: vi.fn(),
 	resolveQueryProps: vi.fn(),
@@ -31,7 +31,7 @@ vi.mock('@ginjou/core', () => ({
 	},
 	GetOne: {
 		createErrorHandler: mocks.createErrorHandler,
-		createPlacholerDataFn: mocks.createPlacholerDataFn,
+		createPlaceholderDataFn: mocks.createPlaceholderDataFn,
 		createQueryEnabledFn: mocks.createQueryEnabledFn,
 		createQueryFn: mocks.createQueryFn,
 		createQueryKey: mocks.createQueryKey,
@@ -77,7 +77,7 @@ vi.mock('./query-client', () => ({
 describe('useGetOne', () => {
 	beforeEach(() => {
 		mocks.createErrorHandler.mockReset()
-		mocks.createPlacholerDataFn.mockReset()
+		mocks.createPlaceholderDataFn.mockReset()
 		mocks.createQuery.mockReset()
 		mocks.createQueryEnabledFn.mockReset()
 		mocks.createQueryFn.mockReset()
@@ -97,7 +97,7 @@ describe('useGetOne', () => {
 		mocks.useTranslate.mockReset()
 
 		mocks.createErrorHandler.mockReturnValue(vi.fn())
-		mocks.createPlacholerDataFn.mockReturnValue(undefined)
+		mocks.createPlaceholderDataFn.mockReturnValue(undefined)
 		mocks.createQuery.mockReturnValue({
 			data: {
 				data: { id: '1' },

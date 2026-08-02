@@ -1,11 +1,11 @@
 import type { Query } from '@tanstack/query-core'
-import type { AccessCanParams, Authz } from './authz'
+import type { Authz, CanAccessParams } from './authz'
 import { describe, expect, it, vi } from 'vitest'
 import { createQueryEnabledFn, createQueryFn, createQueryKey } from './can'
 
 describe('createQueryKey', () => {
 	it('should return a query key with all params', () => {
-		const params: AccessCanParams = {
+		const params: CanAccessParams = {
 			resource: 'article',
 			action: 'create',
 			params: {
@@ -20,7 +20,7 @@ describe('createQueryKey', () => {
 	})
 
 	it('should filter out null or undefined params', () => {
-		const params: AccessCanParams = {
+		const params: CanAccessParams = {
 			resource: 'article',
 			action: 'create',
 		}
@@ -34,7 +34,7 @@ describe('createQueryFn', () => {
 		const authz: Authz = {
 			access: vi.fn().mockResolvedValue({ can: true }),
 		}
-		const params: AccessCanParams = {
+		const params: CanAccessParams = {
 			resource: 'article',
 			action: 'create',
 		}
@@ -45,7 +45,7 @@ describe('createQueryFn', () => {
 
 	it('should return default access can result when authz.access is not available', async () => {
 		const authz: Authz = {}
-		const params: AccessCanParams = {
+		const params: CanAccessParams = {
 			resource: 'article',
 			action: 'create',
 		}
@@ -55,7 +55,7 @@ describe('createQueryFn', () => {
 	})
 
 	it('should return default access can result when authz is not available', async () => {
-		const params: AccessCanParams = {
+		const params: CanAccessParams = {
 			resource: 'article',
 			action: 'create',
 		}

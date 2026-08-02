@@ -1,9 +1,9 @@
 import { beforeEach, bench, describe, vi } from 'vitest'
-import { createAggregrateFn } from './aggregrate'
+import { createAggregateFn } from './aggregate'
 
-describe('createAggregrateFn', () => {
+describe('createAggregateFn', () => {
 	const fn = vi.fn(async (r: number): Promise<number> => r)
-	const aggregrateFn = createAggregrateFn(
+	const aggregateFn = createAggregateFn(
 		fn,
 		(allArgs, allResolves) => [
 			[
@@ -19,12 +19,12 @@ describe('createAggregrateFn', () => {
 
 	bench('aggregation 1~3', async () => {
 		await Promise.all(
-			Array.from({ length: 3 }).map((item, index) => aggregrateFn(index + 1)),
+			Array.from({ length: 3 }).map((item, index) => aggregateFn(index + 1)),
 		)
 	})
 	bench('aggregation 1~10', async () => {
 		await Promise.all(
-			Array.from({ length: 10 }).map((item, index) => aggregrateFn(index + 1)),
+			Array.from({ length: 10 }).map((item, index) => aggregateFn(index + 1)),
 		)
 	})
 })

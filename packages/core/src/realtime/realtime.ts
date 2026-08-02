@@ -8,7 +8,7 @@ export const RealtimeMode = {
 	Manual: 'manual',
 } as const
 
-export type RealtimeModeValue = ValueOf<typeof RealtimeMode>
+export type RealtimeModeValues = ValueOf<typeof RealtimeMode>
 
 export const RealtimeAction = {
 	Any: '*',

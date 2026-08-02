@@ -1,4 +1,4 @@
-import type { BaseRecord, UpdateResult } from '../query'
+import type { BaseRecord, UpdateOneResult } from '../query'
 import type { Navigate } from '../router'
 import { describe, expect, it, vi } from 'vitest'
 import { MutationMode } from '../query'
@@ -147,7 +147,7 @@ describe('edit controller', () => {
 				const getRedirect = vi.fn(() => undefined)
 				const navigateTo = vi.fn()
 
-				const mockData: UpdateResult<BaseRecord> = {
+				const mockData: UpdateOneResult<BaseRecord> = {
 					data: { id: 1, title: 'Updated' },
 				}
 				const mutateFn = vi.fn().mockImplementation((_, options) => {
@@ -183,7 +183,7 @@ describe('edit controller', () => {
 				const getRedirect = vi.fn(() => undefined)
 				const navigateTo = vi.fn()
 
-				const mockData: UpdateResult<BaseRecord> = {
+				const mockData: UpdateOneResult<BaseRecord> = {
 					data: { id: 1, title: 'Updated' },
 				}
 				const mutateFn = vi.fn().mockImplementation((_, options) => {
@@ -242,7 +242,7 @@ describe('edit controller', () => {
 				const getRedirect = vi.fn(() => undefined)
 				const navigateTo = vi.fn()
 
-				const mockData: UpdateResult<BaseRecord> = {
+				const mockData: UpdateOneResult<BaseRecord> = {
 					data: { id: 1, title: 'Updated' },
 				}
 				const mutateFn = vi.fn().mockResolvedValue(mockData)
@@ -281,7 +281,7 @@ describe('edit controller', () => {
 				const getRedirect = vi.fn(() => undefined)
 				const navigateTo = vi.fn()
 
-				const mockData: UpdateResult<BaseRecord> = {
+				const mockData: UpdateOneResult<BaseRecord> = {
 					data: { id: 1, title: 'Updated' },
 				}
 				const mutateFn = vi.fn().mockResolvedValue(mockData)
@@ -319,7 +319,7 @@ describe('edit controller', () => {
 				const getRedirect = vi.fn(() => undefined)
 				const navigateTo = vi.fn()
 
-				const mockData: UpdateResult<BaseRecord> = {
+				const mockData: UpdateOneResult<BaseRecord> = {
 					data: { id: 1, title: 'Updated' },
 				}
 				const mutateFn = vi.fn().mockResolvedValue(mockData)
@@ -358,7 +358,7 @@ describe('edit controller', () => {
 				const getRedirect = vi.fn(() => undefined)
 				const navigateTo = vi.fn()
 
-				const mockData: UpdateResult<BaseRecord> = {
+				const mockData: UpdateOneResult<BaseRecord> = {
 					data: { id: 1, title: 'Updated' },
 				}
 				const mutateFn = vi.fn().mockResolvedValue(mockData)
@@ -392,7 +392,7 @@ describe('edit controller', () => {
 				const getRedirect = vi.fn(() => ResourceAction.Type.List)
 				const navigateTo = vi.fn()
 
-				const mockData: UpdateResult<BaseRecord> = {
+				const mockData: UpdateOneResult<BaseRecord> = {
 					data: { id: 1, title: 'Updated' },
 				}
 				const mutateFn = vi.fn().mockImplementation((_, options) => {
@@ -424,7 +424,7 @@ describe('edit controller', () => {
 				const getMutationMode = vi.fn(() => MutationMode.Pessimistic)
 				const getRedirect = vi.fn(() => ResourceAction.Type.Create)
 				const navigateTo = vi.fn()
-				const mockData: UpdateResult<BaseRecord> = {
+				const mockData: UpdateOneResult<BaseRecord> = {
 					data: { id: 1, title: 'Updated' },
 				}
 
@@ -458,7 +458,7 @@ describe('edit controller', () => {
 				const getRedirect = vi.fn(() => ResourceAction.Type.Edit)
 				const navigateTo = vi.fn()
 
-				const mockData: UpdateResult<BaseRecord> = {
+				const mockData: UpdateOneResult<BaseRecord> = {
 					data: { id: 1, title: 'Updated' },
 				}
 				const mutateFn = vi.fn().mockImplementation((_, options) => {
@@ -495,7 +495,7 @@ describe('edit controller', () => {
 				const getRedirect = vi.fn(() => () => customNavProps)
 
 				const navigateTo = vi.fn()
-				const mockData: UpdateResult<BaseRecord> = {
+				const mockData: UpdateOneResult<BaseRecord> = {
 					data: { id: 1, title: 'Updated' },
 				}
 				const mutateFn = vi.fn().mockImplementation((_, options) => {
@@ -526,7 +526,7 @@ describe('edit controller', () => {
 				const getRedirect = vi.fn(() => redirectFn)
 
 				const navigateTo = vi.fn()
-				const mockData: UpdateResult<BaseRecord> = {
+				const mockData: UpdateOneResult<BaseRecord> = {
 					data: { id: 1, title: 'Updated' },
 				}
 				const mutateFn = vi.fn().mockImplementation((_, options) => {
@@ -635,7 +635,7 @@ describe('edit controller', () => {
 			const getRedirect = vi.fn(() => undefined)
 
 			const navigateTo = vi.fn()
-			const mockData: UpdateResult<BaseRecord> = {
+			const mockData: UpdateOneResult<BaseRecord> = {
 				data: { id: 1, title: 'Updated' },
 			}
 			const mutateFn = vi.fn().mockResolvedValue(mockData)
@@ -712,7 +712,7 @@ describe('edit controller', () => {
 			const getRedirect = vi.fn(() => undefined)
 
 			const navigateTo = vi.fn()
-			const mockData: UpdateResult<BaseRecord> = {
+			const mockData: UpdateOneResult<BaseRecord> = {
 				data: { id: 1, title: 'Updated' },
 			}
 			const mutateFn = vi.fn().mockImplementation((_, options) => {
@@ -746,7 +746,7 @@ describe('edit controller', () => {
 			const getRedirect = vi.fn(() => undefined)
 
 			const navigateTo = vi.fn()
-			const mockData: UpdateResult<BaseRecord> = {
+			const mockData: UpdateOneResult<BaseRecord> = {
 				data: { id: 1, title: 'Updated', meta: { tags: ['a', 'b'] } },
 			}
 			const mutateFn = vi.fn().mockResolvedValue(mockData)
@@ -780,7 +780,7 @@ describe('edit controller', () => {
 			const getRedirect = vi.fn(() => undefined)
 
 			const navigateTo = vi.fn()
-			const mockData: UpdateResult<BaseRecord> = {
+			const mockData: UpdateOneResult<BaseRecord> = {
 				data: { id: 'abc-123', title: 'Updated' },
 			}
 			const mutateFn = vi.fn().mockImplementation((_, options) => {

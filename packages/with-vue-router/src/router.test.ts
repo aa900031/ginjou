@@ -11,6 +11,8 @@ let vueRouter: ReturnType<typeof createVueRouter>
 const handles: RouterBlockerHandle[] = []
 /** What the component mounted on `/watched` was told through `onChangeLocation`. */
 const watched = vi.fn()
+/** The teardown `onChangeLocation` handed back to the component mounted on `/watched`. */
+let unwatch: () => void
 
 function register(
 	shouldBlock: Parameters<NonNullable<Router['blocker']>>[0],
@@ -41,7 +43,7 @@ beforeAll(async () => {
 				path: '/watched',
 				component: {
 					setup: () => {
-						router.onChangeLocation(location => watched(location.path))
+						unwatch = router.onChangeLocation(location => watched(location.path))
 						return () => null
 					},
 				},
@@ -67,6 +69,21 @@ afterEach(async () => {
 })
 
 describe('createRouter', () => {
+	describe('go', () => {
+		it('should map the navigation params', async () => {
+			await vueRouter.push('/other?page=1')
+
+			router.go({ to: '/posts/1', type: 'replace', keepQuery: true })
+			await vi.waitFor(() => expect(vueRouter.currentRoute.value.path).toBe('/posts/1'))
+
+			expect(vueRouter.currentRoute.value.query).toEqual({ page: '1' })
+
+			// `replace`, so the entry it navigated away from is the one that is gone.
+			vueRouter.back()
+			await vi.waitFor(() => expect(vueRouter.currentRoute.value.path).toBe('/'))
+		})
+	})
+
 	describe('blocker (route leave)', () => {
 		it('should let the navigation through when nothing blocks', async () => {
 			register(() => false)
@@ -220,6 +237,16 @@ describe('createRouter', () => {
 			await vueRouter.push('/watched?page=2')
 
 			expect(watched).toHaveBeenCalledWith('/watched')
+		})
+
+		it('should stop reporting after the cleanup it returns', async () => {
+			await vueRouter.push('/watched')
+			watched.mockClear()
+
+			unwatch()
+			await vueRouter.push('/watched?page=2')
+
+			expect(watched).not.toHaveBeenCalled()
 		})
 	})
 

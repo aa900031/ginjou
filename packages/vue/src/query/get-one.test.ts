@@ -8,7 +8,7 @@ import { useGetOne } from './get-one'
 
 describe('useGetOne', () => {
 	describe('subscribe', () => {
-		it('should call realitme.subscribe', async () => {
+		it('should call realtime.subscribe', async () => {
 			const { result } = mountTestApp(
 				() => useGetOne({
 					resource: 'posts',
@@ -40,7 +40,7 @@ describe('useGetOne', () => {
 			})
 		})
 
-		it('should call realtime.unscribe on unmount', async () => {
+		it('should call realtime.unsubscribe on unmount', async () => {
 			const { result, unmount } = mountTestApp(
 				() => useGetOne({
 					resource: 'posts',

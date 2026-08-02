@@ -1,7 +1,11 @@
 import { describe, expect, it, vi } from 'vitest'
-import { createSetFiltersFn, createSetSortersFn, SetFilterBehavior, toRouterGoParams } from './list'
+import { createSetFiltersFn, createSetSortersFn, getInitialPage, SetFilterBehavior, toRouterGoParams } from './list'
 
 describe('list', () => {
+	it('gets the initial page', () => {
+		expect(getInitialPage({ initialPageFromProp: 2 })).toBe(2)
+	})
+
 	describe('createSetFiltersFn', () => {
 		it('should return a function', () => {
 			const getFiltersPermanent = vi.fn()
@@ -108,7 +112,7 @@ describe('list', () => {
 				{ field: 'name', operator: 'eq', value: 'John' },
 			], SetFilterBehavior.Replace)
 
-			expect(getFiltersBehavior).not.toHaveBeenCalledOnce()
+			expect(getFiltersBehavior).not.toHaveBeenCalled()
 			expect(update).toHaveBeenCalledOnce()
 
 			expect(update).toHaveBeenCalledWith([

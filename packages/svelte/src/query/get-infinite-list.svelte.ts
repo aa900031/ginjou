@@ -109,7 +109,7 @@ export function useGetInfiniteList<
 		getErrorNotify: () => resolvedProps.errorNotify,
 		emitParent: (...args) => resolvedProps.queryOptions?.onError?.(...args),
 	})
-	const placeholderData = GetInfiniteList.createPlacholerDataFn<TData, TError, TPageParam>()
+	const placeholderData = GetInfiniteList.createPlaceholderDataFn<TData, TError, TPageParam>()
 	const getNextPageParam = GetInfiniteList.createGetNextPageParamFn<TData, TPageParam>()
 	const getPreviousPageParam = GetInfiniteList.createGetPreviousPageParamFn<TData, TPageParam>()
 

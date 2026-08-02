@@ -7,7 +7,6 @@ const mocks = vi.hoisted(() => ({
 	createMutateFn: vi.fn(),
 	createMutation: vi.fn(),
 	createMutationFn: vi.fn(),
-	createPlacholerDataFn: vi.fn(),
 	createSuccessHandler: vi.fn(),
 	useCheckError: vi.fn(),
 	useFetchersContext: vi.fn(),
