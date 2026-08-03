@@ -46,6 +46,7 @@ export function redirectTo<
 				action: params,
 			})
 		case ResourceAction.Type.Edit:
+		case ResourceAction.Type.Clone:
 		case ResourceAction.Type.Show:
 			if (id == null)
 				return

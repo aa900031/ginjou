@@ -46,6 +46,11 @@ export interface EditResult {
 	id: RecordKey
 }
 
+export interface CloneResult {
+	action: typeof ResourceAction.Type.Clone
+	id: RecordKey
+}
+
 export interface CreateResult {
 	action: typeof ResourceAction.Type.Create
 }
@@ -54,6 +59,7 @@ export type ParseResult
 	= | ListResult
 		| ShowResult
 		| CreateResult
+		| CloneResult
 		| EditResult
 
 export type ParseFn<
@@ -184,6 +190,25 @@ export function getFetcherName(
 	return fetcherNameFromProp ?? resource?.resource.meta?.fetcherName
 }
 
+export interface GetIdForActionParams {
+	resource: Resolved | undefined
+	action: ResourceAction.TypeValues
+	idFromProp: RecordKey | undefined
+}
+
+export function getIdForAction(
+	{
+		resource,
+		action,
+		idFromProp,
+	}: GetIdForActionParams,
+): RecordKey | undefined {
+	return idFromProp
+		?? (resource && 'action' in resource && resource.action === action && 'id' in resource
+			? resource.id
+			: undefined)
+}
+
 const resourceMapCache = new WeakMap<Raw[], Map<string, Raw>>()
 
 function getResourceMap<
@@ -241,6 +266,7 @@ function parseFromRegExp(
 				action,
 			}
 		case ResourceAction.Type.Edit:
+		case ResourceAction.Type.Clone:
 		case ResourceAction.Type.Show: {
 			const index = keys.indexOf('id')
 			if (index < 0)

@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/svelte-vite'
 import { mutationMode, redirect } from '@ginjou/storybook-shared/args'
 import { createPostHandlers } from '@ginjou/storybook-shared/mock-data'
+import FormClone from './FormClone.svelte'
 import FormCreate from './FormCreate.svelte'
 import FormEdit from './FormEdit.svelte'
 
@@ -31,6 +32,26 @@ export const Edit = {
 	name: 'Edit',
 	render: (args: any) => ({
 		Component: FormEdit as any,
+		props: args,
+	}),
+	parameters: {
+		msw: {
+			handlers: createPostHandlers(),
+		},
+	},
+	argTypes: {
+		...MutationModeArgTypes,
+		...RedirectArgTypes,
+	},
+	args: {
+		...MutationModeArgs,
+	},
+} satisfies StoryObj<typeof meta>
+
+export const Clone = {
+	name: 'Clone',
+	render: (args: any) => ({
+		Component: FormClone as any,
 		props: args,
 	}),
 	parameters: {

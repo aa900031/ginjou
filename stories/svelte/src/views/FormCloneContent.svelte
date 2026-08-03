@@ -7,7 +7,7 @@
 <script lang="ts">
 	import type { MutationModeValues } from '@ginjou/core'
 	import { MutationMode } from '@ginjou/core'
-	import { useEdit } from '@ginjou/svelte'
+	import { useClone } from '@ginjou/svelte'
 	import type { Post, PostFormData, PostRawFormData } from '@ginjou/storybook-shared/mock-data'
 	import Button from '../components/Button.svelte'
 	import Card from '../components/Card.svelte'
@@ -15,20 +15,20 @@
 	import Form from '../components/Form.svelte'
 	import Input from '../components/Input.svelte'
 	import JsonOutput from '../components/JsonOutput.svelte'
+	import LocaleBadge from '../components/LocaleBadge.svelte'
 	import PageTitle from '../components/PageTitle.svelte'
 	import Select from '../components/Select.svelte'
 	import Stack from '../components/Stack.svelte'
-	import LocaleBadge from '../components/LocaleBadge.svelte'
 
 	const {
 		mutationMode = MutationMode.Pessimistic,
-		redirect = 'show',
+		redirect = 'list',
 	}: {
 		mutationMode?: MutationModeValues
 		redirect?: FormRedirect
 	} = $props()
 
-	const edit = useEdit<Post, PostFormData>(() => ({
+	const clone = useClone<Post, PostFormData>(() => ({
 		resource: 'posts',
 		mutationMode,
 		redirect,
@@ -38,28 +38,27 @@
 	let hydratedRecordId = $state<string | undefined>()
 
 	$effect(() => {
-		if (edit.record && edit.record.id !== hydratedRecordId) {
+		if (clone.record && clone.record.id !== hydratedRecordId) {
 			formData = {
-				title: edit.record.title,
-				status: edit.record.status,
+				title: clone.record.title,
+				status: clone.record.status,
 			}
-			hydratedRecordId = edit.record.id
+			hydratedRecordId = clone.record.id
 		}
 	})
 
 	async function handleSubmit(event: SubmitEvent): Promise<void> {
 		event.preventDefault()
-
-		await edit.save(formData as PostFormData)
+		await clone.save(formData as PostFormData)
 	}
 </script>
 
 <Stack>
 	<LocaleBadge />
 
-	<PageTitle>useEdit</PageTitle>
+	<PageTitle>useClone</PageTitle>
 
-	{#if edit.isLoading && !edit.record}
+	{#if clone.isLoading && !clone.record}
 		<Card>Loading ...</Card>
 	{:else}
 		<Form onsubmit={handleSubmit}>
@@ -71,19 +70,23 @@
 			<FieldLabel>
 				<span>Status</span>
 				<Select bind:value={formData.status}>
-					<option value="draft">Draft</option>
-					<option value="rejected">Rejected</option>
+					<option value="draft">
+						Draft
+					</option>
+					<option value="rejected">
+						Rejected
+					</option>
 				</Select>
 			</FieldLabel>
 
-			<Button type="submit" disabled={edit.isLoading}>
-				{edit.isLoading ? 'Submitting...' : 'Submit'}
+			<Button type="submit" disabled={clone.isLoading}>
+				{clone.isLoading ? 'Submitting...' : 'Submit'}
 			</Button>
 		</Form>
 
 		<Stack>
-			<PageTitle>Result</PageTitle>
-			<JsonOutput value={edit.record} />
+			<PageTitle>Source</PageTitle>
+			<JsonOutput value={clone.record} />
 		</Stack>
 	{/if}
 </Stack>

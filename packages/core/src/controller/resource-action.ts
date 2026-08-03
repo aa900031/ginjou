@@ -5,6 +5,7 @@ import type { RouterLocation } from '../router'
 export const Type = {
 	List: 'list',
 	Create: 'create',
+	Clone: 'clone',
 	Edit: 'edit',
 	Show: 'show',
 } as const

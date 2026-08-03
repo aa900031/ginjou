@@ -1,6 +1,7 @@
 import type { Simplify } from 'type-fest'
 import type { BaseRecord, GetOne, RecordKey } from '../query'
-import type * as Resource from './resource'
+import * as Resource from './resource'
+import * as ResourceAction from './resource-action'
 
 export type Props<
 	TData extends BaseRecord,
@@ -28,8 +29,9 @@ export function getDefaultId(
 	if (resourceFromProp && resourceFromProp !== inferredResource?.resource.name)
 		return idFromProp
 
-	const idFromResource = (resource && 'action' in resource && resource.action === 'show')
-		? resource.id
-		: undefined
-	return idFromProp ?? idFromResource
+	return Resource.getIdForAction({
+		resource,
+		action: ResourceAction.Type.Show,
+		idFromProp,
+	})
 }

@@ -19,6 +19,19 @@ describe('resourcePath.get', () => {
 		})).toBe('/posts/123/edit')
 	})
 
+	it('should create a clone path with an id', () => {
+		expect(get({
+			resolved: {
+				resource: {
+					name: 'posts',
+					clone: '/posts/:id/clone',
+				},
+			},
+			action: ResourceAction.Type.Clone,
+			params: { id: '123' },
+		})).toBe('/posts/123/clone')
+	})
+
 	it('should merge provided params when creating a path', () => {
 		const resolved = {
 			resource: {

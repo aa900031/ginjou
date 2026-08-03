@@ -1,3 +1,4 @@
+export * as Clone from './clone'
 export * from './controller'
 export * as Create from './create'
 export * as Edit from './edit'
