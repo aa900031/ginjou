@@ -33,10 +33,7 @@
 	async function handleSubmit(event: SubmitEvent): Promise<void> {
 		event.preventDefault()
 
-		const response = await create.save({
-			title: formData.title ?? 'Untitled',
-			status: formData.status ?? 'draft',
-		})
+		const response = await create.save(formData as PostFormData)
 		result = response.data
 	}
 </script>

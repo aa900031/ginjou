@@ -49,10 +49,7 @@
 
 	async function handleSubmit(event: SubmitEvent): Promise<void> {
 		event.preventDefault()
-		await clone.save({
-			title: formData.title ?? 'Copy',
-			status: formData.status ?? 'draft',
-		})
+		await clone.save(formData as PostFormData)
 	}
 </script>
 

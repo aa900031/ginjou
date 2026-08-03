@@ -50,10 +50,7 @@
 	async function handleSubmit(event: SubmitEvent): Promise<void> {
 		event.preventDefault()
 
-		const response = await edit.save({
-			title: formData.title ?? 'Updated title',
-			status: formData.status ?? 'draft',
-		})
+		await edit.save(formData as PostFormData)
 	}
 </script>
 
