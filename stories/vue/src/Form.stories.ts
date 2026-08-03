@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import { mutationMode, redirect } from '@ginjou/storybook-shared/args'
 import { createPostHandlers } from '@ginjou/storybook-shared/mock-data'
 import { vueRouter } from 'storybook-vue3-router'
+import FormClone from './FormClone.vue'
 import FormCreate from './FormCreate.vue'
 import FormEdit from './FormEdit.vue'
 import { renderRouteView } from './utils/sb-renders/route-view'
@@ -98,6 +99,60 @@ export const Edit = {
 			{
 				path: '/posts/:id/edit',
 				component: FormEdit,
+			},
+			{
+				path: '/posts/:id',
+				component: PostShow,
+			},
+			{
+				path: '/posts/create',
+				component: PostCreate,
+			},
+			{
+				path: '/posts',
+				component: PostList,
+			},
+		]),
+	],
+	argTypes: {
+		...MutationModeArgTypes,
+		...RedirectArgTypes,
+	},
+	args: {
+		...MutationModeArgs,
+	},
+} satisfies StoryObj<typeof meta>
+
+export const Clone = {
+	name: 'Clone',
+	render: renderRouteView,
+	parameters: {
+		msw: {
+			handlers: createPostHandlers(),
+		},
+	},
+	decorators: [
+		createWrapper({
+			resources: [
+				{
+					name: 'posts',
+					clone: '/posts/:id/clone',
+					show: '/posts/:id',
+					create: '/posts/create',
+					list: '/posts',
+				},
+			],
+			router: true,
+			notification: true,
+		}),
+		vueRouter([
+			{
+				path: '/',
+				redirect: '/posts/6c6d3a48-8eef-4c96-a1ba-156bdfd3d389/clone',
+			},
+			{
+				path: '/posts/:id/clone',
+				component: FormClone,
 			},
 			{
 				path: '/posts/:id',

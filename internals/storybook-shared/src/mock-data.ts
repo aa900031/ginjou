@@ -27,6 +27,7 @@ export const postResources: Resource.Raw[] = [
 		name: 'posts',
 		list: '/posts',
 		create: '/posts/create',
+		clone: '/posts/:id/clone',
 		show: '/posts/:id',
 		edit: '/posts/:id/edit',
 	},
