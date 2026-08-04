@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.13
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/with-supabase@0.1.0-beta.12...${npm.name}@0.1.0-beta.13)
+
+### 🚀 Enhancements
+
+-  **providers:** Forward query abort signals (#134) ([5967d53](https://github.com/aa900031/ginjou/commit/5967d531db92be5bedd54e7be966114eb9c549c8))
+
+### 💅 Refactors
+
+-  **core:** Unify value union type names (#141) ([2147c44](https://github.com/aa900031/ginjou/commit/2147c44c4e08ea32edfce0e7860b8d702538e3b1))
+
+### ✅ Tests
+
+-  **integrations:** Add adapter smoke coverage (#151) ([94b9621](https://github.com/aa900031/ginjou/commit/94b96216c3232c94f60d453ba400707871683d93))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.12
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/with-supabase@0.1.0-beta.11...${npm.name}@0.1.0-beta.12)
