@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.17
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/nuxt@0.1.0-beta.16...${npm.name}@0.1.0-beta.17)
+
+### 🚀 Enhancements
+
+-  **controller:** Add clone resource action (#135) ([915da3a](https://github.com/aa900031/ginjou/commit/915da3af415187fbd229d87bf656887fa5a70e85))
+
+### 💅 Refactors
+
+-  **vue:** Align permissions context name (#142) ([66a4490](https://github.com/aa900031/ginjou/commit/66a4490da24c4415c7ea74b89f550a230eedae60))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.16
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/nuxt@0.1.0-beta.15...${npm.name}@0.1.0-beta.16)
