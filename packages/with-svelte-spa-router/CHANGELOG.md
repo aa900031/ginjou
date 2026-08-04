@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.3
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/with-svelte-spa-router@0.1.0-beta.2...${npm.name}@0.1.0-beta.3)
+
+### ✅ Tests
+
+-  **integrations:** Add adapter smoke coverage (#151) ([94b9621](https://github.com/aa900031/ginjou/commit/94b96216c3232c94f60d453ba400707871683d93))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.2
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/with-svelte-spa-router@0.1.0-beta.1...${npm.name}@0.1.0-beta.2)
