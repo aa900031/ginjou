@@ -77,7 +77,7 @@ export function useGetInfiniteList<
 		filters: unref(props.filters),
 		meta: unref(props.meta),
 	}))
-	const queryKey = computed(() => GetList.createQueryKey<TPageParam>({
+	const queryKey = computed(() => GetInfiniteList.createQueryKey<TPageParam>({
 		props: unref(queryProps),
 	}))
 	const initialPageParam = computed(() => GetInfiniteList.getInitialPageParam({

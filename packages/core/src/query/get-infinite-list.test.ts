@@ -1,9 +1,23 @@
 import type { Query } from '@tanstack/query-core'
 import { QueryClient } from '@tanstack/query-core'
 import { describe, expect, it, vi } from 'vitest'
-import { createGetNextPageParamFn, createGetPreviousPageParamFn, createQueryEnabledFn } from './get-infinite-list'
+import { createGetNextPageParamFn, createGetPreviousPageParamFn, createQueryEnabledFn, createQueryKey } from './get-infinite-list'
 
 describe('get infinite list', () => {
+	it('creates a query key', () => {
+		const props = {
+			fetcherName: 'default',
+			resource: 'posts',
+			pagination: { current: 1, perPage: 10 },
+			sorters: [{ field: 'title', order: 'asc' as const }],
+			filters: [{ field: 'published', operator: 'eq' as const, value: true }],
+			meta: { source: 'test' },
+		}
+
+		expect(createQueryKey({ props })).toEqual(['default', 'posts', 'getInfiniteList', { pagination: props.pagination, sorters: props.sorters, filters: props.filters, meta: props.meta }])
+		expect(createQueryKey({ props: { fetcherName: 'default', resource: 'posts' } as typeof props })).toEqual(['default', 'posts', 'getInfiniteList'])
+	})
+
 	describe('for getNextPageParam', () => {
 		it('should get undefine when deafult', () => {
 			const getNextPageParam = createGetNextPageParamFn()

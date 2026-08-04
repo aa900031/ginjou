@@ -9,12 +9,14 @@ import type { BaseRecord, GetInfiniteListResult, GetListFn, GetListProps, GetOne
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { NotifyProps } from './notify'
 import type { RealtimeProps } from './realtime'
+import type { ResourceQueryProps } from './resource'
 import { NotificationType } from '../notification'
 import { getErrorMessage } from '../utils/error'
 import { getQuery, resolveQueryEnableds } from '../utils/query'
 import { getFetcherFn, resolveFetcherProps } from './fetchers'
 import { createQueryKey as genGetOneQueryKey } from './get-one'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
+import { createQueryKey as genResourceQueryKey } from './resource'
 
 export type QueryOptions<
 	TData extends BaseRecord,
@@ -95,6 +97,49 @@ export type Props<
 		>
 	}
 >
+
+export interface CreateBaseQueryKeyProps {
+	props: ResourceQueryProps
+}
+
+export function createBaseQueryKey(
+	{
+		props,
+	}: CreateBaseQueryKeyProps,
+): QueryKey {
+	return [
+		...genResourceQueryKey({ props }),
+		'getInfiniteList',
+	]
+}
+
+export interface CreateQueryKeyProps<
+	TPageParam,
+> {
+	props: ResolvedQueryProps<TPageParam>
+}
+
+export function createQueryKey<
+	TPageParam,
+>(
+	{
+		props,
+	}: CreateQueryKeyProps<TPageParam>,
+): QueryKey {
+	const { pagination, sorters, filters, meta } = props
+
+	return [
+		...createBaseQueryKey({ props }),
+		[pagination, sorters, filters, meta].every(item => item == null)
+			? undefined
+			: {
+					pagination,
+					sorters,
+					filters,
+					meta,
+				},
+	].filter(Boolean)
+}
 
 export interface CreateQueryFnProps<
 	TPageParam,

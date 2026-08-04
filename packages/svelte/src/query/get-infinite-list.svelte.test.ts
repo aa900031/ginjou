@@ -34,10 +34,10 @@ vi.mock('@ginjou/core', () => ({
 		Any: 'any',
 	},
 	GetList: {
-		createQueryKey: mocks.createQueryKey,
 		getSubscribeParams: mocks.getSubscribeParams,
 	},
 	GetInfiniteList: {
+		createQueryKey: mocks.createQueryKey,
 		createErrorHandler: mocks.createErrorHandler,
 		createGetNextPageParamFn: mocks.createGetNextPageParamFn,
 		createGetPreviousPageParamFn: mocks.createGetPreviousPageParamFn,
