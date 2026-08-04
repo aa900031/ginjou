@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.2
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/sync-route-compact@0.1.0-beta.1...${npm.name}@0.1.0-beta.2)
+
+### 💅 Refactors
+
+-  **core:** Unify value union type names (#141) ([2147c44](https://github.com/aa900031/ginjou/commit/2147c44c4e08ea32edfce0e7860b8d702538e3b1))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.1
 
 
