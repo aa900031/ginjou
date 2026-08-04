@@ -3,6 +3,33 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.4
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/svelte@0.1.0-beta.3...${npm.name}@0.1.0-beta.4)
+
+### 🚀 Enhancements
+
+-  **controller:** Add clone resource action (#135) ([915da3a](https://github.com/aa900031/ginjou/commit/915da3af415187fbd229d87bf656887fa5a70e85))
+
+### 🩹 Fixes
+
+-  Separate infinite list query cache (#155) ([ac1dce5](https://github.com/aa900031/ginjou/commit/ac1dce59a41ee6bb7c39cdaf69939587b6183285))
+
+### 💅 Refactors
+
+-  **core:** ⚠️ Align single-record CRUD types (#143) ([192a312](https://github.com/aa900031/ginjou/commit/192a31260e38aaad825fbfb62c7668a3df2242ce))
+-  **core:** Align can-access type names (#145) ([3738000](https://github.com/aa900031/ginjou/commit/37380000f692c385f600a17180598aa8d1076607))
+-  Correct misspelled identifiers (#146) ([f377a04](https://github.com/aa900031/ginjou/commit/f377a04c318c96fcef3c7154cbb15ca703ff7fd3))
+
+
+### ⚠️ Breaking Changes
+
+-  **core:** align single-record CRUD types (#143) ([192a312](https://github.com/aa900031/ginjou/commit/192a31260e38aaad825fbfb62c7668a3df2242ce))
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.3
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/svelte@0.1.0-beta.2...${npm.name}@0.1.0-beta.3)
