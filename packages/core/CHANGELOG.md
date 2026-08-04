@@ -3,6 +3,41 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.22
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/core@0.1.0-beta.21...${npm.name}@0.1.0-beta.22)
+
+### 🚀 Enhancements
+
+-  **controller:** Add clone resource action (#135) ([915da3a](https://github.com/aa900031/ginjou/commit/915da3af415187fbd229d87bf656887fa5a70e85))
+
+### 🩹 Fixes
+
+-  Separate infinite list query cache (#155) ([ac1dce5](https://github.com/aa900031/ginjou/commit/ac1dce59a41ee6bb7c39cdaf69939587b6183285))
+-  Standardize runtime error messages (#148) ([8e0dab4](https://github.com/aa900031/ginjou/commit/8e0dab42924128b3e4b139e620e7595b8a509f67))
+
+### 💅 Refactors
+
+-  **core:** ⚠️ Align single-record CRUD types (#143) ([192a312](https://github.com/aa900031/ginjou/commit/192a31260e38aaad825fbfb62c7668a3df2242ce))
+-  **core:** Align can-access type names (#145) ([3738000](https://github.com/aa900031/ginjou/commit/37380000f692c385f600a17180598aa8d1076607))
+-  **core:** Import logout module directly (#144) ([a0a6eda](https://github.com/aa900031/ginjou/commit/a0a6eda561f97fd6c1011879755891e9927bd8a5))
+-  **core:** Standardize query key aliases (#147) ([508a8fe](https://github.com/aa900031/ginjou/commit/508a8fef43d699b61f1b3caa22ae9710c9f595b3))
+-  **core:** Unify value union type names (#141) ([2147c44](https://github.com/aa900031/ginjou/commit/2147c44c4e08ea32edfce0e7860b8d702538e3b1))
+-  Correct misspelled identifiers (#146) ([f377a04](https://github.com/aa900031/ginjou/commit/f377a04c318c96fcef3c7154cbb15ca703ff7fd3))
+
+### ✅ Tests
+
+-  **core:** Require filter behavior to stay unused (#140) ([2741a6d](https://github.com/aa900031/ginjou/commit/2741a6d5aa8c5fc0be7d945045c61d289a895473))
+
+
+### ⚠️ Breaking Changes
+
+-  **core:** align single-record CRUD types (#143) ([192a312](https://github.com/aa900031/ginjou/commit/192a31260e38aaad825fbfb62c7668a3df2242ce))
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.21
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/core@0.1.0-beta.20...${npm.name}@0.1.0-beta.21)
