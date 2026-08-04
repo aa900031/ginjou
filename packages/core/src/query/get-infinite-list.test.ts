@@ -9,12 +9,13 @@ describe('get infinite list', () => {
 			fetcherName: 'default',
 			resource: 'posts',
 			pagination: { current: 1, perPage: 10 },
-			sorters: undefined,
-			filters: undefined,
-			meta: undefined,
+			sorters: [{ field: 'title', order: 'asc' as const }],
+			filters: [{ field: 'published', operator: 'eq' as const, value: true }],
+			meta: { source: 'test' },
 		}
 
-		expect(createQueryKey({ props })).toEqual(['default', 'posts', 'getInfiniteList', { pagination: props.pagination, sorters: undefined, filters: undefined, meta: undefined }])
+		expect(createQueryKey({ props })).toEqual(['default', 'posts', 'getInfiniteList', { pagination: props.pagination, sorters: props.sorters, filters: props.filters, meta: props.meta }])
+		expect(createQueryKey({ props: { fetcherName: 'default', resource: 'posts' } as typeof props })).toEqual(['default', 'posts', 'getInfiniteList'])
 	})
 
 	describe('for getNextPageParam', () => {
