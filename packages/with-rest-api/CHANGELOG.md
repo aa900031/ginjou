@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.11
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/with-rest-api@0.1.0-beta.10...${npm.name}@0.1.0-beta.11)
+
+### 🚀 Enhancements
+
+-  **providers:** Forward query abort signals (#134) ([5967d53](https://github.com/aa900031/ginjou/commit/5967d531db92be5bedd54e7be966114eb9c549c8))
+
+### 🩹 Fixes
+
+-  **rest-api:** Preserve custom body methods (#136) ([7975e5d](https://github.com/aa900031/ginjou/commit/7975e5d49a679aaf323c9e5ae7beef62c14d25fe))
+-  **rest-api:** Send custom payload in body (#137) ([9bf300a](https://github.com/aa900031/ginjou/commit/9bf300a5f87b7ca2f6be68762638b4a04efb4bc4))
+-  Standardize runtime error messages (#148) ([8e0dab4](https://github.com/aa900031/ginjou/commit/8e0dab42924128b3e4b139e620e7595b8a509f67))
+
+### 💅 Refactors
+
+-  **core:** Unify value union type names (#141) ([2147c44](https://github.com/aa900031/ginjou/commit/2147c44c4e08ea32edfce0e7860b8d702538e3b1))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.10
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/with-rest-api@0.1.0-beta.9...${npm.name}@0.1.0-beta.10)
