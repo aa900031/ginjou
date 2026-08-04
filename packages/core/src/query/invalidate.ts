@@ -1,7 +1,8 @@
 import type { InvalidateOptions, InvalidateQueryFilters, QueryClient } from '@tanstack/query-core'
 import type { SetRequired, Simplify, ValueOf } from 'type-fest'
 import type { BaseRecord, CreateManyResult, CreateOneResult, DeleteManyResult, DeleteOneResult, GetManyResult, GetOneResult, RecordKey, UpdateManyResult, UpdateOneResult } from './fetcher'
-import { createQueryKey as genGetListQueryKey } from './get-list'
+import { createBaseQueryKey as genBaseGetInfiniteListQueryKey } from './get-infinite-list'
+import { createBaseQueryKey as genBaseGetListQueryKey } from './get-list'
 import { createQueryKey as genGetManyQueryKey } from './get-many'
 import { createQueryKey as genGetOneQueryKey } from './get-one'
 
@@ -224,13 +225,22 @@ export async function triggerInvalidate<
 			)
 			break
 		case InvalidateTarget.List:
-			await queryClient.invalidateQueries(
-				{
-					queryKey: genGetListQueryKey({ props }),
-					...invalidateFilters,
-				},
-				invalidateOptions,
-			)
+			await Promise.all([
+				queryClient.invalidateQueries(
+					{
+						queryKey: genBaseGetListQueryKey({ props }),
+						...invalidateFilters,
+					},
+					invalidateOptions,
+				),
+				queryClient.invalidateQueries(
+					{
+						queryKey: genBaseGetInfiniteListQueryKey({ props }),
+						...invalidateFilters,
+					},
+					invalidateOptions,
+				),
+			])
 			break
 		case InvalidateTarget.Many: {
 			const { resource, ids } = props
