@@ -1,6 +1,8 @@
 import type { HandleBlockedProps } from './warn-unsaved'
-import { afterEach, describe, expect, it, vi } from 'vitest'
-import { DEFAULT_MESSAGE, getConfirm, getEnabled, getPropsConfirmFromProp, getPropsEnabledFromProp, getState, handleBlocked, State } from './warn-unsaved'
+import { describe, expect, it, vi } from 'vitest'
+import { getConfirm, getEnabled, getPropsConfirmFromProp, getPropsEnabledFromProp, getState, handleBlocked, State } from './warn-unsaved'
+
+const defaultConfirm = (): boolean => true
 
 describe('getPropsEnabledFromProp', () => {
 	it('should take booleans as the enabled flag', () => {
@@ -59,48 +61,21 @@ describe('getEnabled', () => {
 })
 
 describe('getConfirm', () => {
-	afterEach(() => {
-		vi.unstubAllGlobals()
-	})
-
 	it('should respect prop over controller', () => {
 		const fromProp = () => true
 		const confirm = () => false
 
-		expect(getConfirm({ fromProp, fromController: { confirm } })).toBe(fromProp)
+		expect(getConfirm({ fromProp, fromController: { confirm }, defaultConfirm })).toBe(fromProp)
 	})
 
 	it('should fallback to controller', () => {
 		const confirm = () => false
 
-		expect(getConfirm({ fromProp: undefined, fromController: { confirm } })).toBe(confirm)
+		expect(getConfirm({ fromProp: undefined, fromController: { confirm }, defaultConfirm })).toBe(confirm)
 	})
 
-	it('should fallback to the default fn when the controller prop is a boolean', () => {
-		expect(getConfirm({ fromProp: undefined, fromController: true }))
-			.toBe(getConfirm({ fromProp: undefined, fromController: undefined }))
-	})
-
-	it('should fallback to the same default fn instance', () => {
-		expect(getConfirm({ fromProp: undefined, fromController: undefined }))
-			.toBe(getConfirm({ fromProp: undefined, fromController: undefined }))
-	})
-
-	it('should call globalThis.confirm and return its value by default', () => {
-		const spy = vi.fn(() => false)
-		vi.stubGlobal('confirm', spy)
-
-		expect(getConfirm({ fromProp: undefined, fromController: undefined })()).toBe(false)
-		expect(spy).toHaveBeenCalledWith(DEFAULT_MESSAGE)
-
-		spy.mockReturnValue(true)
-		expect(getConfirm({ fromProp: undefined, fromController: undefined })()).toBe(true)
-	})
-
-	it('should return true by default when globalThis.confirm is unavailable', () => {
-		vi.stubGlobal('confirm', undefined)
-
-		expect(getConfirm({ fromProp: undefined, fromController: undefined })()).toBe(true)
+	it('should fall back to the adapter default', () => {
+		expect(getConfirm({ fromProp: undefined, fromController: true, defaultConfirm })).toBe(defaultConfirm)
 	})
 })
 

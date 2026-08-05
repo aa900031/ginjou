@@ -44,6 +44,7 @@ export function useRouteBlocker(
 	const registrar = RouteBlocker.createRegistrar({
 		blocker: router.blocker,
 		getShouldBlock: () => unref(props.shouldBlock),
+		getState: () => state.value,
 		setState,
 	})
 

@@ -20,11 +20,6 @@ export const State = {
 
 export type StateValues = ValueOf<typeof State>
 
-export const DEFAULT_MESSAGE = 'You have unsaved changes. Are you sure you want to leave this page?'
-
-// eslint-disable-next-line no-alert -- the native confirm is the documented default, callers override it
-export const defaultConfirm: ConfirmFn = () => globalThis.confirm?.(DEFAULT_MESSAGE) ?? true
-
 export const defaultEnabled = false
 
 export function getPropsEnabledFromProp(
@@ -62,12 +57,13 @@ export function getEnabled(
 export interface GetConfirmProps {
 	fromProp: ConfirmFn | undefined
 	fromController: Prop
+	defaultConfirm: ConfirmFn
 }
 
 export function getConfirm(
 	props: GetConfirmProps,
 ): ConfirmFn {
-	const { fromProp, fromController } = props
+	const { fromProp, fromController, defaultConfirm } = props
 
 	if (fromProp != null)
 		return fromProp

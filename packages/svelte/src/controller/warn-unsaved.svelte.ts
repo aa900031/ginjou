@@ -7,6 +7,11 @@ import { useRouteBlocker } from '../router'
 import { extract, watch } from '../utils'
 import { useControllerContext } from './context'
 
+const DEFAULT_MESSAGE = 'You have unsaved changes. Are you sure you want to leave this page?'
+
+// eslint-disable-next-line no-alert -- callers can override the native default
+const defaultConfirm: WarnUnsaved.ConfirmFn = () => globalThis.confirm?.(DEFAULT_MESSAGE) ?? true
+
 export type UseWarnUnsavedProps = MaybeAccessor<
 	| WarnUnsaved.Props
 	| undefined
@@ -36,6 +41,7 @@ export function useWarnUnsaved(
 	const confirm = $derived.by(() => WarnUnsaved.getConfirm({
 		fromProp: resolvedProps?.confirm,
 		fromController: controller?.warnUnsaved,
+		defaultConfirm,
 	}))
 
 	let active = $state(false)
@@ -54,8 +60,8 @@ export function useWarnUnsaved(
 			setConfirming: (next) => {
 				confirming = next
 			},
-			proceed: blocker.proceed,
-			reset: blocker.reset,
+			proceed: () => blocker.proceed?.(),
+			reset: () => blocker.reset?.(),
 		})
 	})
 

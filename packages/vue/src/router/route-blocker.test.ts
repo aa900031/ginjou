@@ -209,8 +209,6 @@ describe('useRouteBlocker', () => {
 
 		expect(unref(result.state)).toBe('unblocked')
 
-		result.proceed()
-		result.reset()
 		expect(unref(result.state)).toBe('unblocked')
 	})
 })

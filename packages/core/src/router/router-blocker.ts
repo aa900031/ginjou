@@ -71,33 +71,10 @@ export function handleChangeLocation(
 		setState(State.Unblocked)
 }
 
-export interface ProceedProps {
-	setState: (value: StateValues) => void
-	handle: RouterBlockerHandle
-}
-
-export interface ResetProps {
-	setState: (value: StateValues) => void
-	handle: RouterBlockerHandle
-}
-
-export function proceed(
-	props: ProceedProps,
-): void {
-	props.setState(State.Proceeding)
-	props.handle.proceed()
-}
-
-export function reset(
-	props: ResetProps,
-): void {
-	props.setState(State.Unblocked)
-	props.handle.reset()
-}
-
 export interface CreateRegistrarProps {
 	blocker: RouterBlockerFn
 	getShouldBlock: () => Props['shouldBlock']
+	getState: () => StateValues
 	setState: (value: StateValues) => void
 }
 
@@ -125,7 +102,7 @@ export interface Registrar {
 export function createRegistrar(
 	props: CreateRegistrarProps,
 ): Registrar {
-	const { blocker, getShouldBlock, setState } = props
+	const { blocker, getShouldBlock, getState, setState } = props
 
 	let handle: RouterBlockerHandle | undefined
 
@@ -143,12 +120,24 @@ export function createRegistrar(
 			handle = blocker(createShouldBlockFn({ getShouldBlock, setState }))
 		},
 		proceed: () => {
-			if (handle != null)
-				proceed({ setState, handle })
+			if (handle == null)
+				return
+			if (getState() !== State.Blocked)
+				return
+
+			const currentHandle = handle
+			setState(State.Proceeding)
+			currentHandle.proceed()
 		},
 		reset: () => {
-			if (handle != null)
-				reset({ setState, handle })
+			if (handle == null)
+				return
+			if (getState() !== State.Blocked)
+				return
+
+			const currentHandle = handle
+			setState(State.Unblocked)
+			currentHandle.reset()
 		},
 		dispose: () => {
 			handle?.unregister()

@@ -1,6 +1,6 @@
 import type { RouteBlocker } from '@ginjou/core'
 import type { UseRouteBlockerResult } from '../router'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useWarnUnsaved } from './warn-unsaved.svelte'
 
 const mocks = vi.hoisted(() => ({
@@ -80,6 +80,25 @@ describe('useWarnUnsaved', () => {
 		mocks.watchCalls.length = 0
 
 		mocks.useControllerContext.mockReturnValue(undefined)
+	})
+
+	afterEach(() => {
+		vi.unstubAllGlobals()
+	})
+
+	it('should use the browser confirmation by default', async () => {
+		const { blocker, proceed, block } = createBlocker()
+		mocks.useRouteBlocker.mockReturnValue(blocker)
+		const confirm = vi.fn(() => true)
+		vi.stubGlobal('confirm', confirm)
+
+		const result = useWarnUnsaved(() => ({ enabled: true }))
+		result.active = true
+		block()
+		flushWatch()
+
+		await vi.waitFor(() => expect(proceed).toHaveBeenCalledOnce())
+		expect(confirm).toHaveBeenCalledWith('You have unsaved changes. Are you sure you want to leave this page?')
 	})
 
 	it('should proceed when the confirm resolves true', async () => {

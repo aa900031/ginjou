@@ -8,6 +8,11 @@ import { computed, ref, unref, watch } from 'vue-demi'
 import { useRouteBlocker } from '../router'
 import { useControllerContext } from './context'
 
+const DEFAULT_MESSAGE = 'You have unsaved changes. Are you sure you want to leave this page?'
+
+// eslint-disable-next-line no-alert -- callers can override the native default
+const defaultConfirm: WarnUnsaved.ConfirmFn = () => globalThis.confirm?.(DEFAULT_MESSAGE) ?? true
+
 export type UseWarnUnsavedProps = ToMaybeRefs<
 	WarnUnsaved.Props
 >
@@ -35,6 +40,7 @@ export function useWarnUnsaved(
 	const confirm = computed(() => WarnUnsaved.getConfirm({
 		fromProp: unref(props?.confirm),
 		fromController: controller?.warnUnsaved,
+		defaultConfirm,
 	}))
 
 	const active = ref(false)
@@ -57,8 +63,8 @@ export function useWarnUnsaved(
 			setConfirming: (next) => {
 				confirming.value = next
 			},
-			proceed: blocker.proceed,
-			reset: blocker.reset,
+			proceed: () => blocker.proceed?.(),
+			reset: () => blocker.reset?.(),
 		})
 	})
 

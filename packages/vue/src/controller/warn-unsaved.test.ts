@@ -1,6 +1,6 @@
 import type { Router, RouterBlockShouldFn, RouterLocation } from '@ginjou/core'
 import { WarnUnsaved } from '@ginjou/core'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, unref } from 'vue-demi'
 import { mountSetup } from '../../test/mount'
 import { useWarnUnsaved } from './warn-unsaved'
@@ -45,6 +45,23 @@ function createMockRouter() {
 }
 
 describe('useWarnUnsaved', () => {
+	afterEach(() => {
+		vi.unstubAllGlobals()
+	})
+
+	it('should use the browser confirmation by default', async () => {
+		const { router, handle, callShouldBlock } = createMockRouter()
+		const confirm = vi.fn(() => true)
+		vi.stubGlobal('confirm', confirm)
+
+		const { result } = mountSetup(() => useWarnUnsaved({ enabled: true }, { router }))
+
+		result.active.value = true
+		expect(callShouldBlock()).toBe(true)
+		await vi.waitFor(() => expect(handle.proceed).toHaveBeenCalledOnce())
+		expect(confirm).toHaveBeenCalledWith('You have unsaved changes. Are you sure you want to leave this page?')
+	})
+
 	it('should proceed when confirmed', async () => {
 		const { router, handle, callShouldBlock } = createMockRouter()
 		const confirm = vi.fn(() => Promise.resolve(true))

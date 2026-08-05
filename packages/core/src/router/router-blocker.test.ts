@@ -1,7 +1,7 @@
-import type { RouterBlockerHandle, RouterBlockShouldInput } from './router'
+import type { RouterBlockShouldInput } from './router'
 import type { Entry } from './router-blocker'
 import { describe, expect, it, vi } from 'vitest'
-import { checkEntries, createShouldBlockFn, handleChangeLocation, proceed, reset, shouldRegister, State } from './router-blocker'
+import { checkEntries, createShouldBlockFn, handleChangeLocation, shouldRegister, State } from './router-blocker'
 
 /** A missing `nextLocation` is what marks the page being unloaded rather than navigated. */
 function createBlockerContext(
@@ -10,14 +10,6 @@ function createBlockerContext(
 	return {
 		currentLocation: { path: '/posts' },
 		nextLocation: unload ? undefined : { path: '/posts/1' },
-	}
-}
-
-function createHandle(): RouterBlockerHandle {
-	return {
-		unregister: vi.fn(),
-		proceed: vi.fn(),
-		reset: vi.fn(),
 	}
 }
 
@@ -118,30 +110,6 @@ describe('handleChangeLocation', () => {
 
 			expect(setState).not.toHaveBeenCalled()
 		}
-	})
-})
-
-describe('proceed', () => {
-	it('should set the proceeding state and proceed the handle', () => {
-		const setState = vi.fn()
-		const handle = createHandle()
-
-		proceed({ setState, handle })
-
-		expect(setState).toHaveBeenCalledWith(State.Proceeding)
-		expect(handle.proceed).toHaveBeenCalledOnce()
-	})
-})
-
-describe('reset', () => {
-	it('should set the unblocked state and reset the handle', () => {
-		const setState = vi.fn()
-		const handle = createHandle()
-
-		reset({ setState, handle })
-
-		expect(setState).toHaveBeenCalledWith(State.Unblocked)
-		expect(handle.reset).toHaveBeenCalledOnce()
 	})
 })
 
