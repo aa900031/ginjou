@@ -1,4 +1,4 @@
-import type { RouteBlocker } from '@ginjou/core'
+import type { RouteBlocker, RouterBlockShouldFn, RouterBlockShouldInput } from '@ginjou/core'
 import type { UseRouteBlockerResult } from '../router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useWarnUnsaved } from './warn-unsaved.svelte'
@@ -63,6 +63,20 @@ function createBlocker() {
 			state = 'blocked'
 		},
 	}
+}
+
+function callShouldBlock(
+	nextPath: string | undefined = '/posts',
+): boolean {
+	const props = mocks.useRouteBlocker.mock.calls[0][0]() as { shouldBlock: RouterBlockShouldFn }
+	const input: RouterBlockShouldInput = {
+		currentLocation: { path: '/posts/1/edit', query: { page: '1' } },
+		nextLocation: nextPath == null
+			? undefined
+			: { path: nextPath, query: { page: '2' } },
+	}
+
+	return props.shouldBlock(input)
 }
 
 function flushWatch() {
@@ -160,9 +174,49 @@ describe('useWarnUnsaved', () => {
 
 		expect(result.active).toBe(true)
 		expect(result.state).toBe('inactive')
-		expect(mocks.useRouteBlocker.mock.calls[0][0]()).toMatchObject({
-			enabled: false,
-			shouldBlock: true,
+		expect(mocks.useRouteBlocker.mock.calls[0][0]().enabled).toBe(false)
+	})
+
+	// Every navigation reaches the predicate now, so this is where the default judgement lives:
+	// unsaved work cares about leaving the page, not about the query changing under it.
+	describe('shouldBlock', () => {
+		it('should block a navigation that leaves the path', () => {
+			const { blocker } = createBlocker()
+			mocks.useRouteBlocker.mockReturnValue(blocker)
+
+			const result = useWarnUnsaved(() => ({ enabled: true }))
+			result.active = true
+
+			expect(callShouldBlock('/posts')).toBe(true)
+		})
+
+		it('should not block a navigation that only changes the query', () => {
+			const { blocker } = createBlocker()
+			mocks.useRouteBlocker.mockReturnValue(blocker)
+
+			const result = useWarnUnsaved(() => ({ enabled: true }))
+			result.active = true
+
+			expect(callShouldBlock('/posts/1/edit')).toBe(false)
+		})
+
+		it('should block an unload', () => {
+			const { blocker } = createBlocker()
+			mocks.useRouteBlocker.mockReturnValue(blocker)
+
+			const result = useWarnUnsaved(() => ({ enabled: true }))
+			result.active = true
+
+			expect(callShouldBlock(undefined)).toBe(true)
+		})
+
+		it('should not block while there is nothing unsaved', () => {
+			const { blocker } = createBlocker()
+			mocks.useRouteBlocker.mockReturnValue(blocker)
+
+			useWarnUnsaved(() => ({ enabled: true }))
+
+			expect(callShouldBlock('/posts')).toBe(false)
 		})
 	})
 
@@ -203,6 +257,6 @@ describe('useWarnUnsaved', () => {
 		result.active = true
 
 		expect(result.state).toBe('active')
-		expect(mocks.useRouteBlocker.mock.calls[0][0]().shouldBlock).toBe(true)
+		expect(callShouldBlock()).toBe(true)
 	})
 })

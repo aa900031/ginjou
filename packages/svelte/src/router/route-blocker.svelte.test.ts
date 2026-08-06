@@ -1,4 +1,4 @@
-import type { Router, RouterBlockShouldFn, RouterBlockShouldInput } from '@ginjou/core'
+import type { Router, RouterBlockerStateValues, RouterBlockShouldFn, RouterBlockShouldInput } from '@ginjou/core'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useRouteBlocker } from './route-blocker.svelte'
 
@@ -33,6 +33,7 @@ vi.mock('../utils/watch.svelte', () => ({
 	},
 }))
 
+/** This `watch` re-runs its callback on any dependency change, not only on a changed value. */
 function flushWatch(): void {
 	mocks.watchRuns.forEach(run => run())
 }
@@ -41,42 +42,57 @@ function createBlockerContext(
 	unload = false,
 ): RouterBlockShouldInput {
 	return {
-		currentLocation: { pathname: '/current' } as any,
-		nextLocation: unload ? undefined : { pathname: '/next' } as any,
+		currentLocation: { path: '/posts' },
+		nextLocation: unload ? undefined : { path: '/posts/1' },
 	}
 }
 
+/**
+ * Stands in for a router adapter's registry: the hook is only the reactive bridge, so what it is
+ * given is a controller whose state the registry publishes.
+ */
 function createRouter() {
-	const handle = {
-		unregister: vi.fn(),
+	let shouldBlock: RouterBlockShouldFn | undefined
+	let publish: ((state: RouterBlockerStateValues) => void) | undefined
+
+	const controller = {
+		state: 'unblocked' as RouterBlockerStateValues,
+		subscribe: vi.fn((handler: (state: RouterBlockerStateValues) => void) => {
+			publish = handler
+			return () => {
+				publish = undefined
+			}
+		}),
 		proceed: vi.fn(),
 		reset: vi.fn(),
+		dispose: vi.fn(() => {
+			shouldBlock = undefined
+			publish = undefined
+		}),
 	}
-	const unsubscribe = vi.fn()
-	let shouldBlock: RouterBlockShouldFn | undefined
-	let onChange: (() => void) | undefined
 
 	const router = {
 		go: vi.fn(),
 		back: vi.fn(),
 		resolve: vi.fn(),
 		getLocation: vi.fn(),
-		onChangeLocation: vi.fn((fn: (...args: any[]) => void) => {
-			onChange = fn
-			return unsubscribe
-		}),
+		onChangeLocation: vi.fn(),
 		blocker: vi.fn((fn: RouterBlockShouldFn) => {
 			shouldBlock = fn
-			return handle
+			return controller
 		}),
 	} satisfies Router
 
 	return {
 		router,
-		handle,
-		unsubscribe,
+		controller,
+		isRegistered: () => shouldBlock != null,
 		callShouldBlock: (unload?: boolean) => shouldBlock!(createBlockerContext(unload)),
-		emitChangeLocation: () => onChange!(),
+		/** What the registry does when it publishes a transition to this blocker. */
+		emitState: (state: RouterBlockerStateValues) => {
+			controller.state = state
+			publish?.(state)
+		},
 	}
 }
 
@@ -88,37 +104,63 @@ describe('useRouteBlocker', () => {
 		mocks.stopWatch.mockReset()
 	})
 
-	it('should transition unblocked -> blocked -> proceeding -> unblocked', () => {
-		const { router, handle, callShouldBlock, emitChangeLocation } = createRouter()
+	it('should report the state the registry publishes', () => {
+		const { router, emitState } = createRouter()
 		mocks.useRouterContext.mockReturnValue(router)
 
 		const result = useRouteBlocker(() => ({ shouldBlock: true }))
 
 		expect(result.state).toBe('unblocked')
 
-		expect(callShouldBlock()).toBe(true)
+		emitState('blocked')
 		expect(result.state).toBe('blocked')
 
-		result.proceed()
+		emitState('proceeding')
 		expect(result.state).toBe('proceeding')
-		expect(handle.proceed).toHaveBeenCalledOnce()
 
-		emitChangeLocation()
+		emitState('unblocked')
 		expect(result.state).toBe('unblocked')
 	})
 
-	it('should reset back to unblocked', () => {
-		const { router, handle, callShouldBlock } = createRouter()
+	it('should forward proceed and reset', () => {
+		const { router, controller } = createRouter()
 		mocks.useRouterContext.mockReturnValue(router)
 
 		const result = useRouteBlocker(() => ({ shouldBlock: true }))
 
-		callShouldBlock()
-		expect(result.state).toBe('blocked')
-
+		result.proceed()
 		result.reset()
-		expect(result.state).toBe('unblocked')
-		expect(handle.reset).toHaveBeenCalledOnce()
+
+		expect(controller.proceed).toHaveBeenCalledOnce()
+		expect(controller.reset).toHaveBeenCalledOnce()
+	})
+
+	it('should register a predicate reading the current shouldBlock', () => {
+		const { router, callShouldBlock } = createRouter()
+		mocks.useRouterContext.mockReturnValue(router)
+		let shouldBlock = $state(false)
+
+		useRouteBlocker(() => ({ shouldBlock }))
+
+		expect(callShouldBlock()).toBe(false)
+
+		shouldBlock = true
+
+		expect(callShouldBlock()).toBe(true)
+	})
+
+	it('should support a shouldBlock function receiving the context', () => {
+		const { router, callShouldBlock } = createRouter()
+		mocks.useRouterContext.mockReturnValue(router)
+		const fn = vi.fn((context: RouterBlockShouldInput): boolean => context.nextLocation != null)
+
+		useRouteBlocker(() => ({ shouldBlock: fn }))
+
+		expect(callShouldBlock()).toBe(true)
+		expect(fn.mock.calls[0][0]).toEqual(createBlockerContext())
+
+		expect(callShouldBlock(true)).toBe(false)
+		expect(fn.mock.calls[1][0]).toEqual(createBlockerContext(true))
 	})
 
 	it('should register by default', () => {
@@ -130,8 +172,10 @@ describe('useRouteBlocker', () => {
 		expect(router.blocker).toHaveBeenCalledOnce()
 	})
 
+	// `enabled` is the lifecycle switch, and nothing else: `shouldBlock` going false leaves the
+	// registration alone, because a page with nothing unsaved still owns the next navigation.
 	it('should register and unregister with enabled', () => {
-		const { router, handle } = createRouter()
+		const { router, controller, isRegistered } = createRouter()
 		mocks.useRouterContext.mockReturnValue(router)
 		let enabled = $state(false)
 
@@ -141,35 +185,18 @@ describe('useRouteBlocker', () => {
 
 		enabled = true
 		flushWatch()
-		expect(router.blocker).toHaveBeenCalledOnce()
+		expect(isRegistered()).toBe(true)
 
 		enabled = false
 		flushWatch()
-		expect(handle.unregister).toHaveBeenCalledOnce()
+		expect(isRegistered()).toBe(false)
+		expect(controller.dispose).toHaveBeenCalledOnce()
 	})
 
-	it('should keep the entry while a navigation is held on it', () => {
-		const { router, handle, callShouldBlock } = createRouter()
-		mocks.useRouterContext.mockReturnValue(router)
-		let enabled = $state(true)
-
-		const result = useRouteBlocker(() => ({ enabled, shouldBlock: true }))
-
-		expect(callShouldBlock()).toBe(true)
-		expect(result.state).toBe('blocked')
-
-		enabled = false
-		flushWatch()
-		expect(handle.unregister).not.toHaveBeenCalled()
-
-		result.reset()
-		flushWatch()
-		expect(result.state).toBe('unblocked')
-		expect(handle.unregister).toHaveBeenCalledOnce()
-	})
-
-	it('should stay registered while shouldBlock is false', () => {
-		const { router, handle, callShouldBlock } = createRouter()
+	// The callback runs on any dependency change, so without the unchanged-value guard a page being
+	// asked about would be re-registered at the end of the queue with its hold thrown away.
+	it('should stay registered while shouldBlock changes', () => {
+		const { router, controller } = createRouter()
 		mocks.useRouterContext.mockReturnValue(router)
 		let shouldBlock = $state(true)
 
@@ -178,53 +205,34 @@ describe('useRouteBlocker', () => {
 		shouldBlock = false
 		flushWatch()
 
-		expect(handle.unregister).not.toHaveBeenCalled()
-		expect(callShouldBlock()).toBe(false)
+		expect(controller.dispose).not.toHaveBeenCalled()
+		expect(router.blocker).toHaveBeenCalledOnce()
 	})
 
-	it('should keep the entry through proceed', () => {
-		const { router, handle, callShouldBlock } = createRouter()
+	// Disposing while `blocked` cancels the navigation for every participant, and the registry is
+	// what tells the others. This one is on its way out, so it stops listening first.
+	it('should stop listening before it disposes', () => {
+		const { router, controller, emitState } = createRouter()
 		mocks.useRouterContext.mockReturnValue(router)
-		let shouldBlock = $state(true)
+		let enabled = $state(true)
 
-		const result = useRouteBlocker(() => ({ enabled: true, shouldBlock }))
+		const result = useRouteBlocker(() => ({ enabled, shouldBlock: true }))
 
-		expect(callShouldBlock()).toBe(true)
-		shouldBlock = false
-		result.proceed()
+		emitState('blocked')
+		expect(result.state).toBe('blocked')
+
+		enabled = false
 		flushWatch()
 
-		expect(handle.proceed).toHaveBeenCalledOnce()
-		expect(handle.unregister).not.toHaveBeenCalled()
-	})
+		expect(controller.dispose).toHaveBeenCalledOnce()
+		expect(result.state).toBe('unblocked')
 
-	it('should keep the state untouched on unload', () => {
-		const { router, callShouldBlock } = createRouter()
-		mocks.useRouterContext.mockReturnValue(router)
-
-		const result = useRouteBlocker(() => ({ shouldBlock: true }))
-
-		expect(callShouldBlock(true)).toBe(true)
+		emitState('blocked')
 		expect(result.state).toBe('unblocked')
 	})
 
-	it('should support a shouldBlock function receiving the context', () => {
-		const { router, callShouldBlock } = createRouter()
-		mocks.useRouterContext.mockReturnValue(router)
-		const fn = vi.fn((context: RouterBlockShouldInput): boolean => context.nextLocation != null)
-
-		const result = useRouteBlocker(() => ({ shouldBlock: fn }))
-
-		expect(callShouldBlock()).toBe(true)
-		expect(result.state).toBe('blocked')
-		expect(fn.mock.calls[0][0]).toEqual(createBlockerContext())
-
-		expect(callShouldBlock(true)).toBe(false)
-		expect(fn.mock.calls[1][0]).toEqual(createBlockerContext(true))
-	})
-
-	it('should unregister and unsubscribe on destroy', () => {
-		const { router, handle, unsubscribe } = createRouter()
+	it('should dispose and stop watching on destroy', () => {
+		const { router, controller } = createRouter()
 		mocks.useRouterContext.mockReturnValue(router)
 
 		useRouteBlocker(() => ({ shouldBlock: true }))
@@ -232,8 +240,7 @@ describe('useRouteBlocker', () => {
 		expect(mocks.onDestroy).toHaveBeenCalledOnce()
 		mocks.onDestroy.mock.calls[0][0]()
 
-		expect(handle.unregister).toHaveBeenCalledOnce()
-		expect(unsubscribe).toHaveBeenCalledOnce()
+		expect(controller.dispose).toHaveBeenCalledOnce()
 		expect(mocks.stopWatch).toHaveBeenCalledOnce()
 	})
 

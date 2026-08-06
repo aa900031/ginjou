@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 
-import type { Router, RouterBlockerHandle } from '@ginjou/core'
+import type { Router, RouterBlockerController } from '@ginjou/core'
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { createApp, h } from 'vue'
 import { createMemoryHistory, createRouter as createVueRouter, RouterView } from 'vue-router'
@@ -8,7 +8,7 @@ import { createRouter } from './router'
 
 let router: Router
 let vueRouter: ReturnType<typeof createVueRouter>
-const handles: RouterBlockerHandle[] = []
+const controllers: RouterBlockerController[] = []
 /** What the component mounted on `/watched` was told through `onChangeLocation`. */
 const watched = vi.fn()
 /** The teardown `onChangeLocation` handed back to the component mounted on `/watched`. */
@@ -16,10 +16,10 @@ let unwatch: () => void
 
 function register(
 	shouldBlock: Parameters<NonNullable<Router['blocker']>>[0],
-): RouterBlockerHandle {
-	const handle = router.blocker!(shouldBlock)
-	handles.push(handle)
-	return handle
+): RouterBlockerController {
+	const controller = router.blocker!(shouldBlock)
+	controllers.push(controller)
+	return controller
 }
 
 function dispatchBeforeUnload(): Event {
@@ -29,7 +29,7 @@ function dispatchBeforeUnload(): Event {
 }
 
 // `createRouter()` registers a global `beforeunload` listener, so it is created once
-// for the whole file and every blocker is unregistered between tests.
+// for the whole file and every blocker is disposed between tests.
 beforeAll(async () => {
 	vueRouter = createVueRouter({
 		history: createMemoryHistory(),
@@ -63,7 +63,7 @@ beforeAll(async () => {
 })
 
 afterEach(async () => {
-	handles.splice(0).forEach(handle => handle.unregister())
+	controllers.splice(0).forEach(controller => controller.dispose())
 	await vueRouter.replace('/')
 	watched.mockClear()
 })
@@ -95,13 +95,13 @@ describe('createRouter', () => {
 
 		it('should suspend the navigation until proceed', async () => {
 			const shouldBlock = vi.fn(() => true)
-			const handle = register(shouldBlock)
+			const controller = register(shouldBlock)
 
 			const navigation = vueRouter.push('/other')
 			await vi.waitFor(() => expect(shouldBlock).toHaveBeenCalled())
 			expect(vueRouter.currentRoute.value.path).toBe('/')
 
-			handle.proceed()
+			controller.proceed()
 			await navigation
 
 			expect(vueRouter.currentRoute.value.path).toBe('/other')
@@ -109,31 +109,37 @@ describe('createRouter', () => {
 
 		it('should cancel the navigation on reset', async () => {
 			const shouldBlock = vi.fn(() => true)
-			const handle = register(shouldBlock)
+			const controller = register(shouldBlock)
 
 			const navigation = vueRouter.push('/other')
 			await vi.waitFor(() => expect(shouldBlock).toHaveBeenCalled())
-			handle.reset()
+			controller.reset()
 			await navigation
 
 			expect(vueRouter.currentRoute.value.path).toBe('/')
 		})
 
+		// Both predicates answer for the navigation at the point it started — that is the snapshot —
+		// but only one blocker is asked for a decision at a time, so a page that opens a dialog on
+		// `blocked` opens one dialog.
 		it('should ask the blockers one by one', async () => {
 			const first = vi.fn(() => true)
 			const second = vi.fn(() => true)
-			const firstHandle = register(first)
-			register(second)
+			const firstController = register(first)
+			const secondController = register(second)
 
 			const navigation = vueRouter.push('/other')
-			await vi.waitFor(() => expect(first).toHaveBeenCalled())
-			expect(second).not.toHaveBeenCalled()
+			await vi.waitFor(() => expect(firstController.state).toBe('blocked'))
 
-			firstHandle.proceed()
-			await vi.waitFor(() => expect(second).toHaveBeenCalled())
+			expect(first).toHaveBeenCalledOnce()
+			expect(second).toHaveBeenCalledOnce()
+			expect(secondController.state).toBe('unblocked')
+
+			firstController.proceed()
+			await vi.waitFor(() => expect(secondController.state).toBe('blocked'))
 			expect(vueRouter.currentRoute.value.path).toBe('/')
 
-			handles[1].proceed()
+			secondController.proceed()
 			await navigation
 
 			expect(vueRouter.currentRoute.value.path).toBe('/other')
@@ -156,24 +162,43 @@ describe('createRouter', () => {
 		it('should block when the params change on a matched record', async () => {
 			await vueRouter.push('/posts/1')
 			const shouldBlock = vi.fn(() => true)
-			const handle = register(shouldBlock)
+			const controller = register(shouldBlock)
 
 			const navigation = vueRouter.push('/posts/2')
 			await vi.waitFor(() => expect(shouldBlock).toHaveBeenCalled())
-			handle.reset()
+			controller.reset()
 			await navigation
 
 			expect(vueRouter.currentRoute.value.path).toBe('/posts/1')
 		})
 
-		it('should not block when only the query changes', async () => {
+		// Nothing is filtered out on the way in: whether a query-only change is worth blocking is the
+		// page's call, so the predicate is asked and gets both locations to compare.
+		it('should ask the blockers when only the query changes', async () => {
 			await vueRouter.push('/posts/1')
 			const shouldBlock = vi.fn(() => true)
-			register(shouldBlock)
+			const controller = register(shouldBlock)
+
+			const navigation = vueRouter.push('/posts/1?page=2')
+			await vi.waitFor(() => expect(controller.state).toBe('blocked'))
+
+			expect(shouldBlock).toHaveBeenCalledWith({
+				currentLocation: expect.objectContaining({ path: '/posts/1', query: {} }),
+				nextLocation: expect.objectContaining({ path: '/posts/1', query: { page: '2' } }),
+			})
+
+			controller.proceed()
+			await navigation
+
+			expect(vueRouter.currentRoute.value.query).toEqual({ page: '2' })
+		})
+
+		it('should let a query-only change through when the predicate compares paths', async () => {
+			await vueRouter.push('/posts/1')
+			register(({ currentLocation, nextLocation }) => nextLocation?.path !== currentLocation.path)
 
 			await vueRouter.push('/posts/1?page=2')
 
-			expect(shouldBlock).not.toHaveBeenCalled()
 			expect(vueRouter.currentRoute.value.query).toEqual({ page: '2' })
 		})
 
@@ -182,7 +207,7 @@ describe('createRouter', () => {
 			await vueRouter.push('/other')
 			await vueRouter.push('/watched')
 			const shouldBlock = vi.fn(() => true)
-			const handle = register(shouldBlock)
+			const controller = register(shouldBlock)
 
 			vueRouter.back()
 			await vi.waitFor(() => expect(shouldBlock).toHaveBeenCalled())
@@ -190,7 +215,7 @@ describe('createRouter', () => {
 			// consumer is told about.
 			expect(vueRouter.currentRoute.value.path).toBe('/watched')
 
-			handle.reset()
+			controller.reset()
 			await vi.waitFor(() => expect(vueRouter.options.history.location).toBe('/watched'))
 
 			expect(vueRouter.currentRoute.value.path).toBe('/watched')
@@ -198,24 +223,114 @@ describe('createRouter', () => {
 
 		// An alias with the same params is a duplicate navigation as far as vue-router is concerned,
 		// so `isChangingRoute` is what covers the alias case, in `utils/route-record.test.ts`.
-		it('should not block after unregister', async () => {
-			register(() => true).unregister()
+		it('should not block after dispose', async () => {
+			register(() => true).dispose()
 
 			await vueRouter.push('/other')
 
 			expect(vueRouter.currentRoute.value.path).toBe('/other')
 		})
 
-		it('should release a held navigation on unregister', async () => {
+		// Nothing is left to answer for it, so the navigation it was holding is cancelled rather than
+		// waved through: the page it was protecting is the one being torn down.
+		it('should cancel a held navigation on dispose', async () => {
 			const shouldBlock = vi.fn(() => true)
-			const handle = register(shouldBlock)
+			const controller = register(shouldBlock)
 
 			const navigation = vueRouter.push('/other')
 			await vi.waitFor(() => expect(shouldBlock).toHaveBeenCalled())
-			handle.unregister()
+			controller.dispose()
+			await navigation
+
+			expect(vueRouter.currentRoute.value.path).toBe('/')
+		})
+	})
+
+	// `proceeding` is one blocker's answer, not the navigation's outcome, so what settles it is the
+	// router reporting how the navigation ended.
+	describe('blocker (settlement)', () => {
+		it('should settle every participant when the navigation succeeds', async () => {
+			const first = register(() => true)
+			const second = register(() => true)
+
+			const navigation = vueRouter.push('/other')
+			await vi.waitFor(() => expect(first.state).toBe('blocked'))
+			first.proceed()
+			await vi.waitFor(() => expect(second.state).toBe('blocked'))
+			second.proceed()
 			await navigation
 
 			expect(vueRouter.currentRoute.value.path).toBe('/other')
+			expect([first.state, second.state]).toEqual(['unblocked', 'unblocked'])
+		})
+
+		it('should settle every participant when a later blocker cancels', async () => {
+			const first = register(() => true)
+			const second = register(() => true)
+
+			const navigation = vueRouter.push('/other')
+			await vi.waitFor(() => expect(first.state).toBe('blocked'))
+			first.proceed()
+
+			expect(first.state).toBe('proceeding')
+
+			await vi.waitFor(() => expect(second.state).toBe('blocked'))
+			second.reset()
+			await navigation
+
+			expect(vueRouter.currentRoute.value.path).toBe('/')
+			expect([first.state, second.state]).toEqual(['unblocked', 'unblocked'])
+		})
+
+		// A guard that throws never reaches `afterEach`, only `onError`.
+		it('should settle a participant when a later guard throws', async () => {
+			const controller = register(() => true)
+			const stopGuard = vueRouter.beforeEach((to) => {
+				if (to.path === '/other')
+					throw new Error('nope')
+			})
+
+			const navigation = vueRouter.push('/other')
+			await vi.waitFor(() => expect(controller.state).toBe('blocked'))
+			controller.proceed()
+			await expect(navigation).rejects.toThrow('nope')
+
+			stopGuard()
+
+			expect(vueRouter.currentRoute.value.path).toBe('/')
+			await vi.waitFor(() => expect(controller.state).toBe('unblocked'))
+		})
+
+		it('should settle a participant when a later guard cancels', async () => {
+			const controller = register(() => true)
+			const stopGuard = vueRouter.beforeEach(to => to.path !== '/other')
+
+			const navigation = vueRouter.push('/other')
+			await vi.waitFor(() => expect(controller.state).toBe('blocked'))
+			controller.proceed()
+			await navigation
+
+			stopGuard()
+
+			expect(vueRouter.currentRoute.value.path).toBe('/')
+			await vi.waitFor(() => expect(controller.state).toBe('unblocked'))
+		})
+
+		it('should hand the blockers to a superseding navigation', async () => {
+			const controller = register(() => true)
+
+			const superseded = vueRouter.push('/other')
+			await vi.waitFor(() => expect(controller.state).toBe('blocked'))
+
+			const latest = vueRouter.push('/posts/1')
+			await vi.waitFor(() => expect(controller.state).toBe('blocked'))
+			await superseded
+
+			controller.proceed()
+			await latest
+
+			expect(vueRouter.currentRoute.value.path).toBe('/posts/1')
+			await vi.waitFor(() => expect(controller.state).toBe('unblocked'))
 		})
 	})
 
@@ -226,12 +341,13 @@ describe('createRouter', () => {
 			await vueRouter.push('/watched')
 			watched.mockClear()
 			const shouldBlock = vi.fn(() => true)
-			const handle = register(shouldBlock)
+			const controller = register(shouldBlock)
 
 			const navigation = vueRouter.push('/other')
 			await vi.waitFor(() => expect(shouldBlock).toHaveBeenCalled())
-			handle.reset()
+			controller.reset()
 			await navigation
+			controller.dispose()
 
 			// Still mounted, so the next navigation it survives has to reach it.
 			await vueRouter.push('/watched?page=2')
@@ -276,7 +392,7 @@ describe('createRouter', () => {
 		})
 
 		it('should not prevent unload after unregister', () => {
-			register(() => true).unregister()
+			register(() => true).dispose()
 
 			expect(dispatchBeforeUnload().defaultPrevented).toBe(false)
 		})

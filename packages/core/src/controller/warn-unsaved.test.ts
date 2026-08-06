@@ -1,6 +1,6 @@
 import type { HandleBlockedProps } from './warn-unsaved'
 import { describe, expect, it, vi } from 'vitest'
-import { getConfirm, getEnabled, getPropsConfirmFromProp, getPropsEnabledFromProp, getState, handleBlocked, State } from './warn-unsaved'
+import { getConfirm, getEnabled, getPropsConfirmFromProp, getPropsEnabledFromProp, getState, handleBlocked, isLeavingPath, State } from './warn-unsaved'
 
 const defaultConfirm = (): boolean => true
 
@@ -17,6 +17,9 @@ describe('getPropsEnabledFromProp', () => {
 
 	it('should return undefined when unset', () => {
 		expect(getPropsEnabledFromProp(undefined)).toBeUndefined()
+	})
+
+	it('should take the object form as opting in', () => {
 		expect(getPropsEnabledFromProp({})).toBeUndefined()
 		expect(getPropsEnabledFromProp({ confirm: () => true })).toBeUndefined()
 	})
@@ -52,11 +55,11 @@ describe('getEnabled', () => {
 		expect(getEnabled({ fromProp: undefined, fromController: false })).toBe(false)
 		expect(getEnabled({ fromProp: undefined, fromController: { enabled: true } })).toBe(true)
 		expect(getEnabled({ fromProp: undefined, fromController: { enabled: false } })).toBe(false)
+		expect(getEnabled({ fromProp: undefined, fromController: { confirm: () => true } })).toBe(false)
 	})
 
 	it('should fallback to false', () => {
 		expect(getEnabled({ fromProp: undefined, fromController: undefined })).toBe(false)
-		expect(getEnabled({ fromProp: undefined, fromController: {} })).toBe(false)
 	})
 })
 
@@ -183,5 +186,35 @@ describe('handleBlocked', () => {
 
 		expect(props.setConfirming.mock.calls).toEqual([[true], [false]])
 		expect(props.proceed).toHaveBeenCalledOnce()
+	})
+})
+
+describe('isLeavingPath', () => {
+	it('should be true when the path changes', () => {
+		expect(isLeavingPath({
+			currentLocation: { path: '/posts/1/edit' },
+			nextLocation: { path: '/posts' },
+		})).toBe(true)
+	})
+
+	it('should be false when only the query changes', () => {
+		expect(isLeavingPath({
+			currentLocation: { path: '/posts', query: { page: '1' } },
+			nextLocation: { path: '/posts', query: { page: '2' } },
+		})).toBe(false)
+	})
+
+	it('should be false when only the hash changes', () => {
+		expect(isLeavingPath({
+			currentLocation: { path: '/posts', hash: '#a' },
+			nextLocation: { path: '/posts', hash: '#b' },
+		})).toBe(false)
+	})
+
+	it('should be true for an unload', () => {
+		expect(isLeavingPath({
+			currentLocation: { path: '/posts' },
+			nextLocation: undefined,
+		})).toBe(true)
 	})
 })

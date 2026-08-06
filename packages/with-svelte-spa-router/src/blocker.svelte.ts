@@ -1,4 +1,4 @@
-import type { RouterBlockShouldFn, RouterLocation } from '@ginjou/core'
+import type { RouterBlockerFn, RouterLocation } from '@ginjou/core'
 import type { Component } from 'svelte'
 import type { RouteDefinition, RouteDetail, RoutePrecondition, WrappedComponent } from 'svelte-spa-router'
 import type { QueryParser } from './location'
@@ -39,14 +39,15 @@ function isNewEntry(): boolean {
 
 export interface CreateBlockerProps {
 	parseQuery: QueryParser
+	onActive?: RouteBlocker.CreateRegistryProps['onActive']
 }
 
 export interface Blocker {
 	readonly acceptedLocation: RouterLocation | undefined
-	entries: ReadonlySet<RouteBlocker.Entry>
-	add: (shouldBlock: RouterBlockShouldFn) => RouteBlocker.Entry
-	remove: (entry: RouteBlocker.Entry) => void
-	clear: () => void
+	create: RouterBlockerFn
+	anyBlocking: RouteBlocker.Registry['anyBlocking']
+	settle: RouteBlocker.Registry['settle']
+	dispose: () => void
 	createBlockerCondition: () => RoutePrecondition
 	withBlocker: <T extends RouteDefinition>(routes: T) => T
 }
@@ -54,8 +55,8 @@ export interface Blocker {
 export function createBlocker(
 	props: CreateBlockerProps,
 ): Blocker {
-	const { parseQuery } = props
-	const entries = new Set<RouteBlocker.Entry>()
+	const { parseQuery, onActive } = props
+	const blockers = RouteBlocker.createRegistry({ onActive })
 
 	/**
 	 * Last navigation the blockers let through. A pre-condition is only told where the router
@@ -71,25 +72,12 @@ export function createBlocker(
 		get acceptedLocation() {
 			return accepted?.location
 		},
-		entries,
-		add: (shouldBlock) => {
-			const entry: RouteBlocker.Entry = { shouldBlock }
-			entries.add(entry)
-			return entry
-		},
-		remove,
-		clear: () => {
-			entries.forEach(remove)
-		},
+		create: blockers.create,
+		anyBlocking: blockers.anyBlocking,
+		settle: blockers.settle,
+		dispose: blockers.dispose,
 		createBlockerCondition,
 		withBlocker: routes => withCondition(routes, createBlockerCondition()),
-	}
-
-	function remove(
-		entry: RouteBlocker.Entry,
-	): void {
-		entries.delete(entry)
-		entry.resolve?.(true)
 	}
 
 	function accept(
@@ -105,34 +93,25 @@ export function createBlocker(
 		return async function blockerCondition(detail: RouteDetail): Promise<boolean> {
 			const target = toTarget(detail)
 			const run = ++runs
-			// Read before anything is awaited: `restore` rewrites the entry we are standing on.
 			const pushed = isNewEntry()
-
 			const location = toLocation(detail.location, detail.querystring, detail.params, parseQuery)
-			if (accepted == null || accepted.location.path === location.path) {
+
+			if (accepted == null || accepted.target === target) {
 				accept(target, location)
 				return true
 			}
 
-			const proceeded = await RouteBlocker.checkEntries(entries, {
+			const proceeded = await blockers.run({
 				currentLocation: accepted.location,
 				nextLocation: location,
 			})
 
-			// A newer navigation took the hold over while this one was held. It owns the URL now, so
-			// restoring it here would fight it, and the router has already dropped this run, so
-			// becoming `accepted` here would report a route that is not mounted.
 			if (run !== runs)
 				return false
 
 			if (!proceeded) {
 				await restore(accepted.target)
 
-				// The cancelled push left its entry behind, now holding a copy of the location we
-				// just restored. Stepping off it puts Back where the user expects, and the entry it
-				// steps onto is the one we came from, so the hash does not change: `popstate` fires
-				// without `hashchange` and the router never sees it. Skipped for a cancelled
-				// traversal, where nothing was created and going back would leave the page.
 				if (pushed)
 					window.history.back()
 
@@ -169,10 +148,6 @@ function wrapWithCondition(
 	if (!isWrapped(component))
 		return wrap({ component, conditions: condition })
 
-	// Prepended: the router stops at the first condition that answers false and unmounts whatever
-	// is on screen, so anything running before the blocker can throw away unsaved work without it
-	// ever asking. Going last would keep `accepted` from being committed for a route the caller's
-	// own conditions then reject, but a stale reported location is the cheaper of the two.
 	return Object.defineProperty(
 		{ ...component, conditions: [condition, ...component.conditions ?? []] },
 		'_sveltesparouter',
@@ -196,24 +171,9 @@ function toTarget(
 		: detail.location
 }
 
-/**
- * Puts the URL back where the still-mounted page is.
- *
- * Overwrites the entry the router landed on rather than undoing the traversal, because the
- * synchronous `hashchange` `replace` dispatches is what restarts the route effect and marks the
- * blocked run as cancelled — without it the router unmounts the page it is protecting. The caller
- * steps off the leftover entry afterwards when the navigation was a push.
- *
- * ponytail: a cancelled Back still overwrites the entry the user came back to, and that one cannot
- * be recovered — undoing it needs a forward step, which is outside svelte-spa-router's API.
- */
 async function restore(
 	target: string,
 ): Promise<void> {
 	await replace(target)
-	// `replace` dispatches `hashchange` synchronously, so this lets the router restart its route
-	// effect for the restored location before the blocked run resumes. That marks the blocked run
-	// as cancelled, which is what stops it from unmounting the current component and throwing away
-	// the very state the blocker is protecting.
 	await tick()
 }

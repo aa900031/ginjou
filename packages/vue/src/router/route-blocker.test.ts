@@ -1,4 +1,4 @@
-import type { Router, RouterBlockShouldFn, RouterBlockShouldInput, RouterLocation } from '@ginjou/core'
+import type { Router, RouterBlockerStateValues, RouterBlockShouldFn, RouterBlockShouldInput, RouterLocation } from '@ginjou/core'
 import { describe, expect, it, vi } from 'vitest'
 import { ref, unref } from 'vue-demi'
 import { mountSetup } from '../../test/mount'
@@ -19,14 +19,22 @@ function createMockRouter(
 	withBlocker = true,
 ) {
 	let shouldBlock: RouterBlockShouldFn | undefined
-	let changeLocation: ((value: RouterLocation) => void) | undefined
+	let publish: ((state: RouterBlockerStateValues) => void) | undefined
 
-	const handle = {
-		unregister: vi.fn(() => {
-			shouldBlock = undefined
+	const controller = {
+		state: 'unblocked' as RouterBlockerStateValues,
+		subscribe: vi.fn((handler: (state: RouterBlockerStateValues) => void) => {
+			publish = handler
+			return () => {
+				publish = undefined
+			}
 		}),
 		proceed: vi.fn(),
 		reset: vi.fn(),
+		dispose: vi.fn(() => {
+			shouldBlock = undefined
+			publish = undefined
+		}),
 	}
 
 	const router: Router = {
@@ -34,82 +42,79 @@ function createMockRouter(
 		back: vi.fn(),
 		resolve: vi.fn(),
 		getLocation: () => LOCATION,
-		onChangeLocation: (handler) => {
-			changeLocation = handler
-			return vi.fn()
-		},
+		onChangeLocation: () => vi.fn(),
 		...withBlocker
 			? {
-					blocker: (fn: RouterBlockShouldFn) => {
+					blocker: vi.fn((fn: RouterBlockShouldFn) => {
 						shouldBlock = fn
-						return handle
-					},
+						return controller
+					}),
 				}
 			: {},
 	}
 
 	return {
 		router,
-		handle,
+		controller,
 		isRegistered: () => shouldBlock != null,
 		callShouldBlock: (unload?: boolean) => shouldBlock!(createBlockerContext(unload)),
-		emitChangeLocation: () => changeLocation?.({ path: '/posts/1' }),
+		emitState: (state: RouterBlockerStateValues) => {
+			controller.state = state
+			publish?.(state)
+		},
 	}
 }
 
 describe('useRouteBlocker', () => {
-	it('should switch between unblocked, blocked and proceeding', () => {
-		const { router, handle, callShouldBlock, emitChangeLocation } = createMockRouter()
-		const shouldBlock = ref(false)
+	it('should report the state the registry publishes', () => {
+		const { router, emitState } = createMockRouter()
 
-		const { result } = mountSetup(() => useRouteBlocker({ shouldBlock }, { router }))
+		const { result } = mountSetup(() => useRouteBlocker({ shouldBlock: true }, { router }))
 
-		expect(callShouldBlock()).toBe(false)
 		expect(unref(result.state)).toBe('unblocked')
 
-		shouldBlock.value = true
-		expect(callShouldBlock()).toBe(true)
+		emitState('blocked')
 		expect(unref(result.state)).toBe('blocked')
 
-		result.proceed()
-		expect(handle.proceed).toHaveBeenCalled()
+		emitState('proceeding')
 		expect(unref(result.state)).toBe('proceeding')
 
-		emitChangeLocation()
+		emitState('unblocked')
 		expect(unref(result.state)).toBe('unblocked')
 	})
 
-	it('should back to unblocked on reset', () => {
-		const { router, handle, callShouldBlock } = createMockRouter()
+	it('should forward proceed and reset', () => {
+		const { router, controller } = createMockRouter()
 
 		const { result } = mountSetup(() => useRouteBlocker({ shouldBlock: true }, { router }))
+
+		result.proceed()
+		result.reset()
+
+		expect(controller.proceed).toHaveBeenCalledOnce()
+		expect(controller.reset).toHaveBeenCalledOnce()
+	})
+
+	it('should register a predicate reading the current shouldBlock', () => {
+		const { router, callShouldBlock } = createMockRouter()
+		const shouldBlock = ref(false)
+
+		mountSetup(() => useRouteBlocker({ shouldBlock }, { router }))
+
+		expect(callShouldBlock()).toBe(false)
+
+		shouldBlock.value = true
 
 		expect(callShouldBlock()).toBe(true)
-		expect(unref(result.state)).toBe('blocked')
-
-		result.reset()
-		expect(handle.reset).toHaveBeenCalled()
-		expect(unref(result.state)).toBe('unblocked')
-	})
-
-	it('should not change state when the page is unloading', () => {
-		const { router, callShouldBlock } = createMockRouter()
-
-		const { result } = mountSetup(() => useRouteBlocker({ shouldBlock: true }, { router }))
-
-		expect(callShouldBlock(true)).toBe(true)
-		expect(unref(result.state)).toBe('unblocked')
 	})
 
 	it('should support a shouldBlock function receiving the context', () => {
 		const { router, callShouldBlock } = createMockRouter()
 		const fn = vi.fn((context: RouterBlockShouldInput): boolean => context.nextLocation != null)
 
-		const { result } = mountSetup(() => useRouteBlocker({ shouldBlock: fn }, { router }))
+		mountSetup(() => useRouteBlocker({ shouldBlock: fn }, { router }))
 
 		expect(callShouldBlock()).toBe(true)
-		expect(unref(result.state)).toBe('blocked')
-		expect(fn).toHaveBeenCalledOnce()
 		expect(fn.mock.calls[0][0]).toEqual(createBlockerContext())
 
 		expect(callShouldBlock(true)).toBe(false)
@@ -128,8 +133,10 @@ describe('useRouteBlocker', () => {
 		expect(isRegistered()).toBe(true)
 	})
 
+	// `enabled` is the lifecycle switch, and nothing else: `shouldBlock` going false leaves the
+	// registration alone, because a page with nothing unsaved still owns the next navigation.
 	it('should register and unregister with enabled', () => {
-		const { router, handle, isRegistered } = createMockRouter()
+		const { router, controller, isRegistered } = createMockRouter()
 		const enabled = ref(false)
 
 		mountSetup(() => useRouteBlocker({ enabled, shouldBlock: true }, { router }))
@@ -141,29 +148,11 @@ describe('useRouteBlocker', () => {
 
 		enabled.value = false
 		expect(isRegistered()).toBe(false)
-		expect(handle.unregister).toHaveBeenCalledOnce()
+		expect(controller.dispose).toHaveBeenCalledOnce()
 	})
 
-	it('should keep the entry while a navigation is held on it', () => {
-		const { router, handle, isRegistered, callShouldBlock } = createMockRouter()
-		const enabled = ref(true)
-
-		const { result } = mountSetup(() => useRouteBlocker({ enabled, shouldBlock: true }, { router }))
-
-		expect(callShouldBlock()).toBe(true)
-		expect(unref(result.state)).toBe('blocked')
-
-		enabled.value = false
-		expect(isRegistered()).toBe(true)
-		expect(handle.unregister).not.toHaveBeenCalled()
-
-		result.reset()
-		expect(unref(result.state)).toBe('unblocked')
-		expect(isRegistered()).toBe(false)
-	})
-
-	it('should stay registered while shouldBlock is false', () => {
-		const { router, isRegistered, callShouldBlock } = createMockRouter()
+	it('should stay registered while shouldBlock changes', () => {
+		const { router, controller, isRegistered } = createMockRouter()
 		const shouldBlock = ref(true)
 
 		mountSetup(() => useRouteBlocker({ enabled: true, shouldBlock }, { router }))
@@ -171,35 +160,38 @@ describe('useRouteBlocker', () => {
 		shouldBlock.value = false
 
 		expect(isRegistered()).toBe(true)
-		expect(callShouldBlock()).toBe(false)
+		expect(controller.dispose).not.toHaveBeenCalled()
+		expect(router.blocker).toHaveBeenCalledOnce()
 	})
 
-	it('should keep the entry through proceed', () => {
-		const { router, handle, isRegistered, callShouldBlock } = createMockRouter()
-		const shouldBlock = ref(true)
+	it('should stop listening before it disposes', () => {
+		const { router, controller, emitState } = createMockRouter()
+		const enabled = ref(true)
 
-		const { result } = mountSetup(() => useRouteBlocker({ enabled: true, shouldBlock }, { router }))
+		const { result } = mountSetup(() => useRouteBlocker({ enabled, shouldBlock: true }, { router }))
 
-		expect(callShouldBlock()).toBe(true)
-		shouldBlock.value = false
+		emitState('blocked')
+		expect(unref(result.state)).toBe('blocked')
 
-		result.proceed()
+		enabled.value = false
 
-		expect(handle.proceed).toHaveBeenCalledOnce()
-		expect(handle.unregister).not.toHaveBeenCalled()
-		expect(isRegistered()).toBe(true)
+		expect(controller.dispose).toHaveBeenCalledOnce()
+		expect(unref(result.state)).toBe('unblocked')
+
+		emitState('blocked')
+		expect(unref(result.state)).toBe('unblocked')
 	})
 
-	it('should unregister on unmount', () => {
-		const { router, handle } = createMockRouter()
+	it('should dispose on unmount', () => {
+		const { router, controller } = createMockRouter()
 
 		const { unmount } = mountSetup(() => useRouteBlocker({ shouldBlock: true }, { router }))
 
-		expect(handle.unregister).not.toHaveBeenCalled()
+		expect(controller.dispose).not.toHaveBeenCalled()
 
 		unmount()
 
-		expect(handle.unregister).toHaveBeenCalled()
+		expect(controller.dispose).toHaveBeenCalledOnce()
 	})
 
 	it('should degrade to a no-op when blocker is not implemented', () => {
@@ -207,7 +199,8 @@ describe('useRouteBlocker', () => {
 
 		const { result } = mountSetup(() => useRouteBlocker({ shouldBlock: true }, { router }))
 
-		expect(unref(result.state)).toBe('unblocked')
+		result.proceed()
+		result.reset()
 
 		expect(unref(result.state)).toBe('unblocked')
 	})

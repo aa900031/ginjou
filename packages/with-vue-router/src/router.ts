@@ -1,11 +1,10 @@
-import type { RouterBlockerHandle, RouterBlockShouldFn, RouterBlockShouldInput, RouterGoParams, RouterLocation } from '@ginjou/core'
+import type { RouterGoParams, RouterLocation } from '@ginjou/core'
 import type { SetRequired, Simplify } from 'type-fest'
 import type { LocationAsRelativeRaw, RouteLocationNormalizedLoaded, RouteLocationOptions } from 'vue-router'
 import { defineRouter, RouteBlocker } from '@ginjou/core'
 import { onActivated, onDeactivated, onScopeDispose, watch } from 'vue-demi'
 import { onBeforeRouteLeave, useRouter } from 'vue-router'
 import { toLocation, toRouteLocation } from './location'
-import { isChangingRoute } from './utils/route-record'
 
 export type RouteGoMeta = Simplify<
 	| RouteLocationOptions
@@ -22,28 +21,42 @@ export interface RouteParsedMeta {
 // eslint-disable-next-line ts/explicit-function-return-type
 export function createRouter() {
 	const router = useRouter()
-	const blockerEntries = new Set<RouteBlocker.Entry>()
 	const getLocation = (): RouterLocation<RouteParsedMeta> => toLocation(router.currentRoute.value)
 
-	const stopBeforeEach = router.beforeEach((to, from) => {
-		if (blockerEntries.size === 0 || !isChangingRoute(to, from))
-			return true
-
-		return RouteBlocker.checkEntries(blockerEntries, {
-			currentLocation: toLocation(from),
-			nextLocation: toLocation(to as RouteLocationNormalizedLoaded),
-		})
+	// Attached with the first blocker instead of up front: a registered `beforeunload` listener
+	// makes the page ineligible for the back/forward cache, and an app that never blocks should
+	// not pay for that.
+	let stopBeforeUnload: (() => void) | undefined
+	const blockers = RouteBlocker.createRegistry({
+		onActive: (active) => {
+			stopBeforeUnload?.()
+			stopBeforeUnload = active ? addBeforeUnload(handleBeforeUnload) : undefined
+		},
 	})
 
-	let stopBeforeUnload: (() => void) | undefined
+	// Every navigation vue-router reports, with nothing filtered out on the way in. Which of them
+	// are worth blocking is the page's call — `shouldBlock` is asked and gets both locations.
+	const stopBeforeEach = router.beforeEach((to, from) => blockers.run({
+		currentLocation: toLocation(from),
+		nextLocation: toLocation(to as RouteLocationNormalizedLoaded),
+	}))
 
 	// One listener for the whole router rather than one per subscription: `onChangeLocation`
 	// callers are not obliged to call the teardown it returns, so a per-subscription guard would
 	// outlive every component that ever used `useLocation`.
 	const mutedSubscriptions = new Set<() => void>()
+
+	// Every way a navigation can end: `afterEach` covers success, and every failure vue-router
+	// reports as one — cancelled, aborted, duplicated — while a guard or async component that
+	// throws only ever reaches `onError`. Either way the blockers that approved it are done.
 	const stopAfterEach = router.afterEach((_to, _from, failure) => {
+		blockers.settle()
+
 		if (failure != null)
 			mutedSubscriptions.forEach(unmute => unmute())
+	})
+	const stopOnError = router.onError(() => {
+		blockers.settle()
 	})
 
 	onScopeDispose(cleanup)
@@ -107,49 +120,31 @@ export function createRouter() {
 				stopWatch()
 			}
 		},
-		blocker: (shouldBlock: RouterBlockShouldFn): RouterBlockerHandle => {
-			const entry: RouteBlocker.Entry = { shouldBlock }
-			blockerEntries.add(entry)
-			stopBeforeUnload ??= addBeforeUnload(handleBeforeUnload)
-
-			return {
-				unregister: () => {
-					blockerEntries.delete(entry)
-					entry.resolve?.(true)
-
-					if (blockerEntries.size === 0) {
-						stopBeforeUnload?.()
-						stopBeforeUnload = undefined
-					}
-				},
-				proceed: () => entry.resolve?.(true),
-				reset: () => entry.resolve?.(false),
-			}
-		},
+		blocker: blockers.create,
 	})
 
+	/**
+	 * An unload is not a navigation the router can hold, so this only ever asks the predicates:
+	 * there is nothing to proceed or reset, the browser decides.
+	 */
 	function handleBeforeUnload(event: BeforeUnloadEvent): void {
-		const input: RouterBlockShouldInput = {
+		const blocking = blockers.anyBlocking({
 			currentLocation: getLocation(),
 			nextLocation: undefined,
-		}
+		})
 
-		for (const entry of blockerEntries) {
-			if (entry.shouldBlock(input)) {
-				event.preventDefault()
-				event.returnValue = true
-				return
-			}
-		}
+		if (!blocking)
+			return
+
+		event.preventDefault()
+		event.returnValue = true
 	}
 
 	function cleanup(): void {
 		stopBeforeEach()
 		stopAfterEach()
-		stopBeforeUnload?.()
-
-		blockerEntries.forEach(entry => entry.resolve?.(true))
-		blockerEntries.clear()
+		stopOnError()
+		blockers.dispose()
 	}
 }
 

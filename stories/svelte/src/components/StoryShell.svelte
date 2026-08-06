@@ -62,17 +62,22 @@
 		defineI18nContext(i18nContext)
 
 	let blockableRoutes: Record<string, any> | undefined
+	let spaRouter: ReturnType<typeof createRouter> | undefined
 	if (routes) {
 		window.location.hash = `#${(initialPath ?? '/').startsWith('/') ? initialPath : `/${initialPath}`}`
-		const router = createRouter()
-		defineRouterContext(router)
-		blockableRoutes = router.withBlocker(routes)
+		spaRouter = createRouter()
+		defineRouterContext(spaRouter)
+		blockableRoutes = spaRouter.withBlocker(routes)
 	}
 </script>
 
 <div class="story-shell min-h-full text-slate-900 dark:text-slate-100">
 	{#if blockableRoutes}
-		<Router routes={blockableRoutes} />
+		<Router
+			routes={blockableRoutes}
+			onRouteLoaded={spaRouter!.onRouteLoaded}
+			onConditionsFailed={spaRouter!.onConditionsFailed}
+		/>
 	{:else}
 		{@render children?.()}
 	{/if}

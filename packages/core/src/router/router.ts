@@ -69,6 +69,7 @@ export interface RouterBlockShouldInput<
 	TMeta = unknown,
 > {
 	currentLocation: RouterLocation<TMeta>
+	/** Absent when the page is being unloaded rather than navigated. */
 	nextLocation: RouterLocation<TMeta> | undefined
 }
 
@@ -76,15 +77,36 @@ export type RouterBlockShouldFn = (
 	input: RouterBlockShouldInput<any>,
 ) => boolean
 
-export interface RouterBlockerHandle {
-	unregister: () => void
+export const RouterBlockerState = {
+	Unblocked: 'unblocked',
+	Blocked: 'blocked',
+	Proceeding: 'proceeding',
+} as const
+
+export type RouterBlockerStateValues = ValueOf<typeof RouterBlockerState>
+
+/**
+ * One blocker's side of a navigation.
+ *
+ * `state` is per blocker, not per navigation: `proceeding` means this one has approved, and says
+ * nothing about whether the navigation happened — a later blocker can still cancel it. Every
+ * terminal outcome, including a cancel, brings it back to `unblocked`.
+ */
+export interface RouterBlockerController {
+	readonly state: RouterBlockerStateValues
+	subscribe: (
+		handler: (state: RouterBlockerStateValues) => void,
+	) => () => void
+	/** Approve the held navigation and hand it to the next blocker. No-op unless `blocked`. */
 	proceed: () => void
+	/** Cancel the held navigation for every participant. No-op unless `blocked`. */
 	reset: () => void
+	dispose: () => void
 }
 
 export type RouterBlockerFn = (
-	should: RouterBlockShouldFn,
-) => RouterBlockerHandle
+	shouldBlock: RouterBlockShouldFn,
+) => RouterBlockerController
 
 /* @__NO_SIDE_EFFECTS__ */
 export function defineRouter<

@@ -26,5 +26,9 @@
 
 <Router
 	routes={blockableRoutes}
-	onConditionsFailed={onconditionsfailed}
+	onRouteLoaded={router.onRouteLoaded}
+	onConditionsFailed={(detail) => {
+		router.onConditionsFailed(detail)
+		onconditionsfailed?.()
+	}}
 />

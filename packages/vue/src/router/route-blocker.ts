@@ -1,10 +1,11 @@
+import type { RouterBlockerController } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
 import type { Ref } from 'vue-demi'
 import type { ToMaybeRefs } from '../utils/refs'
 import type { UseRouterContextFromProps } from './context'
 import { RouteBlocker } from '@ginjou/core'
 import { noop, tryOnScopeDispose } from '@vueuse/shared'
-import { readonly, ref, unref, watch } from 'vue-demi'
+import { computed, readonly, ref, unref, watch } from 'vue-demi'
 import { useRouterContext } from './context'
 
 export type UseRouteBlockerProps = ToMaybeRefs<
@@ -26,6 +27,9 @@ export function useRouteBlocker(
 	context?: UseRouteBlockerContext,
 ): UseRouteBlockerResult {
 	const router = useRouterContext(context)
+
+	const enabled = computed(() => RouteBlocker.getEnabled(unref(props.enabled)))
+
 	const state = ref<RouteBlocker.StateValues>(RouteBlocker.State.Unblocked)
 	const publicState = readonly(state)
 
@@ -37,44 +41,42 @@ export function useRouteBlocker(
 		}
 	}
 
-	const setState = (value: RouteBlocker.StateValues): void => {
-		state.value = value
-	}
+	const blocker = router.blocker
 
-	const registrar = RouteBlocker.createRegistrar({
-		blocker: router.blocker,
-		getShouldBlock: () => unref(props.shouldBlock),
-		getState: () => state.value,
-		setState,
-	})
-
-	// Registration follows `enabled`, blocking follows `shouldBlock`.
-	//
-	// `flush: 'sync'` is insurance, not a fix for anything demonstrated: vue-router reaches
-	// `beforeEach` off a promise chain at least two microtasks after `push()` returns, so a
-	// pre-flush watcher would win that race anyway. A `setState` from inside a guard cannot
-	// re-enter this either, because `watch` does not fire on an unchanged source.
+	let controller: RouterBlockerController | undefined
+	let unsubscribe: (() => void) | undefined
 	watch(
-		() => RouteBlocker.shouldRegister({
-			enabled: unref(props.enabled),
-			state: state.value,
-		}),
-		registrar.sync,
+		enabled,
+		(enabled) => {
+			if (enabled === (controller != null))
+				return
+
+			if (!enabled) {
+				teardown()
+				return
+			}
+
+			controller = blocker(input => RouteBlocker.resolveShouldBlock(unref(props.shouldBlock), input))
+			unsubscribe = controller.subscribe((value) => {
+				state.value = value
+			})
+		},
 		{ immediate: true, flush: 'sync' },
 	)
 
-	const unsubscribe = router.onChangeLocation(() => {
-		RouteBlocker.handleChangeLocation({ state: state.value, setState })
-	})
-
-	tryOnScopeDispose(() => {
-		registrar.dispose()
-		unsubscribe?.()
-	})
+	tryOnScopeDispose(teardown)
 
 	return {
 		state: publicState,
-		proceed: registrar.proceed,
-		reset: registrar.reset,
+		proceed: () => controller?.proceed(),
+		reset: () => controller?.reset(),
+	}
+
+	function teardown(): void {
+		unsubscribe?.()
+		unsubscribe = undefined
+		controller?.dispose()
+		controller = undefined
+		state.value = RouteBlocker.State.Unblocked
 	}
 }

@@ -30,7 +30,7 @@ describe('createBlockerCondition', () => {
 
 	it('should allow the navigation when no blocker blocks it', async () => {
 		const condition = blocker.createBlockerCondition()
-		blocker.add(() => false)
+		blocker.create(() => false)
 
 		await condition(detail('/posts/1/edit'))
 
@@ -40,7 +40,7 @@ describe('createBlockerCondition', () => {
 	it('should pass the location being left and the location being entered', async () => {
 		const condition = blocker.createBlockerCondition()
 		const shouldBlock = vi.fn(() => false)
-		blocker.add(shouldBlock)
+		blocker.create(shouldBlock)
 
 		await condition(detail('/posts/1/edit'))
 		await condition(detail('/posts', 'page=2'))
@@ -56,25 +56,25 @@ describe('createBlockerCondition', () => {
 
 	it('should hold the navigation while a blocker is deciding', async () => {
 		const condition = blocker.createBlockerCondition()
-		const entry = blocker.add(() => true)
+		const controller = blocker.create(() => true)
 
 		await condition(detail('/posts/1/edit'))
 		const pending = condition(detail('/posts'))
 
-		expect(entry.resolve).toBeTypeOf('function')
+		expect(controller.state).toBe('blocked')
 		await expect(Promise.race([pending, 'pending'])).resolves.toBe('pending')
 	})
 
 	it('should let the navigation through on proceed, leaving the URL alone', async () => {
 		const condition = blocker.createBlockerCondition()
-		const entry = blocker.add(() => true)
+		const controller = blocker.create(() => true)
 
 		await condition(detail('/posts/1/edit'))
 
 		// A pre-condition runs after the hash has already moved to the new location.
 		window.location.hash = '#/posts'
 		const pending = condition(detail('/posts'))
-		entry.resolve!(true)
+		controller.proceed()
 
 		await expect(pending).resolves.toBe(true)
 		expect(window.location.hash).toBe('#/posts')
@@ -82,13 +82,13 @@ describe('createBlockerCondition', () => {
 
 	it('should restore the previous location on reset', async () => {
 		const condition = blocker.createBlockerCondition()
-		const entry = blocker.add(() => true)
+		const controller = blocker.create(() => true)
 
 		await condition(detail('/posts/1/edit'))
 
 		window.location.hash = '#/posts'
 		const pending = condition(detail('/posts'))
-		entry.resolve!(false)
+		controller.reset()
 
 		await expect(pending).resolves.toBe(false)
 		expect(window.location.hash).toBe('#/posts/1/edit')
@@ -102,7 +102,7 @@ describe('createBlockerCondition', () => {
 	// end-to-end behaviour is verified against Chrome.
 	it('should step off the entry a cancelled push left behind', async () => {
 		const condition = blocker.createBlockerCondition()
-		const entry = blocker.add(() => true)
+		const controller = blocker.create(() => true)
 		const back = vi.spyOn(window.history, 'back').mockImplementation(() => {})
 		onTestFinished(() => back.mockRestore())
 
@@ -111,7 +111,7 @@ describe('createBlockerCondition', () => {
 		window.location.hash = '#/posts'
 		window.history.replaceState(null, '')
 		const pending = condition(detail('/posts'))
-		entry.resolve!(false)
+		controller.reset()
 		await pending
 
 		expect(back).toHaveBeenCalledOnce()
@@ -119,7 +119,7 @@ describe('createBlockerCondition', () => {
 
 	it('should leave the history alone when a cancelled navigation was a traversal', async () => {
 		const condition = blocker.createBlockerCondition()
-		const entry = blocker.add(() => true)
+		const controller = blocker.create(() => true)
 		const back = vi.spyOn(window.history, 'back').mockImplementation(() => {})
 		onTestFinished(() => back.mockRestore())
 
@@ -129,7 +129,7 @@ describe('createBlockerCondition', () => {
 		// An entry the user has stood on before: going back created it, nothing to step off.
 		window.history.replaceState({ __ginjou_visited: true }, '')
 		const pending = condition(detail('/posts'))
-		entry.resolve!(false)
+		controller.reset()
 		await pending
 
 		expect(back).not.toHaveBeenCalled()
@@ -138,11 +138,11 @@ describe('createBlockerCondition', () => {
 	it('should not block the restore navigation it just made', async () => {
 		const condition = blocker.createBlockerCondition()
 		const shouldBlock = vi.fn(() => true)
-		const entry = blocker.add(shouldBlock)
+		const controller = blocker.create(shouldBlock)
 
 		await condition(detail('/posts/1/edit'))
 		const pending = condition(detail('/posts'))
-		entry.resolve!(false)
+		controller.reset()
 		await pending
 		shouldBlock.mockClear()
 
@@ -150,21 +150,41 @@ describe('createBlockerCondition', () => {
 		expect(shouldBlock).not.toHaveBeenCalled()
 	})
 
-	it('should not block a change of query alone', async () => {
+	// Nothing is filtered out on the way in: whether a query-only change is worth blocking is the
+	// page's call, so the predicate is asked and gets both locations to compare.
+	it('should ask the blockers when only the query changes', async () => {
 		const condition = blocker.createBlockerCondition()
 		const shouldBlock = vi.fn(() => true)
-		blocker.add(shouldBlock)
+		const controller = blocker.create(shouldBlock)
+
+		await condition(detail('/posts', 'page=1'))
+		const pending = condition(detail('/posts', 'page=2'))
+
+		expect(controller.state).toBe('blocked')
+		expect(shouldBlock).toHaveBeenCalledWith({
+			currentLocation: expect.objectContaining({ path: '/posts', query: { page: '1' } }),
+			nextLocation: expect.objectContaining({ path: '/posts', query: { page: '2' } }),
+		})
+
+		controller.proceed()
+
+		await expect(pending).resolves.toBe(true)
+		expect(blocker.acceptedLocation).toMatchObject({ query: { page: '2' } })
+	})
+
+	it('should let a query-only change through when the predicate compares paths', async () => {
+		const condition = blocker.createBlockerCondition()
+		blocker.create(({ currentLocation, nextLocation }) => nextLocation?.path !== currentLocation.path)
 
 		await condition(detail('/posts', 'page=1'))
 
 		await expect(condition(detail('/posts', 'page=2'))).resolves.toBe(true)
-		expect(shouldBlock).not.toHaveBeenCalled()
 		expect(blocker.acceptedLocation).toMatchObject({ query: { page: '2' } })
 	})
 
 	it('should invalidate a held run that a later navigation superseded', async () => {
 		const condition = blocker.createBlockerCondition()
-		const entry = blocker.add(() => true)
+		const controller = blocker.create(() => true)
 
 		await condition(detail('/posts/1/edit'))
 
@@ -174,16 +194,17 @@ describe('createBlockerCondition', () => {
 		window.location.hash = '#/posts/1/edit'
 		await expect(condition(detail('/posts/1/edit'))).resolves.toBe(true)
 
-		entry.resolve!(true)
+		controller.proceed()
 
 		await expect(held).resolves.toBe(false)
 		expect(blocker.acceptedLocation).toMatchObject({ path: '/posts/1/edit' })
 	})
 
+	// The exact target already on screen: the route re-resolving for where it already is.
 	it('should not block a navigation to the location already displayed', async () => {
 		const condition = blocker.createBlockerCondition()
 		const shouldBlock = vi.fn(() => true)
-		blocker.add(shouldBlock)
+		blocker.create(shouldBlock)
 
 		await condition(detail('/posts/1/edit'))
 
@@ -193,16 +214,16 @@ describe('createBlockerCondition', () => {
 
 	it('should still consult the other blockers after one proceeds', async () => {
 		const condition = blocker.createBlockerCondition()
-		const first = blocker.add(() => true)
-		const second = blocker.add(() => true)
+		const first = blocker.create(() => true)
+		const second = blocker.create(() => true)
 
 		await condition(detail('/posts/1/edit'))
 		const pending = condition(detail('/posts'))
-		first.resolve!(true)
+		first.proceed()
 		await Promise.resolve()
 
-		expect(second.resolve).toBeTypeOf('function')
-		second.resolve!(false)
+		expect(second.state).toBe('blocked')
+		second.reset()
 		await expect(pending).resolves.toBe(false)
 	})
 
@@ -210,7 +231,7 @@ describe('createBlockerCondition', () => {
 		const onEdit = blocker.createBlockerCondition()
 		const onList = blocker.createBlockerCondition()
 		const shouldBlock = vi.fn(() => false)
-		blocker.add(shouldBlock)
+		blocker.create(shouldBlock)
 
 		await onEdit(detail('/posts/1/edit'))
 		await onList(detail('/posts'))
@@ -218,23 +239,84 @@ describe('createBlockerCondition', () => {
 		expect(shouldBlock).toHaveBeenCalledOnce()
 	})
 
-	it('should release a held navigation when the blocker is removed', async () => {
+	// Nothing is left to answer for it, so the navigation it was holding is cancelled rather than
+	// waved through: the page it was protecting is the one being torn down.
+	it('should cancel a held navigation when the blocker is disposed', async () => {
 		const condition = blocker.createBlockerCondition()
-		const entry = blocker.add(() => true)
+		const controller = blocker.create(() => true)
 
 		await condition(detail('/posts/1/edit'))
 
 		window.location.hash = '#/posts'
 		const pending = condition(detail('/posts'))
-		blocker.remove(entry)
+		controller.dispose()
+
+		await expect(pending).resolves.toBe(false)
+		expect(window.location.hash).toBe('#/posts/1/edit')
+	})
+
+	// Accepting is not terminal: a later condition of the caller's can still reject the route, so the
+	// participants hold their approval until `<Router>` says which way it went — `settle` here.
+	it('should keep the approvals until it is settled', async () => {
+		const condition = blocker.createBlockerCondition()
+		const first = blocker.create(() => true)
+		const second = blocker.create(() => true)
+
+		await condition(detail('/posts/1/edit'))
+		const pending = condition(detail('/posts'))
+		first.proceed()
+		await Promise.resolve()
+		second.proceed()
 
 		await expect(pending).resolves.toBe(true)
-		expect(window.location.hash).toBe('#/posts')
+		expect([first.state, second.state]).toEqual(['proceeding', 'proceeding'])
+
+		blocker.settle()
+
+		expect([first.state, second.state]).toEqual(['unblocked', 'unblocked'])
+	})
+
+	// An app that never wires the terminal signals up still cannot get stuck: the next navigation
+	// settles whatever the last one left behind before it snapshots.
+	it('should settle the last navigation when a new one starts', async () => {
+		const condition = blocker.createBlockerCondition()
+		const controller = blocker.create(() => true)
+
+		await condition(detail('/posts/1/edit'))
+		const pending = condition(detail('/posts'))
+		controller.proceed()
+		await pending
+
+		expect(controller.state).toBe('proceeding')
+
+		const next = condition(detail('/users'))
+
+		expect(controller.state).toBe('blocked')
+
+		controller.proceed()
+		await expect(next).resolves.toBe(true)
+	})
+
+	// A cancel settles itself: nothing is coming from the router, because the restore supersedes the
+	// run and `<Router>` drops it without reporting anything.
+	it('should settle every participant once it is cancelled', async () => {
+		const condition = blocker.createBlockerCondition()
+		const first = blocker.create(() => true)
+		const second = blocker.create(() => true)
+
+		await condition(detail('/posts/1/edit'))
+		const pending = condition(detail('/posts'))
+		first.proceed()
+		await Promise.resolve()
+		second.reset()
+
+		await expect(pending).resolves.toBe(false)
+		expect([first.state, second.state]).toEqual(['unblocked', 'unblocked'])
 	})
 
 	it('should leave the URL to the newer navigation when it takes the hold over', async () => {
 		const condition = blocker.createBlockerCondition()
-		const entry = blocker.add(() => true)
+		const controller = blocker.create(() => true)
 
 		await condition(detail('/posts/1/edit'))
 
@@ -247,27 +329,27 @@ describe('createBlockerCondition', () => {
 		// The restore belongs to whoever still owns the navigation, and that is the newer run.
 		expect(window.location.hash).toBe('#/users')
 
-		entry.resolve!(true)
+		controller.proceed()
 		await expect(latest).resolves.toBe(true)
 		expect(blocker.acceptedLocation).toMatchObject({ path: '/users' })
 	})
 
-	it('should not block after the blocker is removed', async () => {
+	it('should not block after the blocker is disposed', async () => {
 		const condition = blocker.createBlockerCondition()
-		const entry = blocker.add(() => true)
+		const controller = blocker.create(() => true)
 
 		await condition(detail('/posts/1/edit'))
-		blocker.remove(entry)
+		controller.dispose()
 
 		await expect(condition(detail('/posts'))).resolves.toBe(true)
 	})
 
-	it('should not block after clear', async () => {
+	it('should not block after the registry is disposed', async () => {
 		const condition = blocker.createBlockerCondition()
-		blocker.add(() => true)
+		blocker.create(() => true)
 
 		await condition(detail('/posts/1/edit'))
-		blocker.clear()
+		blocker.dispose()
 
 		await expect(condition(detail('/posts'))).resolves.toBe(true)
 	})
@@ -295,7 +377,7 @@ describe('acceptedLocation', () => {
 
 	it('should keep reporting the mounted route while a blocker is deciding', async () => {
 		const condition = blocker.createBlockerCondition()
-		const entry = blocker.add(() => true)
+		const controller = blocker.create(() => true)
 		await condition(detail('/posts/1/edit', '', { id: '1' }))
 
 		const pending = condition(detail('/posts'))
@@ -305,17 +387,17 @@ describe('acceptedLocation', () => {
 			params: { id: '1' },
 		})
 
-		entry.resolve!(false)
+		controller.reset()
 		await pending
 	})
 
 	it('should keep reporting the mounted route after a cancel', async () => {
 		const condition = blocker.createBlockerCondition()
-		const entry = blocker.add(() => true)
+		const controller = blocker.create(() => true)
 		await condition(detail('/posts/1/edit', '', { id: '1' }))
 
 		const pending = condition(detail('/posts'))
-		entry.resolve!(false)
+		controller.reset()
 		await pending
 
 		expect(blocker.acceptedLocation).toMatchObject({ path: '/posts/1/edit' })
@@ -323,11 +405,11 @@ describe('acceptedLocation', () => {
 
 	it('should advance once the navigation proceeds', async () => {
 		const condition = blocker.createBlockerCondition()
-		const entry = blocker.add(() => true)
+		const controller = blocker.create(() => true)
 		await condition(detail('/posts/1/edit', '', { id: '1' }))
 
 		const pending = condition(detail('/posts'))
-		entry.resolve!(true)
+		controller.proceed()
 		await pending
 
 		expect(blocker.acceptedLocation).toMatchObject({ path: '/posts' })

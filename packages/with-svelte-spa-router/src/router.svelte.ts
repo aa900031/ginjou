@@ -1,4 +1,5 @@
-import type { Router, RouterBlockerHandle, RouterBlockShouldFn, RouterBlockShouldInput, RouterGoParams, RouterLocation } from '@ginjou/core'
+import type { Router, RouterGoParams, RouterLocation } from '@ginjou/core'
+import type { RouteDetail, RouteDetailLoaded } from 'svelte-spa-router'
 import type { Blocker } from './blocker.svelte'
 import type { QueryParser, QueryStringifier } from './location'
 import { defineRouter } from '@ginjou/core'
@@ -12,36 +13,33 @@ export interface CreateRouterOptions {
 	stringifyQuery?: QueryStringifier
 }
 
+export interface SpaRouterTerminalHandlers {
+	onRouteLoaded: (detail: RouteDetailLoaded) => void
+	onConditionsFailed: (detail: RouteDetail) => void
+}
+
 export type SpaRouter
 	= & Router
 		& Pick<Blocker, 'withBlocker'>
+		& SpaRouterTerminalHandlers
 
 export function createRouter(options?: CreateRouterOptions): SpaRouter {
 	const parseQuery = options?.parseQuery ?? defaultParseQuery
 	const stringifyQuery = options?.stringifyQuery ?? defaultStringifyQuery
-	const blocker = createBlocker({ parseQuery })
 
-	// The blocker's accepted location, not the raw hash: the hash moves before a route
-	// pre-condition runs, so while a navigation is held the hash points at a page that is not
-	// mounted and `router.params` still belongs to the page that is. Falls back to the hash
-	// until the first navigation is accepted, so a router without `withBlocker` is unaffected.
-	//
-	// This is why `withBlocker` takes the whole route table and the bare condition is not exposed:
-	// a route reached without the condition never updates the accepted location, and every
-	// consumer would be told about the route before it for as long as that route is mounted.
+	let stopBeforeUnload: (() => void) | undefined
+	const blocker = createBlocker({
+		parseQuery,
+		onActive: (active) => {
+			stopBeforeUnload?.()
+			stopBeforeUnload = active ? addBeforeUnload(handleBeforeUnload) : undefined
+		},
+	})
 	const getLocation = (): RouterLocation<any> =>
 		blocker.acceptedLocation
 		?? toLocation(router.location, router.querystring, router.params, parseQuery)
 
-	// Attached with the first blocker instead of up front: a registered `beforeunload` listener
-	// makes the page ineligible for the back/forward cache, and an app that never blocks should
-	// not pay for that.
-	let stopBeforeUnload: (() => void) | undefined
-
-	onDestroy(() => {
-		stopBeforeUnload?.()
-		blocker.clear()
-	})
+	onDestroy(blocker.dispose)
 
 	const _router = defineRouter({
 		go: (params: RouterGoParams): void => {
@@ -65,45 +63,37 @@ export function createRouter(options?: CreateRouterOptions): SpaRouter {
 				})
 			})
 		},
-		blocker: (shouldBlock: RouterBlockShouldFn): RouterBlockerHandle => {
-			const entry = blocker.add(shouldBlock)
-			stopBeforeUnload ??= addBeforeUnload(handleBeforeUnload)
-
-			return {
-				unregister: () => {
-					blocker.remove(entry)
-
-					if (blocker.entries.size === 0) {
-						stopBeforeUnload?.()
-						stopBeforeUnload = undefined
-					}
-				},
-				proceed: () => entry.resolve?.(true),
-				reset: () => entry.resolve?.(false),
-			}
-		},
+		blocker: blocker.create,
 	})
 
 	return Object.assign(
 		_router,
 		{
 			withBlocker: blocker.withBlocker,
+			onRouteLoaded: handleRouteLocaded,
+			onConditionsFailed: handleConditionsFailed,
 		},
 	)
 
+	function handleRouteLocaded(): void {
+		blocker.settle()
+	}
+
+	function handleConditionsFailed(): void {
+		blocker.settle()
+	}
+
 	function handleBeforeUnload(event: BeforeUnloadEvent): void {
-		const input: RouterBlockShouldInput = {
+		const blocking = blocker.anyBlocking({
 			currentLocation: getLocation(),
 			nextLocation: undefined,
-		}
+		})
 
-		for (const entry of blocker.entries) {
-			if (entry.shouldBlock(input)) {
-				event.preventDefault()
-				event.returnValue = true
-				return
-			}
-		}
+		if (!blocking)
+			return
+
+		event.preventDefault()
+		event.returnValue = true
 	}
 }
 

@@ -50,9 +50,11 @@ export function useWarnUnsaved(
 		active: active.value,
 		confirming: confirming.value,
 	}))
+	// A predicate, not a bare `active`: every navigation reaches it now, and unsaved work only
+	// wants the ones that take the page away. A change of query or hash leaves the route mounted.
 	const blocker = useRouteBlocker({
 		enabled,
-		shouldBlock: active,
+		shouldBlock: (input): boolean => active.value && WarnUnsaved.isLeavingPath(input),
 	}, context)
 
 	watch(blocker.state, (value) => {

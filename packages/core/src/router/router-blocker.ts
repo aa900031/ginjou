@@ -1,13 +1,14 @@
-import type { ValueOf } from 'type-fest'
-import type { RouterBlockerFn, RouterBlockerHandle, RouterBlockShouldFn, RouterBlockShouldInput } from './router'
+import type {
+	RouterBlockerController,
+	RouterBlockerFn,
+	RouterBlockerStateValues,
+	RouterBlockShouldFn,
+	RouterBlockShouldInput,
+} from './router'
+import { RouterBlockerState } from './router'
 
-export const State = {
-	Unblocked: 'unblocked',
-	Blocked: 'blocked',
-	Proceeding: 'proceeding',
-} as const
-
-export type StateValues = ValueOf<typeof State>
+export { RouterBlockerState as State } from './router'
+export type { RouterBlockerStateValues as StateValues } from './router'
 
 export interface Props {
 	enabled?: boolean
@@ -16,166 +17,243 @@ export interface Props {
 
 export const defaultEnabled = true
 
-export interface ShouldRegisterProps {
-	enabled: Props['enabled']
-	state: StateValues
-}
-
-export function shouldRegister(
-	props: ShouldRegisterProps,
+export function getEnabled(
+	value: Props['enabled'],
 ): boolean {
-	return (
-		props.enabled ?? defaultEnabled
-	)
-	|| props.state !== State.Unblocked
+	return value ?? defaultEnabled
 }
 
-export interface CreateShouldBlockFnProps {
-	getShouldBlock: () => Props['shouldBlock']
-	setState: (value: StateValues) => void
+export function resolveShouldBlock(
+	value: Props['shouldBlock'],
+	input: RouterBlockShouldInput,
+): boolean {
+	return typeof value === 'function'
+		? value(input)
+		: value
 }
 
-export function createShouldBlockFn(
-	props: CreateShouldBlockFnProps,
-): RouterBlockShouldFn {
-	const { getShouldBlock, setState } = props
-
-	return function shouldBlock(context) {
-		const resolved = getShouldBlock()
-		const value = typeof resolved === 'function'
-			? resolved(context)
-			: resolved
-
-		if (context.nextLocation == null)
-			return value
-
-		if (!value)
-			return false
-
-		setState(State.Blocked)
-		return true
-	}
+export interface CreateRegistryProps {
+	/**
+	 * Called when the registry gains its first blocker and when it loses its last, for whatever the
+	 * adapter has to keep alive only while something can block — a page-unload guard, typically.
+	 */
+	onActive?: (active: boolean) => void
 }
 
-export interface HandleChangeLocationProps {
-	state: StateValues
-	setState: (value: StateValues) => void
-}
-
-export function handleChangeLocation(
-	props: HandleChangeLocationProps,
-): void {
-	const { state, setState } = props
-
-	if (state === State.Proceeding)
-		setState(State.Unblocked)
-}
-
-export interface CreateRegistrarProps {
-	blocker: RouterBlockerFn
-	getShouldBlock: () => Props['shouldBlock']
-	getState: () => StateValues
-	setState: (value: StateValues) => void
-}
-
-export interface Registrar {
-	/** Brings the registration in line with `shouldRegister`. Safe to call with an unchanged value. */
-	sync: (needed: boolean) => void
-	proceed: () => void
-	reset: () => void
+export interface Registry {
+	create: RouterBlockerFn
+	run: (input: RouterBlockShouldInput) => boolean | Promise<boolean>
+	anyBlocking: (input: RouterBlockShouldInput) => boolean
+	settle: () => void
 	dispose: () => void
 }
 
-/**
- * Owns the router handle and everything that needs one.
- *
- * The handle is the one piece of mutable state in a blocker, and the rules around it are the same
- * whichever framework is driving: register at most once, never register twice, and answer nothing
- * while there is nothing registered. Keeping it here is what lets an adapter be only the reactive
- * glue — when the check runs, how a prop is read, how it is torn down — instead of a second copy of
- * these rules.
- *
- * `sync` is idempotent because it has to be: one adapter's watch compares its source and calls back
- * only on a change, the other re-runs its callback on any dependency change at all. Re-registering
- * on a no-op call would settle a navigation the user is still being asked about.
- */
-export function createRegistrar(
-	props: CreateRegistrarProps,
-): Registrar {
-	const { blocker, getShouldBlock, getState, setState } = props
-
-	let handle: RouterBlockerHandle | undefined
-
-	return {
-		sync: (needed) => {
-			if (needed === (handle != null))
-				return
-
-			if (!needed) {
-				handle!.unregister()
-				handle = undefined
-				return
-			}
-
-			handle = blocker(createShouldBlockFn({ getShouldBlock, setState }))
-		},
-		proceed: () => {
-			if (handle == null)
-				return
-			if (getState() !== State.Blocked)
-				return
-
-			const currentHandle = handle
-			setState(State.Proceeding)
-			currentHandle.proceed()
-		},
-		reset: () => {
-			if (handle == null)
-				return
-			if (getState() !== State.Blocked)
-				return
-
-			const currentHandle = handle
-			setState(State.Unblocked)
-			currentHandle.reset()
-		},
-		dispose: () => {
-			handle?.unregister()
-			handle = undefined
-		},
-	}
-}
-
-export interface Entry {
+interface Member {
 	shouldBlock: RouterBlockShouldFn
-	resolve?: (value: boolean) => void
+	state: RouterBlockerStateValues
+	release: ((proceeded: boolean) => void) | undefined
+	handlers: Set<(state: RouterBlockerStateValues) => void>
+	disposed: boolean
 }
 
-export async function checkEntries(
-	entries: Iterable<Entry>,
-	input: RouterBlockShouldInput,
-): Promise<boolean> {
-	// Iterated live, not through a snapshot. There is an `await` in here, so the set can change
-	// while the user decides: an entry whose owner went away before its turn must not be asked,
-	// nothing would be left to settle the hold it would take, and one that appeared in the meantime
-	// has unsaved state of its own to speak for.
-	for (const entry of entries) {
-		if (!entry.shouldBlock(input))
-			continue
+interface Transaction {
+	id: number
+	members: Member[]
+	/**
+	 * Whether a member is still being asked.
+	 *
+	 * A router reports the terminal outcome of a navigation it dropped some time after the
+	 * replacement started, so a terminal signal arriving mid-decision belongs to the old one and
+	 * settling on it would take the new hold away.
+	 */
+	waiting: boolean
+}
 
-		let settle: ((value: boolean) => void) | undefined
-		const proceeded = await new Promise<boolean>((resolve) => {
-			settle = resolve
-			entry.resolve?.(false)
-			entry.resolve = resolve
-		})
+/**
+ * Owns registration order, the active navigation, and every state transition.
+ *
+ * This lives here rather than in each router adapter because none of it is router-specific: the
+ * order blockers are asked in, what `proceed` on one of them means for the others, and which
+ * outcomes have to put everyone back to `unblocked` are the same wherever the navigation is held.
+ * An adapter is left with the two things only it knows — where its router can hold a navigation,
+ * and which of its events are terminal.
+ */
+export function createRegistry(
+	props?: CreateRegistryProps,
+): Registry {
+	const members = new Set<Member>()
+	let latest = 0
+	let current: Transaction | undefined
 
-		if (entry.resolve === settle)
-			entry.resolve = undefined
+	return { create, run, anyBlocking, settle, dispose }
 
-		if (!proceeded)
-			return false
+	function publish(
+		member: Member,
+		state: RouterBlockerStateValues,
+	): void {
+		if (member.state === state)
+			return
+
+		member.state = state
+		member.handlers.forEach(handler => handler(state))
 	}
 
-	return true
+	/** Ends the active navigation: everyone back to `unblocked`, whoever holds it lets it go. */
+	function finish(): void {
+		const transaction = current
+		// Cleared first: publishing below can reach a synchronous subscriber that disposes or resets,
+		// and the second pass has to find nothing left to end.
+		current = undefined
+		if (transaction == null)
+			return
+
+		for (const member of transaction.members) {
+			const release = member.release
+			member.release = undefined
+			publish(member, RouterBlockerState.Unblocked)
+			release?.(false)
+		}
+	}
+
+	function create(
+		shouldBlock: RouterBlockShouldFn,
+	): RouterBlockerController {
+		const member: Member = {
+			shouldBlock,
+			state: RouterBlockerState.Unblocked,
+			handlers: new Set(),
+			release: undefined,
+			disposed: false,
+		}
+		members.add(member)
+		if (members.size === 1)
+			props?.onActive?.(true)
+
+		return {
+			get state() {
+				return member.state
+			},
+			subscribe: (handler) => {
+				member.handlers.add(handler)
+				return () => {
+					member.handlers.delete(handler)
+				}
+			},
+			proceed: () => {
+				if (member.state !== RouterBlockerState.Blocked)
+					return
+
+				const release = member.release
+				member.release = undefined
+				publish(member, RouterBlockerState.Proceeding)
+				release?.(true)
+			},
+			reset: () => {
+				if (member.state !== RouterBlockerState.Blocked)
+					return
+
+				finish()
+			},
+			dispose: () => {
+				if (member.disposed)
+					return
+
+				member.disposed = true
+				members.delete(member)
+				member.handlers.clear()
+
+				// `blocked` is the one state where going away is a decision: this member is what the
+				// navigation is waiting on and nothing is left to answer for it, so it cancels like a
+				// `reset`. An approval already given stands, and the navigation runs on without it.
+				if (member.state === RouterBlockerState.Blocked)
+					finish()
+				else
+					member.state = RouterBlockerState.Unblocked
+
+				if (members.size === 0)
+					props?.onActive?.(false)
+			},
+		}
+	}
+
+	function run(
+		input: RouterBlockShouldInput,
+	): boolean | Promise<boolean> {
+		// Snapshotted, and every predicate answers for the navigation at the point it started. One
+		// registered while the user is deciding takes part in the next navigation, not this one.
+		const participants = [...members].filter(member => member.shouldBlock(input))
+		// Nothing to ask, so nothing to supersede either: a navigation nobody blocks passes through
+		// without touching a hold someone is still deciding on. Ending it here would cancel it and
+		// leave the answer still to come with nothing to apply it to.
+		if (participants.length === 0)
+			return true
+
+		const id = ++latest
+		finish()
+
+		const transaction: Transaction = { id, members: participants, waiting: true }
+		current = transaction
+		return process(transaction)
+	}
+
+	async function process(
+		transaction: Transaction,
+	): Promise<boolean> {
+		for (const member of transaction.members) {
+			// Its owner went away before its turn. Asking it anyway would hold the navigation on
+			// something with nothing left to answer for it.
+			if (member.disposed)
+				continue
+
+			// Assigned before the state goes out, not after: a synchronous subscriber can decide or
+			// dispose from inside the publish, and it needs something to answer with.
+			let release!: (proceeded: boolean) => void
+			const decision = new Promise<boolean>((resolve) => {
+				release = resolve
+			})
+			member.release = release
+			publish(member, RouterBlockerState.Blocked)
+
+			const proceeded = await decision
+
+			// Let go by a newer navigation rather than by an answer. It owns the members now, and
+			// clearing `release` here would take its hold away.
+			if (transaction.id !== latest)
+				return false
+
+			member.release = undefined
+			if (!proceeded)
+				return false
+		}
+
+		transaction.waiting = false
+		return true
+	}
+
+	function anyBlocking(
+		input: RouterBlockShouldInput,
+	): boolean {
+		for (const member of members) {
+			if (member.shouldBlock(input))
+				return true
+		}
+
+		return false
+	}
+
+	function settle(): void {
+		if (current == null || current.waiting)
+			return
+
+		finish()
+	}
+
+	function dispose(): void {
+		finish()
+
+		const active = members.size > 0
+		members.clear()
+		if (active)
+			props?.onActive?.(false)
+	}
 }

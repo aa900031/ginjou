@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 
-import type { RouterBlockerHandle } from '@ginjou/core'
+import type { RouterBlockerController } from '@ginjou/core'
 import type { SpaRouter } from './router.svelte'
 import { mount, unmount } from 'svelte'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -20,7 +20,7 @@ function destroyHost(): void {
 
 function register(
 	shouldBlock: Parameters<NonNullable<SpaRouter['blocker']>>[0],
-): RouterBlockerHandle {
+): RouterBlockerController {
 	return router.blocker!(shouldBlock)
 }
 
@@ -75,8 +75,8 @@ describe('createRouter', () => {
 			})
 		})
 
-		it('should not prevent unload after unregister', () => {
-			register(() => true).unregister()
+		it('should not prevent unload after dispose', () => {
+			register(() => true).dispose()
 
 			expect(dispatchBeforeUnload().defaultPrevented).toBe(false)
 		})

@@ -1,4 +1,5 @@
 import type { ValueOf } from 'type-fest'
+import type { RouterBlockShouldInput } from '../router'
 
 export type ConfirmFn = () => boolean | Promise<boolean>
 
@@ -28,7 +29,10 @@ export function getPropsEnabledFromProp(
 	if (typeof prop === 'boolean')
 		return prop
 
-	return prop?.enabled
+	if (prop == null)
+		return undefined
+
+	return prop.enabled
 }
 
 export function getPropsConfirmFromProp(
@@ -69,6 +73,13 @@ export function getConfirm(
 		return fromProp
 
 	return getPropsConfirmFromProp(fromController) ?? defaultConfirm
+}
+
+export function isLeavingPath(
+	input: RouterBlockShouldInput,
+): boolean {
+	return input.nextLocation == null
+		|| input.nextLocation.path !== input.currentLocation.path
 }
 
 export interface GetStateProps {

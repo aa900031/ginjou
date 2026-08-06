@@ -1,3 +1,4 @@
+import type { RouterBlockerController } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
 import type { MaybeAccessor } from '../utils'
 import type { UseRouterContextFromProps } from './context'
@@ -26,7 +27,10 @@ export function useRouteBlocker(
 	context?: UseRouteBlockerContext,
 ): UseRouteBlockerResult {
 	const router = useRouterContext(context)
+
 	const resolvedProps = $derived(extract(props))
+	const enabled = $derived(RouteBlocker.getEnabled(resolvedProps.enabled))
+
 	let state = $state<RouteBlocker.StateValues>(RouteBlocker.State.Unblocked)
 
 	if (router?.blocker == null) {
@@ -39,50 +43,48 @@ export function useRouteBlocker(
 		}
 	}
 
-	const setState = (value: RouteBlocker.StateValues): void => {
-		state = value
-	}
+	const blocker = router.blocker
 
-	const registrar = RouteBlocker.createRegistrar({
-		blocker: router.blocker,
-		getShouldBlock: () => resolvedProps.shouldBlock,
-		getState: () => state,
-		setState,
-	})
+	let controller: RouterBlockerController | undefined
+	let unsubscribe: (() => void) | undefined
 
-	// Registration follows `enabled`, blocking follows `shouldBlock`.
-	//
-	// No sync-flush counterpart to the vue adapter's, and none is needed. The first run is already
-	// synchronous — `$effect.pre` carries no `EFFECT` flag, so it runs at creation instead of being
-	// scheduled — and a later re-run cannot lose a navigation either: svelte-spa-router's `push`,
-	// `replace` and `pop` all `await tick()` before touching the hash, and its route resolution is a
-	// plain `$effect`, which a batch runs after every `$effect.pre`, across roots. Svelte offers no
-	// supported way to do it regardless: its one synchronous effect flavour is unexported and
-	// forbids writing `$state`, which `sync` does.
 	const stopWatch = watch(
-		() => RouteBlocker.shouldRegister({
-			enabled: resolvedProps.enabled,
-			state,
-		}),
-		registrar.sync,
+		() => enabled,
+		(enabled) => {
+			if (enabled === (controller != null))
+				return
+
+			if (!enabled) {
+				teardown()
+				return
+			}
+
+			controller = blocker(input => RouteBlocker.resolveShouldBlock(resolvedProps.shouldBlock, input))
+			unsubscribe = controller.subscribe((value) => {
+				state = value
+			})
+		},
 		{ immediate: true },
 	)
 
-	const unsubscribe = router.onChangeLocation(() => {
-		RouteBlocker.handleChangeLocation({ state, setState })
-	})
-
 	onDestroy(() => {
 		stopWatch()
-		registrar.dispose()
-		unsubscribe?.()
+		teardown()
 	})
 
 	return {
 		get state() {
 			return state
 		},
-		proceed: registrar.proceed,
-		reset: registrar.reset,
+		proceed: () => controller?.proceed(),
+		reset: () => controller?.reset(),
+	}
+
+	function teardown(): void {
+		unsubscribe?.()
+		unsubscribe = undefined
+		controller?.dispose()
+		controller = undefined
+		state = RouteBlocker.State.Unblocked
 	}
 }
