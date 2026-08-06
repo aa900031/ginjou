@@ -1,4 +1,3 @@
-import type { RouterBlockerController } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
 import type { Ref } from 'vue-demi'
 import type { ToMaybeRefs } from '../utils/refs'
@@ -41,42 +40,27 @@ export function useRouteBlocker(
 		}
 	}
 
-	const blocker = router.blocker
+	const blocker = router.blocker(
+		input => RouteBlocker.resolveShouldBlock(unref(props.shouldBlock), input),
+	)
+	const unsubscribe = blocker.subscribe((value) => {
+		state.value = value
+	})
 
-	let controller: RouterBlockerController | undefined
-	let unsubscribe: (() => void) | undefined
 	watch(
 		enabled,
-		(enabled) => {
-			if (enabled === (controller != null))
-				return
-
-			if (!enabled) {
-				teardown()
-				return
-			}
-
-			controller = blocker(input => RouteBlocker.resolveShouldBlock(unref(props.shouldBlock), input))
-			unsubscribe = controller.subscribe((value) => {
-				state.value = value
-			})
-		},
+		value => blocker.setEnabled(value),
 		{ immediate: true, flush: 'sync' },
 	)
 
-	tryOnScopeDispose(teardown)
+	tryOnScopeDispose(() => {
+		unsubscribe()
+		blocker.dispose()
+	})
 
 	return {
 		state: publicState,
-		proceed: () => controller?.proceed(),
-		reset: () => controller?.reset(),
-	}
-
-	function teardown(): void {
-		unsubscribe?.()
-		unsubscribe = undefined
-		controller?.dispose()
-		controller = undefined
-		state.value = RouteBlocker.State.Unblocked
+		proceed: () => blocker.proceed(),
+		reset: () => blocker.reset(),
 	}
 }

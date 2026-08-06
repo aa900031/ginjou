@@ -164,6 +164,18 @@ describe('blocker inside a mounted Router', () => {
 		expect(controller.state).toBe('unblocked')
 	})
 
+	// Approving is not reaching. Reporting the rejected route would hand every surviving consumer —
+	// an app shell, a `syncRoute`, the next run of this very condition — a location nothing mounted.
+	it('should not report a route the caller rejected as the current one', async () => {
+		probe.confirmResult = true
+
+		void push(REJECTED_PATH)
+		await settle()
+
+		expect(conditionsFailed).toBe(1)
+		expect(router.getLocation()).toMatchObject({ path: EDIT_PATH })
+	})
+
 	// This is what `onConditionsFailed` would have been wired up for: the blocker approves, the
 	// caller's own condition then rejects, and the navigation dies with no public terminal signal
 	// reaching the router adapter.

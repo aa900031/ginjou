@@ -20,8 +20,8 @@ describe('getPropsEnabledFromProp', () => {
 	})
 
 	it('should take the object form as opting in', () => {
-		expect(getPropsEnabledFromProp({})).toBeUndefined()
-		expect(getPropsEnabledFromProp({ confirm: () => true })).toBeUndefined()
+		expect(getPropsEnabledFromProp({})).toBe(true)
+		expect(getPropsEnabledFromProp({ confirm: () => true })).toBe(true)
 	})
 })
 
@@ -55,7 +55,7 @@ describe('getEnabled', () => {
 		expect(getEnabled({ fromProp: undefined, fromController: false })).toBe(false)
 		expect(getEnabled({ fromProp: undefined, fromController: { enabled: true } })).toBe(true)
 		expect(getEnabled({ fromProp: undefined, fromController: { enabled: false } })).toBe(false)
-		expect(getEnabled({ fromProp: undefined, fromController: { confirm: () => true } })).toBe(false)
+		expect(getEnabled({ fromProp: undefined, fromController: { confirm: () => true } })).toBe(true)
 	})
 
 	it('should fallback to false', () => {

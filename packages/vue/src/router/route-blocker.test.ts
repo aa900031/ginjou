@@ -31,6 +31,7 @@ function createMockRouter(
 		}),
 		proceed: vi.fn(),
 		reset: vi.fn(),
+		setEnabled: vi.fn(),
 		dispose: vi.fn(() => {
 			shouldBlock = undefined
 			publish = undefined
@@ -135,20 +136,26 @@ describe('useRouteBlocker', () => {
 
 	// `enabled` is the lifecycle switch, and nothing else: `shouldBlock` going false leaves the
 	// registration alone, because a page with nothing unsaved still owns the next navigation.
-	it('should register and unregister with enabled', () => {
+	//
+	// It toggles rather than registers, because registration order is the order blockers are asked
+	// in: re-registering would silently move the page to the back of the queue.
+	it('should toggle participation with enabled without registering again', () => {
 		const { router, controller, isRegistered } = createMockRouter()
 		const enabled = ref(false)
 
 		mountSetup(() => useRouteBlocker({ enabled, shouldBlock: true }, { router }))
 
-		expect(isRegistered()).toBe(false)
+		expect(isRegistered()).toBe(true)
+		expect(controller.setEnabled.mock.calls).toEqual([[false]])
 
 		enabled.value = true
-		expect(isRegistered()).toBe(true)
+		expect(controller.setEnabled.mock.calls).toEqual([[false], [true]])
 
 		enabled.value = false
-		expect(isRegistered()).toBe(false)
-		expect(controller.dispose).toHaveBeenCalledOnce()
+		expect(controller.setEnabled.mock.calls).toEqual([[false], [true], [false]])
+
+		expect(router.blocker).toHaveBeenCalledOnce()
+		expect(controller.dispose).not.toHaveBeenCalled()
 	})
 
 	it('should stay registered while shouldBlock changes', () => {
@@ -165,21 +172,17 @@ describe('useRouteBlocker', () => {
 	})
 
 	it('should stop listening before it disposes', () => {
-		const { router, controller, emitState } = createMockRouter()
-		const enabled = ref(true)
+		const { router, emitState } = createMockRouter()
 
-		const { result } = mountSetup(() => useRouteBlocker({ enabled, shouldBlock: true }, { router }))
+		const { result, unmount } = mountSetup(() => useRouteBlocker({ shouldBlock: true }, { router }))
 
 		emitState('blocked')
 		expect(unref(result.state)).toBe('blocked')
 
-		enabled.value = false
+		unmount()
 
-		expect(controller.dispose).toHaveBeenCalledOnce()
-		expect(unref(result.state)).toBe('unblocked')
-
-		emitState('blocked')
-		expect(unref(result.state)).toBe('unblocked')
+		emitState('proceeding')
+		expect(unref(result.state)).toBe('blocked')
 	})
 
 	it('should dispose on unmount', () => {

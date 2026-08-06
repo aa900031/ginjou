@@ -65,6 +65,7 @@ function createRouter() {
 		}),
 		proceed: vi.fn(),
 		reset: vi.fn(),
+		setEnabled: vi.fn(),
 		dispose: vi.fn(() => {
 			shouldBlock = undefined
 			publish = undefined
@@ -174,23 +175,29 @@ describe('useRouteBlocker', () => {
 
 	// `enabled` is the lifecycle switch, and nothing else: `shouldBlock` going false leaves the
 	// registration alone, because a page with nothing unsaved still owns the next navigation.
-	it('should register and unregister with enabled', () => {
+	//
+	// It toggles rather than registers, because registration order is the order blockers are asked
+	// in: re-registering would silently move the page to the back of the queue.
+	it('should toggle participation with enabled without registering again', () => {
 		const { router, controller, isRegistered } = createRouter()
 		mocks.useRouterContext.mockReturnValue(router)
 		let enabled = $state(false)
 
 		useRouteBlocker(() => ({ enabled, shouldBlock: true }))
 
-		expect(router.blocker).not.toHaveBeenCalled()
+		expect(isRegistered()).toBe(true)
+		expect(controller.setEnabled.mock.calls).toEqual([[false]])
 
 		enabled = true
 		flushWatch()
-		expect(isRegistered()).toBe(true)
+		expect(controller.setEnabled.mock.calls).toEqual([[false], [true]])
 
 		enabled = false
 		flushWatch()
-		expect(isRegistered()).toBe(false)
-		expect(controller.dispose).toHaveBeenCalledOnce()
+		expect(controller.setEnabled.mock.calls).toEqual([[false], [true], [false]])
+
+		expect(router.blocker).toHaveBeenCalledOnce()
+		expect(controller.dispose).not.toHaveBeenCalled()
 	})
 
 	// The callback runs on any dependency change, so without the unchanged-value guard a page being
@@ -212,23 +219,18 @@ describe('useRouteBlocker', () => {
 	// Disposing while `blocked` cancels the navigation for every participant, and the registry is
 	// what tells the others. This one is on its way out, so it stops listening first.
 	it('should stop listening before it disposes', () => {
-		const { router, controller, emitState } = createRouter()
+		const { router, emitState } = createRouter()
 		mocks.useRouterContext.mockReturnValue(router)
-		let enabled = $state(true)
 
-		const result = useRouteBlocker(() => ({ enabled, shouldBlock: true }))
+		const result = useRouteBlocker(() => ({ shouldBlock: true }))
 
 		emitState('blocked')
 		expect(result.state).toBe('blocked')
 
-		enabled = false
-		flushWatch()
+		mocks.onDestroy.mock.calls[0][0]()
 
-		expect(controller.dispose).toHaveBeenCalledOnce()
-		expect(result.state).toBe('unblocked')
-
-		emitState('blocked')
-		expect(result.state).toBe('unblocked')
+		emitState('proceeding')
+		expect(result.state).toBe('blocked')
 	})
 
 	it('should dispose and stop watching on destroy', () => {

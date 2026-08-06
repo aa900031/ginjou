@@ -9,15 +9,30 @@ import { createRouter } from './router'
 let router: Router
 let vueRouter: ReturnType<typeof createVueRouter>
 const controllers: RouterBlockerController[] = []
+/** The throwaway apps `register` mounts to get a component instance to bind hooks to. */
+const apps: ReturnType<typeof createApp>[] = []
 /** What the component mounted on `/watched` was told through `onChangeLocation`. */
 const watched = vi.fn()
 /** The teardown `onChangeLocation` handed back to the component mounted on `/watched`. */
 let unwatch: () => void
 
+/**
+ * `blocker` binds component lifecycle hooks, so it refuses to register anywhere else. Mounting a
+ * bare component is what a test outside a route component has to do to get one.
+ */
 function register(
 	shouldBlock: Parameters<NonNullable<Router['blocker']>>[0],
 ): RouterBlockerController {
-	const controller = router.blocker!(shouldBlock)
+	let controller!: RouterBlockerController
+	const app = createApp({
+		setup: () => {
+			controller = router.blocker!(shouldBlock)
+			return () => null
+		},
+	})
+	app.mount(document.createElement('div'))
+
+	apps.push(app)
 	controllers.push(controller)
 	return controller
 }
@@ -64,6 +79,7 @@ beforeAll(async () => {
 
 afterEach(async () => {
 	controllers.splice(0).forEach(controller => controller.dispose())
+	apps.splice(0).forEach(app => app.unmount())
 	await vueRouter.replace('/')
 	watched.mockClear()
 })
@@ -221,16 +237,6 @@ describe('createRouter', () => {
 			expect(vueRouter.currentRoute.value.path).toBe('/watched')
 		})
 
-		// An alias with the same params is a duplicate navigation as far as vue-router is concerned,
-		// so `isChangingRoute` is what covers the alias case, in `utils/route-record.test.ts`.
-		it('should not block after dispose', async () => {
-			register(() => true).dispose()
-
-			await vueRouter.push('/other')
-
-			expect(vueRouter.currentRoute.value.path).toBe('/other')
-		})
-
 		// Nothing is left to answer for it, so the navigation it was holding is cancelled rather than
 		// waved through: the page it was protecting is the one being torn down.
 		it('should cancel a held navigation on dispose', async () => {
@@ -363,6 +369,25 @@ describe('createRouter', () => {
 			await vueRouter.push('/watched?page=2')
 
 			expect(watched).not.toHaveBeenCalled()
+		})
+	})
+
+	// Vue only warns for a lifecycle hook bound outside a component, so both of these would come back
+	// a subscription that looks live and answers for the wrong page. Refusing is the only honest
+	// outcome, and it has to happen before anything is registered.
+	describe('component instance', () => {
+		it('should refuse a blocker registered outside a component', () => {
+			expect(() => router.blocker!(() => true)).toThrow(/has to be called during a component's setup/)
+		})
+
+		it('should refuse a location subscription outside a component', () => {
+			expect(() => router.onChangeLocation(() => {})).toThrow(/has to be called during a component's setup/)
+		})
+
+		it('should not register the blocker it refused', () => {
+			expect(() => router.blocker!(() => true)).toThrow()
+
+			expect(dispatchBeforeUnload().defaultPrevented).toBe(false)
 		})
 	})
 

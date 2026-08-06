@@ -1,4 +1,3 @@
-import type { RouterBlockerController } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
 import type { MaybeAccessor } from '../utils'
 import type { UseRouterContextFromProps } from './context'
@@ -43,48 +42,30 @@ export function useRouteBlocker(
 		}
 	}
 
-	const blocker = router.blocker
-
-	let controller: RouterBlockerController | undefined
-	let unsubscribe: (() => void) | undefined
+	const blocker = router.blocker(
+		input => RouteBlocker.resolveShouldBlock(resolvedProps.shouldBlock, input),
+	)
+	const unsubscribe = blocker.subscribe((value) => {
+		state = value
+	})
 
 	const stopWatch = watch(
 		() => enabled,
-		(enabled) => {
-			if (enabled === (controller != null))
-				return
-
-			if (!enabled) {
-				teardown()
-				return
-			}
-
-			controller = blocker(input => RouteBlocker.resolveShouldBlock(resolvedProps.shouldBlock, input))
-			unsubscribe = controller.subscribe((value) => {
-				state = value
-			})
-		},
+		value => blocker.setEnabled(value),
 		{ immediate: true },
 	)
 
 	onDestroy(() => {
 		stopWatch()
-		teardown()
+		unsubscribe()
+		blocker.dispose()
 	})
 
 	return {
 		get state() {
 			return state
 		},
-		proceed: () => controller?.proceed(),
-		reset: () => controller?.reset(),
-	}
-
-	function teardown(): void {
-		unsubscribe?.()
-		unsubscribe = undefined
-		controller?.dispose()
-		controller = undefined
-		state = RouteBlocker.State.Unblocked
+		proceed: () => blocker.proceed(),
+		reset: () => blocker.reset(),
 	}
 }

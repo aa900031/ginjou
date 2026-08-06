@@ -2,7 +2,7 @@ import type { RouterGoParams, RouterLocation } from '@ginjou/core'
 import type { SetRequired, Simplify } from 'type-fest'
 import type { LocationAsRelativeRaw, RouteLocationNormalizedLoaded, RouteLocationOptions } from 'vue-router'
 import { defineRouter, RouteBlocker } from '@ginjou/core'
-import { onActivated, onDeactivated, onScopeDispose, watch } from 'vue-demi'
+import { getCurrentInstance, onActivated, onDeactivated, onScopeDispose, watch } from 'vue-demi'
 import { onBeforeRouteLeave, useRouter } from 'vue-router'
 import { toLocation, toRouteLocation } from './location'
 
@@ -41,19 +41,11 @@ export function createRouter() {
 		nextLocation: toLocation(to as RouteLocationNormalizedLoaded),
 	}))
 
-	// One listener for the whole router rather than one per subscription: `onChangeLocation`
-	// callers are not obliged to call the teardown it returns, so a per-subscription guard would
-	// outlive every component that ever used `useLocation`.
-	const mutedSubscriptions = new Set<() => void>()
-
 	// Every way a navigation can end: `afterEach` covers success, and every failure vue-router
 	// reports as one — cancelled, aborted, duplicated — while a guard or async component that
 	// throws only ever reaches `onError`. Either way the blockers that approved it are done.
-	const stopAfterEach = router.afterEach((_to, _from, failure) => {
+	const stopAfterEach = router.afterEach(() => {
 		blockers.settle()
-
-		if (failure != null)
-			mutedSubscriptions.forEach(unmute => unmute())
 	})
 	const stopOnError = router.onError(() => {
 		blockers.settle()
@@ -78,49 +70,44 @@ export function createRouter() {
 		},
 		getLocation,
 		onChangeLocation: (handler) => {
-			let muted = false
-			let cached = false
+			assertComponentInstance('onChangeLocation')
+
 			const notify = (): void => handler(toLocation(router.currentRoute.value))
 
-			// Only while the component is still where it was. Once it has been deactivated the
-			// leave committed, and a later navigation failing elsewhere in the app says nothing
-			// about this subscription.
-			const unmuteOnFailure = (): void => {
-				if (!cached)
-					muted = false
-			}
+			let leftFrom: RouteLocationNormalizedLoaded | undefined
 
-			onBeforeRouteLeave(() => {
-				muted = true
+			onBeforeRouteLeave((_to, from) => {
+				leftFrom = from
 			})
+			onActivated(() => {
+				if (leftFrom == null)
+					return
+
+				leftFrom = undefined
+				notify()
+			})
+
+			return watch(router.currentRoute, (route) => {
+				if (leftFrom != null && route.path !== leftFrom.path)
+					return
+
+				leftFrom = undefined
+				notify()
+			})
+		},
+		blocker: (shouldBlock) => {
+			assertComponentInstance('blocker')
+
+			let cached = false
 			onDeactivated(() => {
 				cached = true
 			})
 			onActivated(() => {
 				cached = false
-				if (!muted)
-					return
-
-				muted = false
-				notify()
-			})
-			onScopeDispose(() => {
-				mutedSubscriptions.delete(unmuteOnFailure)
 			})
 
-			mutedSubscriptions.add(unmuteOnFailure)
-
-			const stopWatch = watch(router.currentRoute, () => {
-				if (!muted)
-					notify()
-			})
-
-			return () => {
-				mutedSubscriptions.delete(unmuteOnFailure)
-				stopWatch()
-			}
+			return blockers.create(input => !cached && shouldBlock(input))
 		},
-		blocker: blockers.create,
 	})
 
 	/**
@@ -146,6 +133,13 @@ export function createRouter() {
 		stopOnError()
 		blockers.dispose()
 	}
+}
+
+function assertComponentInstance(
+	name: string,
+): void {
+	if (getCurrentInstance() == null)
+		throw new Error(`[@ginjou/with-vue-router] \`${name}\` binds component lifecycle hooks, so it has to be called during a component's setup.`)
 }
 
 function addBeforeUnload(handler: (event: BeforeUnloadEvent) => void) {

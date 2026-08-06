@@ -32,7 +32,7 @@ export function getPropsEnabledFromProp(
 	if (prop == null)
 		return undefined
 
-	return prop.enabled
+	return prop.enabled ?? true
 }
 
 export function getPropsConfirmFromProp(

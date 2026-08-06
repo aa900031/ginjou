@@ -54,7 +54,7 @@ export function useWarnUnsaved(
 	// wants the ones that take the page away. A change of query or hash leaves the route mounted.
 	const blocker = useRouteBlocker({
 		enabled,
-		shouldBlock: (input): boolean => active.value && WarnUnsaved.isLeavingPath(input),
+		shouldBlock: (input): boolean => active.value && WarnUnsaved.isLeavingPath(input), // TODO: 思考是不是還要用 isLeavingPage
 	}, context)
 
 	watch(blocker.state, (value) => {

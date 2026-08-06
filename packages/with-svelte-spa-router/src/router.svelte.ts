@@ -80,7 +80,7 @@ export function createRouter(options?: CreateRouterOptions): SpaRouter {
 	}
 
 	function handleConditionsFailed(): void {
-		blocker.settle()
+		blocker.abandon()
 	}
 
 	function handleBeforeUnload(event: BeforeUnloadEvent): void {

@@ -383,6 +383,63 @@ describe('createRegistry', () => {
 		})
 	})
 
+	describe('setEnabled', () => {
+		it('should not be asked while disabled', () => {
+			const registry = createRegistry()
+			const controller = registry.create(() => true)
+
+			controller.setEnabled(false)
+
+			expect(registry.run(INPUT)).toBe(true)
+			expect(registry.anyBlocking(INPUT)).toBe(false)
+		})
+
+		// The point of toggling rather than re-registering: registration order is the order blockers
+		// are asked in, and a page that comes back has to keep the place it had.
+		it('should keep its place in the order', async () => {
+			const registry = createRegistry()
+			const first = registry.create(() => true)
+			const second = registry.create(() => true)
+
+			first.setEnabled(false)
+			first.setEnabled(true)
+
+			registry.run(INPUT)
+			await advance()
+
+			expect(states(first, second)).toEqual([State.Blocked, State.Unblocked])
+		})
+
+		it('should cancel the navigation when disabled while blocked', async () => {
+			const registry = createRegistry()
+			const controller = registry.create(() => true)
+
+			const held = registry.run(INPUT)
+			await advance()
+
+			controller.setEnabled(false)
+
+			await expect(held).resolves.toBe(false)
+			expect(controller.state).toBe(State.Unblocked)
+		})
+
+		it('should keep an approval already given', async () => {
+			const registry = createRegistry()
+			const first = registry.create(() => true)
+			const second = registry.create(() => true)
+
+			const held = registry.run(INPUT)
+			await advance()
+			first.proceed()
+			await advance()
+
+			first.setEnabled(false)
+			second.proceed()
+
+			await expect(held).resolves.toBe(true)
+		})
+	})
+
 	describe('dispose', () => {
 		it('should not be asked once disposed', () => {
 			const registry = createRegistry()
@@ -577,6 +634,41 @@ describe('createRegistry', () => {
 			const onActive = vi.fn()
 
 			createRegistry({ onActive }).dispose()
+
+			expect(onActive).not.toHaveBeenCalled()
+		})
+
+		// What it is for is whatever the adapter keeps alive only while something can block — a
+		// `beforeunload` listener that costs the page its back/forward cache. A blocker that is
+		// registered but switched off cannot block, so it must not keep that alive.
+		it('should follow what can block rather than what is registered', () => {
+			const onActive = vi.fn()
+			const registry = createRegistry({ onActive })
+
+			const first = registry.create(() => true)
+			const second = registry.create(() => true)
+			first.setEnabled(false)
+
+			expect(onActive.mock.calls.flat()).toEqual([true])
+
+			second.setEnabled(false)
+
+			expect(onActive.mock.calls.flat()).toEqual([true, false])
+
+			first.setEnabled(true)
+
+			expect(onActive.mock.calls.flat()).toEqual([true, false, true])
+		})
+
+		it('should not report a blocker disposed while switched off', () => {
+			const onActive = vi.fn()
+			const registry = createRegistry({ onActive })
+
+			const controller = registry.create(() => true)
+			controller.setEnabled(false)
+			onActive.mockClear()
+
+			controller.dispose()
 
 			expect(onActive).not.toHaveBeenCalled()
 		})

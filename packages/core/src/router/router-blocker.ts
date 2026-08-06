@@ -50,6 +50,7 @@ export interface Registry {
 
 interface Member {
 	shouldBlock: RouterBlockShouldFn
+	enabled: boolean
 	state: RouterBlockerStateValues
 	release: ((proceeded: boolean) => void) | undefined
 	handlers: Set<(state: RouterBlockerStateValues) => void>
@@ -84,8 +85,21 @@ export function createRegistry(
 	const members = new Set<Member>()
 	let latest = 0
 	let current: Transaction | undefined
+	/**
+	 * How many members can currently block, which is not how many are registered: a page registers
+	 * once and stays, and `onActive` is about whatever the adapter keeps alive only while something
+	 * can actually hold a navigation.
+	 */
+	let enabledCount = 0
 
 	return { create, run, anyBlocking, settle, dispose }
+
+	function countEnabled(delta: number): void {
+		const was = enabledCount
+		enabledCount += delta
+		if (was === 0 || enabledCount === 0)
+			props?.onActive?.(enabledCount > 0)
+	}
 
 	function publish(
 		member: Member,
@@ -120,14 +134,14 @@ export function createRegistry(
 	): RouterBlockerController {
 		const member: Member = {
 			shouldBlock,
+			enabled: true,
 			state: RouterBlockerState.Unblocked,
 			handlers: new Set(),
 			release: undefined,
 			disposed: false,
 		}
 		members.add(member)
-		if (members.size === 1)
-			props?.onActive?.(true)
+		countEnabled(1)
 
 		return {
 			get state() {
@@ -154,6 +168,18 @@ export function createRegistry(
 
 				finish()
 			},
+			setEnabled: (value) => {
+				if (member.disposed || member.enabled === value)
+					return
+
+				member.enabled = value
+				countEnabled(value ? 1 : -1)
+
+				// Stepping out while it is the one being asked leaves the navigation waiting on
+				// nothing, exactly as disposing would.
+				if (!value && member.state === RouterBlockerState.Blocked)
+					finish()
+			},
 			dispose: () => {
 				if (member.disposed)
 					return
@@ -170,8 +196,10 @@ export function createRegistry(
 				else
 					member.state = RouterBlockerState.Unblocked
 
-				if (members.size === 0)
-					props?.onActive?.(false)
+				if (member.enabled) {
+					member.enabled = false
+					countEnabled(-1)
+				}
 			},
 		}
 	}
@@ -181,7 +209,7 @@ export function createRegistry(
 	): boolean | Promise<boolean> {
 		// Snapshotted, and every predicate answers for the navigation at the point it started. One
 		// registered while the user is deciding takes part in the next navigation, not this one.
-		const participants = [...members].filter(member => member.shouldBlock(input))
+		const participants = [...members].filter(member => member.enabled && member.shouldBlock(input))
 		// Nothing to ask, so nothing to supersede either: a navigation nobody blocks passes through
 		// without touching a hold someone is still deciding on. Ending it here would cancel it and
 		// leave the answer still to come with nothing to apply it to.
@@ -234,7 +262,7 @@ export function createRegistry(
 		input: RouterBlockShouldInput,
 	): boolean {
 		for (const member of members) {
-			if (member.shouldBlock(input))
+			if (member.enabled && member.shouldBlock(input))
 				return true
 		}
 
@@ -251,9 +279,8 @@ export function createRegistry(
 	function dispose(): void {
 		finish()
 
-		const active = members.size > 0
 		members.clear()
-		if (active)
-			props?.onActive?.(false)
+		if (enabledCount > 0)
+			countEnabled(-enabledCount)
 	}
 }

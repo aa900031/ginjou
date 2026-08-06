@@ -123,6 +123,7 @@ export function useEdit<
 		getQueryData: () => query.data,
 		navigateTo,
 		mutateFn: (variables, options) => mutation.mutateAsync(variables!, options),
+		getWarnUnsavedActive: () => warnUnsaved.active,
 		setWarnUnsavedActive: (value) => {
 			warnUnsaved.active = value
 		},

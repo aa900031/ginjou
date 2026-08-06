@@ -46,7 +46,8 @@ export interface Blocker {
 	readonly acceptedLocation: RouterLocation | undefined
 	create: RouterBlockerFn
 	anyBlocking: RouteBlocker.Registry['anyBlocking']
-	settle: RouteBlocker.Registry['settle']
+	settle: () => void
+	abandon: () => void
 	dispose: () => void
 	createBlockerCondition: () => RoutePrecondition
 	withBlocker: <T extends RouteDefinition>(routes: T) => T
@@ -65,6 +66,16 @@ export function createBlocker(
 	 */
 	let accepted = $state.raw<AcceptedNavigation | undefined>()
 
+	/**
+	 * The one before it.
+	 *
+	 * Approving is not reaching: this condition is asked before the caller's own, because the router
+	 * unmounts the page on screen the moment any of them rejects and one with unsaved work has to be
+	 * asked first. So `accepted` can name a route nothing ever mounted, and the route that was
+	 * really the last one current has to be kept to go back to.
+	 */
+	let previous: AcceptedNavigation | undefined
+
 	/** Sequence number of the last condition run, so a superseded run can recognise itself. */
 	let runs = 0
 
@@ -74,18 +85,34 @@ export function createBlocker(
 		},
 		create: blockers.create,
 		anyBlocking: blockers.anyBlocking,
-		settle: blockers.settle,
+		settle,
+		abandon,
 		dispose: blockers.dispose,
 		createBlockerCondition,
 		withBlocker: routes => withCondition(routes, createBlockerCondition()),
+	}
+
+	function settle(): void {
+		previous = undefined
+		blockers.settle()
+	}
+
+	function abandon(): void {
+		if (previous != null) {
+			accepted = previous
+			previous = undefined
+		}
+		blockers.settle()
 	}
 
 	function accept(
 		target: string,
 		location: RouterLocation,
 	): void {
-		if (accepted?.target !== target)
+		if (accepted?.target !== target) {
+			previous = accepted
 			accepted = { target, location }
+		}
 		markVisited()
 	}
 
@@ -148,6 +175,8 @@ function wrapWithCondition(
 	if (!isWrapped(component))
 		return wrap({ component, conditions: condition })
 
+	// First: the router unmounts whatever is on screen as soon as any condition answers false, so a
+	// page with unsaved work has to be asked before the caller's own conditions get their say.
 	return Object.defineProperty(
 		{ ...component, conditions: [condition, ...component.conditions ?? []] },
 		'_sveltesparouter',

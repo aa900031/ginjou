@@ -604,18 +604,41 @@ describe('edit controller', () => {
 				expect(setWarnUnsavedActive).toHaveBeenCalledWith(false)
 			})
 
-			it('should not touch the unsaved guard again when an optimistic mutation fails', async () => {
+			// Clearing it up front is part of assuming the save worked. When the assumption does not
+			// hold the cache rolls itself back, but the form state is the app's and still holds the
+			// user's edits, so the guard has to come back with them.
+			it('should bring the unsaved guard back when an optimistic mutation fails', async () => {
 				const setWarnUnsavedActive = vi.fn()
 				const saveFn = createSaveFn({
 					...baseProps,
 					getMutationMode: () => MutationMode.Optimistic,
-					mutateFn: vi.fn().mockRejectedValue(new Error('Update failed')),
+					mutateFn: vi.fn().mockImplementation((_, options) => {
+						options?.onError(new Error('Update failed'))
+						return Promise.reject(new Error('Update failed'))
+					}),
 					setWarnUnsavedActive,
 				})
 
 				await expect(saveFn({ title: 'Updated' })).rejects.toThrow('Update failed')
 
-				expect(setWarnUnsavedActive.mock.calls).toEqual([[false]])
+				expect(setWarnUnsavedActive.mock.calls).toEqual([[false], [true]])
+			})
+
+			// Nothing cleared it, so there is nothing to bring back.
+			it('should leave the unsaved guard alone when a pessimistic mutation fails', async () => {
+				const setWarnUnsavedActive = vi.fn()
+				const saveFn = createSaveFn({
+					...baseProps,
+					mutateFn: vi.fn().mockImplementation((_, options) => {
+						options?.onError(new Error('Update failed'))
+						return Promise.reject(new Error('Update failed'))
+					}),
+					setWarnUnsavedActive,
+				})
+
+				await expect(saveFn({ title: 'Updated' })).rejects.toThrow('Update failed')
+
+				expect(setWarnUnsavedActive).not.toHaveBeenCalled()
 			})
 
 			it('should not throw when setWarnUnsavedActive is not provided', async () => {

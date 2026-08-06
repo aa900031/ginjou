@@ -121,6 +121,7 @@ export function useEdit<
 		getQueryData: () => unref(query.data),
 		navigateTo,
 		mutateFn: mutation.mutateAsync,
+		getWarnUnsavedActive: () => unref(warnUnsavedActive),
 		setWarnUnsavedActive: (value) => {
 			warnUnsavedActive.value = value
 		},

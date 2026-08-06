@@ -101,6 +101,12 @@ export interface RouterBlockerController {
 	proceed: () => void
 	/** Cancel the held navigation for every participant. No-op unless `blocked`. */
 	reset: () => void
+	/**
+	 * Whether this one takes part at all. Registration is what fixes the order blockers are asked
+	 * in, so a blocker that comes and goes with a flag toggles this instead of registering again
+	 * and losing its place.
+	 */
+	setEnabled: (value: boolean) => void
 	dispose: () => void
 }
 

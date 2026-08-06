@@ -9,6 +9,8 @@ import { createRouter } from './router'
 let router: Router
 let vueRouter: ReturnType<typeof createVueRouter>
 const watched = vi.fn()
+/** Only records that it was asked: a predicate that actually held would never be answered here. */
+const shouldBlock = vi.fn(() => false)
 
 beforeAll(async () => {
 	vueRouter = createVueRouter({
@@ -19,6 +21,7 @@ beforeAll(async () => {
 				component: {
 					setup: () => {
 						router.onChangeLocation(location => watched(location.path))
+						router.blocker!(shouldBlock)
 						return () => null
 					},
 				},
@@ -46,6 +49,34 @@ beforeEach(async () => {
 		await vueRouter.push('/watched')
 
 	watched.mockClear()
+	shouldBlock.mockClear()
+})
+
+describe('blocker under KeepAlive', () => {
+	// The scope of a cached component is never disposed, so the blocker cannot clean itself up on
+	// the way out. Left registered it holds every later navigation on a page nobody is looking at,
+	// with the confirmation it would render nowhere on screen.
+	it('should not be asked once the component is cached', async () => {
+		// Leaving is what caches it, and it is still on screen for that one.
+		await vueRouter.push('/other')
+		expect(shouldBlock).toHaveBeenCalled()
+		shouldBlock.mockClear()
+
+		await vueRouter.push('/third')
+
+		expect(shouldBlock).not.toHaveBeenCalled()
+		expect(vueRouter.currentRoute.value.path).toBe('/third')
+	})
+
+	it('should be asked again once the component is activated', async () => {
+		await vueRouter.push('/other')
+		await vueRouter.push('/watched')
+		shouldBlock.mockClear()
+
+		await vueRouter.push('/other')
+
+		expect(shouldBlock).toHaveBeenCalled()
+	})
 })
 
 describe('onChangeLocation under KeepAlive', () => {
@@ -74,6 +105,16 @@ describe('onChangeLocation under KeepAlive', () => {
 		// Duplicate: vue-router answers with a NavigationFailure.
 		await vueRouter.push('/other')
 		await vueRouter.push('/third')
+
+		expect(watched).not.toHaveBeenCalled()
+	})
+
+	// A superseded navigation reports its failure while its replacement is still in flight, so the
+	// failure is no evidence that this subscription is still where it was.
+	it('should stay quiet when the navigation it was leaving for is superseded', async () => {
+		void vueRouter.push('/other')
+		await vueRouter.push('/third')
+		await nextTick()
 
 		expect(watched).not.toHaveBeenCalled()
 	})
