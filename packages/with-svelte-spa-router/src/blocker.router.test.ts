@@ -128,7 +128,7 @@ describe('blocker inside a mounted Router', () => {
 	// guard — does, and it is what the terminal signals are wired up for. Without
 	// `onRouteLoaded` this one would sit in `proceeding` until the next navigation attempt.
 	it('should settle a blocker that outlives the navigation it approved', async () => {
-		const controller = router.blocker!(() => true)
+		const controller = router.blocker!({ should: () => true, enabled: true })
 		probe.confirmResult = true
 
 		void push(LIST_PATH)
@@ -149,7 +149,7 @@ describe('blocker inside a mounted Router', () => {
 	// `onRouteLoaded` never fires for this one: the route the blockers approved is rejected by the
 	// caller's own condition, so `onConditionsFailed` is the only signal that the navigation is over.
 	it('should settle a surviving blocker when a later condition rejects', async () => {
-		const controller = router.blocker!(() => true)
+		const controller = router.blocker!({ should: () => true, enabled: true })
 		probe.confirmResult = true
 
 		void push(REJECTED_PATH)

@@ -95,7 +95,7 @@ export function createRouter() {
 				notify()
 			})
 		},
-		blocker: (shouldBlock) => {
+		blocker: ({ should, enabled }) => {
 			assertComponentInstance('blocker')
 
 			let cached = false
@@ -106,7 +106,10 @@ export function createRouter() {
 				cached = false
 			})
 
-			return blockers.create(input => !cached && shouldBlock(input))
+			return blockers.create({
+				enabled,
+				should: input => !cached && should(input),
+			})
 		},
 	})
 

@@ -40,9 +40,10 @@ export function useRouteBlocker(
 		}
 	}
 
-	const blocker = router.blocker(
-		input => RouteBlocker.resolveShouldBlock(unref(props.shouldBlock), input),
-	)
+	const blocker = router.blocker({
+		should: input => RouteBlocker.resolveShouldBlock(unref(props.shouldBlock), input),
+		enabled: enabled.value,
+	})
 	const unsubscribe = blocker.subscribe((value) => {
 		state.value = value
 	})
@@ -50,7 +51,7 @@ export function useRouteBlocker(
 	watch(
 		enabled,
 		value => blocker.setEnabled(value),
-		{ immediate: true, flush: 'sync' },
+		{ flush: 'sync' },
 	)
 
 	tryOnScopeDispose(() => {

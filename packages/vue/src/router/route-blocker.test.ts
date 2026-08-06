@@ -1,4 +1,4 @@
-import type { Router, RouterBlockerStateValues, RouterBlockShouldFn, RouterBlockShouldInput, RouterLocation } from '@ginjou/core'
+import type { Router, RouterBlockerProps, RouterBlockerStateValues, RouterBlockShouldFn, RouterBlockShouldInput, RouterLocation } from '@ginjou/core'
 import { describe, expect, it, vi } from 'vitest'
 import { ref, unref } from 'vue-demi'
 import { mountSetup } from '../../test/mount'
@@ -19,6 +19,7 @@ function createMockRouter(
 	withBlocker = true,
 ) {
 	let shouldBlock: RouterBlockShouldFn | undefined
+	let registeredEnabled: boolean | undefined
 	let publish: ((state: RouterBlockerStateValues) => void) | undefined
 
 	const controller = {
@@ -46,8 +47,9 @@ function createMockRouter(
 		onChangeLocation: () => vi.fn(),
 		...withBlocker
 			? {
-					blocker: vi.fn((fn: RouterBlockShouldFn) => {
-						shouldBlock = fn
+					blocker: vi.fn((props: RouterBlockerProps) => {
+						shouldBlock = props.should
+						registeredEnabled = props.enabled
 						return controller
 					}),
 				}
@@ -58,6 +60,8 @@ function createMockRouter(
 		router,
 		controller,
 		isRegistered: () => shouldBlock != null,
+		/** The `enabled` the blocker was registered with, before any `setEnabled`. */
+		registeredEnabled: () => registeredEnabled,
 		callShouldBlock: (unload?: boolean) => shouldBlock!(createBlockerContext(unload)),
 		emitState: (state: RouterBlockerStateValues) => {
 			controller.state = state
@@ -140,22 +144,33 @@ describe('useRouteBlocker', () => {
 	// It toggles rather than registers, because registration order is the order blockers are asked
 	// in: re-registering would silently move the page to the back of the queue.
 	it('should toggle participation with enabled without registering again', () => {
-		const { router, controller, isRegistered } = createMockRouter()
+		const { router, controller, isRegistered, registeredEnabled } = createMockRouter()
 		const enabled = ref(false)
 
 		mountSetup(() => useRouteBlocker({ enabled, shouldBlock: true }, { router }))
 
+		// Registered with it, not switched off a moment later: a blocker that is set up disabled must
+		// never count as one that can block, not even for the tick before the watch catches up.
 		expect(isRegistered()).toBe(true)
-		expect(controller.setEnabled.mock.calls).toEqual([[false]])
+		expect(registeredEnabled()).toBe(false)
+		expect(controller.setEnabled).not.toHaveBeenCalled()
 
 		enabled.value = true
-		expect(controller.setEnabled.mock.calls).toEqual([[false], [true]])
+		expect(controller.setEnabled.mock.calls).toEqual([[true]])
 
 		enabled.value = false
-		expect(controller.setEnabled.mock.calls).toEqual([[false], [true], [false]])
+		expect(controller.setEnabled.mock.calls).toEqual([[true], [false]])
 
 		expect(router.blocker).toHaveBeenCalledOnce()
 		expect(controller.dispose).not.toHaveBeenCalled()
+	})
+
+	it('should register enabled by default', () => {
+		const { router, registeredEnabled } = createMockRouter()
+
+		mountSetup(() => useRouteBlocker({ shouldBlock: true }, { router }))
+
+		expect(registeredEnabled()).toBe(true)
 	})
 
 	it('should stay registered while shouldBlock changes', () => {

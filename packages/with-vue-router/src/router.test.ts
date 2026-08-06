@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 
-import type { Router, RouterBlockerController } from '@ginjou/core'
+import type { Router, RouterBlockerController, RouterBlockShouldFn } from '@ginjou/core'
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { createApp, h } from 'vue'
 import { createMemoryHistory, createRouter as createVueRouter, RouterView } from 'vue-router'
@@ -21,12 +21,12 @@ let unwatch: () => void
  * bare component is what a test outside a route component has to do to get one.
  */
 function register(
-	shouldBlock: Parameters<NonNullable<Router['blocker']>>[0],
+	shouldBlock: RouterBlockShouldFn,
 ): RouterBlockerController {
 	let controller!: RouterBlockerController
 	const app = createApp({
 		setup: () => {
-			controller = router.blocker!(shouldBlock)
+			controller = router.blocker!({ should: shouldBlock, enabled: true })
 			return () => null
 		},
 	})
@@ -377,7 +377,7 @@ describe('createRouter', () => {
 	// outcome, and it has to happen before anything is registered.
 	describe('component instance', () => {
 		it('should refuse a blocker registered outside a component', () => {
-			expect(() => router.blocker!(() => true)).toThrow(/has to be called during a component's setup/)
+			expect(() => router.blocker!({ should: () => true, enabled: true })).toThrow(/has to be called during a component's setup/)
 		})
 
 		it('should refuse a location subscription outside a component', () => {
@@ -385,7 +385,7 @@ describe('createRouter', () => {
 		})
 
 		it('should not register the blocker it refused', () => {
-			expect(() => router.blocker!(() => true)).toThrow()
+			expect(() => router.blocker!({ should: () => true, enabled: true })).toThrow()
 
 			expect(dispatchBeforeUnload().defaultPrevented).toBe(false)
 		})

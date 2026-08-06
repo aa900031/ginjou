@@ -21,7 +21,7 @@ beforeAll(async () => {
 				component: {
 					setup: () => {
 						router.onChangeLocation(location => watched(location.path))
-						router.blocker!(shouldBlock)
+						router.blocker!({ should: shouldBlock, enabled: true })
 						return () => null
 					},
 				},

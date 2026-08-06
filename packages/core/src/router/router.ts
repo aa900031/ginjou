@@ -110,8 +110,17 @@ export interface RouterBlockerController {
 	dispose: () => void
 }
 
+export interface RouterBlockerProps {
+	should: RouterBlockShouldFn
+	/**
+	 * Whether it takes part from the moment it registers, so a page that is set up switched off never
+	 * counts as one that can block. `setEnabled` is the same switch afterwards.
+	 */
+	enabled: boolean
+}
+
 export type RouterBlockerFn = (
-	shouldBlock: RouterBlockShouldFn,
+	props: RouterBlockerProps,
 ) => RouterBlockerController
 
 /* @__NO_SIDE_EFFECTS__ */

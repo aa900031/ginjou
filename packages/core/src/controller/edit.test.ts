@@ -118,6 +118,12 @@ describe('edit controller', () => {
 	describe('createSaveFn', () => {
 		const getQueryData = vi.fn(() => ({ data: { id: 1, title: 'origin' } }))
 
+		/** For the tests that are not about the guard. `createSaveFn` needs the pair either way. */
+		const unguarded = {
+			getWarnUnsavedActive: () => false,
+			setWarnUnsavedActive: () => {},
+		}
+
 		it('should return a function', () => {
 			const getId = vi.fn()
 			const getResourceName = vi.fn()
@@ -134,6 +140,7 @@ describe('edit controller', () => {
 				getQueryData,
 				navigateTo,
 				mutateFn,
+				...unguarded,
 			})
 
 			expect(saveFn).toBeTypeOf('function')
@@ -199,6 +206,7 @@ describe('edit controller', () => {
 					getQueryData,
 					navigateTo,
 					mutateFn,
+					...unguarded,
 				})
 
 				await saveFn({ title: 'Updated' })
@@ -227,6 +235,7 @@ describe('edit controller', () => {
 					getQueryData,
 					navigateTo,
 					mutateFn,
+					...unguarded,
 				})
 
 				await saveFn({ title: 'Updated' })
@@ -255,6 +264,7 @@ describe('edit controller', () => {
 					getQueryData,
 					navigateTo,
 					mutateFn,
+					...unguarded,
 				})
 
 				const savePromise = saveFn({ title: 'Updated' })
@@ -294,6 +304,7 @@ describe('edit controller', () => {
 					getQueryData,
 					navigateTo,
 					mutateFn,
+					...unguarded,
 				})
 
 				const params = { title: 'Updated', status: 'published' }
@@ -332,6 +343,7 @@ describe('edit controller', () => {
 					getQueryData,
 					navigateTo,
 					mutateFn,
+					...unguarded,
 				})
 
 				const savePromise = saveFn({ title: 'Updated' })
@@ -371,6 +383,7 @@ describe('edit controller', () => {
 					getQueryData,
 					navigateTo,
 					mutateFn,
+					...unguarded,
 				})
 
 				const savePromise = saveFn({ title: 'Updated' })
@@ -408,6 +421,7 @@ describe('edit controller', () => {
 					getQueryData,
 					navigateTo,
 					mutateFn,
+					...unguarded,
 				})
 
 				await saveFn({ title: 'Updated' })
@@ -441,6 +455,7 @@ describe('edit controller', () => {
 					getQueryData,
 					navigateTo,
 					mutateFn,
+					...unguarded,
 				})
 
 				await saveFn({ title: 'Updated' })
@@ -474,6 +489,7 @@ describe('edit controller', () => {
 					getQueryData,
 					navigateTo,
 					mutateFn,
+					...unguarded,
 				})
 
 				await saveFn({ title: 'Updated' })
@@ -511,6 +527,7 @@ describe('edit controller', () => {
 					getQueryData,
 					navigateTo,
 					mutateFn,
+					...unguarded,
 				})
 
 				await saveFn({ title: 'Updated' })
@@ -542,6 +559,7 @@ describe('edit controller', () => {
 					getQueryData,
 					navigateTo,
 					mutateFn,
+					...unguarded,
 				})
 
 				await saveFn({ title: 'Updated' })
@@ -559,6 +577,9 @@ describe('edit controller', () => {
 				getRedirect: () => undefined,
 				getQueryData,
 				navigateTo: vi.fn(),
+				// The state a form with unsaved work is in when the user hits save.
+				getWarnUnsavedActive: () => true,
+				setWarnUnsavedActive: () => {},
 			}
 
 			it('should deactivate the unsaved guard when the mutation succeeds', async () => {
@@ -624,6 +645,26 @@ describe('edit controller', () => {
 				expect(setWarnUnsavedActive.mock.calls).toEqual([[false], [true]])
 			})
 
+			// Restored, not armed: a save from a form the app never marked dirty must not come back
+			// from a failure asking about unsaved work the user does not have.
+			it('should put back what the guard was when an optimistic mutation fails', async () => {
+				const setWarnUnsavedActive = vi.fn()
+				const saveFn = createSaveFn({
+					...baseProps,
+					getMutationMode: () => MutationMode.Optimistic,
+					getWarnUnsavedActive: () => false,
+					mutateFn: vi.fn().mockImplementation((_, options) => {
+						options?.onError(new Error('Update failed'))
+						return Promise.reject(new Error('Update failed'))
+					}),
+					setWarnUnsavedActive,
+				})
+
+				await expect(saveFn({ title: 'Updated' })).rejects.toThrow('Update failed')
+
+				expect(setWarnUnsavedActive.mock.calls).toEqual([[false], [false]])
+			})
+
 			// Nothing cleared it, so there is nothing to bring back.
 			it('should leave the unsaved guard alone when a pessimistic mutation fails', async () => {
 				const setWarnUnsavedActive = vi.fn()
@@ -639,15 +680,6 @@ describe('edit controller', () => {
 				await expect(saveFn({ title: 'Updated' })).rejects.toThrow('Update failed')
 
 				expect(setWarnUnsavedActive).not.toHaveBeenCalled()
-			})
-
-			it('should not throw when setWarnUnsavedActive is not provided', async () => {
-				const saveFn = createSaveFn({
-					...baseProps,
-					mutateFn: vi.fn().mockResolvedValue({ data: { id: 1 } }),
-				})
-
-				await expect(saveFn({ title: 'Updated' })).resolves.toBeDefined()
 			})
 		})
 
@@ -671,6 +703,7 @@ describe('edit controller', () => {
 				getQueryData,
 				navigateTo,
 				mutateFn,
+				...unguarded,
 			})
 
 			const result = await saveFn({ title: 'Updated' })
@@ -696,6 +729,7 @@ describe('edit controller', () => {
 				getQueryData,
 				navigateTo,
 				mutateFn,
+				...unguarded,
 			})
 
 			await expect(saveFn({ title: 'Updated' })).rejects.toThrow('Update failed')
@@ -720,6 +754,7 @@ describe('edit controller', () => {
 				getQueryData,
 				navigateTo,
 				mutateFn,
+				...unguarded,
 			})
 
 			const savePromise = saveFn({ title: 'Updated' })
@@ -751,6 +786,7 @@ describe('edit controller', () => {
 				getQueryData,
 				navigateTo,
 				mutateFn,
+				...unguarded,
 			})
 
 			await saveFn({ title: 'Updated' })
@@ -782,6 +818,7 @@ describe('edit controller', () => {
 				getQueryData,
 				navigateTo,
 				mutateFn,
+				...unguarded,
 			})
 
 			const params = {
@@ -819,6 +856,7 @@ describe('edit controller', () => {
 				getQueryData,
 				navigateTo,
 				mutateFn,
+				...unguarded,
 			})
 
 			await saveFn({ title: 'Updated' })

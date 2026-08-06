@@ -21,7 +21,7 @@ function destroyHost(): void {
 function register(
 	shouldBlock: Parameters<NonNullable<SpaRouter['blocker']>>[0],
 ): RouterBlockerController {
-	return router.blocker!(shouldBlock)
+	return router.blocker!({ should: shouldBlock, enabled: true })
 }
 
 function dispatchBeforeUnload(): Event {

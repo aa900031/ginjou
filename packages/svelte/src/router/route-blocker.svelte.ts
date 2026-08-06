@@ -42,9 +42,12 @@ export function useRouteBlocker(
 		}
 	}
 
-	const blocker = router.blocker(
-		input => RouteBlocker.resolveShouldBlock(resolvedProps.shouldBlock, input),
-	)
+	// svelte-ignore state_referenced_locally -- the initial value is the point: registering is a
+	// one-off, and the watch below is what carries every change after it.
+	const blocker = router.blocker({
+		should: input => RouteBlocker.resolveShouldBlock(resolvedProps.shouldBlock, input),
+		enabled,
+	})
 	const unsubscribe = blocker.subscribe((value) => {
 		state = value
 	})
@@ -52,7 +55,6 @@ export function useRouteBlocker(
 	const stopWatch = watch(
 		() => enabled,
 		value => blocker.setEnabled(value),
-		{ immediate: true },
 	)
 
 	onDestroy(() => {

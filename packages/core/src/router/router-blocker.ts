@@ -1,6 +1,7 @@
 import type {
 	RouterBlockerController,
 	RouterBlockerFn,
+	RouterBlockerProps,
 	RouterBlockerStateValues,
 	RouterBlockShouldFn,
 	RouterBlockShouldInput,
@@ -130,18 +131,19 @@ export function createRegistry(
 	}
 
 	function create(
-		shouldBlock: RouterBlockShouldFn,
+		props: RouterBlockerProps,
 	): RouterBlockerController {
 		const member: Member = {
-			shouldBlock,
-			enabled: true,
+			shouldBlock: props.should,
+			enabled: props.enabled,
 			state: RouterBlockerState.Unblocked,
 			handlers: new Set(),
 			release: undefined,
 			disposed: false,
 		}
 		members.add(member)
-		countEnabled(1)
+		if (member.enabled)
+			countEnabled(1)
 
 		return {
 			get state() {

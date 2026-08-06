@@ -30,7 +30,7 @@ describe('createBlockerCondition', () => {
 
 	it('should allow the navigation when no blocker blocks it', async () => {
 		const condition = blocker.createBlockerCondition()
-		blocker.create(() => false)
+		blocker.create({ should: () => false, enabled: true })
 
 		await condition(detail('/posts/1/edit'))
 
@@ -40,7 +40,7 @@ describe('createBlockerCondition', () => {
 	it('should pass the location being left and the location being entered', async () => {
 		const condition = blocker.createBlockerCondition()
 		const shouldBlock = vi.fn(() => false)
-		blocker.create(shouldBlock)
+		blocker.create({ should: shouldBlock, enabled: true })
 
 		await condition(detail('/posts/1/edit'))
 		await condition(detail('/posts', 'page=2'))
@@ -56,7 +56,7 @@ describe('createBlockerCondition', () => {
 
 	it('should hold the navigation while a blocker is deciding', async () => {
 		const condition = blocker.createBlockerCondition()
-		const controller = blocker.create(() => true)
+		const controller = blocker.create({ should: () => true, enabled: true })
 
 		await condition(detail('/posts/1/edit'))
 		const pending = condition(detail('/posts'))
@@ -67,7 +67,7 @@ describe('createBlockerCondition', () => {
 
 	it('should let the navigation through on proceed, leaving the URL alone', async () => {
 		const condition = blocker.createBlockerCondition()
-		const controller = blocker.create(() => true)
+		const controller = blocker.create({ should: () => true, enabled: true })
 
 		await condition(detail('/posts/1/edit'))
 
@@ -82,7 +82,7 @@ describe('createBlockerCondition', () => {
 
 	it('should restore the previous location on reset', async () => {
 		const condition = blocker.createBlockerCondition()
-		const controller = blocker.create(() => true)
+		const controller = blocker.create({ should: () => true, enabled: true })
 
 		await condition(detail('/posts/1/edit'))
 
@@ -102,7 +102,7 @@ describe('createBlockerCondition', () => {
 	// end-to-end behaviour is verified against Chrome.
 	it('should step off the entry a cancelled push left behind', async () => {
 		const condition = blocker.createBlockerCondition()
-		const controller = blocker.create(() => true)
+		const controller = blocker.create({ should: () => true, enabled: true })
 		const back = vi.spyOn(window.history, 'back').mockImplementation(() => {})
 		onTestFinished(() => back.mockRestore())
 
@@ -119,7 +119,7 @@ describe('createBlockerCondition', () => {
 
 	it('should leave the history alone when a cancelled navigation was a traversal', async () => {
 		const condition = blocker.createBlockerCondition()
-		const controller = blocker.create(() => true)
+		const controller = blocker.create({ should: () => true, enabled: true })
 		const back = vi.spyOn(window.history, 'back').mockImplementation(() => {})
 		onTestFinished(() => back.mockRestore())
 
@@ -138,7 +138,7 @@ describe('createBlockerCondition', () => {
 	it('should not block the restore navigation it just made', async () => {
 		const condition = blocker.createBlockerCondition()
 		const shouldBlock = vi.fn(() => true)
-		const controller = blocker.create(shouldBlock)
+		const controller = blocker.create({ should: shouldBlock, enabled: true })
 
 		await condition(detail('/posts/1/edit'))
 		const pending = condition(detail('/posts'))
@@ -155,7 +155,7 @@ describe('createBlockerCondition', () => {
 	it('should ask the blockers when only the query changes', async () => {
 		const condition = blocker.createBlockerCondition()
 		const shouldBlock = vi.fn(() => true)
-		const controller = blocker.create(shouldBlock)
+		const controller = blocker.create({ should: shouldBlock, enabled: true })
 
 		await condition(detail('/posts', 'page=1'))
 		const pending = condition(detail('/posts', 'page=2'))
@@ -174,7 +174,7 @@ describe('createBlockerCondition', () => {
 
 	it('should let a query-only change through when the predicate compares paths', async () => {
 		const condition = blocker.createBlockerCondition()
-		blocker.create(({ currentLocation, nextLocation }) => nextLocation?.path !== currentLocation.path)
+		blocker.create({ should: ({ currentLocation, nextLocation }) => nextLocation?.path !== currentLocation.path, enabled: true })
 
 		await condition(detail('/posts', 'page=1'))
 
@@ -184,7 +184,7 @@ describe('createBlockerCondition', () => {
 
 	it('should invalidate a held run that a later navigation superseded', async () => {
 		const condition = blocker.createBlockerCondition()
-		const controller = blocker.create(() => true)
+		const controller = blocker.create({ should: () => true, enabled: true })
 
 		await condition(detail('/posts/1/edit'))
 
@@ -204,7 +204,7 @@ describe('createBlockerCondition', () => {
 	it('should not block a navigation to the location already displayed', async () => {
 		const condition = blocker.createBlockerCondition()
 		const shouldBlock = vi.fn(() => true)
-		blocker.create(shouldBlock)
+		blocker.create({ should: shouldBlock, enabled: true })
 
 		await condition(detail('/posts/1/edit'))
 
@@ -214,8 +214,8 @@ describe('createBlockerCondition', () => {
 
 	it('should still consult the other blockers after one proceeds', async () => {
 		const condition = blocker.createBlockerCondition()
-		const first = blocker.create(() => true)
-		const second = blocker.create(() => true)
+		const first = blocker.create({ should: () => true, enabled: true })
+		const second = blocker.create({ should: () => true, enabled: true })
 
 		await condition(detail('/posts/1/edit'))
 		const pending = condition(detail('/posts'))
@@ -231,7 +231,7 @@ describe('createBlockerCondition', () => {
 		const onEdit = blocker.createBlockerCondition()
 		const onList = blocker.createBlockerCondition()
 		const shouldBlock = vi.fn(() => false)
-		blocker.create(shouldBlock)
+		blocker.create({ should: shouldBlock, enabled: true })
 
 		await onEdit(detail('/posts/1/edit'))
 		await onList(detail('/posts'))
@@ -243,7 +243,7 @@ describe('createBlockerCondition', () => {
 	// waved through: the page it was protecting is the one being torn down.
 	it('should cancel a held navigation when the blocker is disposed', async () => {
 		const condition = blocker.createBlockerCondition()
-		const controller = blocker.create(() => true)
+		const controller = blocker.create({ should: () => true, enabled: true })
 
 		await condition(detail('/posts/1/edit'))
 
@@ -259,8 +259,8 @@ describe('createBlockerCondition', () => {
 	// participants hold their approval until `<Router>` says which way it went — `settle` here.
 	it('should keep the approvals until it is settled', async () => {
 		const condition = blocker.createBlockerCondition()
-		const first = blocker.create(() => true)
-		const second = blocker.create(() => true)
+		const first = blocker.create({ should: () => true, enabled: true })
+		const second = blocker.create({ should: () => true, enabled: true })
 
 		await condition(detail('/posts/1/edit'))
 		const pending = condition(detail('/posts'))
@@ -280,7 +280,7 @@ describe('createBlockerCondition', () => {
 	// settles whatever the last one left behind before it snapshots.
 	it('should settle the last navigation when a new one starts', async () => {
 		const condition = blocker.createBlockerCondition()
-		const controller = blocker.create(() => true)
+		const controller = blocker.create({ should: () => true, enabled: true })
 
 		await condition(detail('/posts/1/edit'))
 		const pending = condition(detail('/posts'))
@@ -301,8 +301,8 @@ describe('createBlockerCondition', () => {
 	// run and `<Router>` drops it without reporting anything.
 	it('should settle every participant once it is cancelled', async () => {
 		const condition = blocker.createBlockerCondition()
-		const first = blocker.create(() => true)
-		const second = blocker.create(() => true)
+		const first = blocker.create({ should: () => true, enabled: true })
+		const second = blocker.create({ should: () => true, enabled: true })
 
 		await condition(detail('/posts/1/edit'))
 		const pending = condition(detail('/posts'))
@@ -316,7 +316,7 @@ describe('createBlockerCondition', () => {
 
 	it('should leave the URL to the newer navigation when it takes the hold over', async () => {
 		const condition = blocker.createBlockerCondition()
-		const controller = blocker.create(() => true)
+		const controller = blocker.create({ should: () => true, enabled: true })
 
 		await condition(detail('/posts/1/edit'))
 
@@ -336,7 +336,7 @@ describe('createBlockerCondition', () => {
 
 	it('should not block after the blocker is disposed', async () => {
 		const condition = blocker.createBlockerCondition()
-		const controller = blocker.create(() => true)
+		const controller = blocker.create({ should: () => true, enabled: true })
 
 		await condition(detail('/posts/1/edit'))
 		controller.dispose()
@@ -346,7 +346,7 @@ describe('createBlockerCondition', () => {
 
 	it('should not block after the registry is disposed', async () => {
 		const condition = blocker.createBlockerCondition()
-		blocker.create(() => true)
+		blocker.create({ should: () => true, enabled: true })
 
 		await condition(detail('/posts/1/edit'))
 		blocker.dispose()
@@ -377,7 +377,7 @@ describe('acceptedLocation', () => {
 
 	it('should keep reporting the mounted route while a blocker is deciding', async () => {
 		const condition = blocker.createBlockerCondition()
-		const controller = blocker.create(() => true)
+		const controller = blocker.create({ should: () => true, enabled: true })
 		await condition(detail('/posts/1/edit', '', { id: '1' }))
 
 		const pending = condition(detail('/posts'))
@@ -393,7 +393,7 @@ describe('acceptedLocation', () => {
 
 	it('should keep reporting the mounted route after a cancel', async () => {
 		const condition = blocker.createBlockerCondition()
-		const controller = blocker.create(() => true)
+		const controller = blocker.create({ should: () => true, enabled: true })
 		await condition(detail('/posts/1/edit', '', { id: '1' }))
 
 		const pending = condition(detail('/posts'))
@@ -405,7 +405,7 @@ describe('acceptedLocation', () => {
 
 	it('should advance once the navigation proceeds', async () => {
 		const condition = blocker.createBlockerCondition()
-		const controller = blocker.create(() => true)
+		const controller = blocker.create({ should: () => true, enabled: true })
 		await condition(detail('/posts/1/edit', '', { id: '1' }))
 
 		const pending = condition(detail('/posts'))

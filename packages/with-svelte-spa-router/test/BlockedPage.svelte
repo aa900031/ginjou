@@ -16,7 +16,7 @@
 	let state = $state<RouteBlocker.StateValues>(RouteBlocker.State.Unblocked)
 
 	// svelte-ignore state_referenced_locally
-	const controller = router.blocker!(() => true)
+	const controller = router.blocker!({ should: () => true, enabled: true })
 
 	const unsubscribe = controller.subscribe((value) => {
 		state = value

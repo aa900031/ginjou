@@ -48,15 +48,15 @@ describe('createRegistry', () => {
 
 		it('should allow the navigation synchronously when no blocker blocks it', () => {
 			const registry = createRegistry()
-			registry.create(() => false)
-			registry.create(() => false)
+			registry.create({ should: () => false, enabled: true })
+			registry.create({ should: () => false, enabled: true })
 
 			expect(registry.run(INPUT)).toBe(true)
 		})
 
 		it('should hold the navigation until the blocker answers', async () => {
 			const registry = createRegistry()
-			const controller = registry.create(() => true)
+			const controller = registry.create({ should: () => true, enabled: true })
 
 			const navigation = registry.run(INPUT)
 
@@ -72,8 +72,8 @@ describe('createRegistry', () => {
 			const registry = createRegistry()
 			const first = vi.fn((_input: RouterBlockShouldInput): boolean => false)
 			const second = vi.fn((_input: RouterBlockShouldInput): boolean => false)
-			registry.create(first)
-			registry.create(second)
+			registry.create({ should: first, enabled: true })
+			registry.create({ should: second, enabled: true })
 
 			registry.run(INPUT)
 
@@ -84,8 +84,8 @@ describe('createRegistry', () => {
 		// A false / B true => B blocks.
 		it('should only take the blockers whose predicate answers true', async () => {
 			const registry = createRegistry()
-			const passive = registry.create(() => false)
-			const blocking = registry.create(() => true)
+			const passive = registry.create({ should: () => false, enabled: true })
+			const blocking = registry.create({ should: () => true, enabled: true })
 
 			const navigation = registry.run(INPUT)
 
@@ -102,8 +102,8 @@ describe('createRegistry', () => {
 			const registry = createRegistry()
 			const first = vi.fn(() => true)
 			const second = vi.fn(() => true)
-			const firstController = registry.create(first)
-			const secondController = registry.create(second)
+			const firstController = registry.create({ should: first, enabled: true })
+			const secondController = registry.create({ should: second, enabled: true })
 
 			const navigation = registry.run(INPUT)
 
@@ -122,8 +122,8 @@ describe('createRegistry', () => {
 		// A proceed / B reset => navigation cancelled, and both are settled.
 		it('should cancel the whole navigation when a later blocker resets', async () => {
 			const registry = createRegistry()
-			const first = registry.create(() => true)
-			const second = registry.create(() => true)
+			const first = registry.create({ should: () => true, enabled: true })
+			const second = registry.create({ should: () => true, enabled: true })
 
 			const navigation = registry.run(INPUT)
 			first.proceed()
@@ -136,8 +136,8 @@ describe('createRegistry', () => {
 
 		it('should ignore an answer from a blocker that is not being asked', async () => {
 			const registry = createRegistry()
-			const first = registry.create(() => true)
-			const second = registry.create(() => true)
+			const first = registry.create({ should: () => true, enabled: true })
+			const second = registry.create({ should: () => true, enabled: true })
 
 			const navigation = registry.run(INPUT)
 
@@ -158,12 +158,12 @@ describe('createRegistry', () => {
 		// A blocker registered while the user is deciding belongs to the next navigation.
 		it('should not ask a blocker registered after the navigation started', async () => {
 			const registry = createRegistry()
-			const holder = registry.create(() => true)
+			const holder = registry.create({ should: () => true, enabled: true })
 
 			const navigation = registry.run(INPUT)
 
 			const late = vi.fn(() => true)
-			registry.create(late)
+			registry.create({ should: late, enabled: true })
 			holder.proceed()
 
 			await expect(navigation).resolves.toBe(true)
@@ -173,7 +173,7 @@ describe('createRegistry', () => {
 		it('should re-evaluate the predicates for every navigation', () => {
 			const registry = createRegistry()
 			const shouldBlock = vi.fn(() => false)
-			registry.create(shouldBlock)
+			registry.create({ should: shouldBlock, enabled: true })
 
 			registry.run(INPUT)
 			registry.run(INPUT)
@@ -185,7 +185,7 @@ describe('createRegistry', () => {
 		it('should keep holding a navigation whose predicate stopped blocking', async () => {
 			const registry = createRegistry()
 			let blocking = true
-			const controller = registry.create(() => blocking)
+			const controller = registry.create({ should: () => blocking, enabled: true })
 
 			const navigation = registry.run(INPUT)
 			blocking = false
@@ -202,7 +202,7 @@ describe('createRegistry', () => {
 	describe('proceed', () => {
 		it('should publish proceeding and stay there until the navigation ends', async () => {
 			const registry = createRegistry()
-			const controller = registry.create(() => true)
+			const controller = registry.create({ should: () => true, enabled: true })
 
 			const navigation = registry.run(INPUT)
 			controller.proceed()
@@ -220,7 +220,7 @@ describe('createRegistry', () => {
 	describe('reset', () => {
 		it('should cancel the navigation and settle', async () => {
 			const registry = createRegistry()
-			const controller = registry.create(() => true)
+			const controller = registry.create({ should: () => true, enabled: true })
 
 			const navigation = registry.run(INPUT)
 			controller.reset()
@@ -233,7 +233,7 @@ describe('createRegistry', () => {
 	describe('subscribe', () => {
 		it('should report every transition', async () => {
 			const registry = createRegistry()
-			const controller = registry.create(() => true)
+			const controller = registry.create({ should: () => true, enabled: true })
 			const handler = vi.fn()
 			controller.subscribe(handler)
 
@@ -247,7 +247,7 @@ describe('createRegistry', () => {
 
 		it('should stop reporting after the teardown it returns', () => {
 			const registry = createRegistry()
-			const controller = registry.create(() => true)
+			const controller = registry.create({ should: () => true, enabled: true })
 			const handler = vi.fn()
 
 			controller.subscribe(handler)()
@@ -258,7 +258,7 @@ describe('createRegistry', () => {
 
 		it('should survive a subscriber that resets from inside the publish', async () => {
 			const registry = createRegistry()
-			const controller = registry.create(() => true)
+			const controller = registry.create({ should: () => true, enabled: true })
 			controller.subscribe((state) => {
 				if (state === State.Blocked)
 					controller.reset()
@@ -270,7 +270,7 @@ describe('createRegistry', () => {
 
 		it('should survive a subscriber that disposes from inside the publish', async () => {
 			const registry = createRegistry()
-			const controller = registry.create(() => true)
+			const controller = registry.create({ should: () => true, enabled: true })
 			controller.subscribe((state) => {
 				if (state === State.Blocked)
 					controller.dispose()
@@ -283,8 +283,8 @@ describe('createRegistry', () => {
 	describe('settle', () => {
 		it('should settle every participant of an approved navigation', async () => {
 			const registry = createRegistry()
-			const first = registry.create(() => true)
-			const second = registry.create(() => true)
+			const first = registry.create({ should: () => true, enabled: true })
+			const second = registry.create({ should: () => true, enabled: true })
 
 			const navigation = registry.run(INPUT)
 			first.proceed()
@@ -301,7 +301,7 @@ describe('createRegistry', () => {
 
 		it('should do nothing when no navigation is riding on the blockers', () => {
 			const registry = createRegistry()
-			const controller = registry.create(() => true)
+			const controller = registry.create({ should: () => true, enabled: true })
 
 			registry.settle()
 
@@ -312,7 +312,7 @@ describe('createRegistry', () => {
 		// already started asking. Settling on it would take the new hold away.
 		it('should ignore a terminal signal that arrives while a decision is pending', async () => {
 			const registry = createRegistry()
-			const controller = registry.create(() => true)
+			const controller = registry.create({ should: () => true, enabled: true })
 
 			const superseded = registry.run(INPUT)
 			const latest = registry.run(INPUT)
@@ -330,8 +330,8 @@ describe('createRegistry', () => {
 	describe('supersede', () => {
 		it('should settle the participants of the navigation it replaces', async () => {
 			const registry = createRegistry()
-			const first = registry.create(() => true)
-			const second = registry.create(() => true)
+			const first = registry.create({ should: () => true, enabled: true })
+			const second = registry.create({ should: () => true, enabled: true })
 
 			const superseded = registry.run(INPUT)
 			first.proceed()
@@ -353,7 +353,7 @@ describe('createRegistry', () => {
 		it('should leave a hold alone when the navigation passing through blocks nobody', async () => {
 			const registry = createRegistry()
 			let blocking = true
-			const controller = registry.create(() => blocking)
+			const controller = registry.create({ should: () => blocking, enabled: true })
 
 			const held = registry.run(INPUT)
 			await advance()
@@ -370,7 +370,7 @@ describe('createRegistry', () => {
 
 		it('should make an answer to the replaced navigation a no-op', async () => {
 			const registry = createRegistry()
-			const controller = registry.create(() => true)
+			const controller = registry.create({ should: () => true, enabled: true })
 
 			const superseded = registry.run(INPUT)
 			const latest = registry.run(INPUT)
@@ -386,7 +386,7 @@ describe('createRegistry', () => {
 	describe('setEnabled', () => {
 		it('should not be asked while disabled', () => {
 			const registry = createRegistry()
-			const controller = registry.create(() => true)
+			const controller = registry.create({ should: () => true, enabled: true })
 
 			controller.setEnabled(false)
 
@@ -398,8 +398,8 @@ describe('createRegistry', () => {
 		// are asked in, and a page that comes back has to keep the place it had.
 		it('should keep its place in the order', async () => {
 			const registry = createRegistry()
-			const first = registry.create(() => true)
-			const second = registry.create(() => true)
+			const first = registry.create({ should: () => true, enabled: true })
+			const second = registry.create({ should: () => true, enabled: true })
 
 			first.setEnabled(false)
 			first.setEnabled(true)
@@ -412,7 +412,7 @@ describe('createRegistry', () => {
 
 		it('should cancel the navigation when disabled while blocked', async () => {
 			const registry = createRegistry()
-			const controller = registry.create(() => true)
+			const controller = registry.create({ should: () => true, enabled: true })
 
 			const held = registry.run(INPUT)
 			await advance()
@@ -425,8 +425,8 @@ describe('createRegistry', () => {
 
 		it('should keep an approval already given', async () => {
 			const registry = createRegistry()
-			const first = registry.create(() => true)
-			const second = registry.create(() => true)
+			const first = registry.create({ should: () => true, enabled: true })
+			const second = registry.create({ should: () => true, enabled: true })
 
 			const held = registry.run(INPUT)
 			await advance()
@@ -444,7 +444,7 @@ describe('createRegistry', () => {
 		it('should not be asked once disposed', () => {
 			const registry = createRegistry()
 			const shouldBlock = vi.fn(() => true)
-			registry.create(shouldBlock).dispose()
+			registry.create({ should: shouldBlock, enabled: true }).dispose()
 
 			expect(registry.run(INPUT)).toBe(true)
 			expect(shouldBlock).not.toHaveBeenCalled()
@@ -452,8 +452,8 @@ describe('createRegistry', () => {
 
 		it('should be skipped when disposed before its turn', async () => {
 			const registry = createRegistry()
-			const holder = registry.create(() => true)
-			const queued = registry.create(() => true)
+			const holder = registry.create({ should: () => true, enabled: true })
+			const queued = registry.create({ should: () => true, enabled: true })
 
 			const navigation = registry.run(INPUT)
 			queued.dispose()
@@ -466,8 +466,8 @@ describe('createRegistry', () => {
 		// Nothing is left to answer for it, so going away while holding is a cancel, not an allow.
 		it('should cancel the navigation when disposed while blocked', async () => {
 			const registry = createRegistry()
-			const holder = registry.create(() => true)
-			const queued = registry.create(() => true)
+			const holder = registry.create({ should: () => true, enabled: true })
+			const queued = registry.create({ should: () => true, enabled: true })
 
 			const navigation = registry.run(INPUT)
 			holder.dispose()
@@ -478,8 +478,8 @@ describe('createRegistry', () => {
 
 		it('should keep its approval when disposed while proceeding', async () => {
 			const registry = createRegistry()
-			const approved = registry.create(() => true)
-			const queued = registry.create(() => true)
+			const approved = registry.create({ should: () => true, enabled: true })
+			const queued = registry.create({ should: () => true, enabled: true })
 
 			const navigation = registry.run(INPUT)
 			approved.proceed()
@@ -495,7 +495,7 @@ describe('createRegistry', () => {
 
 		it('should stop reporting once disposed', () => {
 			const registry = createRegistry()
-			const controller = registry.create(() => true)
+			const controller = registry.create({ should: () => true, enabled: true })
 			const handler = vi.fn()
 			controller.subscribe(handler)
 
@@ -507,7 +507,7 @@ describe('createRegistry', () => {
 
 		it('should be safe to call twice', () => {
 			const registry = createRegistry()
-			const controller = registry.create(() => true)
+			const controller = registry.create({ should: () => true, enabled: true })
 
 			controller.dispose()
 			controller.dispose()
@@ -519,7 +519,7 @@ describe('createRegistry', () => {
 	describe('registry dispose', () => {
 		it('should settle a held navigation and drop every blocker', async () => {
 			const registry = createRegistry()
-			const controller = registry.create(() => true)
+			const controller = registry.create({ should: () => true, enabled: true })
 
 			const navigation = registry.run(INPUT)
 			registry.dispose()
@@ -540,15 +540,15 @@ describe('createRegistry', () => {
 
 		it('should be true when any blocker answers true', () => {
 			const registry = createRegistry()
-			registry.create(() => false)
-			registry.create(() => true)
+			registry.create({ should: () => false, enabled: true })
+			registry.create({ should: () => true, enabled: true })
 
 			expect(registry.anyBlocking(UNLOAD)).toBe(true)
 		})
 
 		it('should be false when no blocker answers true', () => {
 			const registry = createRegistry()
-			registry.create(() => false)
+			registry.create({ should: () => false, enabled: true })
 
 			expect(registry.anyBlocking(UNLOAD)).toBe(false)
 		})
@@ -556,8 +556,8 @@ describe('createRegistry', () => {
 		it('should stop after the first blocker that answers true', () => {
 			const registry = createRegistry()
 			const later = vi.fn(() => true)
-			registry.create(() => true)
-			registry.create(later)
+			registry.create({ should: () => true, enabled: true })
+			registry.create({ should: later, enabled: true })
 
 			registry.anyBlocking(UNLOAD)
 
@@ -567,7 +567,7 @@ describe('createRegistry', () => {
 		it('should pass the input untouched', () => {
 			const registry = createRegistry()
 			const shouldBlock = vi.fn((_input: RouterBlockShouldInput): boolean => false)
-			registry.create(shouldBlock)
+			registry.create({ should: shouldBlock, enabled: true })
 
 			registry.anyBlocking(UNLOAD)
 
@@ -576,7 +576,7 @@ describe('createRegistry', () => {
 
 		it('should not touch the state of a blocker that answers true', () => {
 			const registry = createRegistry()
-			const controller = registry.create(() => true)
+			const controller = registry.create({ should: () => true, enabled: true })
 
 			registry.anyBlocking(UNLOAD)
 
@@ -585,7 +585,7 @@ describe('createRegistry', () => {
 
 		it('should not consider a disposed blocker', () => {
 			const registry = createRegistry()
-			registry.create(() => true).dispose()
+			registry.create({ should: () => true, enabled: true }).dispose()
 
 			expect(registry.anyBlocking(UNLOAD)).toBe(false)
 		})
@@ -596,8 +596,8 @@ describe('createRegistry', () => {
 			const onActive = vi.fn()
 			const registry = createRegistry({ onActive })
 
-			const first = registry.create(() => true)
-			const second = registry.create(() => true)
+			const first = registry.create({ should: () => true, enabled: true })
+			const second = registry.create({ should: () => true, enabled: true })
 
 			expect(onActive.mock.calls.flat()).toEqual([true])
 
@@ -614,8 +614,8 @@ describe('createRegistry', () => {
 			const onActive = vi.fn()
 			const registry = createRegistry({ onActive })
 
-			registry.create(() => true).dispose()
-			registry.create(() => true)
+			registry.create({ should: () => true, enabled: true }).dispose()
+			registry.create({ should: () => true, enabled: true })
 
 			expect(onActive.mock.calls.flat()).toEqual([true, false, true])
 		})
@@ -623,7 +623,7 @@ describe('createRegistry', () => {
 		it('should report the registry being disposed', () => {
 			const onActive = vi.fn()
 			const registry = createRegistry({ onActive })
-			registry.create(() => true)
+			registry.create({ should: () => true, enabled: true })
 
 			registry.dispose()
 
@@ -645,8 +645,8 @@ describe('createRegistry', () => {
 			const onActive = vi.fn()
 			const registry = createRegistry({ onActive })
 
-			const first = registry.create(() => true)
-			const second = registry.create(() => true)
+			const first = registry.create({ should: () => true, enabled: true })
+			const second = registry.create({ should: () => true, enabled: true })
 			first.setEnabled(false)
 
 			expect(onActive.mock.calls.flat()).toEqual([true])
@@ -664,7 +664,7 @@ describe('createRegistry', () => {
 			const onActive = vi.fn()
 			const registry = createRegistry({ onActive })
 
-			const controller = registry.create(() => true)
+			const controller = registry.create({ should: () => true, enabled: true })
 			controller.setEnabled(false)
 			onActive.mockClear()
 
