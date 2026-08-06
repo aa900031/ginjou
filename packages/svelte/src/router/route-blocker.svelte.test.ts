@@ -6,7 +6,7 @@ const mocks = vi.hoisted(() => ({
 	onDestroy: vi.fn(),
 	useRouterContext: vi.fn(),
 	watchRuns: [] as Array<() => void>,
-	stopWatch: vi.fn(),
+
 }))
 
 vi.mock('svelte', () => ({
@@ -29,7 +29,7 @@ vi.mock('../utils/watch.svelte', () => ({
 		if (options?.immediate)
 			run()
 
-		return mocks.stopWatch
+		return () => {}
 	},
 }))
 
@@ -106,7 +106,6 @@ describe('useRouteBlocker', () => {
 		mocks.onDestroy.mockReset()
 		mocks.useRouterContext.mockReset()
 		mocks.watchRuns.length = 0
-		mocks.stopWatch.mockReset()
 	})
 
 	it('should report the state the registry publishes', () => {
@@ -249,7 +248,7 @@ describe('useRouteBlocker', () => {
 		expect(result.state).toBe('blocked')
 	})
 
-	it('should dispose and stop watching on destroy', () => {
+	it('should dispose on destroy', () => {
 		const { router, controller } = createRouter()
 		mocks.useRouterContext.mockReturnValue(router)
 
@@ -259,7 +258,6 @@ describe('useRouteBlocker', () => {
 		mocks.onDestroy.mock.calls[0][0]()
 
 		expect(controller.dispose).toHaveBeenCalledOnce()
-		expect(mocks.stopWatch).toHaveBeenCalledOnce()
 	})
 
 	it('should degrade to a no-op when blocker is not implemented', () => {

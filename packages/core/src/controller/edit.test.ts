@@ -170,6 +170,7 @@ describe('edit controller', () => {
 					getRedirect,
 					navigateTo,
 					mutateFn,
+					...unguarded,
 				})
 
 				await saveFn({ title: 'Updated' })

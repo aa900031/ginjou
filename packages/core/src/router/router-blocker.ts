@@ -55,11 +55,9 @@ interface Member {
 	state: RouterBlockerStateValues
 	release: ((proceeded: boolean) => void) | undefined
 	handlers: Set<(state: RouterBlockerStateValues) => void>
-	disposed: boolean
 }
 
 interface Transaction {
-	id: number
 	members: Member[]
 	/**
 	 * Whether a member is still being asked.
@@ -84,7 +82,6 @@ export function createRegistry(
 	props?: CreateRegistryProps,
 ): Registry {
 	const members = new Set<Member>()
-	let latest = 0
 	let current: Transaction | undefined
 	/**
 	 * How many members can currently block, which is not how many are registered: a page registers
@@ -139,7 +136,6 @@ export function createRegistry(
 			state: RouterBlockerState.Unblocked,
 			handlers: new Set(),
 			release: undefined,
-			disposed: false,
 		}
 		members.add(member)
 		if (member.enabled)
@@ -171,7 +167,7 @@ export function createRegistry(
 				finish()
 			},
 			setEnabled: (value) => {
-				if (member.disposed || member.enabled === value)
+				if (!members.has(member) || member.enabled === value)
 					return
 
 				member.enabled = value
@@ -183,11 +179,9 @@ export function createRegistry(
 					finish()
 			},
 			dispose: () => {
-				if (member.disposed)
+				if (!members.delete(member))
 					return
 
-				member.disposed = true
-				members.delete(member)
 				member.handlers.clear()
 
 				// `blocked` is the one state where going away is a decision: this member is what the
@@ -211,17 +205,20 @@ export function createRegistry(
 	): boolean | Promise<boolean> {
 		// Snapshotted, and every predicate answers for the navigation at the point it started. One
 		// registered while the user is deciding takes part in the next navigation, not this one.
-		const participants = [...members].filter(member => member.enabled && member.shouldBlock(input))
+		const participants: Member[] = []
+		for (const member of members) {
+			if (member.enabled && member.shouldBlock(input))
+				participants.push(member)
+		}
 		// Nothing to ask, so nothing to supersede either: a navigation nobody blocks passes through
 		// without touching a hold someone is still deciding on. Ending it here would cancel it and
 		// leave the answer still to come with nothing to apply it to.
 		if (participants.length === 0)
 			return true
 
-		const id = ++latest
 		finish()
 
-		const transaction: Transaction = { id, members: participants, waiting: true }
+		const transaction: Transaction = { members: participants, waiting: true }
 		current = transaction
 		return process(transaction)
 	}
@@ -232,7 +229,7 @@ export function createRegistry(
 		for (const member of transaction.members) {
 			// Its owner went away before its turn. Asking it anyway would hold the navigation on
 			// something with nothing left to answer for it.
-			if (member.disposed)
+			if (!members.has(member))
 				continue
 
 			// Assigned before the state goes out, not after: a synchronous subscriber can decide or
@@ -248,7 +245,7 @@ export function createRegistry(
 
 			// Let go by a newer navigation rather than by an answer. It owns the members now, and
 			// clearing `release` here would take its hold away.
-			if (transaction.id !== latest)
+			if (current !== transaction)
 				return false
 
 			member.release = undefined

@@ -113,7 +113,7 @@ export function createSaveFn<
 		let oldWarnUnsavedActive: boolean | undefined
 		if (!isPessimistic) {
 			oldWarnUnsavedActive = getWarnUnsavedActive()
-			setWarnUnsavedActive?.(false)
+			setWarnUnsavedActive(false)
 
 			setTimeout(() => {
 				redirectTo({
@@ -137,7 +137,7 @@ export function createSaveFn<
 		}, {
 			onSuccess: (data) => {
 				if (isPessimistic) {
-					setWarnUnsavedActive?.(false)
+					setWarnUnsavedActive(false)
 
 					redirectTo({
 						redirect: getRedirect() ?? ResourceAction.Type.Show,
@@ -150,7 +150,7 @@ export function createSaveFn<
 			},
 			onError: () => {
 				if (!isPessimistic && oldWarnUnsavedActive != null)
-					setWarnUnsavedActive?.(oldWarnUnsavedActive)
+					setWarnUnsavedActive(oldWarnUnsavedActive)
 			},
 		})
 	}

@@ -61,7 +61,7 @@ export function useRouteBlocker(
 
 	return {
 		state: publicState,
-		proceed: () => blocker.proceed(),
-		reset: () => blocker.reset(),
+		proceed: blocker.proceed,
+		reset: blocker.reset,
 	}
 }

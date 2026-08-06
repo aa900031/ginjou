@@ -65,8 +65,8 @@ export function useWarnUnsaved(
 			setConfirming: (next) => {
 				confirming.value = next
 			},
-			proceed: () => blocker.proceed?.(),
-			reset: () => blocker.reset?.(),
+			proceed: blocker.proceed,
+			reset: blocker.reset,
 		})
 	})
 

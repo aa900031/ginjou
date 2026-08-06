@@ -46,6 +46,7 @@ export function useWarnUnsaved(
 
 	let active = $state(false)
 	let confirming = $state(false)
+	const state = $derived.by(() => WarnUnsaved.getState({ enabled, active, confirming }))
 
 	// A predicate, not a bare `active`: every navigation reaches it now, and unsaved work only
 	// wants the ones that take the page away. A change of query or hash leaves the route mounted.
@@ -62,8 +63,8 @@ export function useWarnUnsaved(
 			setConfirming: (next) => {
 				confirming = next
 			},
-			proceed: () => blocker.proceed?.(),
-			reset: () => blocker.reset?.(),
+			proceed: blocker.proceed,
+			reset: blocker.reset,
 		})
 	})
 
@@ -75,7 +76,7 @@ export function useWarnUnsaved(
 			active = value
 		},
 		get state() {
-			return WarnUnsaved.getState({ enabled, active, confirming })
+			return state
 		},
 	}
 }

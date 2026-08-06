@@ -52,13 +52,12 @@ export function useRouteBlocker(
 		state = value
 	})
 
-	const stopWatch = watch(
+	watch(
 		() => enabled,
 		value => blocker.setEnabled(value),
 	)
 
 	onDestroy(() => {
-		stopWatch()
 		unsubscribe()
 		blocker.dispose()
 	})
@@ -67,7 +66,7 @@ export function useRouteBlocker(
 		get state() {
 			return state
 		},
-		proceed: () => blocker.proceed(),
-		reset: () => blocker.reset(),
+		proceed: blocker.proceed,
+		reset: blocker.reset,
 	}
 }

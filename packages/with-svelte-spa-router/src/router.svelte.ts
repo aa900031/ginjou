@@ -41,7 +41,7 @@ export function createRouter(options?: CreateRouterOptions): SpaRouter {
 
 	onDestroy(blocker.dispose)
 
-	const _router = defineRouter({
+	return defineRouter({
 		go: (params: RouterGoParams): void => {
 			const path = buildPath(params, router.location, router.querystring, parseQuery, stringifyQuery)
 			if (params.type === 'replace')
@@ -64,25 +64,10 @@ export function createRouter(options?: CreateRouterOptions): SpaRouter {
 			})
 		},
 		blocker: blocker.create,
+		withBlocker: blocker.withBlocker,
+		onRouteLoaded: blocker.settle,
+		onConditionsFailed: blocker.abandon,
 	})
-
-	return Object.assign(
-		_router,
-		{
-			withBlocker: blocker.withBlocker,
-			onRouteLoaded: handleRouteLocaded,
-			onConditionsFailed: handleConditionsFailed,
-		},
-	)
-
-	function handleRouteLocaded(): void {
-		blocker.settle()
-	}
-
-	function handleConditionsFailed(): void {
-		blocker.abandon()
-	}
-
 	function handleBeforeUnload(event: BeforeUnloadEvent): void {
 		const blocking = blocker.anyBlocking({
 			currentLocation: getLocation(),

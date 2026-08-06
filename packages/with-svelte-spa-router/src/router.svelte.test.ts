@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 
-import type { RouterBlockerController } from '@ginjou/core'
+import type { RouterBlockerController, RouterBlockShouldFn } from '@ginjou/core'
 import type { SpaRouter } from './router.svelte'
 import { mount, unmount } from 'svelte'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -19,7 +19,7 @@ function destroyHost(): void {
 }
 
 function register(
-	shouldBlock: Parameters<NonNullable<SpaRouter['blocker']>>[0],
+	shouldBlock: RouterBlockShouldFn,
 ): RouterBlockerController {
 	return router.blocker!({ should: shouldBlock, enabled: true })
 }
