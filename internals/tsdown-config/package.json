@@ -11,6 +11,6 @@
 		"@aa900031/tsdown-config": "^0.2.2",
 		"@ginjou/tsconfig": "workspace:*",
 		"@types/node": "^24.13.3",
-		"tsdown": "^0.22.12"
+		"tsdown": "^0.22.14"
 	}
 }
