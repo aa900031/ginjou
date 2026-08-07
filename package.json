@@ -33,9 +33,9 @@
 		"release-it": "^20.2.1",
 		"sirv-cli": "^3.0.1",
 		"svelte-check": "^4.7.4",
-		"turbo": "^2.10.7",
+		"turbo": "^2.10.8",
 		"typescript": "^5.9.3",
 		"vitest": "^4.1.10",
-		"vue-tsc": "^3.3.8"
+		"vue-tsc": "^3.3.9"
 	}
 }
