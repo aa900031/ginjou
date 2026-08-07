@@ -1,11 +1,12 @@
 import type { ValueOf } from 'type-fest'
-import type { RouterBlockShouldInput } from '../router'
+import type { RouterBlockShouldFn } from '../router'
 
 export type ConfirmFn = () => boolean | Promise<boolean>
 
 export interface Props {
 	enabled?: boolean
 	confirm?: ConfirmFn
+	blockLeaving?: boolean
 }
 
 export type Prop
@@ -75,11 +76,29 @@ export function getConfirm(
 	return getPropsConfirmFromProp(fromController) ?? defaultConfirm
 }
 
-export function isLeavingPath(
-	input: RouterBlockShouldInput,
-): boolean {
-	return input.nextLocation == null
-		|| input.nextLocation.path !== input.currentLocation.path
+export interface CreateShouldBlockProps {
+	getActive: () => boolean
+	getBlockLeaving: () => boolean | undefined
+}
+
+export function createShouldBlockFn(
+	{
+		getActive,
+		getBlockLeaving,
+	}: CreateShouldBlockProps,
+): RouterBlockShouldFn {
+	return (input) => {
+		const active = getActive()
+		const blockLeaving = getBlockLeaving() ?? true
+
+		return active
+			&& (
+				blockLeaving
+					? (input.nextLocation == null
+						|| input.nextLocation.path !== input.currentLocation.path)
+					: true
+			)
+	}
 }
 
 export interface GetStateProps {

@@ -33,6 +33,9 @@ export function useWarnUnsaved(
 ): UseWarnUnsavedResult {
 	const controller = useControllerContext(context)
 
+	const active = ref(false)
+	const confirming = ref(false)
+
 	const enabled = computed(() => WarnUnsaved.getEnabled({
 		fromProp: unref(props?.enabled),
 		fromController: controller?.warnUnsaved,
@@ -42,19 +45,19 @@ export function useWarnUnsaved(
 		fromController: controller?.warnUnsaved,
 		defaultConfirm,
 	}))
+	const shouldBlock = WarnUnsaved.createShouldBlockFn({
+		getActive: () => unref(active),
+		getBlockLeaving: () => unref(props?.blockLeaving),
+	})
 
-	const active = ref(false)
-	const confirming = ref(false)
 	const state = computed(() => WarnUnsaved.getState({
 		enabled: enabled.value,
 		active: active.value,
 		confirming: confirming.value,
 	}))
-	// A predicate, not a bare `active`: every navigation reaches it now, and unsaved work only
-	// wants the ones that take the page away. A change of query or hash leaves the route mounted.
 	const blocker = useRouteBlocker({
 		enabled,
-		shouldBlock: (input): boolean => active.value && WarnUnsaved.isLeavingPath(input), // TODO: 思考是不是還要用 isLeavingPage
+		shouldBlock,
 	}, context)
 
 	watch(blocker.state, (value) => {
