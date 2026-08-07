@@ -388,6 +388,52 @@ describe('create controller', () => {
 			})
 		})
 
+		describe('setWarnUnsavedActive', () => {
+			it('should deactivate the unsaved guard when the mutation succeeds', async () => {
+				const setWarnUnsavedActive = vi.fn()
+				const saveFn = createSaveFn({
+					navigateTo: vi.fn(),
+					getResourceName: vi.fn(() => 'posts'),
+					getRedirect: vi.fn(() => undefined),
+					mutateFn: vi.fn().mockImplementation((_, options) => {
+						options?.onSuccess({ data: { id: 1 } })
+						return Promise.resolve({ data: { id: 1 } })
+					}),
+					setWarnUnsavedActive,
+				})
+
+				await saveFn({ title: 'Test' })
+
+				expect(setWarnUnsavedActive).toHaveBeenCalledWith(false)
+			})
+
+			it('should keep the unsaved guard when the mutation rejects', async () => {
+				const setWarnUnsavedActive = vi.fn()
+				const saveFn = createSaveFn({
+					navigateTo: vi.fn(),
+					getResourceName: vi.fn(() => 'posts'),
+					getRedirect: vi.fn(() => undefined),
+					mutateFn: vi.fn().mockRejectedValue(new Error('Failed')),
+					setWarnUnsavedActive,
+				})
+
+				await expect(saveFn({ title: 'Test' })).rejects.toThrow('Failed')
+
+				expect(setWarnUnsavedActive).not.toHaveBeenCalled()
+			})
+
+			it('should not throw when setWarnUnsavedActive is not provided', async () => {
+				const saveFn = createSaveFn({
+					navigateTo: vi.fn(),
+					getResourceName: vi.fn(() => 'posts'),
+					getRedirect: vi.fn(() => undefined),
+					mutateFn: vi.fn().mockResolvedValue({ data: { id: 1 } }),
+				})
+
+				await expect(saveFn({ title: 'Test' })).resolves.toBeDefined()
+			})
+		})
+
 		it('should not call navigateTo on mutation failure', async () => {
 			const navigateTo = vi.fn()
 			const getResourceName = vi.fn(() => 'posts')

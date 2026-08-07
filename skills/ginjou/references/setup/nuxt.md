@@ -47,11 +47,7 @@ order:
 
 ## Auto-Import Boundary
 
-`@ginjou/nuxt` auto-imports `useNavigateTo`, but `useGo`, `useBack`, `useLocation`, and `useResolvePath` still come from `@ginjou/vue`.
-
-```ts
-import { useBack, useGo, useLocation, useResolvePath } from '@ginjou/vue'
-```
+`@ginjou/nuxt` auto-imports `useNavigateTo`; the other router helpers still come from `@ginjou/vue`. See [../router/nuxt.md](../router/nuxt.md) for the full list.
 
 See [Router](https://ginjou.pages.dev/raw/guides/router.md) for router helper behavior and [Nuxt](https://ginjou.pages.dev/raw/integrations/nuxt.md) for the full Nuxt integration guide.
 
@@ -60,6 +56,6 @@ See [Router](https://ginjou.pages.dev/raw/guides/router.md) for router helper be
 - Register providers in `app.vue` at the application boundary.
 - Keep `@ginjou/vue` installed alongside `@ginjou/nuxt`.
 - Do not call `defineRouterContext` manually in Nuxt.
-- Only assume documented auto-imports. `useGo`, `useBack`, `useLocation`, and `useResolvePath` still need explicit imports.
+- Only assume documented auto-imports. Router helpers other than `useNavigateTo` still need explicit imports — see [../router/nuxt.md](../router/nuxt.md).
 - Use `useAsync*` composables for SSR-first read flows, and keep client-triggered mutations on the regular composables.
 - Keep multi-backend SSR guidance in this order: query client, fetchers, resources, SSR reads, then client-triggered mutations.

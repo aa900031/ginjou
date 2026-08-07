@@ -4,18 +4,25 @@ import type { UseCreateOneContext, UseCreateOneResult } from '../query'
 import type { UseGoContext, UseNavigateToContext } from '../router'
 import type { MaybeAccessor } from '../utils'
 import type { UseResourceContext } from './resource.svelte'
-import { Create, Resource } from '@ginjou/core'
+import type { UseWarnUnsavedContext } from './warn-unsaved.svelte'
+import { Create, Resource, WarnUnsaved } from '@ginjou/core'
 import { useCreateOne } from '../query'
 import { useNavigateTo } from '../router'
 import { extract, unbox, withAccessors } from '../utils'
 import { useResource } from './resource.svelte'
+import { useWarnUnsaved } from './warn-unsaved.svelte'
 
 export type UseCreateProps<
 	TMutationData extends BaseRecord,
 	TMutationParams extends Params,
 	TMutationError,
 > = MaybeAccessor<
-	| Create.Props<TMutationData, TMutationParams, TMutationError>
+	| Simplify<
+		& Create.Props<TMutationData, TMutationParams, TMutationError>
+		& {
+			warnUnsaved?: WarnUnsaved.Prop
+		}
+	>
 	| undefined
 >
 
@@ -24,6 +31,7 @@ export type UseCreateContext = Simplify<
 	& UseCreateOneContext
 	& UseGoContext
 	& UseNavigateToContext
+	& UseWarnUnsavedContext
 >
 
 export type UseCreateResult<
@@ -35,6 +43,7 @@ export type UseCreateResult<
 	& {
 		readonly isLoading: boolean
 		save: Create.SaveFn<TMutationData, TMutationParams>
+		warnUnsavedActive: boolean
 	}
 >
 
@@ -59,25 +68,43 @@ export function useCreate<
 		resourceFromProp: resolvedProps?.resource,
 	}))
 
-	const mutation = useCreateOne<TMutationData, TMutationParams, TMutationError>(() => ({
-		...resolvedProps,
-		resource: resourceName,
-		fetcherName,
-	}), context)
+	const mutation = useCreateOne<TMutationData, TMutationParams, TMutationError>(() => {
+		const { warnUnsaved, ...mutationProps } = resolvedProps ?? {}
+
+		return {
+			...mutationProps,
+			resource: resourceName,
+			fetcherName,
+		}
+	}, context)
 
 	const isLoading = $derived.by(() => Create.getIsLoading({
 		isPending: mutation.isPending,
 	}))
+
+	const warnUnsaved = useWarnUnsaved(() => ({
+		enabled: WarnUnsaved.getPropsEnabledFromProp(resolvedProps?.warnUnsaved),
+		confirm: WarnUnsaved.getPropsConfirmFromProp(resolvedProps?.warnUnsaved),
+	}), context)
 
 	const save = Create.createSaveFn<TMutationData, TMutationParams, TMutationError>({
 		navigateTo,
 		getResourceName: () => resourceName,
 		getRedirect: () => resolvedProps?.redirect,
 		mutateFn: (variables, options) => mutation.mutateAsync(variables!, options),
+		setWarnUnsavedActive: (value) => {
+			warnUnsaved.active = value
+		},
 	})
 
 	return withAccessors(mutation, {
 		isLoading: () => isLoading,
 		save: () => save,
+		warnUnsavedActive: {
+			get: () => warnUnsaved.active,
+			set: (value: boolean) => {
+				warnUnsaved.active = value
+			},
+		},
 	})
 }

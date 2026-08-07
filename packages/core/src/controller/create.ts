@@ -50,6 +50,7 @@ export interface SaveFnParams<
 	getResourceName: () => string | undefined
 	getRedirect: () => RedirectOptions<CreateOneResult<TMutationData>> | undefined
 	mutateFn: CreateMutateFn<TMutationData, TMutationError, TMutationParams>
+	setWarnUnsavedActive?: (value: boolean) => void
 }
 
 export function createSaveFn<
@@ -62,6 +63,7 @@ export function createSaveFn<
 		mutateFn,
 		getResourceName,
 		getRedirect,
+		setWarnUnsavedActive,
 	}: SaveFnParams<TMutationData, TMutationParams, TMutationError>,
 ): SaveFn<TMutationData, TMutationParams> {
 	return async function saveFn(params) {
@@ -69,6 +71,8 @@ export function createSaveFn<
 			params,
 		}, {
 			onSuccess: (data) => {
+				setWarnUnsavedActive?.(false)
+
 				redirectTo({
 					redirect: getRedirect() ?? ResourceAction.Type.List,
 					resource: getResourceName(),

@@ -42,11 +42,6 @@ export function createFetcher<
 
 			const fn = getProtectedFunction(resource, 'read', false)
 			const readCommand = fn ? fn(query) : sdk.readItems<any, any, any>(resource, query)
-			const data = await client.request(
-				context?.signal
-					? sdk.withOptions(readCommand, { signal: context.signal })
-					: readCommand,
-			)
 
 			const aggregateOptions = {
 				query: { ...query },
@@ -55,11 +50,12 @@ export function createFetcher<
 			delete aggregateOptions.query.page
 
 			const aggregateCommand = sdk.aggregate(resource as any, aggregateOptions as any)
-			const aggregate = await client.request(
-				context?.signal
-					? sdk.withOptions(aggregateCommand, { signal: context.signal })
-					: aggregateCommand,
-			)
+
+			// The count does not depend on the rows, so both round-trips go out together.
+			const [data, aggregate] = await Promise.all([
+				client.request(withSignal(readCommand, context)),
+				client.request(withSignal(aggregateCommand, context)),
+			])
 
 			return {
 				data: data && !Array.isArray(data) ? [data] : data as any,
@@ -73,11 +69,7 @@ export function createFetcher<
 
 			const fn = getProtectedFunction(resource, 'read')
 			const command = fn ? fn(id, query) : sdk.readItem<any, any, any>(resource, id, query)
-			const data = await client.request(
-				context?.signal
-					? sdk.withOptions(command, { signal: context.signal })
-					: command,
-			)
+			const data = await client.request(withSignal(command, context))
 
 			return {
 				data: data as any,
@@ -166,17 +158,27 @@ export function createFetcher<
 					break
 			}
 
-			const response = await client.request(
-				context && 'signal' in context
-					? sdk.withOptions(command, { signal: context.signal })
-					: command,
-			)
+			const response = await client.request(withSignal(command, context))
 
 			return {
 				data: response,
 			}
 		},
 	})
+}
+
+/** Only a query carries an abort signal; a mutation context has none, and the command goes as-is. */
+function withSignal<T>(
+	command: T,
+	context: unknown,
+): T {
+	const signal = context && typeof context === 'object' && 'signal' in context
+		? context.signal as AbortSignal
+		: undefined
+
+	return signal
+		? sdk.withOptions(command as any, { signal }) as T
+		: command
 }
 
 const PROTECTED_RESOURCE_PREFIX = ['directus_', 'directus/']

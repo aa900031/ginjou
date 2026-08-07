@@ -97,6 +97,62 @@ const post = useEdit({
 
 `useCreate()` does not have a read query layer, so these props do not apply there.
 
+## Unsaved Changes Guard
+
+See [behavior.md](./behavior.md) for props, defaults, precedence, and the path-comparison limits.
+
+`useCreate` / `useEdit` accept `warnUnsaved?: MaybeRef<WarnUnsaved.Prop>` and return `warnUnsavedActive: Ref<boolean>`. Set it to `true` from the form's dirty state; `save()` clears it.
+
+```vue
+<script setup lang="ts">
+import type { Post, PostFormData } from './api/posts'
+import { useEdit } from '@ginjou/vue'
+import { reactive, watch } from 'vue'
+
+const { record, save, warnUnsavedActive } = useEdit<Post, PostFormData>({
+	resource: 'posts',
+	id: '1',
+	warnUnsaved: true,
+})
+
+const formData = reactive({})
+
+watch(record, (value) => {
+	Object.assign(formData, value)
+}, { immediate: true, deep: true })
+
+// Set it from user input, not from a watcher on `formData`: the record sync above
+// also mutates `formData`, so a watcher would mark the untouched form dirty.
+function handleInput() {
+	warnUnsavedActive.value = true
+}
+
+async function handleSubmit() {
+	// `save()` clears `warnUnsavedActive` on success.
+	await save(formData as PostFormData)
+}
+</script>
+```
+
+Standalone `useWarnUnsaved` returns `{ active: Ref<boolean>; state: ComputedRef<WarnUnsaved.StateValues> }`. `active` is **writable**.
+
+```ts
+import { WarnUnsaved } from '@ginjou/core'
+import { useWarnUnsaved } from '@ginjou/vue'
+import { computed } from 'vue'
+
+const { active, state } = useWarnUnsaved({
+	enabled: true,
+	confirm: async () => await openDiscardDialog(),
+})
+
+active.value = true
+
+const asking = computed(() => state.value === WarnUnsaved.State.Confirming)
+```
+
+> ⚠️ **Warning:** With `@ginjou/with-vue-router`, `useWarnUnsaved` — and any controller using `warnUnsaved` — must be called **synchronously during `setup`**. See [../router/vue.md](../router/vue.md) for what throws and why.
+
 ## Rules
 
 - Use `useCreate` for standard create pages and `useEdit` for standard edit pages.
@@ -105,3 +161,5 @@ const post = useEdit({
 - Copy `record` into local form state before editing.
 - Use `queryMeta` and `queryOptions` on `useEdit` when the read side needs extra control.
 - Keep non-page mutations on the lower-level data composables instead of forcing them into page controllers.
+- Write `warnUnsavedActive.value` / `active.value` yourself when the form is dirty; do not reset it after `save()`.
+- Call `useWarnUnsaved` and `warnUnsaved`-using controllers synchronously in `setup` under `@ginjou/with-vue-router`.

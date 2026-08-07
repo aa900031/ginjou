@@ -43,6 +43,7 @@ const ginjouComposableNames = [
 	'useSubscribe',
 	'useUpdateOne',
 	'useUpdateMany',
+	'useWarnUnsaved',
 ] as const
 
 const asyncComposableNames = [
