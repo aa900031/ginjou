@@ -50,7 +50,7 @@ async function submit() {
 </script>
 ```
 
-## Unsaved Changes Guard — accessors, not refs
+## Unsaved Changes Guard
 
 Props, defaults, precedence, and path-comparison limits are identical to Vue —
 see [behavior.md](./behavior.md) and [vue.md](./vue.md). The only Svelte difference

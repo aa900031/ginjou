@@ -162,4 +162,4 @@ const asking = computed(() => state.value === WarnUnsaved.State.Confirming)
 - Use `queryMeta` and `queryOptions` on `useEdit` when the read side needs extra control.
 - Keep non-page mutations on the lower-level data composables instead of forcing them into page controllers.
 - Write `warnUnsavedActive.value` / `active.value` yourself when the form is dirty; do not reset it after `save()`.
-- Call `useWarnUnsaved` and `warnUnsaved`-using controllers synchronously in `setup` under `@ginjou/with-vue-router`.
+- Call `useWarnUnsaved` and `warnUnsaved`-using controllers synchronously in `setup`.
