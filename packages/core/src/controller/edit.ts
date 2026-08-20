@@ -83,6 +83,8 @@ export interface SaveFnParams<
 	getQueryData: () => GetOneResult<TQueryResultData> | undefined
 	navigateTo: Navigate.ToFn
 	mutateFn: UpdateMutateFn<TMutationData, TMutationError, TMutationParams>
+	getWarnUnsavedActive: () => boolean
+	setWarnUnsavedActive: (value: boolean) => void
 }
 
 export function createSaveFn<
@@ -99,6 +101,8 @@ export function createSaveFn<
 		getQueryData,
 		navigateTo,
 		mutateFn,
+		getWarnUnsavedActive,
+		setWarnUnsavedActive,
 	}: SaveFnParams<TMutationParams, TMutationData, TMutationError, TQueryResultData>,
 ): SaveFn<TMutationParams, TMutationData> {
 	return async function saveFn(params) {
@@ -108,7 +112,11 @@ export function createSaveFn<
 		if (id == null)
 			throw new Error('[@ginjou/core] Cannot save edit mutation without an id. Pass an id prop or include id in the mutation params.')
 
+		let oldWarnUnsavedActive: boolean | undefined
 		if (!isPessimistic) {
+			oldWarnUnsavedActive = getWarnUnsavedActive()
+			setWarnUnsavedActive(false)
+
 			setTimeout(() => {
 				redirectTo({
 					redirect: getRedirect() ?? ResourceAction.Type.Show,
@@ -131,6 +139,8 @@ export function createSaveFn<
 		}, {
 			onSuccess: (data) => {
 				if (isPessimistic) {
+					setWarnUnsavedActive(false)
+
 					redirectTo({
 						redirect: getRedirect() ?? ResourceAction.Type.Show,
 						resource: getResourceName(),
@@ -139,6 +149,10 @@ export function createSaveFn<
 						navigateTo,
 					})
 				}
+			},
+			onError: () => {
+				if (!isPessimistic && oldWarnUnsavedActive != null)
+					setWarnUnsavedActive(oldWarnUnsavedActive)
 			},
 		})
 	}

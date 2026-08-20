@@ -43,6 +43,7 @@ const composables = [
 	'useResource',
 	'useControllerContext',
 	'useResourcePath',
+	// 'useRouteBlocker',
 	// 'useRouterContext',
 	'useSelect',
 	'useShow',
@@ -50,6 +51,7 @@ const composables = [
 	// 'useTranslate',
 	'useUpdateOne',
 	'useUpdateMany',
+	'useWarnUnsaved',
 ]
 
 export default composables.map(

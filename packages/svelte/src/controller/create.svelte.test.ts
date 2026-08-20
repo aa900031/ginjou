@@ -6,9 +6,12 @@ const mocks = vi.hoisted(() => ({
 	getFetcherName: vi.fn(),
 	getIsLoading: vi.fn(),
 	getName: vi.fn(),
+	getPropsConfirmFromProp: vi.fn(),
+	getPropsEnabledFromProp: vi.fn(),
 	useCreateOne: vi.fn(),
 	useNavigateTo: vi.fn(),
 	useResource: vi.fn(),
+	useWarnUnsaved: vi.fn(),
 }))
 
 vi.mock('@ginjou/core', () => ({
@@ -19,6 +22,10 @@ vi.mock('@ginjou/core', () => ({
 	Resource: {
 		getFetcherName: mocks.getFetcherName,
 		getName: mocks.getName,
+	},
+	WarnUnsaved: {
+		getPropsConfirmFromProp: mocks.getPropsConfirmFromProp,
+		getPropsEnabledFromProp: mocks.getPropsEnabledFromProp,
 	},
 }))
 
@@ -34,16 +41,24 @@ vi.mock('./resource.svelte', () => ({
 	useResource: mocks.useResource,
 }))
 
+vi.mock('./warn-unsaved.svelte', () => ({
+	useWarnUnsaved: mocks.useWarnUnsaved,
+}))
+
 describe('useCreate', () => {
 	beforeEach(() => {
 		mocks.createSaveFn.mockReset()
 		mocks.getFetcherName.mockReset()
 		mocks.getIsLoading.mockReset()
 		mocks.getName.mockReset()
+		mocks.getPropsConfirmFromProp.mockReset()
+		mocks.getPropsEnabledFromProp.mockReset()
 		mocks.useCreateOne.mockReset()
 		mocks.useNavigateTo.mockReset()
 		mocks.useResource.mockReset()
+		mocks.useWarnUnsaved.mockReset()
 
+		mocks.useWarnUnsaved.mockReturnValue({ active: false, state: 'inactive' })
 		mocks.getFetcherName.mockImplementation(({ fetcherNameFromProp }: { fetcherNameFromProp?: string }) => fetcherNameFromProp ?? 'default')
 		mocks.getIsLoading.mockImplementation(({ isPending }: { isPending: boolean }) => isPending)
 		mocks.getName.mockImplementation(({ resourceFromProp }: { resourceFromProp?: string }) => resourceFromProp ?? 'posts')

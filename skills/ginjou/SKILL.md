@@ -9,14 +9,15 @@ description: >-
   useCreate / useEdit; data fetching and mutations (useGetList, useGetOne,
   useCreateOne, useUpdateOne, useDeleteOne, useCustom); and authentication,
   authorization, notifications, undoable / optimistic mutations, realtime, i18n,
-  route-aware resources, and Nuxt SSR. Reach for it whenever a Ginjou package is
-  present, or a Vue / Nuxt / Svelte app needs data fetching, auth, notifications,
-  realtime, i18n, or SSR — even if Ginjou is not named and even if the app is not
-  a classic CRUD or admin tool.
+  route-aware resources, unsaved-changes guards and navigation blocking, and
+  Nuxt SSR. Reach for it whenever a Ginjou package is present, or a Vue / Nuxt /
+  Svelte app needs data fetching, auth, notifications, realtime, i18n, or SSR —
+  even if Ginjou is not named and even if the app is not a classic CRUD or
+  admin tool.
 license: MIT
 metadata:
   author: zhong666
-  version: "0.2.0"
+  version: "0.3.0"
 ---
 
 # Using Ginjou
@@ -72,6 +73,7 @@ after it. Open `<dir>/vue.md` or `<dir>/svelte.md` for your framework; add
 | Bulk create/update/delete | `useCreateMany` / `useUpdateMany` / `useDeleteMany` | `data/` | ✓ |
 | Non-resource read / write | `useCustom` / `useCustomMutation` | `data/` | ✓ |
 | Navigate (after save, breadcrumbs) | `defineRouterContext` · `useGo` / `useBack` / `useNavigateTo` | `router/` | ✓ |
+| Hold navigation (unsaved form, live session, recording) | `useRouteBlocker` / `useWarnUnsaved` | `router/` + `forms/` | ✓ |
 | Routes ↔ resources, route inference | `defineControllerContext` · `useResource` / `useResourcePath` | `resources/` | ✓ |
 | Authentication (login / logout / session) | `defineAuthContext` · `useLogin` / `useLogout` / `useAuthenticated` / `useGetIdentity` | `authentication/` | — |
 | Authorization (access / permissions) | `defineAuthzContext` · `useCanAccess` / `usePermissions` | `authorization/` | — |

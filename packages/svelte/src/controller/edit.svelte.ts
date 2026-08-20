@@ -4,11 +4,13 @@ import type { UseGetOneContext, UseGetOneResult, UseUpdateOneContext, UseUpdateO
 import type { UseGoContext, UseNavigateToContext } from '../router'
 import type { MaybeAccessor } from '../utils'
 import type { UseResourceContext } from './resource.svelte'
-import { Edit, Resource } from '@ginjou/core'
+import type { UseWarnUnsavedContext } from './warn-unsaved.svelte'
+import { Edit, Resource, WarnUnsaved } from '@ginjou/core'
 import { useGetOne, useUpdateOne } from '../query'
 import { useNavigateTo } from '../router'
 import { extract, unbox, withAccessors } from '../utils'
 import { useResource } from './resource.svelte'
+import { useWarnUnsaved } from './warn-unsaved.svelte'
 
 export type UseEditProps<
 	TQueryData extends BaseRecord,
@@ -18,7 +20,12 @@ export type UseEditProps<
 	TMutationData extends BaseRecord,
 	TMutationError,
 > = MaybeAccessor<
-	| Edit.Props<TQueryData, TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError>
+	| Simplify<
+		& Edit.Props<TQueryData, TMutationParams, TQueryError, TQueryResultData, TMutationData, TMutationError>
+		& {
+			warnUnsaved?: WarnUnsaved.Prop
+		}
+	>
 	| undefined
 >
 
@@ -28,6 +35,7 @@ export type UseEditContext = Simplify<
 	& UseUpdateOneContext
 	& UseGoContext
 	& UseNavigateToContext
+	& UseWarnUnsavedContext
 >
 
 export type UseEditResult<
@@ -46,6 +54,7 @@ export type UseEditResult<
 		query: UseGetOneResult<TQueryError, TQueryResultData>
 		readonly isLoading: boolean
 		save: Edit.SaveFn<TMutationParams, TMutationData>
+		warnUnsavedActive: boolean
 	}
 >
 
@@ -85,17 +94,26 @@ export function useEdit<
 		queryOptions: resolvedProps?.queryOptions,
 	}), context)
 
-	const mutation = useUpdateOne<TMutationData, TMutationParams, TMutationError>(() => ({
-		...resolvedProps,
-		resource: resourceName,
-		id,
-		fetcherName,
-	}), context)
+	const mutation = useUpdateOne<TMutationData, TMutationParams, TMutationError>(() => {
+		const { warnUnsaved, ...mutationProps } = resolvedProps ?? {}
+
+		return {
+			...mutationProps,
+			resource: resourceName,
+			id,
+			fetcherName,
+		}
+	}, context)
 
 	const isLoading = $derived.by(() => Edit.getIsLoading({
 		isQueryFetching: query.isFetching,
 		isUpdatePending: mutation.isPending,
 	}))
+
+	const warnUnsaved = useWarnUnsaved(() => ({
+		enabled: WarnUnsaved.getPropsEnabledFromProp(resolvedProps?.warnUnsaved),
+		confirm: WarnUnsaved.getPropsConfirmFromProp(resolvedProps?.warnUnsaved),
+	}), context)
 
 	const save = Edit.createSaveFn<TMutationParams, TMutationData, TMutationError, TQueryResultData>({
 		getId: () => id,
@@ -105,6 +123,10 @@ export function useEdit<
 		getQueryData: () => query.data,
 		navigateTo,
 		mutateFn: (variables, options) => mutation.mutateAsync(variables!, options),
+		getWarnUnsavedActive: () => warnUnsaved.active,
+		setWarnUnsavedActive: (value) => {
+			warnUnsaved.active = value
+		},
 	})
 
 	return withAccessors(mutation, {
@@ -112,5 +134,11 @@ export function useEdit<
 		isLoading: () => isLoading,
 		query: () => query,
 		save: () => save,
+		warnUnsavedActive: {
+			get: () => warnUnsaved.active,
+			set: (value: boolean) => {
+				warnUnsaved.active = value
+			},
+		},
 	})
 }

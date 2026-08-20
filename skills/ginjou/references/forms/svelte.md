@@ -50,9 +50,59 @@ async function submit() {
 </script>
 ```
 
+## Unsaved Changes Guard
+
+Props, defaults, precedence, and path-comparison limits are identical to Vue —
+see [behavior.md](./behavior.md) and [vue.md](./vue.md). The only Svelte difference
+is the shape: `warnUnsavedActive` is a `boolean` get/set accessor and
+`useWarnUnsaved` returns `{ active: boolean, readonly state: WarnUnsaved.StateValues }`
+— **no `.value`**. There is no call-timing restriction in Svelte, unlike Vue.
+
+```svelte
+<script lang="ts">
+import { useEdit } from '@ginjou/svelte'
+
+const { id } = $props()
+const edit = useEdit<Post, PostFormData>(() => ({ resource: 'posts', id, warnUnsaved: true }))
+
+const form = $state({ title: '', body: '' })
+$effect(() => {
+	// Sync only. Do not reset `warnUnsavedActive` here — `record` re-emits on refetch
+	// and would drop the guard mid-edit. `save()` clears it on success.
+	if (edit.record) { form.title = edit.record.title; form.body = edit.record.body }
+})
+
+function onInput() {
+	edit.warnUnsavedActive = true
+}
+
+async function submit() {
+	await edit.save(form)
+}
+</script>
+```
+
+```svelte
+import { WarnUnsaved } from '@ginjou/core'
+import { useWarnUnsaved } from '@ginjou/svelte'
+
+const warn = useWarnUnsaved({
+	enabled: true,
+	confirm: async () => await openDiscardDialog(),
+})
+
+warn.active = true
+
+const asking = $derived(warn.state === WarnUnsaved.State.Confirming)
+```
+
+> ⚠️ **Warning:** Do **not** destructure the result. `const { active } = useWarnUnsaved(…)` loses both the getter's reactivity and the setter. Keep the object and use `warn.active` / `edit.warnUnsavedActive`.
+
 ## Rules
 
 - `useCreate` has no `mutationMode`; optimistic/undoable/pessimistic is `useEdit` only (same as Vue).
 - Keep form data in `$state`; sync the loaded record with `$effect`, not `watch`/`Object.assign`.
 - Pass an accessor (`() => ({ … })`) when `id` comes from reactive props/route.
 - Redirect options (`false` / `'list'` / `{ action, params }`) and the query/hash caveat are identical to Vue — see vue.md.
+- Assign `edit.warnUnsavedActive` / `warn.active` directly (no `.value`) when the form is dirty; do not reset it after `save()`.
+- Never destructure `useWarnUnsaved` or `warnUnsavedActive` off the controller.

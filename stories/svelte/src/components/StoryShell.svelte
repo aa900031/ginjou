@@ -61,15 +61,23 @@
 	if (i18nContext)
 		defineI18nContext(i18nContext)
 
+	let blockableRoutes: Record<string, any> | undefined
+	let spaRouter: ReturnType<typeof createRouter> | undefined
 	if (routes) {
 		window.location.hash = `#${(initialPath ?? '/').startsWith('/') ? initialPath : `/${initialPath}`}`
-		defineRouterContext(createRouter())
+		spaRouter = createRouter()
+		defineRouterContext(spaRouter)
+		blockableRoutes = spaRouter.withBlocker(routes)
 	}
 </script>
 
 <div class="story-shell min-h-full text-slate-900 dark:text-slate-100">
-	{#if routes}
-		<Router {routes} />
+	{#if blockableRoutes}
+		<Router
+			routes={blockableRoutes}
+			onRouteLoaded={spaRouter!.onRouteLoaded}
+			onConditionsFailed={spaRouter!.onConditionsFailed}
+		/>
 	{:else}
 		{@render children?.()}
 	{/if}
