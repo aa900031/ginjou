@@ -27,15 +27,15 @@
 		"@aa900031/release-it-config": "^1.0.0",
 		"@codspeed/vitest-plugin": "^5.7.1",
 		"@vitest/coverage-v8": "^4.1.10",
-		"eslint": "^10.8.0",
-		"happy-dom": "^20.11.1",
+		"eslint": "^10.8.1",
+		"happy-dom": "^20.11.2",
 		"npm-run-all2": "^9.0.3",
 		"release-it": "^20.2.1",
 		"sirv-cli": "^3.0.1",
-		"svelte-check": "^4.7.4",
-		"turbo": "^2.10.7",
+		"svelte-check": "^4.7.6",
+		"turbo": "^2.10.10",
 		"typescript": "^5.9.3",
 		"vitest": "^4.1.10",
-		"vue-tsc": "^3.3.8"
+		"vue-tsc": "^3.3.10"
 	}
 }
