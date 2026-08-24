@@ -69,7 +69,7 @@ importers:
         specifier: ^1.15.11
         version: 1.15.11
       nuxt:
-        specifier: ^4.5.1
+        specifier: ^4.5.2
         version: 4.5.2(@babel/plugin-syntax-jsx@7.29.7(@babel/core@7.29.7(supports-color@10.2.2)))(@babel/plugin-syntax-typescript@7.29.7(@babel/core@7.29.7(supports-color@10.2.2)))(@oxc-project/types@0.140.0)(@parcel/watcher@2.6.0)(@types/node@24.13.3)(@vue/compiler-sfc@3.5.40)(better-sqlite3@12.11.1)(db0@0.3.4(better-sqlite3@12.11.1))(esbuild@0.28.1)(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(ioredis@5.11.1(supports-color@10.2.2))(lightningcss@1.33.0)(magicast@0.5.4)(meow@13.2.0)(optionator@0.9.4)(oxc-parser@0.135.0)(rollup-plugin-visualizer@7.0.1(rollup@4.62.2))(rollup@4.62.2)(srvx@0.11.22)(supports-color@10.2.2)(terser@5.49.0)(typescript@5.9.3)(vite@8.2.0(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.0)(yaml@2.9.0))(vue-tsc@3.3.9(typescript@5.9.3))(yaml@2.9.0)
       tailwindcss:
         specifier: ^4.3.3
@@ -78,8 +78,8 @@ importers:
   internals/storybook-shared:
     dependencies:
       '@faker-js/faker':
-        specifier: ^10.5.0
-        version: 10.5.0
+        specifier: ^10.6.0
+        version: 10.6.0
       '@ginjou/core':
         specifier: workspace:^
         version: link:../../packages/core
@@ -103,8 +103,8 @@ importers:
   internals/tsconfig:
     dependencies:
       '@tsconfig/node24':
-        specifier: ^24.0.4
-        version: 24.0.4
+        specifier: ^24.0.5
+        version: 24.0.5
 
   internals/tsdown-config:
     devDependencies:
@@ -130,8 +130,8 @@ importers:
   packages/core:
     dependencies:
       es-toolkit:
-        specifier: ^1.50.0
-        version: 1.50.0
+        specifier: ^1.51.0
+        version: 1.51.0
       regexparam:
         specifier: ^3.0.0
         version: 3.0.0
@@ -167,8 +167,8 @@ importers:
         specifier: ^1.2.1
         version: 1.2.1
       verkit:
-        specifier: ^0.3.1
-        version: 0.3.2
+        specifier: ^0.4.0
+        version: 0.4.0
     devDependencies:
       '@ginjou/vite-config':
         specifier: workspace:*
@@ -210,7 +210,7 @@ importers:
         specifier: ^1.15.11
         version: 1.15.11
       nuxt:
-        specifier: ^4.5.1
+        specifier: ^4.5.2
         version: 4.5.2(@babel/plugin-syntax-jsx@7.29.7(@babel/core@7.29.7(supports-color@10.2.2)))(@babel/plugin-syntax-typescript@7.29.7(@babel/core@7.29.7(supports-color@10.2.2)))(@oxc-project/types@0.140.0)(@parcel/watcher@2.6.0)(@types/node@24.13.3)(@vue/compiler-sfc@3.5.40)(better-sqlite3@12.11.1)(db0@0.3.4(better-sqlite3@12.11.1))(esbuild@0.28.1)(eslint@10.8.0(jiti@2.7.0)(supports-color@10.2.2))(ioredis@5.11.1(supports-color@10.2.2))(lightningcss@1.33.0)(magicast@0.5.4)(meow@13.2.0)(optionator@0.9.4)(rollup-plugin-visualizer@7.0.1(rollup@4.62.2))(rollup@4.62.2)(supports-color@10.2.2)(terser@5.49.0)(typescript@5.9.3)(vite@8.2.0(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.0)(yaml@2.9.0))(vue-tsc@3.3.9(typescript@5.9.3))(yaml@2.9.0)
       tailwindcss:
         specifier: ^4.3.3
@@ -266,8 +266,8 @@ importers:
   packages/vue:
     dependencies:
       '@bouzu/vue-helper':
-        specifier: ^0.1.0
-        version: 0.1.0(vue@3.5.40(typescript@5.9.3))
+        specifier: ^0.2.0
+        version: 0.2.0(vue@3.5.40(typescript@5.9.3))
       '@ginjou/core':
         specifier: workspace:^
         version: link:../core
@@ -281,8 +281,8 @@ importers:
         specifier: ^4.41.0
         version: 4.41.0
       verkit:
-        specifier: ^0.3.1
-        version: 0.3.2
+        specifier: ^0.4.0
+        version: 0.4.0
       vue-demi:
         specifier: latest
         version: 0.14.10(vue@3.5.40(typescript@5.9.3))
@@ -891,11 +891,11 @@ packages:
       commander:
         optional: true
 
-  '@bouzu/shared@0.1.1':
-    resolution: {integrity: sha512-KqRFd0eWXyl3oSQmSSSBLpVnNCrkiiH6Bgj/iyOZh+cy7p1QxbttjL+E3nhWN2hF0WMXixsGL2E8ipzNOcLNqA==}
+  '@bouzu/shared@0.4.0':
+    resolution: {integrity: sha512-Aua2SVRsWsKCfhKHjyBcBiCnmb3VjF/geFPfXMLY2UGuggKDrhsbFS4Eq2GoW5BYo+ll1pDLVqgTfF0/BZyQlw==}
 
-  '@bouzu/vue-helper@0.1.0':
-    resolution: {integrity: sha512-O3dsMr9bbSABg2yLagFi/oM3k8KaUtz8e1X0C58ak2BRJ5bv90A7qr9dfTCaFjzOAxOVWwRJJzVxWIi8oL+2Jg==}
+  '@bouzu/vue-helper@0.2.0':
+    resolution: {integrity: sha512-kHODc3aYwg0ETgGHT9AMq9LPZJV/nONkx0/81oupzciu2i5tiHd4KNpnL3rzY5pTxBo0lQFrC8wH4sx/CLBbGg==}
     peerDependencies:
       '@vue/composition-api': ^1.0.0
       vue: ^2.6.12 || ^3.2.0
@@ -1556,8 +1556,8 @@ packages:
     resolution: {integrity: sha512-+CNAzxglkrpNf/kKywqQfk74QjtceuOE7Qm+AF8miRvPF/wmmK5+OJOgVh3AVTT3RP2mH3+FOaxlE5v72owk0A==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24}
 
-  '@faker-js/faker@10.5.0':
-    resolution: {integrity: sha512-bsxD8WLS5lIj7aaoCx1YJkktqYj5vlBUE6HWzu2Q51ksrGJ0H737ECCKlFU7Yf8Br45z9t99frBp/J7kzbMPAg==}
+  '@faker-js/faker@10.6.0':
+    resolution: {integrity: sha512-3RQHgEtvL1Frl/d1cSreo7qhJ3Gk1OdNUai/CtZ8G+wYeRQnJih3s9xJ9/kgYekPQRdwgh0HXRPqMlzWGwivIQ==}
     engines: {node: ^20.19.0 || ^22.13.0 || ^23.5.0 || >=24.0.0, npm: '>=10'}
 
   '@fastify/accept-negotiator@2.0.1':
@@ -4428,8 +4428,8 @@ packages:
       '@tiptap/pm': 3.28.0
       vue: ^3.0.0
 
-  '@tsconfig/node24@24.0.4':
-    resolution: {integrity: sha512-2A933l5P5oCbv6qSxHs7ckKwobs8BDAe9SJ/Xr2Hy+nDlwmLE1GhFh/g/vXGRZWgxBg9nX/5piDtHR9Dkw/XuA==}
+  '@tsconfig/node24@24.0.5':
+    resolution: {integrity: sha512-DWC54fGPuhZgg3Ighg4Y/A/bA3ZdB5hnzAuv/MkQ/X85sVsBsMQxu8t7khutdYeiNksBbFdDyeqv1HSW2Zl8aA==}
 
   '@turbo/darwin-64@2.10.8':
     resolution: {integrity: sha512-po+7rfJfUnFXjWlcoN2RwhErgzCdRtBc1T26vYPcywHlggmCQiQe1uWaE4j+BibI2uY9/2pDoFzMN0rmSaPFOw==}
@@ -6579,8 +6579,8 @@ packages:
     resolution: {integrity: sha512-j6vWzfrGVfyXxge+O0x5sh6cvxAog0a/4Rdd2K36zCMV5eJ+/+tOAngRO8cODMNWbVRdVlmGZQL2YS3yR8bIUA==}
     engines: {node: '>= 0.4'}
 
-  es-toolkit@1.50.0:
-    resolution: {integrity: sha512-OyZKhUVvEep9ITEiwHn8GKnMRQIVqoSIX7WnRbkWgJkllCujilqP2rD0u979tkl8wqyc8ICwlc1UBVv/Sl1G6w==}
+  es-toolkit@1.51.0:
+    resolution: {integrity: sha512-zC2lQGkM7QX+Gm6iM3+WIdZJzthsEd14LvRNJneSO2hzyz/zNBENR8+YXWo1cKxgPBtV6ksPYHELbcwBRzmdCw==}
 
   esbuild@0.25.12:
     resolution: {integrity: sha512-bbPBYYrtZbkt6Os6FiTLCTFxvq4tt3JKall1vRwshA3fdVztsLAatFaZobhkBC8/BrPetoa0oksYoKXoG4ryJg==}
@@ -10838,6 +10838,10 @@ packages:
     resolution: {integrity: sha512-zj/ob3UsvJGN0whEAKFp53REA5X66hvffVqoCtVQAakJKnKlH+/PcOfMoFwIG/o4rElqLv/ycAFlx8ZlXUorCg==}
     engines: {node: '>=18.12.0'}
 
+  verkit@0.4.0:
+    resolution: {integrity: sha512-sXMwN6DMHeouPfCxkxWkKAmxphWKEenHYY5H1nIBzU3PmDsmJp6kBXJdshjVdpMZuWCmL9SH7KFRx29AylpP6g==}
+    engines: {node: '>=18.12.0'}
+
   vfile-location@5.0.3:
     resolution: {integrity: sha512-5yXvWDEgqeiYiBe1lbxYF7UMAIm/IcopxMHrMQDq3nvKcjPKIhZklUKL+AE7J7uApI4kwe2snsK+eI6UTj9EHg==}
 
@@ -11725,13 +11729,13 @@ snapshots:
     optionalDependencies:
       citty: 0.2.2
 
-  '@bouzu/shared@0.1.1':
+  '@bouzu/shared@0.4.0':
     dependencies:
       type-fest: 3.13.1
 
-  '@bouzu/vue-helper@0.1.0(vue@3.5.40(typescript@5.9.3))':
+  '@bouzu/vue-helper@0.2.0(vue@3.5.40(typescript@5.9.3))':
     dependencies:
-      '@bouzu/shared': 0.1.1
+      '@bouzu/shared': 0.4.0
       '@vueuse/shared': 10.11.1(vue@3.5.40(typescript@5.9.3))
       vue-demi: 0.14.10(vue@3.5.40(typescript@5.9.3))
     optionalDependencies:
@@ -12202,7 +12206,7 @@ snapshots:
       '@eslint/core': 1.2.1
       levn: 0.4.1
 
-  '@faker-js/faker@10.5.0': {}
+  '@faker-js/faker@10.6.0': {}
 
   '@fastify/accept-negotiator@2.0.1':
     optional: true
@@ -12724,7 +12728,7 @@ snapshots:
   '@msw/data@1.1.7':
     dependencies:
       '@standard-schema/spec': 1.1.0
-      es-toolkit: 1.50.0
+      es-toolkit: 1.51.0
       mutative: 1.3.0
       outvariant: 1.4.3
       rettime: 0.11.11
@@ -15619,7 +15623,7 @@ snapshots:
       '@tiptap/extension-bubble-menu': 3.28.0(@tiptap/core@3.28.0(@tiptap/pm@3.28.0))(@tiptap/pm@3.28.0)
       '@tiptap/extension-floating-menu': 3.28.0(@floating-ui/dom@1.8.0)(@tiptap/core@3.28.0(@tiptap/pm@3.28.0))(@tiptap/pm@3.28.0)
 
-  '@tsconfig/node24@24.0.4': {}
+  '@tsconfig/node24@24.0.5': {}
 
   '@turbo/darwin-64@2.10.8':
     optional: true
@@ -18034,7 +18038,7 @@ snapshots:
       has-tostringtag: 1.0.2
       hasown: 2.0.4
 
-  es-toolkit@1.50.0: {}
+  es-toolkit@1.51.0: {}
 
   esbuild@0.25.12:
     optionalDependencies:
@@ -23744,6 +23748,8 @@ snapshots:
   verkit@0.1.2: {}
 
   verkit@0.3.2: {}
+
+  verkit@0.4.0: {}
 
   vfile-location@5.0.3:
     dependencies:
