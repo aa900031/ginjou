@@ -57,8 +57,8 @@
 	"devDependencies": {
 		"@ginjou/tsconfig": "workspace:*",
 		"@ginjou/tsdown-config": "workspace:*",
-		"@sveltejs/vite-plugin-svelte": "7.2.0",
+		"@sveltejs/vite-plugin-svelte": "7.3.0",
 		"@tanstack/svelte-query": "6.1.38",
-		"svelte": "^5.56.8"
+		"svelte": "^5.56.9"
 	}
 }
