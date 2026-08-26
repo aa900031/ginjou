@@ -7,6 +7,7 @@ import { createAuth, getSSOLoginUrl } from './auth'
 const mockClient = {
 	url: new URL('http://localhost:8055'),
 	login: vi.fn(),
+	logout: vi.fn(),
 	refresh: vi.fn(),
 	getToken: vi.fn(),
 }
@@ -66,6 +67,30 @@ describe('createAuth', () => {
 			const result = await authProvider.check()
 			expect(result).toEqual({ authenticated: true })
 			expect(mockClient.refresh).not.toHaveBeenCalled()
+		})
+	})
+
+	describe('logout', () => {
+		it('should wait for a refresh started by check before logging out', async () => {
+			const order: string[] = []
+			let resolveRefresh!: () => void
+			mockClient.getToken.mockResolvedValue(null)
+			mockClient.refresh.mockImplementation(() =>
+				new Promise<void>((resolve) => { resolveRefresh = resolve })
+					.then(() => order.push('refresh')),
+			)
+			mockClient.logout.mockImplementation(async () => order.push('logout'))
+
+			const checking = authProvider.check()
+			await vi.waitFor(() => expect(mockClient.refresh).toHaveBeenCalled())
+			const loggingOut = authProvider.logout()
+			resolveRefresh()
+			await Promise.all([checking, loggingOut])
+
+			// The refresh must not land after logout, or it would restore the tokens.
+			expect(order).toEqual(['refresh', 'logout'])
+			mockClient.refresh.mockRejectedValue(new Error('no session'))
+			await expect(authProvider.check()).resolves.toEqual({ authenticated: false })
 		})
 	})
 

@@ -1,4 +1,4 @@
-import type { AuthenticationClient, DirectusClient, LoginOptions, RestClient } from '@directus/sdk'
+import type { AuthenticationClient, AuthenticationData, DirectusClient, LoginOptions, RestClient } from '@directus/sdk'
 import { getAuthEndpoint, isDirectusError, readMe } from '@directus/sdk'
 import { defineAuth } from '@ginjou/core'
 
@@ -64,7 +64,7 @@ export function createAuth<
 		client,
 	}: CreateAuthProps<TClient>,
 ) {
-	let restored: Promise<unknown> | undefined
+	let refreshing: Promise<AuthenticationData | undefined> | undefined
 
 	return defineAuth({
 		login: async (params?: LoginParams) => {
@@ -96,18 +96,14 @@ export function createAuth<
 			}
 		},
 		logout: async () => {
-			restored = undefined
+			if (refreshing)
+				await refreshing
 			await client.logout()
 		},
 		check: async () => {
-			// A cold token store is not proof of being logged out: with the default `memoryStorage`
-			// every reload starts cold, and an SSO redirect lands here with nothing but the cookie
-			// Directus just set. `getToken` never refreshes on its own, so ask once before giving up.
 			let token = await client.getToken()
 			if (!token) {
-				restored ??= client.refresh().catch(() => undefined)
-				await restored
-				restored = undefined
+				await refresh()
 				token = await client.getToken()
 			}
 
@@ -129,6 +125,18 @@ export function createAuth<
 			return data
 		},
 	})
+
+	function refresh(): Promise<AuthenticationData | undefined> {
+		return refreshing ??= client.refresh()
+			.then((res) => {
+				refreshing = undefined
+				return res
+			})
+			.catch(() => {
+				refreshing = undefined
+				return undefined
+			})
+	}
 }
 
 const AuthErrors = [
