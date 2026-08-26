@@ -73,7 +73,7 @@ export function isTargetFilter(
 		&& (matcher.operator === undefined || item.operator === matcher.operator)
 }
 
-export function pickFilters(
+export function selectFilters(
 	items: Filters,
 	matcher: FilterMatcher,
 	options?: {
@@ -84,7 +84,7 @@ export function pickFilters(
 
 	for (const item of items) {
 		if (options?.deep && isConditionalFilter(item)) {
-			const value = pickFilters(item.value, matcher, options)
+			const value = selectFilters(item.value, matcher, options)
 			if (value.length)
 				result.push({ ...item, value })
 		}
@@ -118,7 +118,7 @@ export function findFilter(
 export function isFilterOperator(
 	operator: unknown,
 ): operator is FilterOperatorValues {
-	return (Object.values(FilterOperator) as unknown[]).includes(operator)
+	return typeof operator === 'string' && Object.hasOwn(FilterOperator, operator)
 }
 
 export function isConditionalFilterOperator(

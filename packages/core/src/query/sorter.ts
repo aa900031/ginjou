@@ -39,7 +39,7 @@ export function isTargetSorter(
 		&& (matcher.order === undefined || item.order === matcher.order)
 }
 
-export function pickSorters(
+export function selectSorters(
 	items: Sorters,
 	matcher: SorterMatcher,
 ): Sorters {

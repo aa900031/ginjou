@@ -1,6 +1,6 @@
 import type { Filter, Filters } from './filter'
 import { describe, expect, it } from 'vitest'
-import { FilterOperator, findFilter, isConditionalFilter, isConditionalFilterOperator, isFilterOperator, isLogicalFilter, isLogicalFilterOperator, isTargetFilter, pickFilters } from './filter'
+import { FilterOperator, findFilter, isConditionalFilter, isConditionalFilterOperator, isFilterOperator, isLogicalFilter, isLogicalFilterOperator, isTargetFilter, selectFilters } from './filter'
 
 describe('isFilterOperator', () => {
 	it('should accept any filter operator and reject other values', () => {
@@ -52,14 +52,14 @@ describe('filter helpers', () => {
 		expect(isTargetFilter(orGroup, { field: 'status' })).toBe(false)
 	})
 
-	it('should pick shallow or deeply nested filters', () => {
-		expect(pickFilters(filters, { field: 'status' })).toEqual([statusPublished, statusArchived])
-		expect(pickFilters(filters, { field: 'status' }, { deep: true })).toEqual([
+	it('should select shallow or deeply nested filters', () => {
+		expect(selectFilters(filters, { field: 'status' })).toEqual([statusPublished, statusArchived])
+		expect(selectFilters(filters, { field: 'status' }, { deep: true })).toEqual([
 			statusPublished,
 			{ ...orGroup, value: [statusNotDraft] },
 			statusArchived,
 		])
-		expect(pickFilters(filters, { field: 'title' }, { deep: true })).toEqual([
+		expect(selectFilters(filters, { field: 'title' }, { deep: true })).toEqual([
 			{ ...orGroup, value: [{ ...andGroup, value: [titleContains] }] },
 		])
 		expect(findFilter(filters, { field: 'title' }, { deep: true })).toBe(titleContains)
