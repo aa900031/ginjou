@@ -78,14 +78,14 @@ describe('filter helpers', () => {
 
 	it('should filter shallow or deeply nested filters', () => {
 		expect(filterFilters(filters, { field: 'status' })).toEqual([statusPublished, statusArchived])
-		expect(filterFilters(filters, { field: 'status' }, true)).toEqual([
+		expect(filterFilters(filters, { field: 'status' }, { deep: true })).toEqual([
 			statusPublished,
 			{ ...orGroup, value: [statusNotDraft] },
 			statusArchived,
 		])
-		expect(filterFilters(filters, { field: 'title' }, true)).toEqual([
+		expect(filterFilters(filters, { field: 'title' }, { deep: true })).toEqual([
 			{ ...orGroup, value: [{ ...andGroup, value: [titleContains] }] },
 		])
-		expect(findFilter(filters, { field: 'title' }, true)).toBe(titleContains)
+		expect(findFilter(filters, { field: 'title' }, { deep: true })).toBe(titleContains)
 	})
 })
