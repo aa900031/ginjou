@@ -153,7 +153,7 @@ export function getPropFilters(
 		path: 'value',
 		prop,
 		prev,
-		isValue: checkFiltersValue,
+		isValue: val => Array.isArray(val),
 	})
 }
 
@@ -226,7 +226,7 @@ export function getPropSorters(
 		path: 'value',
 		prop,
 		prev,
-		isValue: checkSortersValue,
+		isValue: val => Array.isArray(val),
 	})
 }
 
@@ -841,7 +841,7 @@ function compareSort(
 	return left.field === right.field
 }
 
-function filterSort(
+function hasSortOrder(
 	sort: Sort,
 ): boolean {
 	return sort.order != null
@@ -866,7 +866,7 @@ export function resolveSorters(
 		permanent ?? [],
 		value ?? [],
 		compareSort,
-	).filter(filterSort)
+	).filter(hasSortOrder)
 
 	if (result.length === 0)
 		return DEFAULT_SORTERS
@@ -949,7 +949,7 @@ function compareFilter(
 	)
 }
 
-function filterFilter(
+function hasFilterValue(
 	filter: Filter,
 ): boolean {
 	return filter.value !== undefined
@@ -988,22 +988,10 @@ export function resolveFilters(
 		),
 		isMerge ? prev ?? [] : [],
 		compareFilter,
-	).filter(filterFilter)
+	).filter(hasFilterValue)
 
 	if (result.length === 0)
 		return DEFAULT_FILTERS
 
 	return result
-}
-
-function checkFiltersValue(
-	value: FiltersProp,
-): value is Filters {
-	return Array.isArray(value)
-}
-
-function checkSortersValue(
-	value: SortersProp,
-): value is Sorters {
-	return Array.isArray(value)
 }
