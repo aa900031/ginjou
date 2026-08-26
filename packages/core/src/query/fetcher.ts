@@ -1,5 +1,6 @@
 import type { MutationFunctionContext, QueryFunctionContext } from '@tanstack/query-core'
-import type { ValueOf } from 'type-fest'
+import type { Filters } from './filter'
+import type { Sorters } from './sorter'
 
 export type Meta = Record<any, any>
 
@@ -12,108 +13,11 @@ export interface BaseRecord {
 	[key: string]: any
 }
 
-export const SortOrder = {
-	Asc: 'asc',
-	Desc: 'desc',
-} as const
-
-export type SortOrderValues = ValueOf<typeof SortOrder>
-
-export function isSortOrder(
-	value: unknown,
-): value is SortOrderValues {
-	switch (value) {
-		case SortOrder.Asc:
-		case SortOrder.Desc:
-			return true
-		default:
-			return false
-	}
-}
-
-export interface Sort {
-	field: string
-	order: SortOrderValues
-}
-
-export type Sorters = Sort[]
-
 export interface Pagination<
 	TPageParam = number,
 > {
 	current: TPageParam
 	perPage: number
-}
-
-export const FilterOperator = {
-	eq: 'eq',
-	ne: 'ne',
-	lt: 'lt',
-	gt: 'gt',
-	lte: 'lte',
-	gte: 'gte',
-	in: 'in',
-	nin: 'nin',
-	contains: 'contains',
-	ncontains: 'ncontains',
-	containss: 'containss',
-	ncontainss: 'ncontainss',
-	between: 'between',
-	nbetween: 'nbetween',
-	null: 'null',
-	nnull: 'nnull',
-	startswith: 'startswith',
-	nstartswith: 'nstartswith',
-	startswiths: 'startswiths',
-	nstartswiths: 'nstartswiths',
-	endswith: 'endswith',
-	nendswith: 'nendswith',
-	endswiths: 'endswiths',
-	nendswiths: 'nendswiths',
-	or: 'or',
-	and: 'and',
-} as const
-
-export type FilterOperatorValues = ValueOf<typeof FilterOperator>
-
-export interface LogicalFilter {
-	field: string
-	operator: Exclude<FilterOperatorValues, 'or' | 'and'>
-	value: any
-}
-
-export interface ConditionalFilter {
-	key?: string
-	operator: Extract<FilterOperatorValues, 'or' | 'and'>
-	value: (LogicalFilter | ConditionalFilter)[]
-}
-
-export type Filter = (LogicalFilter | ConditionalFilter)
-
-export type Filters = Filter[]
-
-export function isFilterOperator(
-	operator: unknown,
-): operator is FilterOperatorValues {
-	return (Object.values(FilterOperator) as unknown[]).includes(operator)
-}
-
-export function isConditionalFilterOperator(
-	operator: unknown,
-): operator is ConditionalFilter['operator'] {
-	switch (operator) {
-		case FilterOperator.and:
-		case FilterOperator.or:
-			return true
-		default:
-			return false
-	}
-}
-
-export function isLogicalFilterOperator(
-	operator: unknown,
-): operator is LogicalFilter['operator'] {
-	return !isConditionalFilterOperator(operator) && isFilterOperator(operator)
 }
 
 export interface CursorOnlyNext<

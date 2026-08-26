@@ -3,7 +3,7 @@ import type { BaseRecord, Filter, Filters, GetList, GetListResult, Pagination, S
 import type { RouterGoParams, RouterLocation } from '../router'
 import type * as SyncRoute from './sync-route'
 import { isEqual, unionWith } from 'es-toolkit'
-import { FilterOperator, isLogicalFilterOperator } from '../query'
+import { isConditionalFilter, isLogicalFilter } from '../query'
 import { RouterGoType } from '../router'
 import { getSubValue } from '../utils/sub-value'
 
@@ -153,7 +153,7 @@ export function getPropFilters(
 		path: 'value',
 		prop,
 		prev,
-		isValue: checkFiltersValue,
+		isValue: Array.isArray,
 	})
 }
 
@@ -226,7 +226,7 @@ export function getPropSorters(
 		path: 'value',
 		prop,
 		prev,
-		isValue: checkSortersValue,
+		isValue: Array.isArray,
 	})
 }
 
@@ -841,7 +841,7 @@ function compareSort(
 	return left.field === right.field
 }
 
-function filterSort(
+function hasSortOrder(
 	sort: Sort,
 ): boolean {
 	return sort.order != null
@@ -866,7 +866,7 @@ export function resolveSorters(
 		permanent ?? [],
 		value ?? [],
 		compareSort,
-	).filter(filterSort)
+	).filter(hasSortOrder)
 
 	if (result.length === 0)
 		return DEFAULT_SORTERS
@@ -931,15 +931,9 @@ function compareFilter(
 	left: Filter,
 	right: Filter,
 ): boolean {
-	if (
-		isLogicalFilterOperator(left.operator)
-		&& isLogicalFilterOperator(right.operator)
-	) {
-		return (
-			('field' in left ? left.field : undefined)
-			=== ('field' in right ? right.field : undefined)
+	if (isLogicalFilter(left) && isLogicalFilter(right)) {
+		return left.field === right.field
 			&& left.operator === right.operator
-		)
 	}
 
 	return (
@@ -949,17 +943,11 @@ function compareFilter(
 	)
 }
 
-function filterFilter(
+function hasFilterValue(
 	filter: Filter,
 ): boolean {
-	return filter.value !== undefined
-		&& filter.value !== null
-		&& (filter.operator !== FilterOperator.or
-			|| (filter.operator === FilterOperator.or
-				&& filter.value.length !== 0))
-			&& (filter.operator !== FilterOperator.and
-				|| (filter.operator === FilterOperator.and
-					&& filter.value.length !== 0))
+	return filter.value != null
+		&& (!isConditionalFilter(filter) || filter.value.length !== 0)
 }
 
 export function resolveFilters(
@@ -988,22 +976,10 @@ export function resolveFilters(
 		),
 		isMerge ? prev ?? [] : [],
 		compareFilter,
-	).filter(filterFilter)
+	).filter(hasFilterValue)
 
 	if (result.length === 0)
 		return DEFAULT_FILTERS
 
 	return result
-}
-
-function checkFiltersValue(
-	value: FiltersProp,
-): value is Filters {
-	return Array.isArray(value)
-}
-
-function checkSortersValue(
-	value: SortersProp,
-): value is Sorters {
-	return Array.isArray(value)
 }
