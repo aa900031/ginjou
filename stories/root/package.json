@@ -22,15 +22,15 @@
 	},
 	"devDependencies": {
 		"@ginjou/storybook-shared": "workspace:*",
-		"@storybook/addon-docs": "^10.5.8",
-		"@storybook/react-vite": "^10.5.8",
+		"@storybook/addon-docs": "^10.5.9",
+		"@storybook/react-vite": "^10.5.9",
 		"@types/react": "^19.2.18",
 		"@types/react-dom": "^19.2.4",
 		"@vitejs/plugin-react": "^6.0.5",
 		"react": "^19.2.8",
 		"react-dom": "^19.2.8",
 		"remark-gfm": "^4.0.1",
-		"storybook": "^10.5.8",
+		"storybook": "^10.5.9",
 		"vite": "^8.2.1",
 		"wait-on": "^9.1.0"
 	}
