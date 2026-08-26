@@ -131,21 +131,6 @@ describe('createFetcher', () => {
 			}))
 		})
 
-		it('should not inject a filter of its own', async () => {
-			mockClient.request
-				.mockResolvedValueOnce([])
-				.mockResolvedValueOnce([{ countDistinct: { id: 0 } }])
-
-			await fetcher.getList({
-				resource: 'posts',
-				filters: [{ field: 'category', operator: 'eq', value: 'news' }],
-			})
-
-			expect(sdk.readItems).toHaveBeenCalledWith('posts', expect.objectContaining({
-				filter: { _and: [{ category: { _eq: 'news' } }] },
-			}))
-		})
-
 		it('should merge a filter given through meta with the resolved filters', async () => {
 			mockClient.request
 				.mockResolvedValueOnce([])

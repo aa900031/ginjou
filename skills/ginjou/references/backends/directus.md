@@ -83,6 +83,6 @@ The Directus SDK cannot perform a redirect SSO login. `client.login(payload, { p
 - Use `meta.query` for Directus query overrides. Use `meta.aggregate` only to override `getList()` total-count aggregation. The runtime default is `{ countDistinct: 'id' }`, and `total` currently reads only `countDistinct`.
 - The source interface declares `meta.aggregate` as `string[]`, but the runtime passes an object-shaped aggregate descriptor to the Directus SDK. Prefer the runtime behavior when answering usage questions.
 - `getList()` injects no filter. Pass anything meant for every list query through `meta.query.filter`; it is merged with the resolved `filters`.
-- Requires `@directus/sdk` `>=20.0.0 <26.0.0`. SDK 20 changed `client.login()` to take a payload object.
+- Requires `@directus/sdk` `>=20.0.0 <26.0.0`. SDK 20 changed `client.login()` to take a payload object. Users pinned to an older SDK should stay on `@ginjou/with-directus@0.1.0-beta.16`, the last release for SDK `^15`.
 - `groupBy` exists in the type definition but the adapter implementation does **not** use it. Do not recommend `groupBy` as a usable feature.
 - Resources starting with `directus_` or `directus/` use the dedicated Directus system-collection helpers automatically.

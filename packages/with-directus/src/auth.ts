@@ -64,6 +64,8 @@ export function createAuth<
 		client,
 	}: CreateAuthProps<TClient>,
 ) {
+	let restored: Promise<unknown> | undefined
+
 	return defineAuth({
 		login: async (params?: LoginParams) => {
 			if (!params)
@@ -94,6 +96,7 @@ export function createAuth<
 			}
 		},
 		logout: async () => {
+			restored = undefined
 			await client.logout()
 		},
 		check: async () => {
@@ -102,7 +105,9 @@ export function createAuth<
 			// Directus just set. `getToken` never refreshes on its own, so ask once before giving up.
 			let token = await client.getToken()
 			if (!token) {
-				await client.refresh().catch(() => undefined)
+				restored ??= client.refresh().catch(() => undefined)
+				await restored
+				restored = undefined
 				token = await client.getToken()
 			}
 

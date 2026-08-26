@@ -1,5 +1,5 @@
 import { authentication, createDirectus, rest } from '@directus/sdk'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createAuth } from './auth'
 import { createFetcher } from './fetcher'
 
@@ -17,16 +17,8 @@ import { createFetcher } from './fetcher'
 
 const BASE = 'http://localhost:8055'
 
-interface Sent {
-	method: string
-	path: string
-	search: string
-	body: any
-	credentials?: string
-}
-
 function setup(response: unknown = { data: {} }) {
-	const sent: Sent[] = []
+	const sent: Record<string, any>[] = []
 
 	const fetchSpy = vi.fn(async (url: string, init: RequestInit = {}) => {
 		const parsed = new URL(url)
@@ -53,32 +45,12 @@ function setup(response: unknown = { data: {} }) {
 	return { client, sent }
 }
 
+afterEach(() => {
+	vi.unstubAllGlobals()
+})
+
 describe('auth over the wire', () => {
-	beforeEach(() => {
-		vi.unstubAllGlobals()
-	})
-
 	it('should POST credentials as a payload object to /auth/login', async () => {
-		const { client, sent } = setup({
-			data: { access_token: 'AT', refresh_token: null, expires: 900000 },
-		})
-		const auth = createAuth({ client })
-
-		await auth.login({
-			type: 'password',
-			params: { email: 'a@b.c', password: 'pw' },
-		})
-
-		expect(sent).toHaveLength(1)
-		expect(sent[0]).toMatchObject({
-			method: 'POST',
-			path: '/auth/login',
-			// The v20 shape: email and password at the top level of the body, not positional args.
-			body: { email: 'a@b.c', password: 'pw', mode: 'session' },
-		})
-	})
-
-	it('should send the otp when one is given', async () => {
 		const { client, sent } = setup({
 			data: { access_token: 'AT', refresh_token: null, expires: 900000 },
 		})
@@ -89,7 +61,13 @@ describe('auth over the wire', () => {
 			params: { email: 'a@b.c', password: 'pw', options: { otp: '123456' } },
 		})
 
-		expect(sent[0]!.body).toMatchObject({ email: 'a@b.c', password: 'pw', otp: '123456' })
+		expect(sent).toHaveLength(1)
+		expect(sent[0]).toMatchObject({
+			method: 'POST',
+			path: '/auth/login',
+			// The v20 shape: email, password and options at the top level of the body, not positional args.
+			body: { email: 'a@b.c', password: 'pw', otp: '123456', mode: 'session' },
+		})
 	})
 
 	it('should never POST for an sso login, only navigate', async () => {
@@ -124,14 +102,20 @@ describe('auth over the wire', () => {
 		expect(result).toEqual({ authenticated: true })
 	})
 
-	it('should report unauthenticated when the refresh is rejected', async () => {
-		const { client, sent } = setup()
-		const auth = createAuth({ client })
+	it('should report unauthenticated when the refresh is rejected, sharing it across concurrent checks', async () => {
 		// A cold client with no session cookie: Directus answers 401 with no token.
-		vi.spyOn(client.globals, 'fetch').mockRejectedValue(new Error('401'))
+		const fetchSpy = vi.fn().mockRejectedValue(new Error('401'))
+		const client = createDirectus(BASE, { globals: { fetch: fetchSpy as any } })
+			.with(authentication('session'))
+			.with(rest())
+		const auth = createAuth({ client })
 
-		expect(await auth.check()).toEqual({ authenticated: false })
-		expect(sent).toHaveLength(0)
+		// N mounted guards checking a cold store at once share one in-flight refresh.
+		expect(await Promise.all([auth.check(), auth.check()])).toEqual([
+			{ authenticated: false },
+			{ authenticated: false },
+		])
+		expect(fetchSpy).toHaveBeenCalledTimes(1)
 	})
 
 	it('should GET /users/me for the identity', async () => {

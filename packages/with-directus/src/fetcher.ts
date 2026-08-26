@@ -231,12 +231,13 @@ function genFilters(
 	// `meta.query.filter` has to be carried over here or it is lost. Nothing is injected on
 	// top of it: a default like `status: { _neq: 'archived' }` breaks every collection that
 	// has no `status` field, so a caller who wants one passes it through meta.
-	const { _and: metaAnd, ...metaFilter } = meta?.query?.filter ?? {}
+	const metaFilter = meta?.query?.filter
 	const result = {
 		search: '',
 		filter: {
 			...metaFilter,
-			_and: [...(metaAnd ?? [])] as any[],
+			// A copy of the caller's `_and`: the resolved filters are pushed into it below.
+			_and: [...(metaFilter?._and ?? [])] as any[],
 		},
 	}
 
