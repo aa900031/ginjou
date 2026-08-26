@@ -104,7 +104,6 @@ describe('createFetcher', () => {
 							],
 						},
 					],
-					status: { _neq: 'archived' },
 				},
 			}
 			expect(sdk.readItems).toHaveBeenCalledWith('posts', readItemsQuery)
@@ -130,6 +129,50 @@ describe('createFetcher', () => {
 			expect(sdk.readItems).toHaveBeenCalledWith('posts', expect.objectContaining({
 				search: 'hello world',
 			}))
+		})
+
+		it('should not inject a filter of its own', async () => {
+			mockClient.request
+				.mockResolvedValueOnce([])
+				.mockResolvedValueOnce([{ countDistinct: { id: 0 } }])
+
+			await fetcher.getList({
+				resource: 'posts',
+				filters: [{ field: 'category', operator: 'eq', value: 'news' }],
+			})
+
+			expect(sdk.readItems).toHaveBeenCalledWith('posts', expect.objectContaining({
+				filter: { _and: [{ category: { _eq: 'news' } }] },
+			}))
+		})
+
+		it('should merge a filter given through meta with the resolved filters', async () => {
+			mockClient.request
+				.mockResolvedValueOnce([])
+				.mockResolvedValueOnce([{ countDistinct: { id: 0 } }])
+
+			const metaFilter = {
+				status: { _neq: 'archived' },
+				_and: [{ locale: { _eq: 'zh-TW' } }],
+			}
+
+			await fetcher.getList({
+				resource: 'posts',
+				filters: [{ field: 'category', operator: 'eq', value: 'news' }],
+				meta: { query: { filter: metaFilter } },
+			})
+
+			expect(sdk.readItems).toHaveBeenCalledWith('posts', expect.objectContaining({
+				filter: {
+					status: { _neq: 'archived' },
+					_and: [
+						{ locale: { _eq: 'zh-TW' } },
+						{ category: { _eq: 'news' } },
+					],
+				},
+			}))
+			// The caller's object is theirs — we merge into a copy.
+			expect(metaFilter._and).toEqual([{ locale: { _eq: 'zh-TW' } }])
 		})
 
 		it('should handle multiple sorters', async () => {

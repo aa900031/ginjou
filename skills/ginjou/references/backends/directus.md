@@ -53,16 +53,22 @@ Register `fetcher` in the active adapter's fetcher context and `auth` in the mat
 
 > ⚠️ **Warning:** `getList()` total reads **only** the `countDistinct` branch. Passing other aggregate shapes such as `count` or `sum` does **not** change how `total` is calculated.
 
-`getList()` excludes `status: archived` by default. Override that through `meta.query.filter.status` when archived records must be visible.
+`getList()` adds no filter of its own. Anything meant to apply to every list query goes through `meta.query.filter`, which is merged with the filters resolved from `filters`.
 
 ## Authentication Login Types
 
-`createAuth` supports password and SSO login.
+`createAuth` supports password and SSO login. They work in different ways: password login is a request, SSO login is a full page navigation.
 
 ```
 { type: 'password', params: { email: 'user@example.com', password: '…' } }
-{ type: 'sso', params: { provider: 'google' } }
+{ type: 'sso', params: { provider: 'google', redirect: 'https://app.example.com/callback' } }
 ```
+
+`type: 'sso'` navigates the browser to `{client.url}/auth/login/{provider}?redirect=…`, so nothing after the call runs. `redirect` defaults to the current page and must be listed in the server's `AUTH_<PROVIDER>_REDIRECT_ALLOW_LIST`. Use `getSSOLoginUrl(client, provider, redirect?)` to get the same URL without navigating, for example to put on an `<a href>`.
+
+The Directus SDK cannot perform a redirect SSO login. `client.login(payload, { provider })` posts credentials to the same endpoint and only works for the `local` and `ldap` drivers.
+
+`check()` reads `client.getToken()` and falls back to one `client.refresh()` when there is no token, so an SSO return needs no callback route, and a reload does not log the user out under the SDK's default in-memory storage.
 
 ## Notes
 
@@ -76,6 +82,7 @@ Register `fetcher` in the active adapter's fetcher context and `auth` in the mat
 - The adapter implements `custom`; use the active adapter's custom request pattern for Directus-specific request flows.
 - Use `meta.query` for Directus query overrides. Use `meta.aggregate` only to override `getList()` total-count aggregation. The runtime default is `{ countDistinct: 'id' }`, and `total` currently reads only `countDistinct`.
 - The source interface declares `meta.aggregate` as `string[]`, but the runtime passes an object-shaped aggregate descriptor to the Directus SDK. Prefer the runtime behavior when answering usage questions.
-- `getList()` excludes archived records by default. Override `meta.query.filter.status` when archived items must be visible.
+- `getList()` injects no filter. Pass anything meant for every list query through `meta.query.filter`; it is merged with the resolved `filters`.
+- Requires `@directus/sdk` `>=20.0.0 <26.0.0`. SDK 20 changed `client.login()` to take a payload object.
 - `groupBy` exists in the type definition but the adapter implementation does **not** use it. Do not recommend `groupBy` as a usable feature.
 - Resources starting with `directus_` or `directus/` use the dedicated Directus system-collection helpers automatically.

@@ -227,13 +227,16 @@ function genFilters(
 	filters: Filters,
 	meta: FetcherMeta | undefined,
 ): any {
+	// `genFilters` overwrites `query.filter` wholesale, so anything the caller set on
+	// `meta.query.filter` has to be carried over here or it is lost. Nothing is injected on
+	// top of it: a default like `status: { _neq: 'archived' }` breaks every collection that
+	// has no `status` field, so a caller who wants one passes it through meta.
+	const { _and: metaAnd, ...metaFilter } = meta?.query?.filter ?? {}
 	const result = {
 		search: '',
 		filter: {
-			_and: [] as any[],
-			status: meta?.query?.filter?.status ?? {
-				_neq: 'archived',
-			},
+			...metaFilter,
+			_and: [...(metaAnd ?? [])] as any[],
 		},
 	}
 

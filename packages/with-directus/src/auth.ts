@@ -1,5 +1,5 @@
 import type { AuthenticationClient, DirectusClient, LoginOptions, RestClient } from '@directus/sdk'
-import { readMe } from '@directus/sdk'
+import { getAuthEndpoint, isDirectusError, readMe } from '@directus/sdk'
 import { defineAuth } from '@ginjou/core'
 
 export interface CreateAuthProps<
@@ -25,8 +25,35 @@ export interface LoginWithSSOParams {
 	type: 'sso'
 	params: {
 		provider: string
-		options?: Omit<LoginOptions, 'provider'>
+		/**
+		 * Where Directus sends the browser back to once the provider has authenticated the user.
+		 * Must be listed in the server's `AUTH_<PROVIDER>_REDIRECT_ALLOW_LIST`.
+		 *
+		 * @default the current page
+		 */
+		redirect?: string
 	}
+}
+
+/**
+ * Builds the URL that starts a redirect-based SSO handshake.
+ *
+ * The SDK cannot perform this login: `client.login(payload, { provider })` POSTs credentials to
+ * the same endpoint, which only works for the `local` and `ldap` drivers. OAuth2, OpenID and SAML
+ * need the browser itself to visit the endpoint so the provider can redirect it back.
+ *
+ * @see https://directus.com/docs/guides/auth/sso/seamless
+ */
+export function getSSOLoginUrl(
+	client: DirectusClient<any>,
+	provider: string,
+	redirect?: string,
+): string {
+	const url = new URL(getAuthEndpoint(provider), client.url)
+	if (redirect != null)
+		url.searchParams.set('redirect', redirect)
+
+	return url.toString()
 }
 
 // eslint-disable-next-line ts/explicit-function-return-type
@@ -45,14 +72,23 @@ export function createAuth<
 			const { type } = params
 			switch (type) {
 				case 'password':
-					await client.login(params.params.email, params.params.password, params.params.options)
+					await client.login(
+						{
+							email: params.params.email,
+							password: params.params.password,
+						},
+						params.params.options,
+					)
 					break
-				case 'sso':
-					await client.login('placeholder', 'placeholder', {
-						...params.params.options,
-						provider: params.params.provider,
-					})
+				case 'sso': {
+					if (typeof window === 'undefined')
+						throw new Error('[@ginjou/with-directus] SSO login requires a browser, it navigates away from the app.')
+
+					const { provider, redirect = window.location.href } = params.params
+					// A full page navigation, so nothing after this runs.
+					window.location.assign(getSSOLoginUrl(client, provider, redirect))
 					break
+				}
 				default:
 					throw new Error(`[@ginjou/with-directus] Unsupported login type: ${String(type)}`)
 			}
@@ -61,7 +97,15 @@ export function createAuth<
 			await client.logout()
 		},
 		check: async () => {
-			const token = await client.getToken()
+			// A cold token store is not proof of being logged out: with the default `memoryStorage`
+			// every reload starts cold, and an SSO redirect lands here with nothing but the cookie
+			// Directus just set. `getToken` never refreshes on its own, so ask once before giving up.
+			let token = await client.getToken()
+			if (!token) {
+				await client.refresh().catch(() => undefined)
+				token = await client.getToken()
+			}
+
 			return {
 				authenticated: !!token,
 			}
@@ -82,24 +126,6 @@ export function createAuth<
 	})
 }
 
-function isClientError(error: unknown): error is {
-	errors: {
-		message: string
-		extensions: {
-			code: string
-		}
-	}[]
-	response: Response
-} {
-	return !!error
-		&& typeof error === 'object'
-		&& 'errors' in error
-		&& Array.isArray(error.errors)
-		&& 'response' in error
-		&& !!error.response
-		&& typeof error.response === 'object'
-}
-
 const AuthErrors = [
 	'TOKEN_EXPIRED',
 	'INVALID_CREDENTIALS',
@@ -107,7 +133,7 @@ const AuthErrors = [
 	'INVALID_OTP',
 ]
 function isAuthError(error: unknown): boolean {
-	if (!isClientError(error))
+	if (!isDirectusError(error))
 		return false
 
 	return error.errors.some(err => AuthErrors.includes(err.extensions.code))
