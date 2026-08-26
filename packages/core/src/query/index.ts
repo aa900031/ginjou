@@ -9,6 +9,7 @@ export * from './fetcher'
 export type {
 	Fetchers,
 } from './fetchers'
+export * from './filter'
 
 export * as GetInfiniteList from './get-infinite-list'
 export * as GetList from './get-list'
@@ -52,5 +53,6 @@ export {
 	createSubscribeCallback,
 	getSubscribeChannel,
 } from './realtime'
+export * from './sorter'
 export * as UpdateOne from './update'
 export * as UpdateMany from './update-many'

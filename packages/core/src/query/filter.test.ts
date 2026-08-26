@@ -42,7 +42,7 @@ describe('filter helpers', () => {
 	const statusArchived: Filter = { field: 'status', operator: FilterOperator.eq, value: 'archived' }
 	const filters: Filters = [statusPublished, orGroup, statusArchived]
 
-	it('should match field and optional operator', () => {
+	it('should narrow filters and match field with optional operator', () => {
 		expect(isLogicalFilter(statusPublished)).toBe(true)
 		expect(isConditionalFilter(statusPublished)).toBe(false)
 		expect(isLogicalFilter(orGroup)).toBe(false)
@@ -52,7 +52,7 @@ describe('filter helpers', () => {
 		expect(isTargetFilter(orGroup, { field: 'status' })).toBe(false)
 	})
 
-	it('should filter shallow or deeply nested filters', () => {
+	it('should pick shallow or deeply nested filters', () => {
 		expect(pickFilters(filters, { field: 'status' })).toEqual([statusPublished, statusArchived])
 		expect(pickFilters(filters, { field: 'status' }, { deep: true })).toEqual([
 			statusPublished,

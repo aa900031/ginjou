@@ -17,7 +17,7 @@ describe('sorter helpers', () => {
 	const titleAscAgain: Sort = { field: 'title', order: SortOrder.Asc }
 	const sorters: Sorters = [titleAsc, createdAtDesc, titleAscAgain]
 
-	it('should match, filter and find sorters', () => {
+	it('should match, pick and find sorters', () => {
 		expect(isTargetSorter(titleAsc, { field: 'title', order: SortOrder.Asc })).toBe(true)
 		expect(isTargetSorter(createdAtDesc, { field: 'title', order: SortOrder.Asc })).toBe(false)
 		expect(isTargetSorter(createdAtDesc, { field: 'createdAt' })).toBe(true)
