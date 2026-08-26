@@ -38,6 +38,33 @@ export interface Sort {
 
 export type Sorters = Sort[]
 
+export interface SorterMatcher {
+	field: string
+	order?: SortOrderValues
+}
+
+export function isTargetSorter(
+	item: Sort,
+	matcher: SorterMatcher,
+): boolean {
+	return item.field === matcher.field
+		&& (matcher.order === undefined || item.order === matcher.order)
+}
+
+export function filterSorters(
+	items: Sorters,
+	matcher: SorterMatcher,
+): Sorters {
+	return items.filter(item => isTargetSorter(item, matcher))
+}
+
+export function findSorter(
+	items: Sorters,
+	matcher: SorterMatcher,
+): Sort | undefined {
+	return items.find(item => isTargetSorter(item, matcher))
+}
+
 export interface Pagination<
 	TPageParam = number,
 > {
@@ -91,6 +118,74 @@ export interface ConditionalFilter {
 export type Filter = (LogicalFilter | ConditionalFilter)
 
 export type Filters = Filter[]
+
+export function isLogicalFilter(
+	item: Filter,
+): item is LogicalFilter {
+	return isLogicalFilterOperator(item.operator)
+}
+
+export function isConditionalFilter(
+	item: Filter,
+): item is ConditionalFilter {
+	return isConditionalFilterOperator(item.operator)
+}
+
+export interface FilterMatcher {
+	field: string
+	operator?: FilterOperatorValues
+}
+
+export function isTargetFilter(
+	item: Filter,
+	matcher: FilterMatcher,
+): boolean {
+	return isLogicalFilter(item)
+		&& item.field === matcher.field
+		&& (matcher.operator === undefined || item.operator === matcher.operator)
+}
+
+export function filterFilters(
+	items: Filters,
+	matcher: FilterMatcher,
+	options?: {
+		deep?: boolean
+	},
+): Filters {
+	const result: Filters = []
+
+	for (const item of items) {
+		if (options?.deep && isConditionalFilter(item)) {
+			const value = filterFilters(item.value, matcher, options)
+			if (value.length)
+				result.push({ ...item, value })
+		}
+		else if (isTargetFilter(item, matcher)) {
+			result.push(item)
+		}
+	}
+
+	return result
+}
+
+export function findFilter(
+	items: Filters,
+	matcher: FilterMatcher,
+	options?: {
+		deep?: boolean
+	},
+): Filter | undefined {
+	for (const item of items) {
+		if (options?.deep && isConditionalFilter(item)) {
+			const result = findFilter(item.value, matcher, options)
+			if (result)
+				return result
+		}
+		else if (isTargetFilter(item, matcher)) {
+			return item
+		}
+	}
+}
 
 export function isFilterOperator(
 	operator: unknown,
