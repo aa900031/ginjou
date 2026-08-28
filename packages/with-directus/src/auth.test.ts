@@ -9,6 +9,7 @@ const mockClient = {
 	login: vi.fn(),
 	logout: vi.fn(),
 	refresh: vi.fn(),
+	stopRefreshing: vi.fn(),
 	getToken: vi.fn(),
 }
 
@@ -71,6 +72,12 @@ describe('createAuth', () => {
 	})
 
 	describe('logout', () => {
+		it('should stop SDK refresh scheduling before logging out', async () => {
+			await authProvider.logout()
+
+			expect(mockClient.stopRefreshing).toHaveBeenCalledBefore(mockClient.logout)
+		})
+
 		it('should wait for a refresh started by check before logging out', async () => {
 			const order: string[] = []
 			let resolveRefresh!: () => void

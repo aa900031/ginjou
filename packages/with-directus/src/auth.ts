@@ -96,6 +96,7 @@ export function createAuth<
 			}
 		},
 		logout: async () => {
+			client.stopRefreshing()
 			if (refreshing)
 				await refreshing
 			await client.logout()
