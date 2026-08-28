@@ -99,6 +99,20 @@ describe('createAuth', () => {
 			mockClient.refresh.mockRejectedValue(new Error('no session'))
 			await expect(authProvider.check()).resolves.toEqual({ authenticated: false })
 		})
+
+		it('should not start a refresh after logout begins', async () => {
+			let resolveToken!: (token: null) => void
+			// check() calls getToken synchronously, so resolveToken is assigned once check() returns.
+			mockClient.getToken.mockImplementationOnce(() => new Promise<null>((resolve) => { resolveToken = resolve }))
+
+			const checking = authProvider.check()
+			const loggingOut = authProvider.logout()
+			resolveToken(null)
+
+			await expect(checking).resolves.toEqual({ authenticated: false })
+			await loggingOut
+			expect(mockClient.refresh).not.toHaveBeenCalled()
+		})
 	})
 
 	describe('checkError', () => {

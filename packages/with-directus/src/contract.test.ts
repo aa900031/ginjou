@@ -106,8 +106,8 @@ describe('auth over the wire', () => {
 		// A cold client with no session cookie: Directus answers 401 with no token.
 		const fetchSpy = vi.fn().mockRejectedValue(new Error('401'))
 		const client = createDirectus(BASE, { globals: { fetch: fetchSpy as any } })
-			.with(authentication('session', { autoRefresh: false }))
-			.with(rest())
+			.with(authentication('session', { autoRefresh: false, credentials: 'include' }))
+			.with(rest({ credentials: 'include' }))
 		const auth = createAuth({ client })
 
 		// N mounted guards checking a cold store at once share one in-flight refresh.

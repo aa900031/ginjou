@@ -19,8 +19,8 @@ import { authentication, createDirectus, rest } from '@directus/sdk'
 import { createAuth, createFetcher } from '@ginjou/with-directus'
 
 const directus = createDirectus('https://your-directus.example.com')
-	.with(rest())
-	.with(authentication())
+	.with(rest({ credentials: 'include' }))
+	.with(authentication('session', { autoRefresh: false, credentials: 'include' }))
 const fetcher = createFetcher({ client: directus })
 const auth = createAuth({ client: directus })
 ```

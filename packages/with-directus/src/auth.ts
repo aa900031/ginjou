@@ -65,6 +65,8 @@ export function createAuth<
 	}: CreateAuthProps<TClient>,
 ) {
 	let refreshing: Promise<AuthenticationData | undefined> | undefined
+	let loggingOut = 0
+	let logoutGeneration = 0
 
 	return defineAuth({
 		login: async (params?: LoginParams) => {
@@ -96,14 +98,24 @@ export function createAuth<
 			}
 		},
 		logout: async () => {
+			loggingOut++
+			logoutGeneration++
 			client.stopRefreshing()
-			if (refreshing)
-				await refreshing
-			await client.logout()
+			try {
+				if (refreshing)
+					await refreshing
+				await client.logout()
+			}
+			finally {
+				loggingOut--
+			}
 		},
 		check: async () => {
+			const generation = logoutGeneration
 			let token = await client.getToken()
-			if (!token) {
+			// Refreshing after a logout would resurrect the session: `loggingOut` covers a logout
+			// already in flight, the generation compare covers one that began during `getToken`.
+			if (!token && !loggingOut && generation === logoutGeneration) {
 				await refresh()
 				token = await client.getToken()
 			}
