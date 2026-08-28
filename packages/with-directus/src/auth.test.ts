@@ -103,7 +103,9 @@ describe('createAuth', () => {
 		it('should not start a refresh after logout begins', async () => {
 			let resolveToken!: (token: null) => void
 			// check() calls getToken synchronously, so resolveToken is assigned once check() returns.
-			mockClient.getToken.mockImplementationOnce(() => new Promise<null>((resolve) => { resolveToken = resolve }))
+			mockClient.getToken.mockImplementationOnce(() => new Promise<null>((resolve) => {
+				resolveToken = resolve
+			}))
 
 			const checking = authProvider.check()
 			const loggingOut = authProvider.logout()
