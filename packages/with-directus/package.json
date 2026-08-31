@@ -46,7 +46,7 @@
 		"release": "release-it"
 	},
 	"peerDependencies": {
-		"@directus/sdk": "^15.0.0",
+		"@directus/sdk": ">=20.0.0 <26.0.0",
 		"@ginjou/core": "workspace:^"
 	},
 	"dependencies": {
@@ -56,7 +56,7 @@
 		"scule": "1.3.0"
 	},
 	"devDependencies": {
-		"@directus/sdk": "^15.1.0",
+		"@directus/sdk": "^25.0.1",
 		"@ginjou/core": "workspace:^",
 		"@ginjou/tsconfig": "workspace:*",
 		"@ginjou/tsdown-config": "workspace:*",

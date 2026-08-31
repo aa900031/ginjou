@@ -322,8 +322,8 @@ importers:
         version: 1.3.0
     devDependencies:
       '@directus/sdk':
-        specifier: ^15.1.0
-        version: 15.1.0
+        specifier: ^25.0.1
+        version: 25.0.1
       '@ginjou/core':
         specifier: workspace:^
         version: link:../core
@@ -985,12 +985,9 @@ packages:
       conventional-commits-parser:
         optional: true
 
-  '@directus/sdk@15.1.0':
-    resolution: {integrity: sha512-M2+Z1WmU8Q5KlR22K5ugmBHq10a6tcGl3QuvGKnN+jNwDnRyN5brJxt7FvgtWrY3Q1ToGLxmL37GHAH9s12dlQ==}
-    engines: {node: '>=18.0.0'}
-
-  '@directus/system-data@1.0.2':
-    resolution: {integrity: sha512-PweDAwTz4zImEGJnhoaX8apOCvcAfE0aGQrCSk+3cf1sLso0ShNlcDvUymtVfrqOXy0qT9sLa833bpJVaXF5ng==}
+  '@directus/sdk@25.0.1':
+    resolution: {integrity: sha512-7YatQh8aKDN6iIPyXmbUc3HW/jdKveiwFP+oFSKs0/W/IKX+ZpnwsN1NQLI6PpcmU2/rLuYK8knQaQr5F0gKNw==}
+    engines: {node: '>=22'}
 
   '@dxup/nuxt@0.5.6':
     resolution: {integrity: sha512-uZjAFoocWtWHr7YP9jm6FqwI8kjX2QN9bjcncoZt0GS+zExIAP3Ewv6EqEUvVP7w9pjZE+T19QxLHeoacN/MNg==}
@@ -11867,11 +11864,7 @@ snapshots:
       conventional-commits-filter: 5.0.0
       conventional-commits-parser: 6.4.0
 
-  '@directus/sdk@15.1.0':
-    dependencies:
-      '@directus/system-data': 1.0.2
-
-  '@directus/system-data@1.0.2': {}
+  '@directus/sdk@25.0.1': {}
 
   '@dxup/nuxt@0.5.6(esbuild@0.28.1)(magicast@0.5.4)(oxc-parser@0.135.0)(rolldown@1.2.5)(rollup@4.62.2)(vite@8.2.2(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.0)(yaml@2.9.0))':
     dependencies:

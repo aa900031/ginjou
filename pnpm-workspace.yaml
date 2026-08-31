@@ -2,6 +2,7 @@ ignoreWorkspaceRootCheck: true
 
 minimumReleaseAgeExclude:
   - '@aa900031/release-it-config@1.0.0'
+  - '@directus/sdk@25.0.1'
 
 shamefullyHoist: true
 shellEmulator: true
