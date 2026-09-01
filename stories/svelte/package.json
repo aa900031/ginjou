@@ -29,7 +29,7 @@
 		"@storybook/addon-docs": "10.5.10",
 		"@storybook/svelte-vite": "10.5.10",
 		"@sveltejs/vite-plugin-svelte": "7.3.0",
-		"@tanstack/svelte-query": "^6.1.38",
+		"@tanstack/svelte-query": "^6.1.44",
 		"msw": "^2.15.0",
 		"storybook": "10.5.10",
 		"svelte": "^5.56.10",
