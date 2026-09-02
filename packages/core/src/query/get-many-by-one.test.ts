@@ -236,5 +236,4 @@ describe('createCombineFn', () => {
 		})
 		expect(refetched.status).toBe('success')
 	})
-
 })
