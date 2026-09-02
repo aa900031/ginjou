@@ -336,8 +336,6 @@ function createCombinedResult<
 	const errorUpdatedAt = state.errorUpdatedAt
 	const errorUpdateCount = state.errorUpdateCount
 	const failureCount = state.failureCount
-	let promiseCache: Promise<GetManyResult<TData>> | undefined
-
 	const result = {
 		data,
 		dataUpdatedAt,
@@ -367,17 +365,6 @@ function createCombinedResult<
 			results.map(result => result.refetch(options)),
 		).then(refetchedResults => combineResults<TData, TError>(refetchedResults)),
 	} as QueryObserverResult<GetManyResult<TData>, TError>
-
-	Object.defineProperty(result, 'promise', {
-		configurable: true,
-		enumerable: false,
-		get() {
-			promiseCache ??= Promise.all(results.map(result => result.promise)).then(items => ({
-				data: items.map(item => item.data),
-			}))
-			return promiseCache
-		},
-	})
 
 	return result
 }

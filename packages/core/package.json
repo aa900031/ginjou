@@ -58,6 +58,6 @@
 		"@ginjou/tsconfig": "workspace:*",
 		"@ginjou/tsdown-config": "workspace:*",
 		"@ginjou/vite-config": "workspace:*",
-		"@tanstack/query-core": "^5.101.4"
+		"@tanstack/query-core": "^5.102.4"
 	}
 }
