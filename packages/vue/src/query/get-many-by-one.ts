@@ -123,7 +123,6 @@ export function useGetManyByOne<
 		isEnabled: toRef(() => unref(queries).isEnabled),
 		status: toRef(() => unref(queries).status),
 		fetchStatus: toRef(() => unref(queries).fetchStatus),
-		promise: toRef(() => unref(queries).promise),
 		refetch: opts => unref(queries).refetch(opts),
 		records: toRef(() => unref(queries).data?.data),
 	}

@@ -137,7 +137,7 @@ importers:
         version: 3.0.0
       tanstack-query-callbacks:
         specifier: ^0.3.2
-        version: 0.3.2(@tanstack/query-core@5.102.8)(@tanstack/svelte-query@6.1.44(svelte@5.56.10(@typescript-eslint/types@8.67.0)))(@tanstack/vue-query@5.102.8(vue@3.5.41(typescript@5.9.3)))(svelte@5.56.10(@typescript-eslint/types@8.67.0))(vue@3.5.41(typescript@5.9.3))
+        version: 0.3.2(@tanstack/query-core@5.102.8)(@tanstack/svelte-query@6.1.48(svelte@5.56.10(@typescript-eslint/types@8.67.0)))(@tanstack/vue-query@5.102.8(vue@3.5.41(typescript@5.9.3)))(svelte@5.56.10(@typescript-eslint/types@8.67.0))(vue@3.5.41(typescript@5.9.3))
       type-fest:
         specifier: ^4.41.0
         version: 4.41.0
@@ -223,7 +223,7 @@ importers:
         version: link:../core
       tanstack-query-callbacks:
         specifier: ^0.3.2
-        version: 0.3.2(@tanstack/query-core@5.102.8)(@tanstack/svelte-query@6.1.44(svelte@5.56.10(@typescript-eslint/types@8.67.0)))(@tanstack/vue-query@5.102.8(vue@3.5.41(typescript@5.9.3)))(svelte@5.56.10(@typescript-eslint/types@8.67.0))(vue@3.5.41(typescript@5.9.3))
+        version: 0.3.2(@tanstack/query-core@5.102.8)(@tanstack/svelte-query@6.1.48(svelte@5.56.10(@typescript-eslint/types@8.67.0)))(@tanstack/vue-query@5.102.8(vue@3.5.41(typescript@5.9.3)))(svelte@5.56.10(@typescript-eslint/types@8.67.0))(vue@3.5.41(typescript@5.9.3))
       type-fest:
         specifier: ^4.41.0
         version: 4.41.0
@@ -238,8 +238,8 @@ importers:
         specifier: 7.3.0
         version: 7.3.0(svelte@5.56.10(@typescript-eslint/types@8.67.0))(vite@8.2.2(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.0)(yaml@2.9.0))
       '@tanstack/svelte-query':
-        specifier: 6.1.44
-        version: 6.1.44(svelte@5.56.10(@typescript-eslint/types@8.67.0))
+        specifier: 6.1.48
+        version: 6.1.48(svelte@5.56.10(@typescript-eslint/types@8.67.0))
       svelte:
         specifier: ^5.56.10
         version: 5.56.10(@typescript-eslint/types@8.67.0)
@@ -276,7 +276,7 @@ importers:
         version: 10.11.1(vue@3.5.41(typescript@5.9.3))
       tanstack-query-callbacks:
         specifier: ^0.3.2
-        version: 0.3.2(@tanstack/query-core@5.102.8)(@tanstack/svelte-query@6.1.44(svelte@5.56.10(@typescript-eslint/types@8.67.0)))(@tanstack/vue-query@5.102.8(vue@3.5.41(typescript@5.9.3)))(svelte@5.56.10(@typescript-eslint/types@8.67.0))(vue@3.5.41(typescript@5.9.3))
+        version: 0.3.2(@tanstack/query-core@5.102.8)(@tanstack/svelte-query@6.1.48(svelte@5.56.10(@typescript-eslint/types@8.67.0)))(@tanstack/vue-query@5.102.8(vue@3.5.41(typescript@5.9.3)))(svelte@5.56.10(@typescript-eslint/types@8.67.0))(vue@3.5.41(typescript@5.9.3))
       type-fest:
         specifier: ^4.41.0
         version: 4.41.0
@@ -517,8 +517,8 @@ importers:
         specifier: 7.3.0
         version: 7.3.0(svelte@5.56.10(@typescript-eslint/types@8.67.0))(vite@8.2.2(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.0)(yaml@2.9.0))
       '@tanstack/svelte-query':
-        specifier: ^6.1.44
-        version: 6.1.44(svelte@5.56.10(@typescript-eslint/types@8.67.0))
+        specifier: ^6.1.48
+        version: 6.1.48(svelte@5.56.10(@typescript-eslint/types@8.67.0))
       msw:
         specifier: ^2.15.0
         version: 2.15.0(@types/node@24.13.3)(typescript@5.9.3)
@@ -4133,14 +4133,11 @@ packages:
     resolution: {integrity: sha512-Wo1iKt2b9OT7d+YGhvEPD3DXvPv2etTusIMhMUoG7fbhmxcXCtIjJDEygy91Y2JFlwGyjqiBPRozme7UD8hoqg==}
     engines: {node: '>=12'}
 
-  '@tanstack/query-core@5.102.4':
-    resolution: {integrity: sha512-6eXkL+KFyVAZdpKoThCjPQQylZK8/ZOMYTJEVoPtHLkLs2PYks6vUiim9qzgvFXakSkRIAZwAZTeZLIJmpgRpQ==}
-
   '@tanstack/query-core@5.102.8':
     resolution: {integrity: sha512-ZNjkJ33CqvPNec/6lZBnHqLc3EVGPZ9ySLhYahU9TcuRFdmwXewuj0c4hwSWcGHqEUwcSrKeZ+oGcvPBqXcQcg==}
 
-  '@tanstack/svelte-query@6.1.44':
-    resolution: {integrity: sha512-+B3A22jQEEvIJ6UO/DtWgzi7hTstMhBVvM30HyW7utb0v5UUzvmly2rCpIgvYzQZifHpYQK4qg1URPK83PkW8A==}
+  '@tanstack/svelte-query@6.1.48':
+    resolution: {integrity: sha512-X+d2LvUImIf1OQiNIlJ5AfHcXrVwKMMvuC1a/6VZclkgg7Td9mSnvZrbpWowR3TFHrzFY80PHVwm+u8End7c3Q==}
     peerDependencies:
       svelte: ^5.25.0
 
@@ -15380,13 +15377,11 @@ snapshots:
     dependencies:
       remove-accents: 0.5.0
 
-  '@tanstack/query-core@5.102.4': {}
-
   '@tanstack/query-core@5.102.8': {}
 
-  '@tanstack/svelte-query@6.1.44(svelte@5.56.10(@typescript-eslint/types@8.67.0))':
+  '@tanstack/svelte-query@6.1.48(svelte@5.56.10(@typescript-eslint/types@8.67.0))':
     dependencies:
-      '@tanstack/query-core': 5.102.4
+      '@tanstack/query-core': 5.102.8
       svelte: 5.56.10(@typescript-eslint/types@8.67.0)
 
   '@tanstack/table-core@8.21.3': {}
@@ -23206,11 +23201,11 @@ snapshots:
 
   tailwindcss@4.3.3: {}
 
-  tanstack-query-callbacks@0.3.2(@tanstack/query-core@5.102.8)(@tanstack/svelte-query@6.1.44(svelte@5.56.10(@typescript-eslint/types@8.67.0)))(@tanstack/vue-query@5.102.8(vue@3.5.41(typescript@5.9.3)))(svelte@5.56.10(@typescript-eslint/types@8.67.0))(vue@3.5.41(typescript@5.9.3)):
+  tanstack-query-callbacks@0.3.2(@tanstack/query-core@5.102.8)(@tanstack/svelte-query@6.1.48(svelte@5.56.10(@typescript-eslint/types@8.67.0)))(@tanstack/vue-query@5.102.8(vue@3.5.41(typescript@5.9.3)))(svelte@5.56.10(@typescript-eslint/types@8.67.0))(vue@3.5.41(typescript@5.9.3)):
     dependencies:
       '@tanstack/query-core': 5.102.8
     optionalDependencies:
-      '@tanstack/svelte-query': 6.1.44(svelte@5.56.10(@typescript-eslint/types@8.67.0))
+      '@tanstack/svelte-query': 6.1.48(svelte@5.56.10(@typescript-eslint/types@8.67.0))
       '@tanstack/vue-query': 5.102.8(vue@3.5.41(typescript@5.9.3))
       svelte: 5.56.10(@typescript-eslint/types@8.67.0)
       vue: 3.5.41(typescript@5.9.3)

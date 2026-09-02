@@ -37,7 +37,6 @@ function createResult(
 		refetch: async () => createResult(overrides),
 		status: 'pending',
 		fetchStatus: 'idle',
-		promise: Promise.resolve({ data: { id: '0', title: 'placeholder' } }),
 		...overrides,
 	} as QueryObserverResult<GetOneResult<Post>, Error>
 }
@@ -238,41 +237,4 @@ describe('createCombineFn', () => {
 		expect(refetched.status).toBe('success')
 	})
 
-	it('should lazily read child promises only when combined promise is accessed', async () => {
-		let promiseReads = 0
-		const first = createResult({
-			data: { data: { id: '1', title: 'A' } },
-			isSuccess: true,
-			status: 'success',
-		})
-		const second = createResult({
-			data: { data: { id: '2', title: 'B' } },
-			isSuccess: true,
-			status: 'success',
-		})
-
-		Object.defineProperty(first, 'promise', {
-			get() {
-				promiseReads += 1
-				return Promise.resolve({ data: { id: '1', title: 'A' } })
-			},
-		})
-		Object.defineProperty(second, 'promise', {
-			get() {
-				promiseReads += 1
-				return Promise.resolve({ data: { id: '2', title: 'B' } })
-			},
-		})
-
-		const result = combine([
-			first,
-			second,
-		])
-
-		expect(promiseReads).toBe(0)
-
-		await result.promise
-
-		expect(promiseReads).toBe(2)
-	})
 })
