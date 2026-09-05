@@ -28,7 +28,7 @@
 		"@codspeed/vitest-plugin": "^5.7.1",
 		"@vitest/coverage-v8": "^4.1.11",
 		"eslint": "^10.9.1",
-		"happy-dom": "^20.11.13",
+		"happy-dom": "^20.12.0",
 		"npm-run-all2": "^9.0.3",
 		"release-it": "^20.2.1",
 		"sirv-cli": "^3.0.1",
