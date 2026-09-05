@@ -10,7 +10,7 @@
 	"dependencies": {
 		"@barzhsieh/nuxt-content-mermaid": "^2.2.3",
 		"better-sqlite3": "^12.11.1",
-		"docus": "^5.12.3",
+		"docus": "^5.13.0",
 		"h3": "^1.15.11",
 		"nuxt": "^4.5.2",
 		"tailwindcss": "^4.3.3"
