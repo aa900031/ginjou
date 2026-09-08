@@ -175,19 +175,22 @@ export function createPlaceholderDataFn<
 ): PlaceholderDataFunction<GetManyResult<TData>, TError, GetManyResult<TData>> {
 	return function placeholderDataFn() {
 		const { ids, ...rest } = getProps()
-		const records = (!ids || ids.length === 0)
-			? []
-			: ids.map(id => findGetOneCached<TData, TError, TResultData>(
-					{ ...rest, id },
-					queryClient,
-				))
+		if (!ids || ids.length === 0)
+			return { data: [] }
 
-		if (records.includes(undefined))
-			return undefined
-
+		const cached: TData[] = []
+		for (const id of ids) {
+			const item = findGetOneCached<TData, TError, TResultData>(
+				{ ...rest, id },
+				queryClient,
+			)
+			if (item == null)
+				return
+			cached.push(item.data as unknown as TData)
+		}
 		return {
-			data: records,
-		} as unknown as GetManyResult<TData>
+			data: cached,
+		}
 	}
 }
 
