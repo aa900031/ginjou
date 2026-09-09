@@ -6,6 +6,7 @@ import type { Translate } from '../i18n'
 import type { Notify } from '../notification'
 import type { RealtimeOption, SubscribeManyParams } from '../realtime'
 import type { QueryEnabledFn } from '../utils/query'
+import type { PromiseResolvePair, ResolveArgsResult } from './aggregate'
 import type { BaseRecord, GetManyFn, GetManyProps, GetManyResult, GetOneResult } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { ResolvedQueryProps as GetOneResolvedQueryProps } from './get-one'
@@ -350,50 +351,52 @@ function execGetMany<
 	return fakeMany(props.ids.map(id => (getOne as any)({ ...props, id }, context)))
 }
 
-const aggregExecGetMany = createAggregateFn(
-	execGetMany,
-	(allArgs, allResolves) => {
-		type ResourceMap = Record<string, { args: typeof allArgs[0][], resolves: typeof allResolves[0][] }>
-		type Result = [typeof allArgs[0], typeof allResolves[0][]][]
+export function resolveAggregateArgs(
+	allArgs: Parameters<typeof execGetMany>[],
+	allResolves: PromiseResolvePair<GetManyResult<any>>[],
+): ResolveArgsResult<Parameters<typeof execGetMany>, GetManyResult<any>> {
+	type ResourceMap = Record<string, { args: typeof allArgs[0][], resolves: typeof allResolves[0][] }>
+	type Result = ResolveArgsResult<Parameters<typeof execGetMany>, GetManyResult<any>>
 
-		const resourceMap = allArgs.reduce((obj, args, index) => {
-			const [props] = args
-			const key = [props.fetcherName, props.resource].join('.')
+	const resourceMap = allArgs.reduce((obj, args, index) => {
+		const [props] = args
+		const key = hashKey([props.fetcherName, props.resource, props.meta])
 
-			obj[key] ??= {
-				args: [],
-				resolves: [],
-			}
-			obj[key].args.push(args)
-			obj[key].resolves.push(allResolves[index]!)
+		obj[key] ??= {
+			args: [],
+			resolves: [],
+		}
+		obj[key].args.push(args)
+		obj[key].resolves.push(allResolves[index]!)
 
-			return obj
-		}, {} as ResourceMap)
+		return obj
+	}, {} as ResourceMap)
 
-		return Object.entries(resourceMap).reduce<Result>((result, [, value]) => {
-			const ids = Object.keys(
-				value.args
-					.reduce((obj, [props]) => {
-						props.ids.forEach((id) => {
-							obj[id] = true
-						})
-						return obj
-					}, {} as Record<string, boolean>),
-			).filter(Boolean)
+	return Object.entries(resourceMap).reduce<Result>((result, [, value]) => {
+		const ids = Object.keys(
+			value.args
+				.reduce((obj, [props]) => {
+					props.ids.forEach((id) => {
+						obj[id] = true
+					})
+					return obj
+				}, {} as Record<string, boolean>),
+		).filter(Boolean)
 
-			const args = value.args[0]
-			if (!args)
-				throw new Error('[@ginjou/core] Cannot aggregate get-many requests because no request arguments were provided.')
-			args[0] = { ...args?.[0], ids }
+		const args = value.args[0]
+		if (!args)
+			throw new Error('[@ginjou/core] Cannot aggregate get-many requests because no request arguments were provided.')
+		args[0] = { ...args?.[0], ids }
 
-			result.push([
-				args,
-				value.resolves,
-			])
-			return result
-		}, [])
-	},
-)
+		result.push([
+			args,
+			value.resolves,
+		])
+		return result
+	}, [])
+}
+
+const aggregExecGetMany = createAggregateFn(execGetMany, resolveAggregateArgs)
 
 function updateCache<
 	TData extends BaseRecord,
