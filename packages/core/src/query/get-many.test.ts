@@ -88,11 +88,13 @@ describe('createPlaceholderDataFn', () => {
 		})
 	})
 
-	it('should return undefined if any id is not cached', () => {
+	it('should fall back to previous data if any id is not cached', () => {
 		const { queryClient, placeholderDataFn } = setup(['1', '2'])
 		cacheGetOne(queryClient, '1', 'one')
+		const previous = { data: [{ id: '0', title: 'zero' }] }
 
 		expect(placeholderDataFn(undefined, undefined)).toBeUndefined()
+		expect(placeholderDataFn(previous, undefined)).toBe(previous)
 	})
 
 	it('should return undefined if ids is empty', () => {

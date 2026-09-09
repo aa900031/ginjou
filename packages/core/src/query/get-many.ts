@@ -170,7 +170,7 @@ export function createPlaceholderDataFn<
 		queryClient,
 	}: CreatePlaceholderDataFnProps,
 ): PlaceholderDataFunction<GetManyResult<TData>, TError, GetManyResult<TData>> {
-	return function placeholderDataFn() {
+	return function placeholderDataFn(previousData) {
 		const { ids, ...rest } = getProps()
 		if (!ids || ids.length === 0)
 			return
@@ -181,7 +181,7 @@ export function createPlaceholderDataFn<
 				genGetOneQueryKey({ props: { ...rest, id } }),
 			)
 			if (item == null)
-				return
+				return previousData
 			cached.push(item.data)
 		}
 		return {
