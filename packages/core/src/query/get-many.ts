@@ -383,6 +383,21 @@ export function resolveAggregateArgs(
 				}, {} as Record<string, boolean>),
 		).filter(Boolean)
 
+		// Each caller only receives the records it asked for, not the whole merged result.
+		const resolves = value.args.map(([props], index) => {
+			const pair = value.resolves[index]!
+			const wanted = new Set(props.ids.map(String))
+			return {
+				...pair,
+				resolve: (result: GetManyResult<any> | PromiseLike<GetManyResult<any>>) => pair.resolve(
+					Promise.resolve(result).then(r => ({
+						...r,
+						data: r.data.filter(record => wanted.has(String(record.id))),
+					})),
+				),
+			}
+		})
+
 		const args = value.args[0]
 		if (!args)
 			throw new Error('[@ginjou/core] Cannot aggregate get-many requests because no request arguments were provided.')
@@ -390,7 +405,7 @@ export function resolveAggregateArgs(
 
 		result.push([
 			args,
-			value.resolves,
+			resolves,
 		])
 		return result
 	}, [])
