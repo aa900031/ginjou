@@ -8,11 +8,9 @@ import type { RealtimeOption, SubscribeManyParams } from '../realtime'
 import type { QueryEnabledFn } from '../utils/query'
 import type { BaseRecord, GetManyFn, GetManyProps, GetManyResult, GetOneResult } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
-import type { ResolvedQueryProps as GetOneResolvedQueryProps } from './get-one'
 import type { NotifyProps } from './notify'
 import type { RealtimeProps } from './realtime'
 import type { ResourceQueryProps } from './resource'
-import { hashKey } from '@tanstack/query-core'
 import { NotificationType } from '../notification'
 import { SubscribeType } from '../realtime'
 import { getErrorMessage } from '../utils/error'
@@ -166,7 +164,6 @@ export interface CreatePlaceholderDataFnProps {
 export function createPlaceholderDataFn<
 	TData extends BaseRecord,
 	TError,
-	TResultData extends BaseRecord,
 >(
 	{
 		getProps,
@@ -176,17 +173,16 @@ export function createPlaceholderDataFn<
 	return function placeholderDataFn() {
 		const { ids, ...rest } = getProps()
 		if (!ids || ids.length === 0)
-			return { data: [] }
+			return
 
 		const cached: TData[] = []
 		for (const id of ids) {
-			const item = findGetOneCached<TData, TError, TResultData>(
-				{ ...rest, id },
-				queryClient,
+			const item = queryClient.getQueryData<GetOneResult<TData>>(
+				genGetOneQueryKey({ props: { ...rest, id } }),
 			)
 			if (item == null)
 				return
-			cached.push(item.data as unknown as TData)
+			cached.push(item.data)
 		}
 		return {
 			data: cached,
@@ -416,17 +412,4 @@ function updateCache<
 			old => old ?? { data: record },
 		)
 	}
-}
-
-function findGetOneCached<
-	TData extends BaseRecord,
-	TError,
-	TResultData extends BaseRecord,
->(
-	props: GetOneResolvedQueryProps,
-	queryClient: QueryClient,
-): GetOneResult<TResultData> | undefined {
-	const queryCache = queryClient.getQueryCache()
-	const queryHash = hashKey(genGetOneQueryKey({ props }))
-	return queryCache.get<GetOneResult<TData>, TError, GetOneResult<TResultData>>(queryHash)?.state.data
 }

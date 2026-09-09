@@ -60,8 +60,7 @@ describe('createPlaceholderDataFn', () => {
 		aggregate: true,
 	}
 
-	function setup(ids: string[]) {
-		const queryClient = new QueryClient()
+	function setup(ids: string[], queryClient = new QueryClient()) {
 		const placeholderDataFn = createPlaceholderDataFn({
 			getProps: () => ({ ...base, ids }),
 			queryClient,
@@ -96,9 +95,22 @@ describe('createPlaceholderDataFn', () => {
 		expect(placeholderDataFn(undefined, undefined)).toBeUndefined()
 	})
 
-	it('should return an empty result if ids is empty', () => {
+	it('should return undefined if ids is empty', () => {
 		const { placeholderDataFn } = setup([])
 
-		expect(placeholderDataFn(undefined, undefined)).toEqual({ data: [] })
+		expect(placeholderDataFn(undefined, undefined)).toBeUndefined()
+	})
+
+	it('should respect queryKeyHashFn from queryClient default options', () => {
+		const queryKeyHashFn = vi.fn((key: readonly unknown[]) => `custom:${JSON.stringify(key)}`)
+		const { queryClient, placeholderDataFn } = setup(['1'], new QueryClient({
+			defaultOptions: { queries: { queryKeyHashFn } },
+		}))
+		cacheGetOne(queryClient, '1', 'one')
+
+		expect(placeholderDataFn(undefined, undefined)).toEqual({
+			data: [{ id: '1', title: 'one' }],
+		})
+		expect(queryKeyHashFn).toHaveBeenCalled()
 	})
 })
