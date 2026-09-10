@@ -8,11 +8,9 @@ import type { RealtimeOption, SubscribeManyParams } from '../realtime'
 import type { QueryEnabledFn } from '../utils/query'
 import type { BaseRecord, GetManyFn, GetManyProps, GetManyResult, GetOneResult } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
-import type { ResolvedQueryProps as GetOneResolvedQueryProps } from './get-one'
 import type { NotifyProps } from './notify'
 import type { RealtimeProps } from './realtime'
 import type { ResourceQueryProps } from './resource'
-import { hashKey } from '@tanstack/query-core'
 import { NotificationType } from '../notification'
 import { SubscribeType } from '../realtime'
 import { getErrorMessage } from '../utils/error'
@@ -166,28 +164,29 @@ export interface CreatePlaceholderDataFnProps {
 export function createPlaceholderDataFn<
 	TData extends BaseRecord,
 	TError,
-	TResultData extends BaseRecord,
 >(
 	{
 		getProps,
 		queryClient,
 	}: CreatePlaceholderDataFnProps,
 ): PlaceholderDataFunction<GetManyResult<TData>, TError, GetManyResult<TData>> {
-	return function placeholderDataFn() {
+	return function placeholderDataFn(previousData) {
 		const { ids, ...rest } = getProps()
-		const records = (!ids || ids.length === 0)
-			? []
-			: ids.map(id => findGetOneCached<TData, TError, TResultData>(
-					{ ...rest, id },
-					queryClient,
-				))
+		if (!ids || ids.length === 0)
+			return
 
-		if (records.includes(undefined))
-			return undefined
-
+		const cached: TData[] = []
+		for (const id of ids) {
+			const item = queryClient.getQueryData<GetOneResult<TData>>(
+				genGetOneQueryKey({ props: { ...rest, id } }),
+			)
+			if (item == null)
+				return previousData
+			cached.push(item.data)
+		}
 		return {
-			data: records,
-		} as unknown as GetManyResult<TData>
+			data: cached,
+		}
 	}
 }
 
@@ -413,17 +412,4 @@ function updateCache<
 			old => old ?? { data: record },
 		)
 	}
-}
-
-function findGetOneCached<
-	TData extends BaseRecord,
-	TError,
-	TResultData extends BaseRecord,
->(
-	props: GetOneResolvedQueryProps,
-	queryClient: QueryClient,
-): GetOneResult<TResultData> | undefined {
-	const queryCache = queryClient.getQueryCache()
-	const queryHash = hashKey(genGetOneQueryKey({ props }))
-	return queryCache.get<GetOneResult<TData>, TError, GetOneResult<TResultData>>(queryHash)?.state.data
 }
