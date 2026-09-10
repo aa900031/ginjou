@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.14
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/with-supabase@0.1.0-beta.13...${npm.name}@0.1.0-beta.14)
+
+### 🏡 Chore
+
+-  **deps:** Update npm non-major develop dependencies (#113) ([6bc4162](https://github.com/aa900031/ginjou/commit/6bc416209f6d161d6db1d26aea36157c89cf36f9))
+-  **deps:** Update npm non-major develop dependencies (#156) ([abc2003](https://github.com/aa900031/ginjou/commit/abc200385e39cd5ff4a0d6a1af6870f8592e613a))
+-  **deps:** Update npm non-major develop dependencies (#163) ([dd8c380](https://github.com/aa900031/ginjou/commit/dd8c38043c8450c9a7a061b295dbeff28339aa17))
+-  **deps:** Update npm non-major develop dependencies (#173) ([f709fe8](https://github.com/aa900031/ginjou/commit/f709fe82548e264079727960bef3f320175c8400))
+
+
+
+#### ❤️ Contributors
+
+- Renovate[bot]
+
 ## v0.1.0-beta.13
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/with-supabase@0.1.0-beta.12...${npm.name}@0.1.0-beta.13)
