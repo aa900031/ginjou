@@ -3,6 +3,33 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.5
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/svelte@0.1.0-beta.4...${npm.name}@0.1.0-beta.5)
+
+### 🚀 Enhancements
+
+-  Unsaved guard (#153) ([47ecf2a](https://github.com/aa900031/ginjou/commit/47ecf2acdd02ebb54623fcc9a053c9f08d2c3c7c))
+
+### 🩹 Fixes
+
+-  **core, vue, svelte:** Cached result for placeholder fn of get many (#172) ([236caf7](https://github.com/aa900031/ginjou/commit/236caf74130d6c97daa3830ecfc51b4547848e70))
+
+### 🏡 Chore
+
+-  **deps:** Update npm non-major develop dependencies (#113) ([6bc4162](https://github.com/aa900031/ginjou/commit/6bc416209f6d161d6db1d26aea36157c89cf36f9))
+-  **deps:** Update npm non-major develop dependencies (#156) ([abc2003](https://github.com/aa900031/ginjou/commit/abc200385e39cd5ff4a0d6a1af6870f8592e613a))
+-  **deps:** Update npm non-major develop dependencies (#161) ([2e5ded8](https://github.com/aa900031/ginjou/commit/2e5ded8d71f34efc02369725c1d11fb8a918204c))
+-  **deps:** Update npm non-major develop dependencies (#163) ([dd8c380](https://github.com/aa900031/ginjou/commit/dd8c38043c8450c9a7a061b295dbeff28339aa17))
+-  **deps:** Update npm non-major develop dependencies (#169) ([594faaf](https://github.com/aa900031/ginjou/commit/594faafe8317467e169006097ba709dcc197fbc4))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+- Renovate[bot]
+
 ## v0.1.0-beta.4
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/svelte@0.1.0-beta.3...${npm.name}@0.1.0-beta.4)
