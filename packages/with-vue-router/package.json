@@ -68,7 +68,7 @@
 		"@ginjou/tsdown-config": "workspace:*",
 		"@ginjou/vite-config": "workspace:*",
 		"@ginjou/vue": "workspace:^",
-		"vue": "^3.5.41",
-		"vue-router": "^5.2.0"
+		"vue": "^3.5.42",
+		"vue-router": "^5.3.0"
 	}
 }
