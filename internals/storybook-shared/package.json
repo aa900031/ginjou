@@ -13,7 +13,7 @@
 	"dependencies": {
 		"@faker-js/faker": "^10.6.0",
 		"@ginjou/core": "workspace:^",
-		"@msw/data": "^1.1.7",
+		"@msw/data": "^1.1.8",
 		"msw": "^2.15.0",
 		"msw-storybook-addon": "2.0.7",
 		"zod": "^4.5.4"
