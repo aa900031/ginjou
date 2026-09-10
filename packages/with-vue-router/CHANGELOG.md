@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.12
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/with-vue-router@0.1.0-beta.11...${npm.name}@0.1.0-beta.12)
+
+### 🚀 Enhancements
+
+-  Unsaved guard (#153) ([47ecf2a](https://github.com/aa900031/ginjou/commit/47ecf2acdd02ebb54623fcc9a053c9f08d2c3c7c))
+
+### 🏡 Chore
+
+-  **deps:** Update npm non-major develop dependencies (#156) ([abc2003](https://github.com/aa900031/ginjou/commit/abc200385e39cd5ff4a0d6a1af6870f8592e613a))
+-  **deps:** Update npm non-major develop dependencies (#167) ([52cb6e8](https://github.com/aa900031/ginjou/commit/52cb6e88627d37e8799d08a3dfc8a8241090692e))
+-  **deps:** Update npm non-major develop dependencies (#173) ([f709fe8](https://github.com/aa900031/ginjou/commit/f709fe82548e264079727960bef3f320175c8400))
+
+
+
+#### ❤️ Contributors
+
+- Renovate[bot] 
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.11
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/with-vue-router@0.1.0-beta.10...${npm.name}@0.1.0-beta.11)
