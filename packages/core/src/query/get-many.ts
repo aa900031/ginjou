@@ -14,6 +14,7 @@ import type { NotifyProps } from './notify'
 import type { RealtimeProps } from './realtime'
 import type { ResourceQueryProps } from './resource'
 import { hashKey } from '@tanstack/query-core'
+import { uniq } from 'es-toolkit'
 import { NotificationType } from '../notification'
 import { SubscribeType } from '../realtime'
 import { getErrorMessage } from '../utils/error'
@@ -149,7 +150,6 @@ export function createQueryFn<
 			return EMPTY_RESULT
 
 		const result = props.aggregate
-			// eslint-disable-next-line ts/no-use-before-define
 			? await aggregExecGetMany(props, fetchers, context)
 			: await execGetMany(props, fetchers, context)
 
@@ -351,67 +351,47 @@ function execGetMany<
 	return fakeMany(props.ids.map(id => (getOne as any)({ ...props, id }, context)))
 }
 
-export function resolveAggregateArgs(
-	allArgs: Parameters<typeof execGetMany>[],
-	allResolves: PromiseResolvePair<GetManyResult<any>>[],
-): ResolveArgsResult<Parameters<typeof execGetMany>, GetManyResult<any>> {
-	type ResourceMap = Record<string, { args: typeof allArgs[0][], resolves: typeof allResolves[0][] }>
-	type Result = ResolveArgsResult<Parameters<typeof execGetMany>, GetManyResult<any>>
+type ExecGetManyArgs = Parameters<typeof execGetMany>
 
-	const resourceMap = allArgs.reduce((obj, args, index) => {
+export function resolveAggregateArgs(
+	allArgs: ExecGetManyArgs[],
+	allResolves: PromiseResolvePair<GetManyResult<any>>[],
+): ResolveArgsResult<ExecGetManyArgs, GetManyResult<any>> {
+	const groups = new Map<string, {
+		args: ExecGetManyArgs
+		ids: ResolvedQueryProps['ids']
+		resolves: PromiseResolvePair<GetManyResult<any>>[]
+	}>()
+
+	for (const [index, args] of allArgs.entries()) {
 		const [props] = args
 		const key = hashKey([props.fetcherName, props.resource, props.meta])
+		const group = groups.get(key) ?? { args, ids: [], resolves: [] }
+		group.ids.push(...props.ids)
+		group.resolves.push(allResolves[index]!)
+		groups.set(key, group)
+	}
 
-		obj[key] ??= {
-			args: [],
-			resolves: [],
-		}
-		obj[key].args.push(args)
-		obj[key].resolves.push(allResolves[index]!)
-
-		return obj
-	}, {} as ResourceMap)
-
-	return Object.entries(resourceMap).reduce<Result>((result, [, value]) => {
-		const ids = Object.keys(
-			value.args
-				.reduce((obj, [props]) => {
-					props.ids.forEach((id) => {
-						obj[id] = true
-					})
-					return obj
-				}, {} as Record<string, boolean>),
-		).filter(Boolean)
-
-		// Each caller only receives the records it asked for, not the whole merged result.
-		const resolves = value.args.map(([props], index) => {
-			const pair = value.resolves[index]!
-			const wanted = new Set(props.ids.map(String))
-			return {
-				...pair,
-				resolve: (result: GetManyResult<any> | PromiseLike<GetManyResult<any>>) => pair.resolve(
-					Promise.resolve(result).then(r => ({
-						...r,
-						data: r.data.filter(record => wanted.has(String(record.id))),
-					})),
-				),
-			}
-		})
-
-		const args = value.args[0]
-		if (!args)
-			throw new Error('[@ginjou/core] Cannot aggregate get-many requests because no request arguments were provided.')
-		args[0] = { ...args?.[0], ids }
-
-		result.push([
-			args,
-			resolves,
-		])
-		return result
-	}, [])
+	return Array.from(groups.values(), ({ args: [props, ...rest], ids, resolves }) => [
+		[{ ...props, ids: uniq(ids) }, ...rest],
+		resolves,
+	])
 }
 
-const aggregExecGetMany = createAggregateFn(execGetMany, resolveAggregateArgs)
+const execGetManyMerged = createAggregateFn(execGetMany, resolveAggregateArgs)
+
+// Aggregated callers share one merged response; hand back only the records this caller asked for.
+async function aggregExecGetMany<
+	TData extends BaseRecord,
+>(
+	props: ResolvedQueryProps,
+	fetchers: Fetchers,
+	context: QueryFunctionContext,
+): Promise<GetManyResult<TData>> {
+	const merged = await execGetManyMerged<TData>(props, fetchers, context)
+	const wanted = new Set(props.ids.map(String))
+	return { ...merged, data: merged.data.filter(record => wanted.has(String(record.id))) }
+}
 
 function updateCache<
 	TData extends BaseRecord,
