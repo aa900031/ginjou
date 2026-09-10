@@ -6,11 +6,14 @@ import type { Translate } from '../i18n'
 import type { Notify } from '../notification'
 import type { RealtimeOption, SubscribeManyParams } from '../realtime'
 import type { QueryEnabledFn } from '../utils/query'
+import type { PromiseResolvePair, ResolveArgsResult } from './aggregate'
 import type { BaseRecord, GetManyFn, GetManyProps, GetManyResult, GetOneResult } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { NotifyProps } from './notify'
 import type { RealtimeProps } from './realtime'
 import type { ResourceQueryProps } from './resource'
+import { hashKey } from '@tanstack/query-core'
+import { uniq } from 'es-toolkit'
 import { NotificationType } from '../notification'
 import { SubscribeType } from '../realtime'
 import { getErrorMessage } from '../utils/error'
@@ -146,7 +149,6 @@ export function createQueryFn<
 			return EMPTY_RESULT
 
 		const result = props.aggregate
-			// eslint-disable-next-line ts/no-use-before-define
 			? await aggregExecGetMany(props, fetchers, context)
 			: await execGetMany(props, fetchers, context)
 
@@ -349,50 +351,49 @@ function execGetMany<
 	return fakeMany(props.ids.map(id => (getOne as any)({ ...props, id }, context)))
 }
 
-const aggregExecGetMany = createAggregateFn(
-	execGetMany,
-	(allArgs, allResolves) => {
-		type ResourceMap = Record<string, { args: typeof allArgs[0][], resolves: typeof allResolves[0][] }>
-		type Result = [typeof allArgs[0], typeof allResolves[0][]][]
+type ExecGetManyArgs = Parameters<typeof execGetMany>
 
-		const resourceMap = allArgs.reduce((obj, args, index) => {
-			const [props] = args
-			const key = [props.fetcherName, props.resource].join('.')
+export function resolveAggregateArgs(
+	allArgs: ExecGetManyArgs[],
+	allResolves: PromiseResolvePair<GetManyResult<any>>[],
+): ResolveArgsResult<ExecGetManyArgs, GetManyResult<any>> {
+	const groups = new Map<string, {
+		args: ExecGetManyArgs
+		ids: ResolvedQueryProps['ids']
+		resolves: PromiseResolvePair<GetManyResult<any>>[]
+	}>()
 
-			obj[key] ??= {
-				args: [],
-				resolves: [],
-			}
-			obj[key].args.push(args)
-			obj[key].resolves.push(allResolves[index]!)
+	for (const [index, args] of allArgs.entries()) {
+		const [props] = args
+		const key = hashKey([props.fetcherName, props.resource, props.meta])
+		const group = groups.get(key) ?? { args, ids: [], resolves: [] }
+		group.ids.push(...props.ids)
+		group.resolves.push(allResolves[index]!)
+		groups.set(key, group)
+	}
 
-			return obj
-		}, {} as ResourceMap)
+	return Array.from(groups.values(), ({ args: [props, ...rest], ids, resolves }) => [
+		[{ ...props, ids: uniq(ids) }, ...rest],
+		resolves,
+	])
+}
 
-		return Object.entries(resourceMap).reduce<Result>((result, [, value]) => {
-			const ids = Object.keys(
-				value.args
-					.reduce((obj, [props]) => {
-						props.ids.forEach((id) => {
-							obj[id] = true
-						})
-						return obj
-					}, {} as Record<string, boolean>),
-			).filter(Boolean)
+const execGetManyMerged = createAggregateFn(execGetMany, resolveAggregateArgs)
 
-			const args = value.args[0]
-			if (!args)
-				throw new Error('[@ginjou/core] Cannot aggregate get-many requests because no request arguments were provided.')
-			args[0] = { ...args?.[0], ids }
-
-			result.push([
-				args,
-				value.resolves,
-			])
-			return result
-		}, [])
-	},
-)
+// Aggregated callers share one merged response; hand back only the records this caller asked for.
+async function aggregExecGetMany<
+	TData extends BaseRecord,
+>(
+	props: ResolvedQueryProps,
+	fetchers: Fetchers,
+	context: QueryFunctionContext,
+): Promise<GetManyResult<TData>> {
+	const merged = await execGetManyMerged<TData>(props, fetchers, context)
+	if (merged.data.some(record => record.id == null))
+		throw new Error('[@ginjou/core] Cannot aggregate getMany results without an \'id\' on every record. Return stable record ids or set aggregate to false.')
+	const wanted = new Set(props.ids.map(String))
+	return { ...merged, data: merged.data.filter(record => wanted.has(String(record.id))) }
+}
 
 function updateCache<
 	TData extends BaseRecord,
