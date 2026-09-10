@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.17
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/with-directus@0.1.0-beta.16...${npm.name}@0.1.0-beta.17)
+
+### 🚀 Enhancements
+
+-  Unsaved guard (#153) ([47ecf2a](https://github.com/aa900031/ginjou/commit/47ecf2acdd02ebb54623fcc9a053c9f08d2c3c7c))
+-  **with-directus:** ⚠️ Support directus sdk v20+ (#162) ([5ff87ca](https://github.com/aa900031/ginjou/commit/5ff87ca5a5d8903d22ad5f05e56449262a3690a8))
+
+
+### ⚠️ Breaking Changes
+
+-  **with-directus:** support directus sdk v20+ (#162) ([5ff87ca](https://github.com/aa900031/ginjou/commit/5ff87ca5a5d8903d22ad5f05e56449262a3690a8))
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+
 ## v0.1.0-beta.16
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/with-directus@0.1.0-beta.15...${npm.name}@0.1.0-beta.16)
