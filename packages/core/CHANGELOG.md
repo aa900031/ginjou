@@ -3,6 +3,36 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 
+## v0.1.0-beta.23
+
+[compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/core@0.1.0-beta.22...${npm.name}@0.1.0-beta.23)
+
+### 🚀 Enhancements
+
+-  **core:** Helper functions for sorter, filter (#160) ([043211b](https://github.com/aa900031/ginjou/commit/043211b3c3bd23f279147511a41b6f5bb24d921b))
+-  Unsaved guard (#153) ([47ecf2a](https://github.com/aa900031/ginjou/commit/47ecf2acdd02ebb54623fcc9a053c9f08d2c3c7c))
+
+### 🩹 Fixes
+
+-  **core, vue, svelte:** Cached result for placeholder fn of get many (#172) ([236caf7](https://github.com/aa900031/ginjou/commit/236caf74130d6c97daa3830ecfc51b4547848e70))
+-  **core:** Aggregate get many group by meta (#174) ([f5a8dae](https://github.com/aa900031/ginjou/commit/f5a8dae2e2d8a675bf6c656e67400555f5cd3a40))
+
+### 🏡 Chore
+
+-  **deps:** Update npm non-major dependencies (#132) ([f071eb0](https://github.com/aa900031/ginjou/commit/f071eb01f1ca0e74c64967ddb7aa241283ea75ae))
+-  **deps:** Update npm non-major dependencies (#157) ([7e4d3b2](https://github.com/aa900031/ginjou/commit/7e4d3b2deeb19ff0eb198ac2dcd317d550619c78))
+-  **deps:** Update npm non-major dependencies (#158) ([7e1a46b](https://github.com/aa900031/ginjou/commit/7e1a46b50cfedb8453073cab0cdae9b566801173))
+-  **deps:** Update npm non-major develop dependencies (#113) ([6bc4162](https://github.com/aa900031/ginjou/commit/6bc416209f6d161d6db1d26aea36157c89cf36f9))
+-  **deps:** Update npm non-major develop dependencies (#163) ([dd8c380](https://github.com/aa900031/ginjou/commit/dd8c38043c8450c9a7a061b295dbeff28339aa17))
+-  **deps:** Update npm non-major develop dependencies (#167) ([52cb6e8](https://github.com/aa900031/ginjou/commit/52cb6e88627d37e8799d08a3dfc8a8241090692e))
+
+
+
+#### ❤️ Contributors
+
+- Zhong666 <aa900031@gmail.com>
+- Renovate[bot]
+
 ## v0.1.0-beta.22
 
 [compare changes](https://github.com/aa900031/ginjou/compare/@ginjou/core@0.1.0-beta.21...${npm.name}@0.1.0-beta.22)
