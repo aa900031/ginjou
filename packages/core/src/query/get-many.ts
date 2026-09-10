@@ -389,6 +389,8 @@ async function aggregExecGetMany<
 	context: QueryFunctionContext,
 ): Promise<GetManyResult<TData>> {
 	const merged = await execGetManyMerged<TData>(props, fetchers, context)
+	if (merged.data.some(record => record.id == null))
+		throw new Error('[@ginjou/core] Cannot aggregate getMany results without an \'id\' on every record. Return stable record ids or set aggregate to false.')
 	const wanted = new Set(props.ids.map(String))
 	return { ...merged, data: merged.data.filter(record => wanted.has(String(record.id))) }
 }

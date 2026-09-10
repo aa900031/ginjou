@@ -117,6 +117,22 @@ describe('createQueryFn', () => {
 		expect(a).toEqual({ data: [{ id: '1' }, { id: '2' }] })
 		expect(b).toEqual({ data: [{ id: '3' }] })
 	})
+
+	it('should reject aggregated records without ids', async () => {
+		const getMany = vi.fn(async ({ ids }: { ids: string[] }) => ({ data: ids.map(value => ({ value })) }))
+		const fetchers = { default: { getMany } } as any
+		const queryClient = new QueryClient()
+		const run = (ids: string[]) => (createQueryFn({
+			fetchers,
+			queryClient,
+			getProps: () => ({ fetcherName: 'default', resource: 'posts', aggregate: true, ids, meta: undefined }),
+		}) as QueryFunction<GetManyResult<BaseRecord>>)({} as any)
+
+		await expect(Promise.all([run(['1']), run(['2'])])).rejects.toThrow(
+			'[@ginjou/core] Cannot aggregate getMany results without an \'id\' on every record. Return stable record ids or set aggregate to false.',
+		)
+		expect(getMany).toHaveBeenCalledOnce()
+	})
 })
 
 describe('createPlaceholderDataFn', () => {
