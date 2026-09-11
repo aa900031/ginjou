@@ -40,7 +40,7 @@ export type InvalidateTargetValues = ValueOf<typeof InvalidateTarget>
 export type InvalidateRuleProps
 	= | {
 		target: typeof InvalidateTarget.All
-		fetcherName: string
+		fetcherName?: string
 	}
 	| {
 		target:
@@ -149,10 +149,12 @@ async function triggerInvalidateRule<
 	if (typeof rule === 'string')
 		return triggerInvalidate(props as any, rule as any, result as any, queryClient)
 
+	const { invalidateFilters, invalidateOptions } = props
 	const { target, ...ruleProps } = rule
 	return triggerInvalidate(
 		{
-			...props,
+			invalidateFilters,
+			invalidateOptions,
 			...ruleProps,
 			fetcherName: ruleProps.fetcherName ?? props.fetcherName,
 		} as any,
@@ -205,6 +207,7 @@ export type TriggerInvalidateManyProps = Simplify<
 		resource: string
 		ids: RecordKey[]
 		fetcherName: string
+		meta?: Meta
 	}
 >
 
@@ -215,6 +218,7 @@ export type TriggerInvalidateOneProps
 			resource: string
 			id: RecordKey
 			fetcherName: string
+			meta?: Meta
 		}
 	>
 	| Simplify<
@@ -223,6 +227,7 @@ export type TriggerInvalidateOneProps
 			resource: string
 			ids: RecordKey[]
 			fetcherName: string
+			meta?: Meta
 		}
 	>
 
