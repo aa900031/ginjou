@@ -1,26 +1,29 @@
 import type { InvalidateOptions, InvalidateQueryFilters, QueryClient } from '@tanstack/query-core'
-import type { SetRequired, Simplify, ValueOf } from 'type-fest'
-import type { BaseRecord, CreateManyResult, CreateOneResult, DeleteManyResult, DeleteOneResult, GetManyResult, GetOneResult, RecordKey, UpdateManyResult, UpdateOneResult } from './fetcher'
+import type { Simplify, ValueOf } from 'type-fest'
+import type { BaseRecord, CreateManyResult, CreateOneResult, DeleteManyResult, DeleteOneResult, GetManyResult, GetOneResult, Meta, RecordKey, UpdateManyResult, UpdateOneResult } from './fetcher'
 import { createBaseQueryKey as genBaseGetInfiniteListQueryKey } from './get-infinite-list'
 import { createBaseQueryKey as genBaseGetListQueryKey } from './get-list'
 import { createQueryKey as genGetManyQueryKey } from './get-many'
 import { createQueryKey as genGetOneQueryKey } from './get-one'
 
 export interface InvalidatesProps {
-	invalidates?: InvalidateTargetValues[]
+	invalidates?: Invalidates
 }
 
-export type ResolvedInvalidatesProps = SetRequired<
-	InvalidatesProps,
-	| 'invalidates'
->
+export interface ResolvedInvalidatesProps {
+	invalidates: InvalidateRule[]
+}
 
 export function resolveInvalidateProps(
 	props: InvalidatesProps,
-	defaultValue: InvalidateTargetValues[],
+	defaultValue: readonly InvalidateTargetValues[],
 ): ResolvedInvalidatesProps {
+	const { invalidates } = props
+
 	return {
-		invalidates: props.invalidates ?? defaultValue,
+		invalidates: typeof invalidates === 'function'
+			? invalidates(defaultValue)
+			: invalidates ?? [...defaultValue],
 	}
 }
 
@@ -34,10 +37,52 @@ export const InvalidateTarget = {
 
 export type InvalidateTargetValues = ValueOf<typeof InvalidateTarget>
 
+export type InvalidateRuleProps
+	= | {
+		target: typeof InvalidateTarget.All
+		fetcherName: string
+	}
+	| {
+		target:
+			| typeof InvalidateTarget.Resource
+			| typeof InvalidateTarget.List
+		resource: string
+		fetcherName?: string
+	}
+	| {
+		target: typeof InvalidateTarget.Many
+		resource: string
+		ids: RecordKey[]
+		fetcherName?: string
+		meta?: Meta
+	}
+	| Simplify<
+		& {
+			target: typeof InvalidateTarget.One
+			resource: string
+			fetcherName?: string
+			meta?: Meta
+		}
+		& (
+			| { id: RecordKey }
+			| { ids: RecordKey[] }
+		)
+	>
+
+export type InvalidateRule = InvalidateTargetValues | InvalidateRuleProps
+
+export type Invalidates
+	= | InvalidateRule[]
+		| ((defaults: readonly InvalidateTargetValues[]) => InvalidateRule[])
+
+export type InvalidateProps = InvalidateRuleProps | InvalidateRuleProps[]
+
+export type InvalidateFn = (props: InvalidateProps) => Promise<void>
+
 export type TriggerInvalidatesProps = Simplify<
 	& TriggerInvalidateProps
 	& {
-		invalidates: InvalidateTargetValues[] | false
+		invalidates: InvalidateRule[] | false
 	}
 >
 
@@ -62,12 +107,59 @@ export async function triggerInvalidates<
 	if (invalidates === false || !invalidates.length)
 		return
 
-	await Promise.all(invalidates.map(invalidate => triggerInvalidate(
-		props as any,
-		invalidate as any,
+	await Promise.all(invalidates.map(rule => triggerInvalidateRule(
+		props,
+		rule,
 		result,
 		queryClient,
 	)))
+}
+
+export async function invalidate(
+	props: InvalidateProps,
+	queryClient: QueryClient,
+): Promise<void> {
+	const rules = Array.isArray(props) ? props : [props]
+
+	await Promise.all(rules.map(rule => triggerInvalidateRule(
+		{ fetcherName: 'default' },
+		rule,
+		undefined,
+		queryClient,
+	)))
+}
+
+async function triggerInvalidateRule<
+	TResult extends BaseRecord,
+>(
+	props: TriggerInvalidateProps,
+	rule: InvalidateRule,
+	result:
+		| GetOneResult<TResult>
+		| GetManyResult<TResult>
+		| CreateOneResult<TResult>
+		| CreateManyResult<TResult>
+		| UpdateOneResult<TResult>
+		| UpdateManyResult<TResult>
+		| DeleteOneResult<TResult>
+		| DeleteManyResult<TResult>
+		| undefined,
+	queryClient: QueryClient,
+): Promise<void> {
+	if (typeof rule === 'string')
+		return triggerInvalidate(props as any, rule as any, result as any, queryClient)
+
+	const { target, ...ruleProps } = rule
+	return triggerInvalidate(
+		{
+			...props,
+			...ruleProps,
+			fetcherName: ruleProps.fetcherName ?? props.fetcherName,
+		} as any,
+		target as any,
+		undefined,
+		queryClient,
+	)
 }
 
 const DEFAULT_INVALIDATE_FILTERS: InvalidateQueryFilters = {
@@ -218,7 +310,7 @@ export async function triggerInvalidate<
 		case InvalidateTarget.All:
 			await queryClient.invalidateQueries(
 				{
-					queryKey: props.fetcherName,
+					queryKey: [props.fetcherName],
 					...invalidateFilters,
 				},
 				invalidateOptions,
