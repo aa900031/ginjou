@@ -34,7 +34,7 @@
 		"storybook": "10.6.0",
 		"svelte": "^5.57.0",
 		"svelte-spa-router": "^5.1.1",
-		"unocss": "^66.9.2",
+		"unocss": "^66.10.0",
 		"vite": "^8.2.2"
 	},
 	"msw": {
