@@ -53,8 +53,10 @@ describe('triggerInvalidates', () => {
 			meta: { scope: 'admin' },
 			invalidates: [
 				{ target: 'resource', resource: 'comments' },
-				{ target: 'one', resource: 'authors', ids: [2, 3] },
+				{ target: 'one', resource: 'authors', id: 2 },
+				{ target: 'many', resource: 'tags', ids: [7], meta: { scope: 'public' } },
 				{ target: 'all' },
+				{ target: 'all', fetcherName: 'legacy' },
 			],
 		}, { data: { id: 1 } }, queryClient)
 
@@ -62,14 +64,20 @@ describe('triggerInvalidates', () => {
 			{ queryKey: ['primary', 'comments'], type: 'all', refetchType: 'active' },
 			{ cancelRefetch: false },
 		)
-		for (const id of [2, 3]) {
-			expect(invalidateQueries).toHaveBeenCalledWith(
-				{ queryKey: ['primary', 'authors', 'getOne', id, { meta: undefined }], type: 'all', refetchType: 'active' },
-				{ cancelRefetch: false },
-			)
-		}
+		expect(invalidateQueries).toHaveBeenCalledWith(
+			{ queryKey: ['primary', 'authors', 'getOne', 2, { meta: undefined }], type: 'all', refetchType: 'active' },
+			{ cancelRefetch: false },
+		)
+		expect(invalidateQueries).toHaveBeenCalledWith(
+			{ queryKey: ['primary', 'tags', 'getMany', ['7'], { meta: { scope: 'public' } }], type: 'all', refetchType: 'active' },
+			{ cancelRefetch: false },
+		)
 		expect(invalidateQueries).toHaveBeenCalledWith(
 			{ queryKey: ['primary'], type: 'all', refetchType: 'active' },
+			{ cancelRefetch: false },
+		)
+		expect(invalidateQueries).toHaveBeenCalledWith(
+			{ queryKey: ['legacy'], type: 'all', refetchType: 'active' },
 			{ cancelRefetch: false },
 		)
 	})

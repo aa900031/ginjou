@@ -588,6 +588,12 @@ describe('createSettledHandler (update-many)', () => {
 		)
 
 		expect(invalidateQueries).toHaveBeenCalled()
+		for (const id of [1, 2, 3]) {
+			expect(invalidateQueries).toHaveBeenCalledWith(
+				{ queryKey: ['default', 'posts', 'getOne', id, { meta: undefined }], type: 'all', refetchType: 'active' },
+				{ cancelRefetch: false },
+			)
+		}
 		expect(onSettled).toHaveBeenCalledOnce()
 		expect(onSettled.mock.calls[0]![2]).toMatchObject({
 			resource: 'posts',

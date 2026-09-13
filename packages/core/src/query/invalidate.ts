@@ -56,18 +56,13 @@ export type InvalidateRuleProps
 		fetcherName?: string
 		meta?: Meta
 	}
-	| Simplify<
-		& {
-			target: typeof InvalidateTarget.One
-			resource: string
-			fetcherName?: string
-			meta?: Meta
-		}
-		& (
-			| { id: RecordKey }
-			| { ids: RecordKey[] }
-		)
-	>
+	| {
+		target: typeof InvalidateTarget.One
+		resource: string
+		id: RecordKey
+		fetcherName?: string
+		meta?: Meta
+	}
 
 export type InvalidateRule = InvalidateTargetValues | InvalidateRuleProps
 
@@ -322,6 +317,9 @@ export async function triggerInvalidate<
 			)
 			break
 		case InvalidateTarget.List:
+			if (props.resource == null)
+				throw new Error('[@ginjou/core] `resource` is required to invalidate list queries.')
+
 			await Promise.all([
 				queryClient.invalidateQueries(
 					{
@@ -368,6 +366,7 @@ export async function triggerInvalidate<
 								ids: result!.data.map(item => item.id),
 							},
 						}),
+						...invalidateFilters,
 					},
 					invalidateOptions,
 				),
