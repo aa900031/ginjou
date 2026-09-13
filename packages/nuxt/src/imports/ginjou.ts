@@ -26,7 +26,7 @@ const composables = [
 	// 'useGo',
 	// 'useI18nContext',
 	'useInfiniteList',
-	'useInvalidate',
+	'useQueryInvalidate',
 	'useList',
 	// 'useLocale',
 	// 'useLocation',

@@ -1,7 +1,7 @@
 import type { QueryClient } from '@tanstack/query-core'
 import type { RealtimeOption, SubscribeCallbackFn } from '../realtime'
 import { RealtimeMode } from '../realtime'
-import { InvalidateTarget, triggerInvalidate } from './invalidate'
+import { Target as InvalidateTarget, trigger as triggerInvalidate } from './invalidate'
 
 export interface RealtimeProps<
 	TPayload,

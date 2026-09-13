@@ -1,13 +1,12 @@
-import type { InvalidateFn } from '@ginjou/core'
 import type { UseQueryClientContextProps } from './query-client'
-import { invalidate } from '@ginjou/core'
+import { QueryInvalidate } from '@ginjou/core'
 import { useQueryClientContext } from './query-client'
 
-export type UseInvalidateContext = UseQueryClientContextProps
+export type UseQueryInvalidateContext = UseQueryClientContextProps
 
-export function useInvalidate(
-	context?: UseInvalidateContext,
-): InvalidateFn {
+export function useQueryInvalidate(
+	context?: UseQueryInvalidateContext,
+): QueryInvalidate.Fn {
 	const queryClient = useQueryClientContext(context)
-	return props => invalidate(props, queryClient)
+	return QueryInvalidate.createFn({ queryClient })
 }

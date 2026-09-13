@@ -6,18 +6,18 @@ import { createBaseQueryKey as genBaseGetListQueryKey } from './get-list'
 import { createQueryKey as genGetManyQueryKey } from './get-many'
 import { createQueryKey as genGetOneQueryKey } from './get-one'
 
-export interface InvalidatesProps {
-	invalidates?: Invalidates
+export interface MutationProps {
+	invalidates?: Rules
 }
 
-export interface ResolvedInvalidatesProps {
-	invalidates: InvalidateRule[]
+export interface ResolvedMutationProps {
+	invalidates: Rule[]
 }
 
-export function resolveInvalidateProps(
-	props: InvalidatesProps,
-	defaultValue: readonly InvalidateTargetValues[],
-): ResolvedInvalidatesProps {
+export function resolveProps(
+	props: MutationProps,
+	defaultValue: readonly TargetValues[],
+): ResolvedMutationProps {
 	const { invalidates } = props
 
 	return {
@@ -27,7 +27,7 @@ export function resolveInvalidateProps(
 	}
 }
 
-export const InvalidateTarget = {
+export const Target = {
 	All: 'all',
 	Resource: 'resource',
 	List: 'list',
@@ -35,56 +35,77 @@ export const InvalidateTarget = {
 	One: 'one',
 } as const
 
-export type InvalidateTargetValues = ValueOf<typeof InvalidateTarget>
+export type TargetValues = ValueOf<typeof Target>
 
-export type InvalidateRuleProps
+export type RuleProps
 	= | {
-		target: typeof InvalidateTarget.All
+		target: typeof Target.All
 		fetcherName?: string
 	}
 	| {
 		target:
-			| typeof InvalidateTarget.Resource
-			| typeof InvalidateTarget.List
+			| typeof Target.Resource
+			| typeof Target.List
 		resource: string
 		fetcherName?: string
 	}
 	| {
-		target: typeof InvalidateTarget.Many
+		target: typeof Target.Many
 		resource: string
 		ids: RecordKey[]
 		fetcherName?: string
 		meta?: Meta
 	}
 	| {
-		target: typeof InvalidateTarget.One
+		target: typeof Target.One
 		resource: string
 		id: RecordKey
 		fetcherName?: string
 		meta?: Meta
 	}
 
-export type InvalidateRule = InvalidateTargetValues | InvalidateRuleProps
+export type Rule = TargetValues | RuleProps
 
-export type Invalidates
-	= | InvalidateRule[]
-		| ((defaults: readonly InvalidateTargetValues[]) => InvalidateRule[])
+export type Rules
+	= | Rule[]
+		| ((defaults: readonly TargetValues[]) => Rule[])
 
-export type InvalidateProps = InvalidateRuleProps | InvalidateRuleProps[]
+export type Props = RuleProps | RuleProps[]
 
-export type InvalidateFn = (props: InvalidateProps) => Promise<void>
+export type Fn = (props: Props) => Promise<void>
 
-export type TriggerInvalidatesProps = Simplify<
-	& TriggerInvalidateProps
+export interface CreateFnProps {
+	queryClient: QueryClient
+}
+
+export function createFn(
+	{
+		queryClient,
+	}: CreateFnProps,
+): Fn {
+	return async function invalidate(props) {
+		const rules = Array.isArray(props) ? props : [props]
+
+		await Promise.all(rules.map(rule => triggerRule(
+			{ fetcherName: 'default' },
+			rule,
+			undefined,
+			queryClient,
+		)))
+	}
+}
+
+export type TriggerRulesProps = Simplify<
+	& TriggerProps
 	& {
-		invalidates: InvalidateRule[] | false
+		invalidates: Rule[] | false
 	}
 >
 
-export async function triggerInvalidates<
+export async function triggerRules<
 	TResult extends BaseRecord,
 >(
-	props: TriggerInvalidatesProps,
+	props: TriggerRulesProps,
 	result:
 		| GetOneResult<TResult>
 		| GetManyResult<TResult>
@@ -102,7 +123,7 @@ export async function triggerInvalidates<
 	if (invalidates === false || !invalidates.length)
 		return
 
-	await Promise.all(invalidates.map(rule => triggerInvalidateRule(
+	await Promise.all(invalidates.map(rule => triggerRule(
 		props,
 		rule,
 		result,
@@ -110,25 +131,11 @@ export async function triggerInvalidates<
 	)))
 }
 
-export async function invalidate(
-	props: InvalidateProps,
-	queryClient: QueryClient,
-): Promise<void> {
-	const rules = Array.isArray(props) ? props : [props]
-
-	await Promise.all(rules.map(rule => triggerInvalidateRule(
-		{ fetcherName: 'default' },
-		rule,
-		undefined,
-		queryClient,
-	)))
-}
-
-async function triggerInvalidateRule<
+async function triggerRule<
 	TResult extends BaseRecord,
 >(
-	props: TriggerInvalidateProps,
-	rule: InvalidateRule,
+	props: TriggerProps,
+	rule: Rule,
 	result:
 		| GetOneResult<TResult>
 		| GetManyResult<TResult>
@@ -142,11 +149,11 @@ async function triggerInvalidateRule<
 	queryClient: QueryClient,
 ): Promise<void> {
 	if (typeof rule === 'string')
-		return triggerInvalidate(props as any, rule as any, result as any, queryClient)
+		return trigger(props as any, rule as any, result as any, queryClient)
 
 	const { invalidateFilters, invalidateOptions } = props
 	const { target, ...ruleProps } = rule
-	return triggerInvalidate(
+	return trigger(
 		{
 			invalidateFilters,
 			invalidateOptions,
@@ -168,36 +175,36 @@ const DEFAULT_INVALIDATE_OPTIONS: InvalidateOptions = {
 	cancelRefetch: false,
 }
 
-export interface TriggerInvalidateBaseProps {
+export interface TriggerBaseProps {
 	invalidateFilters?: InvalidateQueryFilters
 	invalidateOptions?: InvalidateOptions
 }
 
-export type TriggerInvalidateAllProps = Simplify<
-	& TriggerInvalidateBaseProps
+export type TriggerAllProps = Simplify<
+	& TriggerBaseProps
 	& {
 		fetcherName: string
 	}
 >
 
-export type TriggerInvalidateResourceProps = Simplify<
-	& TriggerInvalidateBaseProps
+export type TriggerResourceProps = Simplify<
+	& TriggerBaseProps
 	& {
 		resource?: string
 		fetcherName: string
 	}
 >
 
-export type TriggerInvalidateListProps = Simplify<
-	& TriggerInvalidateBaseProps
+export type TriggerListProps = Simplify<
+	& TriggerBaseProps
 	& {
 		resource: string
 		fetcherName: string
 	}
 >
 
-export type TriggerInvalidateManyProps = Simplify<
-	& TriggerInvalidateBaseProps
+export type TriggerManyProps = Simplify<
+	& TriggerBaseProps
 	& {
 		resource: string
 		ids: RecordKey[]
@@ -206,9 +213,9 @@ export type TriggerInvalidateManyProps = Simplify<
 	}
 >
 
-export type TriggerInvalidateOneProps
+export type TriggerOneProps
 	= | Simplify<
-		& TriggerInvalidateBaseProps
+		& TriggerBaseProps
 		& {
 			resource: string
 			id: RecordKey
@@ -217,7 +224,7 @@ export type TriggerInvalidateOneProps
 		}
 	>
 	| Simplify<
-		& TriggerInvalidateBaseProps
+		& TriggerBaseProps
 		& {
 			resource: string
 			ids: RecordKey[]
@@ -226,39 +233,39 @@ export type TriggerInvalidateOneProps
 		}
 	>
 
-export type TriggerInvalidateProps
-	= | TriggerInvalidateAllProps
-		| TriggerInvalidateResourceProps
-		| TriggerInvalidateListProps
-		| TriggerInvalidateManyProps
-		| TriggerInvalidateOneProps
+export type TriggerProps
+	= | TriggerAllProps
+		| TriggerResourceProps
+		| TriggerListProps
+		| TriggerManyProps
+		| TriggerOneProps
 
-export async function triggerInvalidate(
-	props: TriggerInvalidateAllProps,
-	target: typeof InvalidateTarget.All,
+export async function trigger(
+	props: TriggerAllProps,
+	target: typeof Target.All,
 	result: undefined,
 	queryClient: QueryClient,
 ): Promise<void>
 
-export async function triggerInvalidate(
-	props: TriggerInvalidateResourceProps,
-	target: typeof InvalidateTarget.Resource,
+export async function trigger(
+	props: TriggerResourceProps,
+	target: typeof Target.Resource,
 	result: undefined,
 	queryClient: QueryClient,
 ): Promise<void>
 
-export async function triggerInvalidate(
-	props: TriggerInvalidateListProps,
-	target: typeof InvalidateTarget.List,
+export async function trigger(
+	props: TriggerListProps,
+	target: typeof Target.List,
 	result: undefined,
 	queryClient: QueryClient,
 ): Promise<void>
 
-export async function triggerInvalidate<
+export async function trigger<
 	TResult extends BaseRecord,
 >(
-	props: TriggerInvalidateManyProps,
-	target: typeof InvalidateTarget.Many,
+	props: TriggerManyProps,
+	target: typeof Target.Many,
 	result:
 		| GetManyResult<TResult>
 		| CreateManyResult<TResult>
@@ -268,11 +275,11 @@ export async function triggerInvalidate<
 	queryClient: QueryClient,
 ): Promise<void>
 
-export async function triggerInvalidate<
+export async function trigger<
 	TResult extends BaseRecord,
 >(
-	props: TriggerInvalidateOneProps,
-	target: typeof InvalidateTarget.One,
+	props: TriggerOneProps,
+	target: typeof Target.One,
 	result:
 		| GetOneResult<TResult>
 		| GetManyResult<TResult>
@@ -286,11 +293,11 @@ export async function triggerInvalidate<
 	queryClient: QueryClient,
 ): Promise<void>
 
-export async function triggerInvalidate<
+export async function trigger<
 	TResult extends BaseRecord,
 >(
 	props: any,
-	target: InvalidateTargetValues,
+	target: TargetValues,
 	result:
 		| GetOneResult<TResult>
 		| GetManyResult<TResult>
@@ -307,7 +314,7 @@ export async function triggerInvalidate<
 	const invalidateOptions = props.invalidateOptions ?? DEFAULT_INVALIDATE_OPTIONS
 
 	switch (target) {
-		case InvalidateTarget.All:
+		case Target.All:
 			await queryClient.invalidateQueries(
 				{
 					queryKey: [props.fetcherName],
@@ -316,7 +323,7 @@ export async function triggerInvalidate<
 				invalidateOptions,
 			)
 			break
-		case InvalidateTarget.List:
+		case Target.List:
 			if (props.resource == null)
 				throw new Error('[@ginjou/core] `resource` is required to invalidate list queries.')
 
@@ -337,7 +344,7 @@ export async function triggerInvalidate<
 				),
 			])
 			break
-		case InvalidateTarget.Many: {
+		case Target.Many: {
 			const { resource, ids } = props
 			if (resource == null)
 				throw new Error('[@ginjou/core] `resource` is required to invalidate many queries.')
@@ -374,7 +381,7 @@ export async function triggerInvalidate<
 
 			break
 		}
-		case InvalidateTarget.Resource: {
+		case Target.Resource: {
 			const { resource, fetcherName } = props
 			if (resource == null)
 				throw new Error('[@ginjou/core] `resource` is required to invalidate resource queries.')
@@ -391,7 +398,7 @@ export async function triggerInvalidate<
 			)
 			break
 		}
-		case InvalidateTarget.One: {
+		case Target.One: {
 			const { resource, ...rest } = props
 			if (resource == null)
 				throw new Error('[@ginjou/core] `resource` is required to invalidate one query.')

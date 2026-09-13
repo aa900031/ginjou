@@ -17,19 +17,7 @@ export * as GetMany from './get-many'
 export * as GetManyByOne from './get-many-by-one'
 export * as GetOne from './get-one'
 
-export type {
-	InvalidateFn,
-	InvalidateProps,
-	InvalidateRule,
-	InvalidateRuleProps,
-	Invalidates,
-	InvalidatesProps,
-	InvalidateTargetValues,
-} from './invalidate'
-export {
-	invalidate,
-	InvalidateTarget,
-} from './invalidate'
+export * as QueryInvalidate from './invalidate'
 
 export type {
 	MutationModeProps,

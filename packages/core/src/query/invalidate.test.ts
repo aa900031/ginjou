@@ -1,10 +1,10 @@
 import { QueryClient } from '@tanstack/query-core'
 import { describe, expect, it, vi } from 'vitest'
-import { invalidate, InvalidateTarget, resolveInvalidateProps, triggerInvalidate, triggerInvalidates } from './invalidate'
+import { createFn, resolveProps, Target, trigger, triggerRules } from './invalidate'
 
-describe('resolveInvalidateProps', () => {
+describe('resolveProps', () => {
 	it('can extend the defaults', () => {
-		expect(resolveInvalidateProps({
+		expect(resolveProps({
 			invalidates: defaults => [
 				...defaults,
 				{ target: 'resource', resource: 'comments' },
@@ -18,14 +18,14 @@ describe('resolveInvalidateProps', () => {
 	})
 })
 
-describe('triggerInvalidate', () => {
+describe('trigger', () => {
 	it('invalidates normal and infinite list caches together', async () => {
 		const queryClient = new QueryClient()
 		const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
 
-		await triggerInvalidate(
+		await trigger(
 			{ fetcherName: 'default', resource: 'posts', meta: { scope: 'admin' } } as any,
-			InvalidateTarget.List,
+			Target.List,
 			undefined,
 			queryClient,
 		)
@@ -41,12 +41,12 @@ describe('triggerInvalidate', () => {
 	})
 })
 
-describe('triggerInvalidates', () => {
+describe('triggerRules', () => {
 	it('invalidates other resources and fetchers', async () => {
 		const queryClient = new QueryClient()
 		const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
 
-		await triggerInvalidates({
+		await triggerRules({
 			fetcherName: 'primary',
 			resource: 'posts',
 			id: 1,
@@ -83,12 +83,13 @@ describe('triggerInvalidates', () => {
 	})
 })
 
-describe('invalidate', () => {
+describe('createFn', () => {
 	it('uses the default fetcher', async () => {
 		const queryClient = new QueryClient()
 		const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
+		const invalidate = createFn({ queryClient })
 
-		await invalidate({ target: 'list', resource: 'posts' }, queryClient)
+		await invalidate({ target: 'list', resource: 'posts' })
 
 		expect(invalidateQueries).toHaveBeenCalledWith(
 			{ queryKey: ['default', 'posts', 'getList'], type: 'all', refetchType: 'active' },
