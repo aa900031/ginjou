@@ -7,6 +7,7 @@ import {
 	createMutationFn,
 	createSuccessHandler,
 } from './create'
+import { createInvalidator } from './invalidate'
 
 describe('createMutationFn', () => {
 	it('should call createOne with resolved props', async () => {
@@ -74,7 +75,12 @@ describe('createSuccessHandler', () => {
 			notify,
 			translate,
 			publish,
-			queryClient,
+			invalidate: createInvalidator({
+				getFetcherName: () => undefined,
+				getInvalidates: () => undefined,
+				getResource: () => undefined,
+				queryClient,
+			}),
 			getProps: () => ({
 				resource: 'posts',
 				params: { title: 'from-props' },

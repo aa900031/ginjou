@@ -7,6 +7,7 @@ import type { UseNotifyContext } from '../notification'
 import type { UsePublishContext } from '../realtime'
 import type { ToMaybeRefs } from '../utils/refs'
 import type { UseFetcherContextFromProps } from './fetchers'
+import type { UseQueryInvalidateContext } from './invalidate'
 import type { UseQueryClientContextProps } from './query-client'
 import { CreateOne } from '@ginjou/core'
 import { useMutation } from '@tanstack/vue-query'
@@ -17,6 +18,7 @@ import { useNotify } from '../notification'
 import { usePublish } from '../realtime'
 import { unrefs } from '../utils/unrefs'
 import { useFetchersContext } from './fetchers'
+import { useQueryInvalidate } from './invalidate'
 import { useQueryClientContext } from './query-client'
 
 export type UseCreateOneProps<
@@ -34,6 +36,7 @@ export type UseCreateOneContext = Simplify<
 	& UseTranslateContext
 	& UseCheckErrorContext
 	& UsePublishContext
+	& UseQueryInvalidateContext
 >
 
 export type UseCreateOneResult<
@@ -66,6 +69,7 @@ export function useCreateOne<
 	const notify = useNotify(context)
 	const translate = useTranslate(context)
 	const publish = usePublish(context)
+	const invalidate = useQueryInvalidate(props, context)
 	const { mutateAsync: checkError } = useCheckError<TError>(undefined, context)
 
 	const mutationFn = CreateOne.createMutationFn<TData, TError, TParams>({
@@ -76,9 +80,9 @@ export function useCreateOne<
 		notify,
 		translate,
 		publish,
+		invalidate,
 		getProps,
 		onSuccess: (...args) => unref(props?.mutationOptions)?.onSuccess?.(...args),
-		queryClient,
 	})
 	const handleError = CreateOne.createErrorHandler({
 		notify,

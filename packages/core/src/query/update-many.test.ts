@@ -4,6 +4,7 @@ import { AbortDefer } from '../utils/defer'
 import { createQueryKey as createGetListQueryKey } from './get-list'
 import { createQueryKey as createGetManyQueryKey } from './get-many'
 import { createQueryKey as createGetOneQueryKey } from './get-one'
+import { createInvalidator } from './invalidate'
 import { MutationMode } from './mutation-mode'
 import { createErrorHandler, createMutateAsyncFn, createMutateFn, createMutateHandler, createMutationFn, createSettledHandler, createSuccessHandler } from './update-many'
 
@@ -565,12 +566,17 @@ describe('createMutateHandler (update-many)', () => {
 })
 
 describe('createSettledHandler (update-many)', () => {
-	it('should trigger invalidates and call onSettled with resolved props', async () => {
+	it('should apply invalidates and call onSettled with resolved props', async () => {
 		const queryClient = new QueryClient()
 		const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
 		const onSettled = vi.fn()
 		const handler = createSettledHandler({
-			queryClient,
+			invalidate: createInvalidator({
+				getFetcherName: () => undefined,
+				getInvalidates: () => undefined,
+				getResource: () => undefined,
+				queryClient,
+			}),
 			getProps: () => ({
 				resource: 'posts',
 				ids: [1],
@@ -588,12 +594,10 @@ describe('createSettledHandler (update-many)', () => {
 		)
 
 		expect(invalidateQueries).toHaveBeenCalled()
-		for (const id of [1, 2, 3]) {
-			expect(invalidateQueries).toHaveBeenCalledWith(
-				{ queryKey: ['default', 'posts', 'getOne', id, { meta: undefined }], type: 'all', refetchType: 'active' },
-				{ cancelRefetch: false },
-			)
-		}
+		expect(invalidateQueries).toHaveBeenCalledWith(
+			{ queryKey: ['default', 'posts', 'getOne'], type: 'all', refetchType: 'active' },
+			{ cancelRefetch: false },
+		)
 		expect(onSettled).toHaveBeenCalledOnce()
 		expect(onSettled.mock.calls[0]![2]).toMatchObject({
 			resource: 'posts',

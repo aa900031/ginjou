@@ -1,99 +1,118 @@
+import type { RuleOptions } from './invalidate'
 import { QueryClient } from '@tanstack/query-core'
 import { describe, expect, it, vi } from 'vitest'
-import { createFn, resolveProps, Target, trigger, triggerRules } from './invalidate'
+import { createInvalidator } from './invalidate'
 
-describe('resolveProps', () => {
-	it('can extend the defaults', () => {
-		expect(resolveProps({
-			invalidates: defaults => [
-				...defaults,
-				{ target: 'resource', resource: 'comments' },
-			],
-		}, ['list'])).toEqual({
+describe('createInvalidator', () => {
+	it('resolves invalidates when applying defaults', async () => {
+		const queryClient = new QueryClient()
+		const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
+		const resolveInvalidates = vi.fn((): RuleOptions => ['list'])
+		const invalidate = createInvalidator({
+			getFetcherName: () => 'primary',
+			getInvalidates: () => undefined,
+			getResource: () => 'posts',
+			queryClient,
+		})
+
+		await invalidate({
+			invalidates: resolveInvalidates,
+		}, {
+			invalidates: ['resource'],
+		})
+
+		expect(resolveInvalidates).toHaveBeenCalledWith(['resource'])
+		expect(invalidateQueries).toHaveBeenCalledWith(
+			{ queryKey: ['primary', 'posts', 'getList'], type: 'all', refetchType: 'active' },
+			{ cancelRefetch: false },
+		)
+		expect(invalidateQueries).toHaveBeenCalledWith(
+			{ queryKey: ['primary', 'posts', 'getInfiniteList'], type: 'all', refetchType: 'active' },
+			{ cancelRefetch: false },
+		)
+	})
+
+	it('uses broad keys for string one and many rules', async () => {
+		const queryClient = new QueryClient()
+		const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
+		const invalidate = createInvalidator({
+			getFetcherName: () => undefined,
+			getInvalidates: () => undefined,
+			getResource: () => undefined,
+			queryClient,
+		})
+
+		await invalidate({
+			invalidates: ['one', 'many'],
+			resource: 'posts',
+		})
+
+		expect(invalidateQueries).toHaveBeenCalledWith(
+			{ queryKey: ['default', 'posts', 'getOne'], type: 'all', refetchType: 'active' },
+			{ cancelRefetch: false },
+		)
+		expect(invalidateQueries).toHaveBeenCalledWith(
+			{ queryKey: ['default', 'posts', 'getMany'], type: 'all', refetchType: 'active' },
+			{ cancelRefetch: false },
+		)
+	})
+
+	it('uses exact keys for object one rules with id or ids', async () => {
+		const queryClient = new QueryClient()
+		const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
+		const invalidate = createInvalidator({
+			getFetcherName: () => undefined,
+			getInvalidates: () => undefined,
+			getResource: () => undefined,
+			queryClient,
+		})
+
+		await invalidate({
 			invalidates: [
-				'list',
-				{ target: 'resource', resource: 'comments' },
+				{ target: 'one', resource: 'authors', id: 1 },
+				{ target: 'one', resource: 'authors', ids: [2, 3], fetcherName: 'legacy' },
 			],
 		})
-	})
-})
 
-describe('trigger', () => {
-	it('invalidates normal and infinite list caches together', async () => {
+		expect(invalidateQueries).toHaveBeenCalledWith(
+			{ queryKey: ['default', 'authors', 'getOne', 1, { meta: undefined }], type: 'all', refetchType: 'active' },
+			{ cancelRefetch: false },
+		)
+		expect(invalidateQueries).toHaveBeenCalledWith(
+			{ queryKey: ['legacy', 'authors', 'getOne', 2, { meta: undefined }], type: 'all', refetchType: 'active' },
+			{ cancelRefetch: false },
+		)
+		expect(invalidateQueries).toHaveBeenCalledWith(
+			{ queryKey: ['legacy', 'authors', 'getOne', 3, { meta: undefined }], type: 'all', refetchType: 'active' },
+			{ cancelRefetch: false },
+		)
+	})
+
+	it('lets call props override defaults and supports false', async () => {
 		const queryClient = new QueryClient()
 		const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
-
-		await trigger(
-			{ fetcherName: 'default', resource: 'posts', meta: { scope: 'admin' } } as any,
-			Target.List,
-			undefined,
+		const invalidate = createInvalidator({
+			getFetcherName: () => undefined,
+			getInvalidates: () => ['all'],
+			getResource: () => undefined,
 			queryClient,
-		)
+		})
 
-		expect(invalidateQueries).toHaveBeenCalledWith(
-			{ queryKey: ['default', 'posts', 'getList'], type: 'all', refetchType: 'active' },
-			{ cancelRefetch: false },
-		)
-		expect(invalidateQueries).toHaveBeenCalledWith(
-			{ queryKey: ['default', 'posts', 'getInfiniteList'], type: 'all', refetchType: 'active' },
-			{ cancelRefetch: false },
-		)
+		await invalidate({ invalidates: false })
+
+		expect(invalidateQueries).not.toHaveBeenCalled()
 	})
-})
 
-describe('triggerRules', () => {
-	it('invalidates other resources and fetchers', async () => {
+	it('validates required props when executed', async () => {
 		const queryClient = new QueryClient()
-		const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
+		const invalidate = createInvalidator({
+			getFetcherName: () => undefined,
+			getInvalidates: () => undefined,
+			getResource: () => undefined,
+			queryClient,
+		})
 
-		await triggerRules({
-			fetcherName: 'primary',
-			resource: 'posts',
-			id: 1,
-			meta: { scope: 'admin' },
-			invalidates: [
-				{ target: 'resource', resource: 'comments' },
-				{ target: 'one', resource: 'authors', id: 2 },
-				{ target: 'many', resource: 'tags', ids: [7], meta: { scope: 'public' } },
-				{ target: 'all' },
-				{ target: 'all', fetcherName: 'legacy' },
-			],
-		}, { data: { id: 1 } }, queryClient)
-
-		expect(invalidateQueries).toHaveBeenCalledWith(
-			{ queryKey: ['primary', 'comments'], type: 'all', refetchType: 'active' },
-			{ cancelRefetch: false },
-		)
-		expect(invalidateQueries).toHaveBeenCalledWith(
-			{ queryKey: ['primary', 'authors', 'getOne', 2, { meta: undefined }], type: 'all', refetchType: 'active' },
-			{ cancelRefetch: false },
-		)
-		expect(invalidateQueries).toHaveBeenCalledWith(
-			{ queryKey: ['primary', 'tags', 'getMany', ['7'], { meta: { scope: 'public' } }], type: 'all', refetchType: 'active' },
-			{ cancelRefetch: false },
-		)
-		expect(invalidateQueries).toHaveBeenCalledWith(
-			{ queryKey: ['primary'], type: 'all', refetchType: 'active' },
-			{ cancelRefetch: false },
-		)
-		expect(invalidateQueries).toHaveBeenCalledWith(
-			{ queryKey: ['legacy'], type: 'all', refetchType: 'active' },
-			{ cancelRefetch: false },
-		)
-	})
-})
-
-describe('createFn', () => {
-	it('uses the default fetcher', async () => {
-		const queryClient = new QueryClient()
-		const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
-		const invalidate = createFn({ queryClient })
-
-		await invalidate({ target: 'list', resource: 'posts' })
-
-		expect(invalidateQueries).toHaveBeenCalledWith(
-			{ queryKey: ['default', 'posts', 'getList'], type: 'all', refetchType: 'active' },
-			{ cancelRefetch: false },
-		)
+		await expect(invalidate({})).rejects.toThrow('`invalidates` is required')
+		await expect(invalidate({ invalidates: ['list'] })).rejects.toThrow('`resource` is required')
 	})
 })
