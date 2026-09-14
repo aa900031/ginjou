@@ -7,6 +7,7 @@ import type { UseNotifyContext } from '../notification'
 import type { UsePublishContext } from '../realtime'
 import type { ToMaybeRefs } from '../utils/refs'
 import type { UseFetcherContextFromProps } from './fetchers'
+import type { UseQueryInvalidateContext } from './invalidate'
 import type { UseQueryClientContextProps } from './query-client'
 import { UpdateOne } from '@ginjou/core'
 import { useMutation } from '@tanstack/vue-query'
@@ -17,6 +18,7 @@ import { useNotify } from '../notification'
 import { usePublish } from '../realtime'
 import { unrefs } from '../utils/unrefs'
 import { useFetchersContext } from './fetchers'
+import { useQueryInvalidate } from './invalidate'
 import { useQueryClientContext } from './query-client'
 
 export type UseUpdateOneProps<
@@ -34,6 +36,7 @@ export type UseUpdateOneContext = Simplify<
 	& UseTranslateContext
 	& UseCheckErrorContext
 	& UsePublishContext
+	& UseQueryInvalidateContext
 >
 
 export type UseUpdateOneResult<
@@ -66,6 +69,7 @@ export function useUpdateOne<
 	const notify = useNotify(context)
 	const translate = useTranslate(context)
 	const publish = usePublish(context)
+	const invalidate = useQueryInvalidate(props, context)
 	const { mutateAsync: checkError } = useCheckError<TError>(undefined, context)
 
 	const mutationFn = UpdateOne.createMutationFn({
@@ -82,7 +86,7 @@ export function useUpdateOne<
 		onMutate: (...args) => unref(props?.mutationOptions)?.onMutate?.(...args),
 	})
 	const handleSettled = UpdateOne.createSettledHandler({
-		queryClient,
+		invalidate,
 		getProps,
 		onSettled: (...args) => unref(props?.mutationOptions)?.onSettled?.(...args),
 	})

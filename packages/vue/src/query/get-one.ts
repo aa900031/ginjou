@@ -8,6 +8,7 @@ import type { UseNotifyContext } from '../notification'
 import type { UseSubscribeContext } from '../realtime'
 import type { ToMaybeRefs } from '../utils/refs'
 import type { UseFetcherContextFromProps } from './fetchers'
+import type { UseQueryInvalidateContext } from './invalidate'
 import type { UseQueryClientContextProps } from './query-client'
 import { createSubscribeCallback, GetOne, getSubscribeChannel, RealtimeAction } from '@ginjou/core'
 import { useQuery } from '@tanstack/vue-query'
@@ -19,6 +20,7 @@ import { useTranslate } from '../i18n'
 import { useNotify } from '../notification'
 import { useRealtimeOptions, useSubscribe } from '../realtime'
 import { useFetchersContext } from './fetchers'
+import { useQueryInvalidate } from './invalidate'
 import { useQueryClientContext } from './query-client'
 
 export type UseGetOneProps<
@@ -36,6 +38,7 @@ export type UseGetOneContext = Simplify<
 	& UseTranslateContext
 	& UseCheckErrorContext
 	& UseSubscribeContext
+	& UseQueryInvalidateContext
 >
 
 export type UseGetOneResult<
@@ -61,6 +64,7 @@ export function useGetOne<
 	const realtimeOptions = useRealtimeOptions(toRef(() => unref(props.realtime)), context)
 	const notify = useNotify(context)
 	const translate = useTranslate(context)
+	const invalidate = useQueryInvalidate(props, context)
 	const { mutateAsync: checkError } = useCheckError<TError>(undefined, context)
 
 	const queryProps = computed(() => GetOne.resolveQueryProps({
@@ -134,7 +138,7 @@ export function useGetOne<
 		})),
 		meta: toRef(() => unref(queryProps).meta),
 		callback: createSubscribeCallback({
-			queryClient,
+			invalidate,
 			getRealtimeOptions: () => unref(realtimeOptions),
 			getResource: () => unref(queryProps).resource,
 			getFetcherName: () => unref(queryProps).fetcherName,

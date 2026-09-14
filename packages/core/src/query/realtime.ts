@@ -1,7 +1,7 @@
-import type { QueryClient } from '@tanstack/query-core'
 import type { RealtimeOption, SubscribeCallbackFn } from '../realtime'
+import type { Invalidator } from './invalidate'
 import { RealtimeMode } from '../realtime'
-import { InvalidateTarget, triggerInvalidate } from './invalidate'
+import { Target as InvalidateTarget } from './invalidate'
 
 export interface RealtimeProps<
 	TPayload,
@@ -27,7 +27,7 @@ export function getSubscribeChannel(
 export interface CreateSubscribeCallbackProps<
 	TPayload,
 > {
-	queryClient: QueryClient
+	invalidate: Invalidator
 	getRealtimeOptions: () => RealtimeOption.Normalized<TPayload>
 	getResource: () => string
 	getFetcherName: () => string
@@ -37,7 +37,7 @@ export function createSubscribeCallback<
 	TPayload,
 >(
 	{
-		queryClient,
+		invalidate,
 		getRealtimeOptions,
 		getResource,
 		getFetcherName,
@@ -50,21 +50,12 @@ export function createSubscribeCallback<
 			const resource = getResource()
 			const fetcherName = getFetcherName()
 
-			triggerInvalidate(
+			invalidate(
 				{
+					invalidates: [InvalidateTarget.Resource],
 					resource,
 					fetcherName,
-					invalidateFilters: {
-						type: 'active',
-						refetchType: 'active',
-					},
-					invalidateOptions: {
-						cancelRefetch: false,
-					},
 				},
-				InvalidateTarget.Resource,
-				undefined,
-				queryClient,
 			)
 		}
 
