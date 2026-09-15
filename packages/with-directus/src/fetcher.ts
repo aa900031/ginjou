@@ -75,6 +75,25 @@ export function createFetcher<
 				data: data as any,
 			}
 		},
+		getMany: async ({ resource, ids, meta }, context = undefined) => {
+			const metaQuery = (meta as FetcherMeta)?.query
+			const query = cleanDeep({
+				...metaQuery,
+				limit: metaQuery?.limit ?? ids.length,
+				filter: {
+					...metaQuery?.filter,
+					id: { _in: ids },
+				},
+			})
+
+			const fn = getProtectedFunction(resource, 'read', false)
+			const command = fn ? fn(query) : sdk.readItems<any, any, any>(resource, query)
+			const data = await client.request(withSignal(command, context))
+
+			return {
+				data: data as any,
+			}
+		},
 		createOne: async ({ resource, params, meta }) => {
 			const query = cleanDeep({
 				...(meta as FetcherMeta)?.query,
@@ -83,6 +102,19 @@ export function createFetcher<
 
 			const fn = getProtectedFunction(resource, 'create')
 			const data = await client.request(fn ? fn(item, query) : sdk.createItem(resource, item, query))
+
+			return {
+				data: data as any,
+			}
+		},
+		createMany: async ({ resource, params, meta }) => {
+			const query = cleanDeep({
+				...(meta as FetcherMeta)?.query,
+			})
+			const items = params as any[]
+
+			const fn = getProtectedFunction(resource, 'create', false)
+			const data = await client.request(fn ? fn(items, query) : sdk.createItems(resource, items, query))
 
 			return {
 				data: data as any,
@@ -101,12 +133,34 @@ export function createFetcher<
 				data: data as any,
 			}
 		},
+		updateMany: async ({ resource, ids, params, meta }) => {
+			const query = cleanDeep({
+				...(meta as FetcherMeta)?.query,
+			})
+			const item = params as any
+
+			const fn = getProtectedFunction(resource, 'update', false)
+			const data = await client.request(fn ? fn(ids, item, query) : sdk.updateItems(resource, ids as any, item, query))
+
+			return {
+				data: data as any,
+			}
+		},
 		deleteOne: async ({ resource, id }) => {
 			const fn = getProtectedFunction(resource, 'delete')
 			const data = await client.request(fn ? fn(id) : sdk.deleteItem(resource, id))
 
 			return {
 				data: data as any,
+			}
+		},
+		deleteMany: async ({ resource, ids }) => {
+			const fn = getProtectedFunction(resource, 'delete', false)
+			// Directus returns no body for deletes; core still expects an array to publish from.
+			const data = await client.request(fn ? fn(ids) : sdk.deleteItems(resource, ids as any))
+
+			return {
+				data: (data ?? []) as any,
 			}
 		},
 		custom: async ({ url, method, payload, query, headers }, context = undefined) => {
@@ -267,8 +321,6 @@ function genLogicalFilter(
 ): any {
 	const { field, operator, value } = filter
 	const clientOperator = getClientOperator(operator)
-	if (!clientOperator)
-		return
 
 	const result = {}
 	dset(result, field, {
@@ -280,11 +332,9 @@ function genLogicalFilter(
 
 function genConditionalFilter(
 	filter: ConditionalFilter,
-): Record<string, any[]> | undefined {
+): Record<string, any[]> {
 	const { operator, value } = filter
 	const clientOperator = getClientOperator(operator)
-	if (!clientOperator)
-		return
 
 	return {
 		[clientOperator]: value
@@ -297,7 +347,7 @@ function genConditionalFilter(
 
 function getClientOperator(
 	operator: FilterOperatorValues,
-): string | undefined {
+): string {
 	switch (operator) {
 		case 'eq':
 			return '_eq'
@@ -316,13 +366,13 @@ function getClientOperator(
 		case 'nin':
 			return '_nin'
 		case 'contains':
-			return '_contains'
-		case 'containss':
 			return '_icontains'
+		case 'containss':
+			return '_contains'
 		case 'ncontains':
-			return '_ncontains'
+			return '_nicontains'
 		case 'ncontainss':
-			return undefined
+			return '_ncontains'
 		case 'null':
 			return '_null'
 		case 'nnull':
@@ -332,24 +382,26 @@ function getClientOperator(
 		case 'nbetween':
 			return '_nbetween'
 		case 'startswith':
-			return '_starts_with'
+			return '_istarts_with'
 		case 'startswiths':
-			return undefined
+			return '_starts_with'
 		case 'nstartswith':
-			return '_nstarts_with'
+			return '_nistarts_with'
 		case 'nstartswiths':
-			return undefined
+			return '_nstarts_with'
 		case 'endswith':
-			return '_ends_with'
+			return '_iends_with'
 		case 'endswiths':
-			return undefined
+			return '_ends_with'
 		case 'nendswith':
-			return '_nends_with'
+			return '_niends_with'
 		case 'nendswiths':
-			return undefined
+			return '_nends_with'
 		case 'or':
 			return '_or'
 		case 'and':
 			return '_and'
+		default:
+			throw new Error(`[@ginjou/with-directus] Filter operator '${operator}' is not supported.`)
 	}
 }

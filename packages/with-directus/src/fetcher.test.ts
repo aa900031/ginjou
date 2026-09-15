@@ -13,12 +13,18 @@ vi.mock('@directus/sdk', async (importOriginal) => {
 		createItem: vi.fn((...args) => ['createItem', ...args]),
 		updateItem: vi.fn((...args) => ['updateItem', ...args]),
 		deleteItem: vi.fn((...args) => ['deleteItem', ...args]),
+		createItems: vi.fn((...args) => ['createItems', ...args]),
+		updateItems: vi.fn((...args) => ['updateItems', ...args]),
+		deleteItems: vi.fn((...args) => ['deleteItems', ...args]),
 		aggregate: vi.fn((...args) => ['aggregate', ...args]),
 		readUsers: vi.fn((...args) => ['readUsers', ...args]),
 		readUser: vi.fn((...args) => ['readUser', ...args]),
 		createUser: vi.fn((...args) => ['createUser', ...args]),
 		updateUser: vi.fn((...args) => ['updateUser', ...args]),
 		deleteUser: vi.fn((...args) => ['deleteUser', ...args]),
+		createUsers: vi.fn((...args) => ['createUsers', ...args]),
+		updateUsers: vi.fn((...args) => ['updateUsers', ...args]),
+		deleteUsers: vi.fn((...args) => ['deleteUsers', ...args]),
 		withOptions: vi.fn((command, options) => ({ command, options })),
 	}
 })
@@ -42,6 +48,10 @@ describe('createFetcher', () => {
 		expect(fetcher.createOne).toBeInstanceOf(Function)
 		expect(fetcher.updateOne).toBeInstanceOf(Function)
 		expect(fetcher.deleteOne).toBeInstanceOf(Function)
+		expect(fetcher.getMany).toBeInstanceOf(Function)
+		expect(fetcher.createMany).toBeInstanceOf(Function)
+		expect(fetcher.updateMany).toBeInstanceOf(Function)
+		expect(fetcher.deleteMany).toBeInstanceOf(Function)
 		expect(fetcher.custom).toBeInstanceOf(Function)
 	})
 
@@ -178,6 +188,56 @@ describe('createFetcher', () => {
 			}))
 		})
 
+		it('should map every filter operator to a Directus operator', async () => {
+			mockClient.request
+				.mockResolvedValueOnce([])
+				.mockResolvedValueOnce([{ countDistinct: { id: 0 } }])
+
+			await fetcher.getList({
+				resource: 'posts',
+				filters: [
+					{ field: 'a', operator: 'contains', value: 'x' },
+					{ field: 'a', operator: 'containss', value: 'x' },
+					{ field: 'a', operator: 'ncontains', value: 'x' },
+					{ field: 'a', operator: 'ncontainss', value: 'x' },
+					{ field: 'a', operator: 'startswith', value: 'x' },
+					{ field: 'a', operator: 'startswiths', value: 'x' },
+					{ field: 'a', operator: 'nstartswith', value: 'x' },
+					{ field: 'a', operator: 'nstartswiths', value: 'x' },
+					{ field: 'a', operator: 'endswith', value: 'x' },
+					{ field: 'a', operator: 'endswiths', value: 'x' },
+					{ field: 'a', operator: 'nendswith', value: 'x' },
+					{ field: 'a', operator: 'nendswiths', value: 'x' },
+				],
+			})
+
+			expect(sdk.readItems).toHaveBeenCalledWith('posts', expect.objectContaining({
+				filter: {
+					_and: [
+						{ a: { _icontains: 'x' } },
+						{ a: { _contains: 'x' } },
+						{ a: { _nicontains: 'x' } },
+						{ a: { _ncontains: 'x' } },
+						{ a: { _istarts_with: 'x' } },
+						{ a: { _starts_with: 'x' } },
+						{ a: { _nistarts_with: 'x' } },
+						{ a: { _nstarts_with: 'x' } },
+						{ a: { _iends_with: 'x' } },
+						{ a: { _ends_with: 'x' } },
+						{ a: { _niends_with: 'x' } },
+						{ a: { _nends_with: 'x' } },
+					],
+				},
+			}))
+		})
+
+		it('should throw on an unknown filter operator', async () => {
+			await expect(fetcher.getList({
+				resource: 'posts',
+				filters: [{ field: 'a', operator: 'regex' as any, value: 'x' }],
+			})).rejects.toThrow('[@ginjou/with-directus] Filter operator \'regex\' is not supported.')
+		})
+
 		it('should handle protected resources', async () => {
 			mockClient.request
 				.mockResolvedValueOnce([])
@@ -208,6 +268,88 @@ describe('createFetcher', () => {
 		it('should fetch a single protected resource', async () => {
 			await fetcher.getOne({ resource: 'directus_users', id: '1' })
 			expect(sdk.readUser).toHaveBeenCalledWith('1', {})
+		})
+	})
+
+	describe('getMany', () => {
+		it('should read items by id and forward the query abort signal', async () => {
+			const controller = new AbortController()
+			const items = [{ id: 1 }, { id: 2 }]
+			mockClient.request.mockResolvedValueOnce(items)
+
+			const result = await fetcher.getMany({
+				resource: 'posts',
+				ids: [1, 2],
+				meta: { query: { fields: ['id'], filter: { status: { _eq: 'published' } } } },
+			}, { signal: controller.signal } as any)
+
+			expect(sdk.readItems).toHaveBeenCalledWith('posts', {
+				fields: ['id'],
+				limit: 2,
+				filter: {
+					status: { _eq: 'published' },
+					id: { _in: [1, 2] },
+				},
+			})
+			expect(sdk.withOptions).toHaveBeenCalledWith(expect.anything(), { signal: controller.signal })
+			expect(result).toEqual({ data: items })
+		})
+
+		it('should read protected resources', async () => {
+			await fetcher.getMany({ resource: 'directus_users', ids: ['1'] })
+			expect(sdk.readUsers).toHaveBeenCalledWith({ limit: 1, filter: { id: { _in: ['1'] } } })
+		})
+	})
+
+	describe('createMany', () => {
+		it('should create items', async () => {
+			const items = [{ title: 'a' }, { title: 'b' }]
+			mockClient.request.mockResolvedValueOnce(items)
+
+			const result = await fetcher.createMany({ resource: 'posts', params: items })
+
+			expect(sdk.createItems).toHaveBeenCalledWith('posts', items, {})
+			expect(result).toEqual({ data: items })
+		})
+
+		it('should create protected resources', async () => {
+			const users = [{ email: 'a@example.com' }]
+			await fetcher.createMany({ resource: 'directus_users', params: users })
+			expect(sdk.createUsers).toHaveBeenCalledWith(users, {})
+		})
+	})
+
+	describe('updateMany', () => {
+		it('should update items by id', async () => {
+			const updates = { status: 'archived' }
+			mockClient.request.mockResolvedValueOnce([{ id: 1 }, { id: 2 }])
+
+			const result = await fetcher.updateMany({ resource: 'posts', ids: [1, 2], params: updates })
+
+			expect(sdk.updateItems).toHaveBeenCalledWith('posts', [1, 2], updates, {})
+			expect(result).toEqual({ data: [{ id: 1 }, { id: 2 }] })
+		})
+
+		it('should update protected resources', async () => {
+			const updates = { status: 'active' }
+			await fetcher.updateMany({ resource: 'directus_users', ids: ['1'], params: updates })
+			expect(sdk.updateUsers).toHaveBeenCalledWith(['1'], updates, {})
+		})
+	})
+
+	describe('deleteMany', () => {
+		it('should delete items by id and return an empty array', async () => {
+			mockClient.request.mockResolvedValueOnce(undefined)
+
+			const result = await fetcher.deleteMany({ resource: 'posts', ids: [1, 2] })
+
+			expect(sdk.deleteItems).toHaveBeenCalledWith('posts', [1, 2])
+			expect(result).toEqual({ data: [] })
+		})
+
+		it('should delete protected resources', async () => {
+			await fetcher.deleteMany({ resource: 'directus_users', ids: ['1'] })
+			expect(sdk.deleteUsers).toHaveBeenCalledWith(['1'])
 		})
 	})
 
