@@ -195,6 +195,7 @@ export function createFetcher(
 		// `rpc/<fn>` calls a Postgres function, anything else invokes an Edge Function.
 		custom: async ({ url, method, payload, query, headers, filters, sorters, meta }, context = undefined) => {
 			const rpcName = url.match(RPC_RE)?.[1]
+			const signal = context && 'signal' in context ? context.signal : undefined
 
 			if (rpcName) {
 				const request = client.rpc(rpcName, payload as any, {
@@ -202,7 +203,6 @@ export function createFetcher(
 					head: method === 'head',
 				})
 
-				const signal = context && 'signal' in context ? context.signal : undefined
 				if (signal)
 					request.abortSignal(signal)
 
@@ -226,6 +226,7 @@ export function createFetcher(
 				method: method.toUpperCase() as any,
 				body: payload,
 				headers: headers as Record<string, string>,
+				signal,
 			})
 
 			if (error)
