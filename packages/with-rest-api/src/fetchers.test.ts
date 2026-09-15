@@ -21,6 +21,10 @@ describe('createFetcher', () => {
 		expect(fetcher).toHaveProperty('createOne')
 		expect(fetcher).toHaveProperty('updateOne')
 		expect(fetcher).toHaveProperty('deleteOne')
+		expect(fetcher).toHaveProperty('getMany')
+		expect(fetcher).toHaveProperty('createMany')
+		expect(fetcher).toHaveProperty('updateMany')
+		expect(fetcher).toHaveProperty('deleteMany')
 		expect(fetcher).toHaveProperty('custom')
 	})
 
@@ -197,6 +201,86 @@ describe('createFetcher', () => {
 				method: 'PUT',
 				headers: { 'X-Custom': 'value' },
 			}))
+		})
+	})
+
+	describe('getMany', () => {
+		it('should fetch records by repeated id query and forward the abort signal', async () => {
+			const controller = new AbortController()
+			const mockData = [{ id: 1 }, { id: 2 }]
+			mockClient.raw.mockResolvedValue({ _data: mockData })
+
+			const result = await fetcher.getMany(
+				{ resource: 'posts', ids: [1, 2], meta: { headers: { 'X-Custom': 'value' } } },
+				{ signal: controller.signal } as any,
+			)
+
+			expect(mockClient.raw).toHaveBeenCalledWith('posts', {
+				baseURL: testUrl,
+				method: 'GET',
+				query: { id: [1, 2] },
+				headers: { 'X-Custom': 'value' },
+				signal: controller.signal,
+			})
+			expect(result).toEqual({ data: mockData })
+		})
+	})
+
+	describe('createMany', () => {
+		it('should send one POST per record and collect the responses', async () => {
+			mockClient.raw
+				.mockResolvedValueOnce({ _data: { id: 1, name: 'a' } })
+				.mockResolvedValueOnce({ _data: { id: 2, name: 'b' } })
+
+			const result = await fetcher.createMany({
+				resource: 'posts',
+				params: [{ name: 'a' }, { name: 'b' }],
+			})
+
+			expect(mockClient.raw).toHaveBeenCalledTimes(2)
+			expect(mockClient.raw).toHaveBeenNthCalledWith(2, 'posts', {
+				baseURL: testUrl,
+				method: 'POST',
+				body: { name: 'b' },
+				headers: undefined,
+			})
+			expect(result).toEqual({ data: [{ id: 1, name: 'a' }, { id: 2, name: 'b' }] })
+		})
+	})
+
+	describe('updateMany', () => {
+		it('should send one PUT per id with the same body', async () => {
+			mockClient.raw
+				.mockResolvedValueOnce({ _data: { id: 1, status: 'x' } })
+				.mockResolvedValueOnce({ _data: { id: 2, status: 'x' } })
+
+			const result = await fetcher.updateMany({
+				resource: 'posts',
+				ids: [1, 2],
+				params: { status: 'x' },
+				meta: { method: 'PATCH' },
+			})
+
+			expect(mockClient.raw).toHaveBeenNthCalledWith(1, 'posts/1', expect.objectContaining({ method: 'PATCH', body: { status: 'x' } }))
+			expect(mockClient.raw).toHaveBeenNthCalledWith(2, 'posts/2', expect.objectContaining({ method: 'PATCH', body: { status: 'x' } }))
+			expect(result).toEqual({ data: [{ id: 1, status: 'x' }, { id: 2, status: 'x' }] })
+		})
+	})
+
+	describe('deleteMany', () => {
+		it('should send one DELETE per id', async () => {
+			mockClient.raw.mockResolvedValue({ _data: null })
+
+			const result = await fetcher.deleteMany({ resource: 'posts', ids: [1, 2] })
+
+			expect(mockClient.raw).toHaveBeenCalledTimes(2)
+			expect(mockClient.raw).toHaveBeenNthCalledWith(1, 'posts/1', {
+				baseURL: testUrl,
+				method: 'DELETE',
+				body: undefined,
+				headers: undefined,
+			})
+			expect(result).toEqual({ data: [null, null] })
 		})
 	})
 

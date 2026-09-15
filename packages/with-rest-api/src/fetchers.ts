@@ -76,6 +76,19 @@ export function createFetcher(
 				data: response._data,
 			}
 		},
+		getMany: async ({ resource, ids, meta }, context = undefined) => {
+			const response = await client.raw(resource, {
+				baseURL: `${url}`,
+				method: meta?.method as any ?? 'GET',
+				query: { id: ids },
+				headers: meta?.headers as any,
+				signal: getSignal(context),
+			})
+
+			return {
+				data: response._data,
+			}
+		},
 		createOne: async ({ resource, params, meta }) => {
 			const response = await client.raw(`${resource}`, {
 				baseURL: `${url}`,
@@ -86,6 +99,19 @@ export function createFetcher(
 
 			return {
 				data: response._data,
+			}
+		},
+		// json-server has no bulk endpoints, so the *Many methods fan out one request per record.
+		createMany: async ({ resource, params, meta }) => {
+			const responses = await Promise.all(params.map(item => client.raw(`${resource}`, {
+				baseURL: `${url}`,
+				method: meta?.method as any ?? 'POST',
+				body: item as any,
+				headers: meta?.headers as any,
+			})))
+
+			return {
+				data: responses.map(response => response._data),
 			}
 		},
 		updateOne: async ({ resource, id, params, meta }) => {
@@ -100,6 +126,18 @@ export function createFetcher(
 				data: response._data,
 			}
 		},
+		updateMany: async ({ resource, ids, params, meta }) => {
+			const responses = await Promise.all(ids.map(id => client.raw(`${resource}/${id}`, {
+				baseURL: `${url}`,
+				method: meta?.method as any ?? 'PUT',
+				body: params as any,
+				headers: meta?.headers as any,
+			})))
+
+			return {
+				data: responses.map(response => response._data),
+			}
+		},
 		deleteOne: async ({ resource, id, params, meta }) => {
 			const response = await client.raw(`${resource}/${id}`, {
 				baseURL: `${url}`,
@@ -110,6 +148,18 @@ export function createFetcher(
 
 			return {
 				data: response._data,
+			}
+		},
+		deleteMany: async ({ resource, ids, params, meta }) => {
+			const responses = await Promise.all(ids.map(id => client.raw(`${resource}/${id}`, {
+				baseURL: `${url}`,
+				method: meta?.method as any ?? 'DELETE',
+				body: params as any,
+				headers: meta?.headers as any,
+			})))
+
+			return {
+				data: responses.map(response => response._data),
 			}
 		},
 		custom: async (
