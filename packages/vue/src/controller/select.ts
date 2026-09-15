@@ -15,8 +15,10 @@ export type UseSelectProps<
 	TError,
 	TResultData extends BaseRecord,
 	TPageParam,
+	TValue = any,
+	TSearchValue = string,
 > = ToMaybeRefs<
-	Select.Props<TData, TError, TResultData, TPageParam>
+	Select.Props<TData, TError, TResultData, TPageParam, TValue, TSearchValue>
 >
 
 export type UseSelectContext = Simplify<
@@ -29,11 +31,13 @@ export type UseSelectResult<
 	TError,
 	TResultData extends BaseRecord,
 	TPageParam,
+	TValue = any,
+	TSearchValue = string,
 > = Simplify<
 	& UseGetListResult<TError, TResultData, TPageParam> // TODO: merge GetManyResult
 	& {
-		options: ComputedRef<Select.OptionItem<TResultData>[] | undefined>
-		search: Ref<string | undefined> // TODO: TSearchValue from generic
+		options: ComputedRef<Select.OptionItem<TResultData, TValue>[] | undefined>
+		search: Ref<TSearchValue | undefined>
 		currentPage: Ref<TPageParam | undefined>
 		perPage: Ref<number | undefined>
 	}
@@ -44,12 +48,14 @@ export function useSelect<
 	TError = unknown,
 	TResultData extends BaseRecord = TData,
 	TPageParam = number,
+	TValue = any,
+	TSearchValue = string,
 >(
-	props?: UseSelectProps<TData, TError, TResultData, TPageParam>,
+	props?: UseSelectProps<TData, TError, TResultData, TPageParam, TValue, TSearchValue>,
 	context?: UseSelectContext,
-): UseSelectResult<TError, TResultData, TPageParam> {
+): UseSelectResult<TError, TResultData, TPageParam, TValue, TSearchValue> {
 	const resource = useResource({ name: props?.resource }, context)
-	const search = ref<string | undefined>()
+	const search = ref<TSearchValue | undefined>() as Ref<TSearchValue | undefined>
 	const currentPage = pickRef<TPageParam | undefined, Pagination<TPageParam> | undefined>(
 		props?.pagination,
 		Select.getPropCurrentPage,
@@ -71,6 +77,7 @@ export function useSelect<
 		filterFormProp: unref(props?.filters),
 		searchValue: unref(search),
 		labelKey: unref(props?.labelKey),
+		searchKey: unref(props?.searchKey),
 		searchToFilters: unref(props?.searchToFilters),
 	}))
 	const pagination = computed(() => Select.getPagination({
@@ -103,6 +110,7 @@ export function useSelect<
 		manyData: unref(manyResult.data),
 		labelKey: unref(props?.labelKey),
 		valueKey: unref(props?.valueKey),
+		selectedOptionsOrder: unref(props?.selectedOptionsOrder),
 	}))
 
 	return {

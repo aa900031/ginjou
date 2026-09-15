@@ -87,6 +87,46 @@ describe('useSelect', () => {
 		])
 	})
 
+	it('should search on searchKey and order selected options first', () => {
+		let listProps: (() => Record<string, unknown>) | undefined
+
+		mocks.useGetList.mockImplementation((props) => {
+			listProps = props
+			return {
+				data: {
+					data: [{ id: '1', title: 'Post 1' }],
+				},
+			}
+		})
+		mocks.useGetManyByOne.mockReturnValue({
+			data: {
+				data: [{ id: '2', title: 'Post 2' }],
+			},
+		})
+
+		const result = useSelect({
+			resource: 'posts',
+			value: '2',
+			labelKey: item => item.title.toUpperCase(),
+			searchKey: 'slug',
+			selectedOptionsOrder: 'selected-first',
+		})
+
+		result.search = 'post'
+
+		expect(result.options?.map(item => [item.value, item.label])).toEqual([
+			['2', 'POST 2'],
+			['1', 'POST 1'],
+		])
+		expect(listProps?.().filters).toEqual([
+			{
+				field: 'slug',
+				operator: FilterOperator.contains,
+				value: 'post',
+			},
+		])
+	})
+
 	it('should expose writable search and pagination state to the list query', () => {
 		let listProps: (() => Record<string, unknown>) | undefined
 
