@@ -7,6 +7,8 @@ export interface CreateFetcherProps {
 	client: SupabaseClient
 }
 
+const RPC_RE = /^\/?rpc\/(.+)$/
+
 export interface FetcherMeta {
 	select?: string
 	count?: 'exact' | 'planned' | 'estimated'
@@ -123,6 +125,21 @@ export function createFetcher(
 				data: (data || [])[0] as any,
 			}
 		},
+		updateMany: async ({ resource, ids, params, meta }) => {
+			const query = client
+				.from(resource)
+				.update(params)
+				.in((meta as FetcherMeta)?.idColumnName ?? 'id', ids)
+				.select((meta as FetcherMeta)?.select ?? '*')
+
+			const { data, error } = await query
+			if (error)
+				throw error
+
+			return {
+				data: (data || []) as any,
+			}
+		},
 		getOne: async ({ resource, id, meta }, context = undefined) => {
 			const query = client
 				.from(resource)
@@ -158,6 +175,64 @@ export function createFetcher(
 
 			return {
 				data: (data || [])[0] as any,
+			}
+		},
+		deleteMany: async ({ resource, ids, meta }) => {
+			const query = client
+				.from(resource)
+				.delete()
+				.in((meta as FetcherMeta)?.idColumnName ?? 'id', ids)
+				.select((meta as FetcherMeta)?.select ?? '*')
+
+			const { data, error } = await query
+			if (error)
+				throw error
+
+			return {
+				data: (data || []) as any,
+			}
+		},
+		// `rpc/<fn>` calls a Postgres function, anything else invokes an Edge Function.
+		custom: async ({ url, method, payload, query, headers, filters, sorters, meta }, context = undefined) => {
+			const rpcName = url.match(RPC_RE)?.[1]
+
+			if (rpcName) {
+				const request = client.rpc(rpcName, payload as any, {
+					get: method === 'get',
+					head: method === 'head',
+				})
+
+				const signal = context && 'signal' in context ? context.signal : undefined
+				if (signal)
+					request.abortSignal(signal)
+
+				if (sorters)
+					applySorters(request, sorters, meta as FetcherMeta)
+
+				if (filters)
+					applyFilters(request, filters)
+
+				const { data, error } = await request
+				if (error)
+					throw error
+
+				return {
+					data: data as any,
+				}
+			}
+
+			const search = query ? `?${new URLSearchParams(query as Record<string, string>)}` : ''
+			const { data, error } = await client.functions.invoke(`${url}${search}`, {
+				method: method.toUpperCase() as any,
+				body: payload,
+				headers: headers as Record<string, string>,
+			})
+
+			if (error)
+				throw error
+
+			return {
+				data: data as any,
 			}
 		},
 	})
