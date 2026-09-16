@@ -6,6 +6,7 @@ import {
 	getPagination,
 	getPropCurrentPage,
 	getPropPerPage,
+	getSearchKey,
 	getValueIds,
 } from './select'
 
@@ -84,7 +85,63 @@ describe('getOptions', () => {
 	})
 })
 
+describe('getOptions ordering and getters', () => {
+	const listData = { data: [{ id: '1', title: 'Post 1' }, { id: '2', title: 'Post 2' }] } as any
+	const manyData = { data: [{ id: '2', title: 'Post 2 selected' }, { id: '3', title: 'Post 3' }] } as any
+
+	it('should put selected options first when selectedOptionsOrder is selected-first', () => {
+		expect(getOptions({
+			listData,
+			manyData,
+			labelKey: undefined,
+			valueKey: undefined,
+			selectedOptionsOrder: 'selected-first',
+		}).map(item => [item.value, item.label])).toEqual([
+			['2', 'Post 2 selected'],
+			['3', 'Post 3'],
+			['1', 'Post 1'],
+		])
+	})
+
+	it('should accept getter functions for label and value', () => {
+		expect(getOptions({
+			listData,
+			manyData: undefined,
+			labelKey: item => `#${item.id} ${item.title}`,
+			valueKey: item => Number(item.id),
+		})).toEqual([
+			{ label: '#1 Post 1', value: 1, data: { id: '1', title: 'Post 1' } },
+			{ label: '#2 Post 2', value: 2, data: { id: '2', title: 'Post 2' } },
+		])
+	})
+})
+
+describe('getSearchKey', () => {
+	it('should prefer searchKey, then a string labelKey, then title', () => {
+		expect(getSearchKey({ searchKey: 'name', labelKey: 'title' })).toBe('name')
+		expect(getSearchKey({ searchKey: undefined, labelKey: 'author.name' })).toBe('author.name')
+		expect(getSearchKey({ searchKey: undefined, labelKey: () => 'x' })).toBe('title')
+		expect(getSearchKey({ searchKey: undefined, labelKey: undefined })).toBe('title')
+	})
+})
+
 describe('getListFilters', () => {
+	it('should search on searchKey instead of labelKey when given', () => {
+		expect(getListFilters({
+			filterFormProp: undefined,
+			searchValue: 'post',
+			labelKey: 'title',
+			searchKey: 'slug',
+			searchToFilters: undefined,
+		})).toEqual([
+			{
+				field: 'slug',
+				operator: FilterOperator.contains,
+				value: 'post',
+			},
+		])
+	})
+
 	it('should build a default contains filter from search value', () => {
 		expect(getListFilters({
 			filterFormProp: undefined,

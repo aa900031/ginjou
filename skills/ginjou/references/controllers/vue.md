@@ -110,6 +110,8 @@ const { options, search } = useSelect<Post>({
 
 Keep the selected value ref separate from the search ref.
 
+`labelKey` and `valueKey` accept a dot path or a getter `(item) => value`. The default search filter uses `searchKey`, then a string `labelKey`, then `'title'`. Use `selectedOptionsOrder: 'selected-first'` to list selected items before the current page.
+
 ## Rules
 
 - Use `useList` for standard list pages and `useInfiniteList` for load-more or infinite-scroll pages.
