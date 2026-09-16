@@ -399,13 +399,13 @@ describe('createFetcher', () => {
 	})
 
 	describe('deleteMany', () => {
-		it('should delete items by id and return an empty array', async () => {
+		it('should delete items by id and echo the keys back', async () => {
 			mockClient.request.mockResolvedValueOnce(undefined)
 
 			const result = await fetcher.deleteMany({ resource: 'posts', ids: [1, 2] })
 
 			expect(sdk.deleteItems).toHaveBeenCalledWith('posts', [1, 2])
-			expect(result).toEqual({ data: [] })
+			expect(result).toEqual({ data: [{ id: 1 }, { id: 2 }] })
 		})
 
 		it('should delete protected resources', async () => {
@@ -469,7 +469,8 @@ describe('createFetcher', () => {
 			})
 
 			expect(sdk.deleteItem).toHaveBeenCalledWith('posts', 1)
-			expect(result).toEqual({ data: null as any })
+			// Directus sends no body for a delete, so the key we deleted is echoed back.
+			expect(result).toEqual({ data: { id: 1 } })
 		})
 
 		it('should delete a protected resource', async () => {

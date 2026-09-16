@@ -80,7 +80,11 @@ export function createFetcher<
 			// `genFilters` pushes the id filter into `_and`, so a caller's own `id` filter survives.
 			const query = {
 				...metaQuery,
-				limit: metaQuery?.limit ?? ids.length,
+				// Always the id count, never the caller's `meta.query.limit`. This read is
+				// addressed by id, so a smaller limit silently returns fewer records than were
+				// asked for, and core's request aggregation merges callers' ids, which makes a
+				// shared list-sized limit overflow routinely.
+				limit: ids.length,
 				filter: genFilters([{ field: 'id', operator: 'in', value: ids }], meta).filter,
 			}
 
@@ -97,10 +101,15 @@ export function createFetcher<
 			const item = params as any
 
 			const fn = getProtectedFunction(resource, 'create')
+			// Directus writes, then reads the row back to build the response. A policy that
+			// grants create but not read makes that read-back forbidden, and Directus answers
+			// success with no body rather than failing the write that already happened. Hand
+			// back what was written, so the caller gets a record rather than a hole. The
+			// server-generated key is the one thing unknowable here.
 			const data = await client.request(fn ? fn(item, query) : sdk.createItem(resource, item, query))
 
 			return {
-				data: data as any,
+				data: (data ?? item) as any,
 			}
 		},
 		createMany: async ({ resource, params, meta }) => {
@@ -108,10 +117,11 @@ export function createFetcher<
 			const items = params as any[]
 
 			const fn = getProtectedFunction(resource, 'create', 'many')
+			// Same read-back rule as `createOne`.
 			const data = await client.request(fn ? fn(items, query) : sdk.createItems(resource, items, query))
 
 			return {
-				data: data as any,
+				data: (data ?? items) as any,
 			}
 		},
 		updateOne: async ({ resource, id, params, meta }) => {
@@ -119,10 +129,12 @@ export function createFetcher<
 			const item = params as any
 
 			const fn = getProtectedFunction(resource, 'update')
+			// Same read-back rule as `createOne`. Here the key is known, so the reconstructed
+			// record is complete: `id` goes last so a stray `id` in params cannot displace it.
 			const data = await client.request(fn ? fn(id, item, query) : sdk.updateItem(resource, id, item, query))
 
 			return {
-				data: data as any,
+				data: (data ?? { ...item, id }) as any,
 			}
 		},
 		updateMany: async ({ resource, ids, params, meta }) => {
@@ -130,27 +142,30 @@ export function createFetcher<
 			const item = params as any
 
 			const fn = getProtectedFunction(resource, 'update', 'many')
+			// Same read-back rule as `createOne`; every key is known here too.
 			const data = await client.request(fn ? fn(ids, item, query) : sdk.updateItems(resource, ids as any, item, query))
 
 			return {
-				data: data as any,
+				data: (data ?? ids.map(id => ({ ...item, id }))) as any,
 			}
 		},
 		deleteOne: async ({ resource, id }) => {
 			const fn = getProtectedFunction(resource, 'delete')
+			// Directus never reads back after a delete, so every delete answers with no body.
+			// The key is what a caller needs from a delete, and it is the one thing we know.
 			const data = await client.request(fn ? fn(id) : sdk.deleteItem(resource, id))
 
 			return {
-				data: data as any,
+				data: (data ?? { id }) as any,
 			}
 		},
 		deleteMany: async ({ resource, ids }) => {
 			const fn = getProtectedFunction(resource, 'delete', 'many')
-			// Directus returns no body for deletes; core still expects an array to publish from.
+			// Directus never reads back after a delete, so every delete answers with no body.
 			const data = await client.request(fn ? fn(ids) : sdk.deleteItems(resource, ids as any))
 
 			return {
-				data: (data ?? []) as any,
+				data: (data ?? ids.map(id => ({ id }))) as any,
 			}
 		},
 		custom: async ({ url, method, payload, query, headers }, context = undefined) => {

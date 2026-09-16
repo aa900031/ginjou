@@ -257,7 +257,7 @@ describe('fetcher over the wire', () => {
 		})
 	})
 
-	it('should DELETE many items in one request and survive an empty body', async () => {
+	it('should DELETE many items in one request and echo the keys back', async () => {
 		// Directus answers a delete with no content; core still maps over `data`.
 		const { client, sent } = setup({ data: null })
 		const fetcher = createFetcher({ client })
@@ -266,7 +266,7 @@ describe('fetcher over the wire', () => {
 
 		expect(sent).toHaveLength(1)
 		expect(sent[0]).toMatchObject({ method: 'DELETE', path: '/items/posts', body: { keys: [7, 8] } })
-		expect(result).toEqual({ data: [] })
+		expect(result).toEqual({ data: [{ id: 7 }, { id: 8 }] })
 	})
 
 	it('should route many-methods on a directus_ resource to the plural system endpoint', async () => {
@@ -324,6 +324,63 @@ describe('fetcher over the wire', () => {
 		await fetcher.getList({ resource: 'posts', filters: [] })
 
 		expect(sent.map(one => decodeURIComponent(one.search)).join(' ')).not.toContain('filter=')
+	})
+
+	it('should echo what was written when Directus answers with no body', async () => {
+		// Every delete answers with no body, and so does a create or update whose policy grants
+		// the write but not the read-back Directus uses to build the response. Rather than hand
+		// the caller an empty shell, rebuild the record from what we just sent.
+		const { client } = setup({ data: null })
+		const fetcher = createFetcher({ client })
+
+		expect(await fetcher.createOne({ resource: 'posts', params: { title: 'a' } }))
+			.toEqual({ data: { title: 'a' } })
+		expect(await fetcher.createMany({ resource: 'posts', params: [{ title: 'a' }, { title: 'b' }] }))
+			.toEqual({ data: [{ title: 'a' }, { title: 'b' }] })
+
+		// Update and delete know the keys, so the rebuilt records are complete.
+		expect(await fetcher.updateOne({ resource: 'posts', id: 7, params: { title: 'a' } }))
+			.toEqual({ data: { id: 7, title: 'a' } })
+		expect(await fetcher.updateMany({ resource: 'posts', ids: [7, 8], params: { title: 'a' } }))
+			.toEqual({ data: [{ id: 7, title: 'a' }, { id: 8, title: 'a' }] })
+		expect(await fetcher.deleteOne({ resource: 'posts', id: 7 }))
+			.toEqual({ data: { id: 7 } })
+		expect(await fetcher.deleteMany({ resource: 'posts', ids: [7, 8] }))
+			.toEqual({ data: [{ id: 7 }, { id: 8 }] })
+	})
+
+	it('should let the id from props win over one written into params', async () => {
+		const { client } = setup({ data: null })
+		const fetcher = createFetcher({ client })
+
+		const result = await fetcher.updateOne({
+			resource: 'posts',
+			id: 7,
+			params: { id: 999, title: 'a' } as any,
+		})
+
+		expect(result).toEqual({ data: { id: 7, title: 'a' } })
+	})
+
+	it('should prefer the real body whenever Directus sends one', async () => {
+		const { client } = setup({ data: { id: 7, title: 'from server' } })
+		const fetcher = createFetcher({ client })
+
+		expect(await fetcher.updateOne({ resource: 'posts', id: 7, params: { title: 'sent' } }))
+			.toEqual({ data: { id: 7, title: 'from server' } })
+	})
+
+	it('should not let a caller limit truncate getMany', async () => {
+		const { client, sent } = setup({ data: [] })
+		const fetcher = createFetcher({ client })
+
+		await fetcher.getMany({
+			resource: 'posts',
+			ids: [1, 2, 3, 4, 5],
+			meta: { query: { limit: 2 } },
+		})
+
+		expect(decodeURIComponent(sent[0]!.search)).toContain('limit=5')
 	})
 
 	it('should route a directus_ resource to its system endpoint', async () => {
