@@ -218,6 +218,114 @@ describe('fetcher over the wire', () => {
 		expect(sent[0]).toMatchObject({ method: 'DELETE', path: '/items/posts/7' })
 	})
 
+	it('should GET many items as one id filter, not one request per id', async () => {
+		const { client, sent } = setup({ data: [] })
+		const fetcher = createFetcher({ client })
+
+		await fetcher.getMany({ resource: 'posts', ids: [7, 8] })
+
+		expect(sent).toHaveLength(1)
+		expect(sent[0]).toMatchObject({ method: 'GET', path: '/items/posts' })
+		expect(decodeURIComponent(sent[0]!.search)).toContain('"_in":[7,8]')
+	})
+
+	it('should POST an array body for many created items', async () => {
+		const { client, sent } = setup({ data: [] })
+		const fetcher = createFetcher({ client })
+
+		await fetcher.createMany({ resource: 'posts', params: [{ title: 'a' }, { title: 'b' }] })
+
+		expect(sent).toHaveLength(1)
+		expect(sent[0]).toMatchObject({
+			method: 'POST',
+			path: '/items/posts',
+			body: [{ title: 'a' }, { title: 'b' }],
+		})
+	})
+
+	it('should PATCH keys and data together for many updated items', async () => {
+		const { client, sent } = setup({ data: [] })
+		const fetcher = createFetcher({ client })
+
+		await fetcher.updateMany({ resource: 'posts', ids: [7, 8], params: { title: 'bye' } })
+
+		expect(sent).toHaveLength(1)
+		expect(sent[0]).toMatchObject({
+			method: 'PATCH',
+			path: '/items/posts',
+			body: { keys: [7, 8], data: { title: 'bye' } },
+		})
+	})
+
+	it('should DELETE many items in one request and survive an empty body', async () => {
+		// Directus answers a delete with no content; core still maps over `data`.
+		const { client, sent } = setup({ data: null })
+		const fetcher = createFetcher({ client })
+
+		const result = await fetcher.deleteMany({ resource: 'posts', ids: [7, 8] })
+
+		expect(sent).toHaveLength(1)
+		expect(sent[0]).toMatchObject({ method: 'DELETE', path: '/items/posts', body: { keys: [7, 8] } })
+		expect(result).toEqual({ data: [] })
+	})
+
+	it('should route many-methods on a directus_ resource to the plural system endpoint', async () => {
+		const { client, sent } = setup({ data: [] })
+		const fetcher = createFetcher({ client })
+
+		await fetcher.createMany({ resource: 'directus_users', params: [{ email: 'a@b.c' }] })
+
+		expect(sent[0]).toMatchObject({ method: 'POST', path: '/users' })
+	})
+
+	it('should send caller conditions that an empty-value scrub would destroy', async () => {
+		const { client, sent } = setup({ data: [] })
+		const fetcher = createFetcher({ client })
+
+		await fetcher.getList({
+			resource: 'posts',
+			filters: [{ field: 'status', operator: 'eq', value: 'published' }],
+			meta: {
+				query: {
+					filter: {
+						deleted_at: { _eq: null },
+						title: { _eq: '' },
+						tags: { _in: [] },
+					},
+				},
+			},
+		})
+
+		const search = sent.map(one => decodeURIComponent(one.search)).join(' ')
+		// `_eq: null` is how Directus asks for "not soft-deleted"; dropping it widens the query.
+		expect(search).toContain('"deleted_at":{"_eq":null}')
+		expect(search).toContain('"title":{"_eq":""}')
+		expect(search).toContain('"tags":{"_in":[]}')
+		expect(search).toContain('"status":{"_eq":"published"}')
+	})
+
+	it('should keep an empty-string condition on a single read', async () => {
+		const { client, sent } = setup({ data: {} })
+		const fetcher = createFetcher({ client })
+
+		await fetcher.getOne({
+			resource: 'posts',
+			id: 7,
+			meta: { query: { filter: { title: { _eq: '' } } } },
+		})
+
+		expect(decodeURIComponent(sent[0]!.search)).toContain('"title":{"_eq":""}')
+	})
+
+	it('should send no filter at all when there are no filters', async () => {
+		const { client, sent } = setup({ data: [] })
+		const fetcher = createFetcher({ client })
+
+		await fetcher.getList({ resource: 'posts', filters: [] })
+
+		expect(sent.map(one => decodeURIComponent(one.search)).join(' ')).not.toContain('filter=')
+	})
+
 	it('should route a directus_ resource to its system endpoint', async () => {
 		const { client, sent } = setup({ data: [] })
 		const fetcher = createFetcher({ client })

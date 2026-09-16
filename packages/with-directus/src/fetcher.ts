@@ -2,7 +2,6 @@ import type { DirectusClient, RestClient } from '@directus/sdk'
 import type { ConditionalFilter, FilterOperatorValues, Filters, LogicalFilter, Sorters } from '@ginjou/core'
 import * as sdk from '@directus/sdk'
 import { defineFetcher, SortOrder } from '@ginjou/core'
-import cleanDeep from 'clean-deep'
 import { dset } from 'dset'
 import pluralize from 'pluralize'
 import { camelCase } from 'scule'
@@ -30,7 +29,10 @@ export function createFetcher<
 	// Keep context defaults so inferred fetcher methods accept omitted contexts.
 	return defineFetcher({
 		getList: async ({ resource, pagination, filters, sorters, meta }, context = undefined) => {
-			const query = cleanDeep({
+			// No scrubbing pass: the SDK omits undefined and null itself, and anything else in
+			// here is the caller's own query, where an empty string or `_eq: null` is a real
+			// condition rather than noise to strip.
+			const query = {
 				...(meta as FetcherMeta)?.query,
 				meta: (meta as FetcherMeta)?.query?.meta ?? '*',
 				page: (meta as FetcherMeta)?.query?.page ?? pagination?.current,
@@ -38,9 +40,9 @@ export function createFetcher<
 				fields: (meta as FetcherMeta)?.query?.fields ?? ['*'],
 				...(filters ? genFilters(filters, meta) : undefined),
 				...(sorters ? genSorters(sorters) : undefined),
-			})
+			}
 
-			const fn = getProtectedFunction(resource, 'read', false)
+			const fn = getProtectedFunction(resource, 'read', 'many')
 			const readCommand = fn ? fn(query) : sdk.readItems<any, any, any>(resource, query)
 
 			const aggregateOptions = {
@@ -63,9 +65,7 @@ export function createFetcher<
 			}
 		},
 		getOne: async ({ resource, id, meta }, context = undefined) => {
-			const query = cleanDeep({
-				...(meta as FetcherMeta)?.query,
-			})
+			const query = (meta as FetcherMeta)?.query
 
 			const fn = getProtectedFunction(resource, 'read')
 			const command = fn ? fn(id, query) : sdk.readItem<any, any, any>(resource, id, query)
@@ -77,16 +77,14 @@ export function createFetcher<
 		},
 		getMany: async ({ resource, ids, meta }, context = undefined) => {
 			const metaQuery = (meta as FetcherMeta)?.query
-			const query = cleanDeep({
+			// `genFilters` pushes the id filter into `_and`, so a caller's own `id` filter survives.
+			const query = {
 				...metaQuery,
 				limit: metaQuery?.limit ?? ids.length,
-				filter: {
-					...metaQuery?.filter,
-					id: { _in: ids },
-				},
-			})
+				filter: genFilters([{ field: 'id', operator: 'in', value: ids }], meta).filter,
+			}
 
-			const fn = getProtectedFunction(resource, 'read', false)
+			const fn = getProtectedFunction(resource, 'read', 'many')
 			const command = fn ? fn(query) : sdk.readItems<any, any, any>(resource, query)
 			const data = await client.request(withSignal(command, context))
 
@@ -95,9 +93,7 @@ export function createFetcher<
 			}
 		},
 		createOne: async ({ resource, params, meta }) => {
-			const query = cleanDeep({
-				...(meta as FetcherMeta)?.query,
-			})
+			const query = (meta as FetcherMeta)?.query
 			const item = params as any
 
 			const fn = getProtectedFunction(resource, 'create')
@@ -108,12 +104,10 @@ export function createFetcher<
 			}
 		},
 		createMany: async ({ resource, params, meta }) => {
-			const query = cleanDeep({
-				...(meta as FetcherMeta)?.query,
-			})
+			const query = (meta as FetcherMeta)?.query
 			const items = params as any[]
 
-			const fn = getProtectedFunction(resource, 'create', false)
+			const fn = getProtectedFunction(resource, 'create', 'many')
 			const data = await client.request(fn ? fn(items, query) : sdk.createItems(resource, items, query))
 
 			return {
@@ -121,9 +115,7 @@ export function createFetcher<
 			}
 		},
 		updateOne: async ({ resource, id, params, meta }) => {
-			const query = cleanDeep({
-				...(meta as FetcherMeta)?.query,
-			})
+			const query = (meta as FetcherMeta)?.query
 			const item = params as any
 
 			const fn = getProtectedFunction(resource, 'update')
@@ -134,12 +126,10 @@ export function createFetcher<
 			}
 		},
 		updateMany: async ({ resource, ids, params, meta }) => {
-			const query = cleanDeep({
-				...(meta as FetcherMeta)?.query,
-			})
+			const query = (meta as FetcherMeta)?.query
 			const item = params as any
 
-			const fn = getProtectedFunction(resource, 'update', false)
+			const fn = getProtectedFunction(resource, 'update', 'many')
 			const data = await client.request(fn ? fn(ids, item, query) : sdk.updateItems(resource, ids as any, item, query))
 
 			return {
@@ -155,7 +145,7 @@ export function createFetcher<
 			}
 		},
 		deleteMany: async ({ resource, ids }) => {
-			const fn = getProtectedFunction(resource, 'delete', false)
+			const fn = getProtectedFunction(resource, 'delete', 'many')
 			// Directus returns no body for deletes; core still expects an array to publish from.
 			const data = await client.request(fn ? fn(ids) : sdk.deleteItems(resource, ids as any))
 
@@ -240,14 +230,14 @@ const PROTECTED_RESOURCE_PREFIX = ['directus_', 'directus/']
 function getProtectedFunction(
 	resource: string,
 	type: 'read' | 'create' | 'update' | 'delete',
-	singular: boolean = true,
+	arity: 'one' | 'many' = 'one',
 ): ((...args: any[]) => any) | undefined {
 	const prefix = PROTECTED_RESOURCE_PREFIX.find(str => resource.startsWith(str))
 	if (!prefix)
 		return
 
 	const name = resource.replace(prefix, '')
-	const formated = singular ? pluralize.singular(name) : pluralize.plural(name)
+	const formated = arity === 'one' ? pluralize.singular(name) : pluralize.plural(name)
 	const funName = camelCase(`${type}_${formated}`)
 
 	return (sdk as any)[funName]
@@ -280,20 +270,15 @@ function genSorters(
 function genFilters(
 	filters: Filters,
 	meta: FetcherMeta | undefined,
-): any {
+): { search?: string, filter?: Record<string, any> } {
 	// `genFilters` overwrites `query.filter` wholesale, so anything the caller set on
 	// `meta.query.filter` has to be carried over here or it is lost. Nothing is injected on
 	// top of it: a default like `status: { _neq: 'archived' }` breaks every collection that
 	// has no `status` field, so a caller who wants one passes it through meta.
 	const metaFilter = meta?.query?.filter
-	const result = {
-		search: '',
-		filter: {
-			...metaFilter,
-			// A copy of the caller's `_and`: the resolved filters are pushed into it below.
-			_and: [...(metaFilter?._and ?? [])] as any[],
-		},
-	}
+	// A copy of the caller's `_and` minus any junk in it; the resolved filters join it below.
+	const and = [...(metaFilter?._and ?? [])].filter(Boolean) as any[]
+	let search: string | undefined
 
 	for (const filter of filters) {
 		if ('field' in filter) {
@@ -301,19 +286,29 @@ function genFilters(
 
 			if (value != null) {
 				if (field === 'search')
-					result.search = value
+					search = value
 				else
-					result.filter._and.push(genLogicalFilter(filter))
+					and.push(genLogicalFilter(filter))
 			}
 		}
 		else {
-			result.filter._and.push(genConditionalFilter(filter))
+			and.push(genConditionalFilter(filter))
 		}
 	}
 
-	result.filter._and = result.filter._and.filter(Boolean)
+	const filter: Record<string, any> = { ...metaFilter }
+	// Emit these only when they hold something. An empty `_and` goes out as
+	// `filter={"_and":[]}` and an empty `search` clobbers the caller's own, and there is
+	// deliberately no scrubbing pass downstream to undo either.
+	if (and.length > 0)
+		filter._and = and
+	else
+		delete filter._and
 
-	return result
+	return {
+		...(search ? { search } : undefined),
+		...(Object.keys(filter).length > 0 ? { filter } : undefined),
+	}
 }
 
 function genLogicalFilter(
@@ -340,11 +335,19 @@ function genConditionalFilter(
 		[clientOperator]: value
 			.map(item => 'field' in item
 				? genLogicalFilter(item)
-				: genConditionalFilter(item))
-			.filter(Boolean),
+				: genConditionalFilter(item)),
 	}
 }
 
+/**
+ * A Ginjou operator without an `s` suffix is case-insensitive and maps to a Directus `_i*`
+ * variant; the `s` suffix means case-sensitive and maps to the plain Directus operator.
+ *
+ * A switch rather than a lookup object on purpose: operators arrive as source literals, which
+ * V8 interns, so the case chain is a run of pointer compares and beats a keyed load. An object
+ * would also answer `toString` and `constructor` from `Object.prototype` instead of throwing.
+ * The `never` in `default` keeps the whole union covered at compile time.
+ */
 function getClientOperator(
 	operator: FilterOperatorValues,
 ): string {
@@ -401,7 +404,10 @@ function getClientOperator(
 			return '_or'
 		case 'and':
 			return '_and'
-		default:
-			throw new Error(`[@ginjou/with-directus] Filter operator '${operator}' is not supported.`)
+		default: {
+			// Unreachable for a typed caller; an operator added to core breaks this line first.
+			const unsupported: never = operator
+			throw new Error(`[@ginjou/with-directus] Filter operator '${unsupported}' is not supported.`)
+		}
 	}
 }

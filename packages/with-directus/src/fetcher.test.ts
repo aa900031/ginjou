@@ -62,13 +62,15 @@ describe('createFetcher', () => {
 			.mockResolvedValueOnce([])
 			.mockResolvedValueOnce([{ countDistinct: { id: 0 } }])
 			.mockResolvedValueOnce({ id: 1 })
+			.mockResolvedValueOnce([{ id: 1 }])
 			.mockResolvedValueOnce({ ok: true })
 
 		await fetcher.getList({ resource: 'posts' }, context)
 		await fetcher.getOne({ resource: 'posts', id: 1 }, context)
+		await fetcher.getMany({ resource: 'posts', ids: [1] }, context)
 		await fetcher.custom({ url: '/health', method: 'get' }, context)
 
-		expect(sdk.withOptions).toHaveBeenCalledTimes(4)
+		expect(sdk.withOptions).toHaveBeenCalledTimes(5)
 		for (const [, options] of vi.mocked(sdk.withOptions).mock.calls)
 			expect((options as RequestInit).signal).toBe(controller.signal)
 	})
@@ -189,44 +191,47 @@ describe('createFetcher', () => {
 		})
 
 		it('should map every filter operator to a Directus operator', async () => {
+			// Spelled out rather than derived from the adapter's own table, so a wrong mapping
+			// fails here instead of agreeing with itself. No `s` suffix is case-insensitive.
+			const CASES = [
+				['eq', '_eq'],
+				['ne', '_neq'],
+				['lt', '_lt'],
+				['gt', '_gt'],
+				['lte', '_lte'],
+				['gte', '_gte'],
+				['in', '_in'],
+				['nin', '_nin'],
+				['null', '_null'],
+				['nnull', '_nnull'],
+				['between', '_between'],
+				['nbetween', '_nbetween'],
+				['contains', '_icontains'],
+				['containss', '_contains'],
+				['ncontains', '_nicontains'],
+				['ncontainss', '_ncontains'],
+				['startswith', '_istarts_with'],
+				['startswiths', '_starts_with'],
+				['nstartswith', '_nistarts_with'],
+				['nstartswiths', '_nstarts_with'],
+				['endswith', '_iends_with'],
+				['endswiths', '_ends_with'],
+				['nendswith', '_niends_with'],
+				['nendswiths', '_nends_with'],
+			] as const
+
 			mockClient.request
 				.mockResolvedValueOnce([])
 				.mockResolvedValueOnce([{ countDistinct: { id: 0 } }])
 
 			await fetcher.getList({
 				resource: 'posts',
-				filters: [
-					{ field: 'a', operator: 'contains', value: 'x' },
-					{ field: 'a', operator: 'containss', value: 'x' },
-					{ field: 'a', operator: 'ncontains', value: 'x' },
-					{ field: 'a', operator: 'ncontainss', value: 'x' },
-					{ field: 'a', operator: 'startswith', value: 'x' },
-					{ field: 'a', operator: 'startswiths', value: 'x' },
-					{ field: 'a', operator: 'nstartswith', value: 'x' },
-					{ field: 'a', operator: 'nstartswiths', value: 'x' },
-					{ field: 'a', operator: 'endswith', value: 'x' },
-					{ field: 'a', operator: 'endswiths', value: 'x' },
-					{ field: 'a', operator: 'nendswith', value: 'x' },
-					{ field: 'a', operator: 'nendswiths', value: 'x' },
-				],
+				filters: CASES.map(([operator]) => ({ field: 'a', operator, value: 'x' })),
 			})
 
 			expect(sdk.readItems).toHaveBeenCalledWith('posts', expect.objectContaining({
 				filter: {
-					_and: [
-						{ a: { _icontains: 'x' } },
-						{ a: { _contains: 'x' } },
-						{ a: { _nicontains: 'x' } },
-						{ a: { _ncontains: 'x' } },
-						{ a: { _istarts_with: 'x' } },
-						{ a: { _starts_with: 'x' } },
-						{ a: { _nistarts_with: 'x' } },
-						{ a: { _nstarts_with: 'x' } },
-						{ a: { _iends_with: 'x' } },
-						{ a: { _ends_with: 'x' } },
-						{ a: { _niends_with: 'x' } },
-						{ a: { _nends_with: 'x' } },
-					],
+					_and: CASES.map(([, clientOperator]) => ({ a: { [clientOperator]: 'x' } })),
 				},
 			}))
 		})
@@ -267,13 +272,12 @@ describe('createFetcher', () => {
 
 		it('should fetch a single protected resource', async () => {
 			await fetcher.getOne({ resource: 'directus_users', id: '1' })
-			expect(sdk.readUser).toHaveBeenCalledWith('1', {})
+			expect(sdk.readUser).toHaveBeenCalledWith('1', undefined)
 		})
 	})
 
 	describe('getMany', () => {
-		it('should read items by id and forward the query abort signal', async () => {
-			const controller = new AbortController()
+		it('should read items by id, keeping the meta filter alongside', async () => {
 			const items = [{ id: 1 }, { id: 2 }]
 			mockClient.request.mockResolvedValueOnce(items)
 
@@ -281,23 +285,50 @@ describe('createFetcher', () => {
 				resource: 'posts',
 				ids: [1, 2],
 				meta: { query: { fields: ['id'], filter: { status: { _eq: 'published' } } } },
-			}, { signal: controller.signal } as any)
+			})
 
 			expect(sdk.readItems).toHaveBeenCalledWith('posts', {
 				fields: ['id'],
 				limit: 2,
 				filter: {
 					status: { _eq: 'published' },
-					id: { _in: [1, 2] },
+					_and: [{ id: { _in: [1, 2] } }],
 				},
 			})
-			expect(sdk.withOptions).toHaveBeenCalledWith(expect.anything(), { signal: controller.signal })
 			expect(result).toEqual({ data: items })
+		})
+
+		it('should keep an id filter the caller already set', async () => {
+			await fetcher.getMany({
+				resource: 'posts',
+				ids: [1, 2],
+				meta: { query: { filter: { id: { _lt: 100 } } } },
+			})
+
+			expect(sdk.readItems).toHaveBeenCalledWith('posts', {
+				limit: 2,
+				filter: {
+					id: { _lt: 100 },
+					_and: [{ id: { _in: [1, 2] } }],
+				},
+			})
+		})
+
+		it('should keep filtering when every id is an empty string', async () => {
+			await fetcher.getMany({ resource: 'posts', ids: ['', ''] })
+
+			expect(sdk.readItems).toHaveBeenCalledWith('posts', {
+				limit: 2,
+				filter: { _and: [{ id: { _in: ['', ''] } }] },
+			})
 		})
 
 		it('should read protected resources', async () => {
 			await fetcher.getMany({ resource: 'directus_users', ids: ['1'] })
-			expect(sdk.readUsers).toHaveBeenCalledWith({ limit: 1, filter: { id: { _in: ['1'] } } })
+			expect(sdk.readUsers).toHaveBeenCalledWith({
+				limit: 1,
+				filter: { _and: [{ id: { _in: ['1'] } }] },
+			})
 		})
 	})
 
@@ -308,14 +339,14 @@ describe('createFetcher', () => {
 
 			const result = await fetcher.createMany({ resource: 'posts', params: items })
 
-			expect(sdk.createItems).toHaveBeenCalledWith('posts', items, {})
+			expect(sdk.createItems).toHaveBeenCalledWith('posts', items, undefined)
 			expect(result).toEqual({ data: items })
 		})
 
 		it('should create protected resources', async () => {
 			const users = [{ email: 'a@example.com' }]
 			await fetcher.createMany({ resource: 'directus_users', params: users })
-			expect(sdk.createUsers).toHaveBeenCalledWith(users, {})
+			expect(sdk.createUsers).toHaveBeenCalledWith(users, undefined)
 		})
 	})
 
@@ -326,14 +357,14 @@ describe('createFetcher', () => {
 
 			const result = await fetcher.updateMany({ resource: 'posts', ids: [1, 2], params: updates })
 
-			expect(sdk.updateItems).toHaveBeenCalledWith('posts', [1, 2], updates, {})
+			expect(sdk.updateItems).toHaveBeenCalledWith('posts', [1, 2], updates, undefined)
 			expect(result).toEqual({ data: [{ id: 1 }, { id: 2 }] })
 		})
 
 		it('should update protected resources', async () => {
 			const updates = { status: 'active' }
 			await fetcher.updateMany({ resource: 'directus_users', ids: ['1'], params: updates })
-			expect(sdk.updateUsers).toHaveBeenCalledWith(['1'], updates, {})
+			expect(sdk.updateUsers).toHaveBeenCalledWith(['1'], updates, undefined)
 		})
 	})
 
@@ -364,14 +395,14 @@ describe('createFetcher', () => {
 				params: newItem,
 			})
 
-			expect(sdk.createItem).toHaveBeenCalledWith('posts', newItem, {})
+			expect(sdk.createItem).toHaveBeenCalledWith('posts', newItem, undefined)
 			expect(result).toEqual({ data: createdItem })
 		})
 
 		it('should create a protected resource', async () => {
 			const newUser = { email: 'test@example.com' }
 			await fetcher.createOne({ resource: 'directus_users', params: newUser })
-			expect(sdk.createUser).toHaveBeenCalledWith(newUser, {})
+			expect(sdk.createUser).toHaveBeenCalledWith(newUser, undefined)
 		})
 	})
 
@@ -387,14 +418,14 @@ describe('createFetcher', () => {
 				params: updates,
 			})
 
-			expect(sdk.updateItem).toHaveBeenCalledWith('posts', 1, updates, {})
+			expect(sdk.updateItem).toHaveBeenCalledWith('posts', 1, updates, undefined)
 			expect(result).toEqual({ data: updatedItem })
 		})
 
 		it('should update a protected resource', async () => {
 			const updates = { email: 'updated@example.com' }
 			await fetcher.updateOne({ resource: 'directus_users', id: '1', params: updates })
-			expect(sdk.updateUser).toHaveBeenCalledWith('1', updates, {})
+			expect(sdk.updateUser).toHaveBeenCalledWith('1', updates, undefined)
 		})
 	})
 
