@@ -236,6 +236,36 @@ describe('createFetcher', () => {
 			}))
 		})
 
+		it('should drop an empty logical group instead of sending `_or: []`', async () => {
+			mockClient.request
+				.mockResolvedValueOnce([])
+				.mockResolvedValueOnce([{ countDistinct: { id: 0 } }])
+
+			await fetcher.getList({
+				resource: 'posts',
+				filters: [{ operator: 'or', value: [] }],
+			})
+
+			expect(sdk.readItems).toHaveBeenCalledWith('posts', expect.objectContaining({
+				filter: undefined,
+			}))
+		})
+
+		it('should not leak an empty `_and` from meta.query.filter', async () => {
+			mockClient.request
+				.mockResolvedValueOnce([])
+				.mockResolvedValueOnce([{ countDistinct: { id: 0 } }])
+
+			await fetcher.getList({
+				resource: 'posts',
+				meta: { query: { filter: { _and: [] } } },
+			})
+
+			expect(sdk.readItems).toHaveBeenCalledWith('posts', expect.objectContaining({
+				filter: undefined,
+			}))
+		})
+
 		it('should throw on an unknown filter operator', async () => {
 			await expect(fetcher.getList({
 				resource: 'posts',

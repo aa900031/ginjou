@@ -38,7 +38,7 @@ export function createFetcher<
 				page: (meta as FetcherMeta)?.query?.page ?? pagination?.current,
 				limit: (meta as FetcherMeta)?.query?.limit ?? pagination?.perPage,
 				fields: (meta as FetcherMeta)?.query?.fields ?? ['*'],
-				...(filters ? genFilters(filters, meta) : undefined),
+				...genFilters(filters ?? [], meta),
 				...(sorters ? genSorters(sorters) : undefined),
 			}
 
@@ -291,7 +291,10 @@ function genFilters(
 					and.push(genLogicalFilter(filter))
 			}
 		}
-		else {
+		// Dropping an empty group is a no-op, not a semantic change: Directus builds `_or: []`
+		// into an empty SQL group and its query builder omits it, so the query runs the same
+		// either way. Contrast `_in: []`, which compiles to `1 = 0` and is always sent.
+		else if (filter.value.length > 0) {
 			and.push(genConditionalFilter(filter))
 		}
 	}
@@ -307,7 +310,10 @@ function genFilters(
 
 	return {
 		...(search ? { search } : undefined),
-		...(Object.keys(filter).length > 0 ? { filter } : undefined),
+		// Always keyed, even when empty: `getList` spreads `meta.query` first, so anything
+		// less than an outright overwrite lets a stale `meta.query.filter` through. The SDK
+		// drops an undefined query key.
+		filter: Object.keys(filter).length > 0 ? filter : undefined,
 	}
 }
 
@@ -372,6 +378,10 @@ function getClientOperator(
 			return '_icontains'
 		case 'containss':
 			return '_contains'
+		// `_nicontains` is real: Directus handles it in
+		// api/src/database/run-ast/lib/apply-query/filter/operator.ts and documents it under
+		// filter rules. It is only missing from `@directus/sdk`'s `FilterOperators` type, so
+		// do not "fix" this to `_ncontains` on the strength of the .d.ts alone.
 		case 'ncontains':
 			return '_nicontains'
 		case 'ncontainss':
