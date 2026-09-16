@@ -371,17 +371,21 @@ describe('fetcher over the wire', () => {
 			.toEqual({ data: { id: 7, title: 'from server' } })
 	})
 
-	it('should not let a caller limit truncate getMany', async () => {
+	it('should not let a caller limit or page truncate getMany', async () => {
 		const { client, sent } = setup({ data: [] })
 		const fetcher = createFetcher({ client })
 
 		await fetcher.getMany({
 			resource: 'posts',
 			ids: [1, 2, 3, 4, 5],
-			meta: { query: { limit: 2 } },
+			meta: { query: { limit: 2, page: 2, offset: 10 } },
 		})
 
-		expect(decodeURIComponent(sent[0]!.search)).toContain('limit=5')
+		const search = decodeURIComponent(sent[0]!.search)
+		expect(search).toContain('limit=5')
+		// A list-shaped meta pages past the ids entirely and comes back empty.
+		expect(search).not.toContain('page=')
+		expect(search).not.toContain('offset=')
 	})
 
 	it('should route a directus_ resource to its system endpoint', async () => {

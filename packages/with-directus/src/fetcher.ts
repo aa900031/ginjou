@@ -1,5 +1,5 @@
-import type { DirectusClient, RestClient } from '@directus/sdk'
-import type { ConditionalFilter, FilterOperatorValues, Filters, LogicalFilter, Sorters } from '@ginjou/core'
+import type { DirectusClient, HttpMethod, RequestOptions, RestClient } from '@directus/sdk'
+import type { ConditionalFilter, CustomProps, FilterOperatorValues, Filters, LogicalFilter, Sorters } from '@ginjou/core'
 import * as sdk from '@directus/sdk'
 import { defineFetcher, SortOrder } from '@ginjou/core'
 import { dset } from 'dset'
@@ -17,6 +17,15 @@ export interface FetcherMeta {
 	aggregate?: string[]
 	groupBy?: string[]
 }
+
+/** `head` and `options` are absent on purpose: both have always gone out as GET. */
+const HTTP_METHODS: Partial<Record<CustomProps<any, any>['method'], HttpMethod>> = {
+	post: 'POST',
+	put: 'PUT',
+	patch: 'PATCH',
+	delete: 'DELETE',
+}
+const BODY_METHODS: string[] = ['post', 'put', 'patch']
 
 // eslint-disable-next-line ts/explicit-function-return-type
 export function createFetcher<
@@ -38,8 +47,8 @@ export function createFetcher<
 				page: (meta as FetcherMeta)?.query?.page ?? pagination?.current,
 				limit: (meta as FetcherMeta)?.query?.limit ?? pagination?.perPage,
 				fields: (meta as FetcherMeta)?.query?.fields ?? ['*'],
-				...genFilters(filters ?? [], meta),
-				...(sorters ? genSorters(sorters) : undefined),
+				...genFilters(filters, meta),
+				...genSorters(sorters),
 			}
 
 			const fn = getProtectedFunction(resource, 'read', 'many')
@@ -76,14 +85,15 @@ export function createFetcher<
 			}
 		},
 		getMany: async ({ resource, ids, meta }, context = undefined) => {
-			const metaQuery = (meta as FetcherMeta)?.query
+			// Paging is dropped, never forwarded. This read is addressed by id, so a caller's
+			// `limit` silently returns fewer records than were asked for, and a `page`/`offset`
+			// carried over from a list-shaped `meta` pages past the ids entirely and returns
+			// nothing. Core's request aggregation also merges callers' ids, which makes a shared
+			// list-sized limit overflow routinely.
+			const { limit: _limit, page: _page, offset: _offset, ...metaQuery } = (meta as FetcherMeta)?.query ?? {}
 			// `genFilters` pushes the id filter into `_and`, so a caller's own `id` filter survives.
 			const query = {
 				...metaQuery,
-				// Always the id count, never the caller's `meta.query.limit`. This read is
-				// addressed by id, so a smaller limit silently returns fewer records than were
-				// asked for, and core's request aggregation merges callers' ids, which makes a
-				// shared list-sized limit overflow routinely.
 				limit: ids.length,
 				filter: genFilters([{ field: 'id', operator: 'in', value: ids }], meta).filter,
 			}
@@ -169,62 +179,22 @@ export function createFetcher<
 			}
 		},
 		custom: async ({ url, method, payload, query, filters, sorters, headers }, context = undefined) => {
-			// Injected only when the caller actually passes them: a custom url can point at an
-			// extension endpoint that knows nothing of Directus's `filter`/`sort` convention.
-			// The caller's own `query` is spread last, so it wins any key it sets itself.
+			// Injected only when the caller passes them: a custom url can point at an extension
+			// endpoint that knows nothing of Directus's `filter`/`sort` convention. The caller's
+			// own `query` goes last and wins.
 			const params = {
-				...(filters?.length ? genFilters(filters, undefined) : undefined),
-				...(sorters?.length ? genSorters(sorters) : undefined),
+				...genFilters(filters),
+				...genSorters(sorters),
 				...query,
 			} as any
 
-			let command: any
-			switch (method) {
-				case 'put':
-					command = () => ({
-						path: url,
-						method: 'PUT',
-						body: JSON.stringify(payload),
-						params,
-						headers,
-					})
-
-					break
-				case 'post':
-					command = () => ({
-						path: url,
-						method: 'POST',
-						body: JSON.stringify(payload),
-						params,
-						headers,
-					})
-					break
-				case 'patch':
-					command = () => ({
-						path: url,
-						method: 'PATCH',
-						body: JSON.stringify(payload),
-						params,
-						headers,
-					})
-					break
-				case 'delete':
-					command = () => ({
-						path: url,
-						method: 'DELETE',
-						params,
-						headers,
-					})
-					break
-				default:
-					command = () => ({
-						path: url,
-						method: 'GET',
-						params,
-						headers,
-					})
-					break
-			}
+			const command = (): RequestOptions => ({
+				path: url,
+				method: HTTP_METHODS[method] ?? 'GET',
+				...(BODY_METHODS.includes(method) ? { body: JSON.stringify(payload) } : undefined),
+				params,
+				headers,
+			})
 
 			const response = await client.request(withSignal(command, context))
 
@@ -268,9 +238,9 @@ function getProtectedFunction(
 }
 
 function genSorters(
-	sorters: Sorters,
+	sorters: Sorters | undefined,
 ): { sort: string } | undefined {
-	const resolved = sorters
+	const resolved = (sorters ?? [])
 		.map((item) => {
 			switch (item.order) {
 				case SortOrder.Asc:
@@ -292,8 +262,8 @@ function genSorters(
 }
 
 function genFilters(
-	filters: Filters,
-	meta: FetcherMeta | undefined,
+	filters: Filters | undefined,
+	meta?: FetcherMeta,
 ): { search?: string, filter?: Record<string, any> } {
 	// `genFilters` overwrites `query.filter` wholesale, so anything the caller set on
 	// `meta.query.filter` has to be carried over here or it is lost. Nothing is injected on
@@ -304,7 +274,7 @@ function genFilters(
 	const and = [...(metaFilter?._and ?? [])].filter(Boolean) as any[]
 	let search: string | undefined
 
-	for (const filter of filters) {
+	for (const filter of filters ?? []) {
 		if ('field' in filter) {
 			const { field, value } = filter
 
