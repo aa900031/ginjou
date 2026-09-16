@@ -21,6 +21,7 @@ describe('createFetcher', () => {
 		expect(fetcher).toHaveProperty('createOne')
 		expect(fetcher).toHaveProperty('updateOne')
 		expect(fetcher).toHaveProperty('deleteOne')
+		expect(fetcher).toHaveProperty('getMany')
 		expect(fetcher).toHaveProperty('custom')
 	})
 
@@ -197,6 +198,28 @@ describe('createFetcher', () => {
 				method: 'PUT',
 				headers: { 'X-Custom': 'value' },
 			}))
+		})
+	})
+
+	describe('getMany', () => {
+		it('should fetch records by repeated id query and forward the abort signal', async () => {
+			const controller = new AbortController()
+			const mockData = [{ id: 1 }, { id: 2 }]
+			mockClient.raw.mockResolvedValue({ _data: mockData })
+
+			const result = await fetcher.getMany(
+				{ resource: 'posts', ids: [1, 2], meta: { headers: { 'X-Custom': 'value' } } },
+				{ signal: controller.signal } as any,
+			)
+
+			expect(mockClient.raw).toHaveBeenCalledWith('posts', {
+				baseURL: testUrl,
+				method: 'GET',
+				query: { id: [1, 2] },
+				headers: { 'X-Custom': 'value' },
+				signal: controller.signal,
+			})
+			expect(result).toEqual({ data: mockData })
 		})
 	})
 

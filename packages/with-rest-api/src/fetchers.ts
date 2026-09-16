@@ -76,6 +76,19 @@ export function createFetcher(
 				data: response._data,
 			}
 		},
+		getMany: async ({ resource, ids, meta }, context = undefined) => {
+			const response = await client.raw(resource, {
+				baseURL: `${url}`,
+				method: meta?.method as any ?? 'GET',
+				query: { id: ids },
+				headers: meta?.headers as any,
+				signal: getSignal(context),
+			})
+
+			return {
+				data: response._data,
+			}
+		},
 		createOne: async ({ resource, params, meta }) => {
 			const response = await client.raw(`${resource}`, {
 				baseURL: `${url}`,
