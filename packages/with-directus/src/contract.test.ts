@@ -1,4 +1,5 @@
 import { authentication, createDirectus, rest } from '@directus/sdk'
+import { SortOrder } from '@ginjou/core'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createAuth } from './auth'
 import { createFetcher } from './fetcher'
@@ -390,5 +391,43 @@ describe('fetcher over the wire', () => {
 		await fetcher.getList({ resource: 'directus_users' })
 
 		expect(sent.map(s => s.path)).toContain('/users')
+	})
+
+	it('should send filters and sorters from a custom request', async () => {
+		const { client, sent } = setup({ data: [] })
+		const fetcher = createFetcher({ client })
+
+		await fetcher.custom!({
+			url: '/items/posts',
+			method: 'get',
+			filters: [{ field: 'status', operator: 'eq', value: 'published' }],
+			sorters: [{ field: 'date', order: SortOrder.Desc }],
+		})
+
+		expect(decodeURIComponent(sent[0]!.search))
+			.toBe('?filter={"_and":[{"status":{"_eq":"published"}}]}&sort=-date')
+	})
+
+	it('should let a custom query win over a generated filter', async () => {
+		const { client, sent } = setup({ data: [] })
+		const fetcher = createFetcher({ client })
+
+		await fetcher.custom!({
+			url: '/items/posts',
+			method: 'get',
+			filters: [{ field: 'status', operator: 'eq', value: 'published' }],
+			query: { filter: { status: { _eq: 'draft' } } },
+		})
+
+		expect(decodeURIComponent(sent[0]!.search)).toBe('?filter={"status":{"_eq":"draft"}}')
+	})
+
+	it('should send nothing extra on a custom request without filters or sorters', async () => {
+		const { client, sent } = setup({ data: [] })
+		const fetcher = createFetcher({ client })
+
+		await fetcher.custom!({ url: '/server/info', method: 'get' })
+
+		expect(sent[0]!.search).toBe('')
 	})
 })

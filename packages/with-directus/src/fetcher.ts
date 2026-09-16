@@ -168,7 +168,16 @@ export function createFetcher<
 				data: (data ?? ids.map(id => ({ id }))) as any,
 			}
 		},
-		custom: async ({ url, method, payload, query, headers }, context = undefined) => {
+		custom: async ({ url, method, payload, query, filters, sorters, headers }, context = undefined) => {
+			// Injected only when the caller actually passes them: a custom url can point at an
+			// extension endpoint that knows nothing of Directus's `filter`/`sort` convention.
+			// The caller's own `query` is spread last, so it wins any key it sets itself.
+			const params = {
+				...(filters?.length ? genFilters(filters, undefined) : undefined),
+				...(sorters?.length ? genSorters(sorters) : undefined),
+				...query,
+			} as any
+
 			let command: any
 			switch (method) {
 				case 'put':
@@ -176,7 +185,7 @@ export function createFetcher<
 						path: url,
 						method: 'PUT',
 						body: JSON.stringify(payload),
-						params: query as any,
+						params,
 						headers,
 					})
 
@@ -186,7 +195,7 @@ export function createFetcher<
 						path: url,
 						method: 'POST',
 						body: JSON.stringify(payload),
-						params: query as any,
+						params,
 						headers,
 					})
 					break
@@ -195,7 +204,7 @@ export function createFetcher<
 						path: url,
 						method: 'PATCH',
 						body: JSON.stringify(payload),
-						params: query as any,
+						params,
 						headers,
 					})
 					break
@@ -203,7 +212,7 @@ export function createFetcher<
 					command = () => ({
 						path: url,
 						method: 'DELETE',
-						params: query as any,
+						params,
 						headers,
 					})
 					break
@@ -211,7 +220,7 @@ export function createFetcher<
 					command = () => ({
 						path: url,
 						method: 'GET',
-						params: query as any,
+						params,
 						headers,
 					})
 					break
