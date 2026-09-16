@@ -13,12 +13,18 @@ vi.mock('@directus/sdk', async (importOriginal) => {
 		createItem: vi.fn((...args) => ['createItem', ...args]),
 		updateItem: vi.fn((...args) => ['updateItem', ...args]),
 		deleteItem: vi.fn((...args) => ['deleteItem', ...args]),
+		createItems: vi.fn((...args) => ['createItems', ...args]),
+		updateItems: vi.fn((...args) => ['updateItems', ...args]),
+		deleteItems: vi.fn((...args) => ['deleteItems', ...args]),
 		aggregate: vi.fn((...args) => ['aggregate', ...args]),
 		readUsers: vi.fn((...args) => ['readUsers', ...args]),
 		readUser: vi.fn((...args) => ['readUser', ...args]),
 		createUser: vi.fn((...args) => ['createUser', ...args]),
 		updateUser: vi.fn((...args) => ['updateUser', ...args]),
 		deleteUser: vi.fn((...args) => ['deleteUser', ...args]),
+		createUsers: vi.fn((...args) => ['createUsers', ...args]),
+		updateUsers: vi.fn((...args) => ['updateUsers', ...args]),
+		deleteUsers: vi.fn((...args) => ['deleteUsers', ...args]),
 		withOptions: vi.fn((command, options) => ({ command, options })),
 	}
 })
@@ -42,6 +48,10 @@ describe('createFetcher', () => {
 		expect(fetcher.createOne).toBeInstanceOf(Function)
 		expect(fetcher.updateOne).toBeInstanceOf(Function)
 		expect(fetcher.deleteOne).toBeInstanceOf(Function)
+		expect(fetcher.getMany).toBeInstanceOf(Function)
+		expect(fetcher.createMany).toBeInstanceOf(Function)
+		expect(fetcher.updateMany).toBeInstanceOf(Function)
+		expect(fetcher.deleteMany).toBeInstanceOf(Function)
 		expect(fetcher.custom).toBeInstanceOf(Function)
 	})
 
@@ -52,13 +62,15 @@ describe('createFetcher', () => {
 			.mockResolvedValueOnce([])
 			.mockResolvedValueOnce([{ countDistinct: { id: 0 } }])
 			.mockResolvedValueOnce({ id: 1 })
+			.mockResolvedValueOnce([{ id: 1 }])
 			.mockResolvedValueOnce({ ok: true })
 
 		await fetcher.getList({ resource: 'posts' }, context)
 		await fetcher.getOne({ resource: 'posts', id: 1 }, context)
+		await fetcher.getMany({ resource: 'posts', ids: [1] }, context)
 		await fetcher.custom({ url: '/health', method: 'get' }, context)
 
-		expect(sdk.withOptions).toHaveBeenCalledTimes(4)
+		expect(sdk.withOptions).toHaveBeenCalledTimes(5)
 		for (const [, options] of vi.mocked(sdk.withOptions).mock.calls)
 			expect((options as RequestInit).signal).toBe(controller.signal)
 	})
@@ -178,6 +190,89 @@ describe('createFetcher', () => {
 			}))
 		})
 
+		it('should map every filter operator to a Directus operator', async () => {
+			// Spelled out rather than derived from the adapter's own table, so a wrong mapping
+			// fails here instead of agreeing with itself. No `s` suffix is case-insensitive.
+			const CASES = [
+				['eq', '_eq'],
+				['ne', '_neq'],
+				['lt', '_lt'],
+				['gt', '_gt'],
+				['lte', '_lte'],
+				['gte', '_gte'],
+				['in', '_in'],
+				['nin', '_nin'],
+				['null', '_null'],
+				['nnull', '_nnull'],
+				['between', '_between'],
+				['nbetween', '_nbetween'],
+				['contains', '_icontains'],
+				['containss', '_contains'],
+				['ncontains', '_nicontains'],
+				['ncontainss', '_ncontains'],
+				['startswith', '_istarts_with'],
+				['startswiths', '_starts_with'],
+				['nstartswith', '_nistarts_with'],
+				['nstartswiths', '_nstarts_with'],
+				['endswith', '_iends_with'],
+				['endswiths', '_ends_with'],
+				['nendswith', '_niends_with'],
+				['nendswiths', '_nends_with'],
+			] as const
+
+			mockClient.request
+				.mockResolvedValueOnce([])
+				.mockResolvedValueOnce([{ countDistinct: { id: 0 } }])
+
+			await fetcher.getList({
+				resource: 'posts',
+				filters: CASES.map(([operator]) => ({ field: 'a', operator, value: 'x' })),
+			})
+
+			expect(sdk.readItems).toHaveBeenCalledWith('posts', expect.objectContaining({
+				filter: {
+					_and: CASES.map(([, clientOperator]) => ({ a: { [clientOperator]: 'x' } })),
+				},
+			}))
+		})
+
+		it('should drop an empty logical group instead of sending `_or: []`', async () => {
+			mockClient.request
+				.mockResolvedValueOnce([])
+				.mockResolvedValueOnce([{ countDistinct: { id: 0 } }])
+
+			await fetcher.getList({
+				resource: 'posts',
+				filters: [{ operator: 'or', value: [] }],
+			})
+
+			expect(sdk.readItems).toHaveBeenCalledWith('posts', expect.objectContaining({
+				filter: undefined,
+			}))
+		})
+
+		it('should not leak an empty `_and` from meta.query.filter', async () => {
+			mockClient.request
+				.mockResolvedValueOnce([])
+				.mockResolvedValueOnce([{ countDistinct: { id: 0 } }])
+
+			await fetcher.getList({
+				resource: 'posts',
+				meta: { query: { filter: { _and: [] } } },
+			})
+
+			expect(sdk.readItems).toHaveBeenCalledWith('posts', expect.objectContaining({
+				filter: undefined,
+			}))
+		})
+
+		it('should throw on an unknown filter operator', async () => {
+			await expect(fetcher.getList({
+				resource: 'posts',
+				filters: [{ field: 'a', operator: 'regex' as any, value: 'x' }],
+			})).rejects.toThrow('[@ginjou/with-directus] Filter operator \'regex\' is not supported.')
+		})
+
 		it('should handle protected resources', async () => {
 			mockClient.request
 				.mockResolvedValueOnce([])
@@ -207,7 +302,115 @@ describe('createFetcher', () => {
 
 		it('should fetch a single protected resource', async () => {
 			await fetcher.getOne({ resource: 'directus_users', id: '1' })
-			expect(sdk.readUser).toHaveBeenCalledWith('1', {})
+			expect(sdk.readUser).toHaveBeenCalledWith('1', undefined)
+		})
+	})
+
+	describe('getMany', () => {
+		it('should read items by id, keeping the meta filter alongside', async () => {
+			const items = [{ id: 1 }, { id: 2 }]
+			mockClient.request.mockResolvedValueOnce(items)
+
+			const result = await fetcher.getMany({
+				resource: 'posts',
+				ids: [1, 2],
+				meta: { query: { fields: ['id'], filter: { status: { _eq: 'published' } } } },
+			})
+
+			expect(sdk.readItems).toHaveBeenCalledWith('posts', {
+				fields: ['id'],
+				limit: 2,
+				filter: {
+					status: { _eq: 'published' },
+					_and: [{ id: { _in: [1, 2] } }],
+				},
+			})
+			expect(result).toEqual({ data: items })
+		})
+
+		it('should keep an id filter the caller already set', async () => {
+			await fetcher.getMany({
+				resource: 'posts',
+				ids: [1, 2],
+				meta: { query: { filter: { id: { _lt: 100 } } } },
+			})
+
+			expect(sdk.readItems).toHaveBeenCalledWith('posts', {
+				limit: 2,
+				filter: {
+					id: { _lt: 100 },
+					_and: [{ id: { _in: [1, 2] } }],
+				},
+			})
+		})
+
+		it('should keep filtering when every id is an empty string', async () => {
+			await fetcher.getMany({ resource: 'posts', ids: ['', ''] })
+
+			expect(sdk.readItems).toHaveBeenCalledWith('posts', {
+				limit: 2,
+				filter: { _and: [{ id: { _in: ['', ''] } }] },
+			})
+		})
+
+		it('should read protected resources', async () => {
+			await fetcher.getMany({ resource: 'directus_users', ids: ['1'] })
+			expect(sdk.readUsers).toHaveBeenCalledWith({
+				limit: 1,
+				filter: { _and: [{ id: { _in: ['1'] } }] },
+			})
+		})
+	})
+
+	describe('createMany', () => {
+		it('should create items', async () => {
+			const items = [{ title: 'a' }, { title: 'b' }]
+			mockClient.request.mockResolvedValueOnce(items)
+
+			const result = await fetcher.createMany({ resource: 'posts', params: items })
+
+			expect(sdk.createItems).toHaveBeenCalledWith('posts', items, undefined)
+			expect(result).toEqual({ data: items })
+		})
+
+		it('should create protected resources', async () => {
+			const users = [{ email: 'a@example.com' }]
+			await fetcher.createMany({ resource: 'directus_users', params: users })
+			expect(sdk.createUsers).toHaveBeenCalledWith(users, undefined)
+		})
+	})
+
+	describe('updateMany', () => {
+		it('should update items by id', async () => {
+			const updates = { status: 'archived' }
+			mockClient.request.mockResolvedValueOnce([{ id: 1 }, { id: 2 }])
+
+			const result = await fetcher.updateMany({ resource: 'posts', ids: [1, 2], params: updates })
+
+			expect(sdk.updateItems).toHaveBeenCalledWith('posts', [1, 2], updates, undefined)
+			expect(result).toEqual({ data: [{ id: 1 }, { id: 2 }] })
+		})
+
+		it('should update protected resources', async () => {
+			const updates = { status: 'active' }
+			await fetcher.updateMany({ resource: 'directus_users', ids: ['1'], params: updates })
+			expect(sdk.updateUsers).toHaveBeenCalledWith(['1'], updates, undefined)
+		})
+	})
+
+	describe('deleteMany', () => {
+		it('should delete items by id and echo the keys back', async () => {
+			mockClient.request.mockResolvedValueOnce(undefined)
+
+			const result = await fetcher.deleteMany({ resource: 'posts', ids: [1, 2] })
+
+			expect(sdk.deleteItems).toHaveBeenCalledWith('posts', [1, 2])
+			expect(result).toEqual({ data: [{ id: 1 }, { id: 2 }] })
+		})
+
+		it('should delete protected resources', async () => {
+			await fetcher.deleteMany({ resource: 'directus_users', ids: ['1'] })
+			expect(sdk.deleteUsers).toHaveBeenCalledWith(['1'])
 		})
 	})
 
@@ -222,14 +425,14 @@ describe('createFetcher', () => {
 				params: newItem,
 			})
 
-			expect(sdk.createItem).toHaveBeenCalledWith('posts', newItem, {})
+			expect(sdk.createItem).toHaveBeenCalledWith('posts', newItem, undefined)
 			expect(result).toEqual({ data: createdItem })
 		})
 
 		it('should create a protected resource', async () => {
 			const newUser = { email: 'test@example.com' }
 			await fetcher.createOne({ resource: 'directus_users', params: newUser })
-			expect(sdk.createUser).toHaveBeenCalledWith(newUser, {})
+			expect(sdk.createUser).toHaveBeenCalledWith(newUser, undefined)
 		})
 	})
 
@@ -245,14 +448,14 @@ describe('createFetcher', () => {
 				params: updates,
 			})
 
-			expect(sdk.updateItem).toHaveBeenCalledWith('posts', 1, updates, {})
+			expect(sdk.updateItem).toHaveBeenCalledWith('posts', 1, updates, undefined)
 			expect(result).toEqual({ data: updatedItem })
 		})
 
 		it('should update a protected resource', async () => {
 			const updates = { email: 'updated@example.com' }
 			await fetcher.updateOne({ resource: 'directus_users', id: '1', params: updates })
-			expect(sdk.updateUser).toHaveBeenCalledWith('1', updates, {})
+			expect(sdk.updateUser).toHaveBeenCalledWith('1', updates, undefined)
 		})
 	})
 
@@ -266,7 +469,8 @@ describe('createFetcher', () => {
 			})
 
 			expect(sdk.deleteItem).toHaveBeenCalledWith('posts', 1)
-			expect(result).toEqual({ data: null as any })
+			// Directus sends no body for a delete, so the key we deleted is echoed back.
+			expect(result).toEqual({ data: { id: 1 } })
 		})
 
 		it('should delete a protected resource', async () => {

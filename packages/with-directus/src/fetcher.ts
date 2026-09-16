@@ -1,8 +1,7 @@
-import type { DirectusClient, RestClient } from '@directus/sdk'
-import type { ConditionalFilter, FilterOperatorValues, Filters, LogicalFilter, Sorters } from '@ginjou/core'
+import type { DirectusClient, HttpMethod, RequestOptions, RestClient } from '@directus/sdk'
+import type { ConditionalFilter, CustomProps, FilterOperatorValues, Filters, LogicalFilter, Sorters } from '@ginjou/core'
 import * as sdk from '@directus/sdk'
 import { defineFetcher, SortOrder } from '@ginjou/core'
-import cleanDeep from 'clean-deep'
 import { dset } from 'dset'
 import pluralize from 'pluralize'
 import { camelCase } from 'scule'
@@ -19,6 +18,15 @@ export interface FetcherMeta {
 	groupBy?: string[]
 }
 
+/** `head` and `options` are absent on purpose: both have always gone out as GET. */
+const HTTP_METHODS: Partial<Record<CustomProps<any, any>['method'], HttpMethod>> = {
+	post: 'POST',
+	put: 'PUT',
+	patch: 'PATCH',
+	delete: 'DELETE',
+}
+const BODY_METHODS: string[] = ['post', 'put', 'patch']
+
 // eslint-disable-next-line ts/explicit-function-return-type
 export function createFetcher<
 	TClient extends DirectusClient<any> & RestClient<any>,
@@ -30,17 +38,20 @@ export function createFetcher<
 	// Keep context defaults so inferred fetcher methods accept omitted contexts.
 	return defineFetcher({
 		getList: async ({ resource, pagination, filters, sorters, meta }, context = undefined) => {
-			const query = cleanDeep({
+			// No scrubbing pass: the SDK omits undefined and null itself, and anything else in
+			// here is the caller's own query, where an empty string or `_eq: null` is a real
+			// condition rather than noise to strip.
+			const query = {
 				...(meta as FetcherMeta)?.query,
 				meta: (meta as FetcherMeta)?.query?.meta ?? '*',
 				page: (meta as FetcherMeta)?.query?.page ?? pagination?.current,
 				limit: (meta as FetcherMeta)?.query?.limit ?? pagination?.perPage,
 				fields: (meta as FetcherMeta)?.query?.fields ?? ['*'],
-				...(filters ? genFilters(filters, meta) : undefined),
-				...(sorters ? genSorters(sorters) : undefined),
-			})
+				...genFilters(filters, meta),
+				...genSorters(sorters),
+			}
 
-			const fn = getProtectedFunction(resource, 'read', false)
+			const fn = getProtectedFunction(resource, 'read', 'many')
 			const readCommand = fn ? fn(query) : sdk.readItems<any, any, any>(resource, query)
 
 			const aggregateOptions = {
@@ -63,9 +74,7 @@ export function createFetcher<
 			}
 		},
 		getOne: async ({ resource, id, meta }, context = undefined) => {
-			const query = cleanDeep({
-				...(meta as FetcherMeta)?.query,
-			})
+			const query = (meta as FetcherMeta)?.query
 
 			const fn = getProtectedFunction(resource, 'read')
 			const command = fn ? fn(id, query) : sdk.readItem<any, any, any>(resource, id, query)
@@ -75,88 +84,117 @@ export function createFetcher<
 				data: data as any,
 			}
 		},
-		createOne: async ({ resource, params, meta }) => {
-			const query = cleanDeep({
-				...(meta as FetcherMeta)?.query,
-			})
-			const item = params as any
+		getMany: async ({ resource, ids, meta }, context = undefined) => {
+			// Paging is dropped, never forwarded. This read is addressed by id, so a caller's
+			// `limit` silently returns fewer records than were asked for, and a `page`/`offset`
+			// carried over from a list-shaped `meta` pages past the ids entirely and returns
+			// nothing. Core's request aggregation also merges callers' ids, which makes a shared
+			// list-sized limit overflow routinely.
+			const { limit: _limit, page: _page, offset: _offset, ...metaQuery } = (meta as FetcherMeta)?.query ?? {}
+			// `genFilters` pushes the id filter into `_and`, so a caller's own `id` filter survives.
+			const query = {
+				...metaQuery,
+				limit: ids.length,
+				filter: genFilters([{ field: 'id', operator: 'in', value: ids }], meta).filter,
+			}
 
-			const fn = getProtectedFunction(resource, 'create')
-			const data = await client.request(fn ? fn(item, query) : sdk.createItem(resource, item, query))
+			const fn = getProtectedFunction(resource, 'read', 'many')
+			const command = fn ? fn(query) : sdk.readItems<any, any, any>(resource, query)
+			const data = await client.request(withSignal(command, context))
 
 			return {
 				data: data as any,
 			}
 		},
+		createOne: async ({ resource, params, meta }) => {
+			const query = (meta as FetcherMeta)?.query
+			const item = params as any
+
+			const fn = getProtectedFunction(resource, 'create')
+			// Directus writes, then reads the row back to build the response. A policy that
+			// grants create but not read makes that read-back forbidden, and Directus answers
+			// success with no body rather than failing the write that already happened. Hand
+			// back what was written, so the caller gets a record rather than a hole. The
+			// server-generated key is the one thing unknowable here.
+			const data = await client.request(fn ? fn(item, query) : sdk.createItem(resource, item, query))
+
+			return {
+				data: (data ?? item) as any,
+			}
+		},
+		createMany: async ({ resource, params, meta }) => {
+			const query = (meta as FetcherMeta)?.query
+			const items = params as any[]
+
+			const fn = getProtectedFunction(resource, 'create', 'many')
+			// Same read-back rule as `createOne`.
+			const data = await client.request(fn ? fn(items, query) : sdk.createItems(resource, items, query))
+
+			return {
+				data: (data ?? items) as any,
+			}
+		},
 		updateOne: async ({ resource, id, params, meta }) => {
-			const query = cleanDeep({
-				...(meta as FetcherMeta)?.query,
-			})
+			const query = (meta as FetcherMeta)?.query
 			const item = params as any
 
 			const fn = getProtectedFunction(resource, 'update')
+			// Same read-back rule as `createOne`. Here the key is known, so the reconstructed
+			// record is complete: `id` goes last so a stray `id` in params cannot displace it.
 			const data = await client.request(fn ? fn(id, item, query) : sdk.updateItem(resource, id, item, query))
 
 			return {
-				data: data as any,
+				data: (data ?? { ...item, id }) as any,
+			}
+		},
+		updateMany: async ({ resource, ids, params, meta }) => {
+			const query = (meta as FetcherMeta)?.query
+			const item = params as any
+
+			const fn = getProtectedFunction(resource, 'update', 'many')
+			// Same read-back rule as `createOne`; every key is known here too.
+			const data = await client.request(fn ? fn(ids, item, query) : sdk.updateItems(resource, ids as any, item, query))
+
+			return {
+				data: (data ?? ids.map(id => ({ ...item, id }))) as any,
 			}
 		},
 		deleteOne: async ({ resource, id }) => {
 			const fn = getProtectedFunction(resource, 'delete')
+			// Directus never reads back after a delete, so every delete answers with no body.
+			// The key is what a caller needs from a delete, and it is the one thing we know.
 			const data = await client.request(fn ? fn(id) : sdk.deleteItem(resource, id))
 
 			return {
-				data: data as any,
+				data: (data ?? { id }) as any,
 			}
 		},
-		custom: async ({ url, method, payload, query, headers }, context = undefined) => {
-			let command: any
-			switch (method) {
-				case 'put':
-					command = () => ({
-						path: url,
-						method: 'PUT',
-						body: JSON.stringify(payload),
-						params: query as any,
-						headers,
-					})
+		deleteMany: async ({ resource, ids }) => {
+			const fn = getProtectedFunction(resource, 'delete', 'many')
+			// Directus never reads back after a delete, so every delete answers with no body.
+			const data = await client.request(fn ? fn(ids) : sdk.deleteItems(resource, ids as any))
 
-					break
-				case 'post':
-					command = () => ({
-						path: url,
-						method: 'POST',
-						body: JSON.stringify(payload),
-						params: query as any,
-						headers,
-					})
-					break
-				case 'patch':
-					command = () => ({
-						path: url,
-						method: 'PATCH',
-						body: JSON.stringify(payload),
-						params: query as any,
-						headers,
-					})
-					break
-				case 'delete':
-					command = () => ({
-						path: url,
-						method: 'DELETE',
-						params: query as any,
-						headers,
-					})
-					break
-				default:
-					command = () => ({
-						path: url,
-						method: 'GET',
-						params: query as any,
-						headers,
-					})
-					break
+			return {
+				data: (data ?? ids.map(id => ({ id }))) as any,
 			}
+		},
+		custom: async ({ url, method, payload, query, filters, sorters, headers }, context = undefined) => {
+			// Injected only when the caller passes them: a custom url can point at an extension
+			// endpoint that knows nothing of Directus's `filter`/`sort` convention. The caller's
+			// own `query` goes last and wins.
+			const params = {
+				...genFilters(filters),
+				...genSorters(sorters),
+				...query,
+			} as any
+
+			const command = (): RequestOptions => ({
+				path: url,
+				method: HTTP_METHODS[method] ?? 'GET',
+				...(BODY_METHODS.includes(method) ? { body: JSON.stringify(payload) } : undefined),
+				params,
+				headers,
+			})
 
 			const response = await client.request(withSignal(command, context))
 
@@ -186,23 +224,23 @@ const PROTECTED_RESOURCE_PREFIX = ['directus_', 'directus/']
 function getProtectedFunction(
 	resource: string,
 	type: 'read' | 'create' | 'update' | 'delete',
-	singular: boolean = true,
+	arity: 'one' | 'many' = 'one',
 ): ((...args: any[]) => any) | undefined {
 	const prefix = PROTECTED_RESOURCE_PREFIX.find(str => resource.startsWith(str))
 	if (!prefix)
 		return
 
 	const name = resource.replace(prefix, '')
-	const formated = singular ? pluralize.singular(name) : pluralize.plural(name)
+	const formated = arity === 'one' ? pluralize.singular(name) : pluralize.plural(name)
 	const funName = camelCase(`${type}_${formated}`)
 
 	return (sdk as any)[funName]
 }
 
 function genSorters(
-	sorters: Sorters,
+	sorters: Sorters | undefined,
 ): { sort: string } | undefined {
-	const resolved = sorters
+	const resolved = (sorters ?? [])
 		.map((item) => {
 			switch (item.order) {
 				case SortOrder.Asc:
@@ -224,42 +262,53 @@ function genSorters(
 }
 
 function genFilters(
-	filters: Filters,
-	meta: FetcherMeta | undefined,
-): any {
+	filters: Filters | undefined,
+	meta?: FetcherMeta,
+): { search?: string, filter?: Record<string, any> } {
 	// `genFilters` overwrites `query.filter` wholesale, so anything the caller set on
 	// `meta.query.filter` has to be carried over here or it is lost. Nothing is injected on
 	// top of it: a default like `status: { _neq: 'archived' }` breaks every collection that
 	// has no `status` field, so a caller who wants one passes it through meta.
 	const metaFilter = meta?.query?.filter
-	const result = {
-		search: '',
-		filter: {
-			...metaFilter,
-			// A copy of the caller's `_and`: the resolved filters are pushed into it below.
-			_and: [...(metaFilter?._and ?? [])] as any[],
-		},
-	}
+	// A copy of the caller's `_and` minus any junk in it; the resolved filters join it below.
+	const and = [...(metaFilter?._and ?? [])].filter(Boolean) as any[]
+	let search: string | undefined
 
-	for (const filter of filters) {
+	for (const filter of filters ?? []) {
 		if ('field' in filter) {
 			const { field, value } = filter
 
 			if (value != null) {
 				if (field === 'search')
-					result.search = value
+					search = value
 				else
-					result.filter._and.push(genLogicalFilter(filter))
+					and.push(genLogicalFilter(filter))
 			}
 		}
-		else {
-			result.filter._and.push(genConditionalFilter(filter))
+		// Dropping an empty group is a no-op, not a semantic change: Directus builds `_or: []`
+		// into an empty SQL group and its query builder omits it, so the query runs the same
+		// either way. Contrast `_in: []`, which compiles to `1 = 0` and is always sent.
+		else if (filter.value.length > 0) {
+			and.push(genConditionalFilter(filter))
 		}
 	}
 
-	result.filter._and = result.filter._and.filter(Boolean)
+	const filter: Record<string, any> = { ...metaFilter }
+	// Emit these only when they hold something. An empty `_and` goes out as
+	// `filter={"_and":[]}` and an empty `search` clobbers the caller's own, and there is
+	// deliberately no scrubbing pass downstream to undo either.
+	if (and.length > 0)
+		filter._and = and
+	else
+		delete filter._and
 
-	return result
+	return {
+		...(search ? { search } : undefined),
+		// Always keyed, even when empty: `getList` spreads `meta.query` first, so anything
+		// less than an outright overwrite lets a stale `meta.query.filter` through. The SDK
+		// drops an undefined query key.
+		filter: Object.keys(filter).length > 0 ? filter : undefined,
+	}
 }
 
 function genLogicalFilter(
@@ -267,8 +316,6 @@ function genLogicalFilter(
 ): any {
 	const { field, operator, value } = filter
 	const clientOperator = getClientOperator(operator)
-	if (!clientOperator)
-		return
 
 	const result = {}
 	dset(result, field, {
@@ -280,24 +327,30 @@ function genLogicalFilter(
 
 function genConditionalFilter(
 	filter: ConditionalFilter,
-): Record<string, any[]> | undefined {
+): Record<string, any[]> {
 	const { operator, value } = filter
 	const clientOperator = getClientOperator(operator)
-	if (!clientOperator)
-		return
 
 	return {
 		[clientOperator]: value
 			.map(item => 'field' in item
 				? genLogicalFilter(item)
-				: genConditionalFilter(item))
-			.filter(Boolean),
+				: genConditionalFilter(item)),
 	}
 }
 
+/**
+ * A Ginjou operator without an `s` suffix is case-insensitive and maps to a Directus `_i*`
+ * variant; the `s` suffix means case-sensitive and maps to the plain Directus operator.
+ *
+ * A switch rather than a lookup object on purpose: operators arrive as source literals, which
+ * V8 interns, so the case chain is a run of pointer compares and beats a keyed load. An object
+ * would also answer `toString` and `constructor` from `Object.prototype` instead of throwing.
+ * The `never` in `default` keeps the whole union covered at compile time.
+ */
 function getClientOperator(
 	operator: FilterOperatorValues,
-): string | undefined {
+): string {
 	switch (operator) {
 		case 'eq':
 			return '_eq'
@@ -316,13 +369,17 @@ function getClientOperator(
 		case 'nin':
 			return '_nin'
 		case 'contains':
-			return '_contains'
-		case 'containss':
 			return '_icontains'
+		case 'containss':
+			return '_contains'
+		// `_nicontains` is real: Directus handles it in
+		// api/src/database/run-ast/lib/apply-query/filter/operator.ts and documents it under
+		// filter rules. It is only missing from `@directus/sdk`'s `FilterOperators` type, so
+		// do not "fix" this to `_ncontains` on the strength of the .d.ts alone.
 		case 'ncontains':
-			return '_ncontains'
+			return '_nicontains'
 		case 'ncontainss':
-			return undefined
+			return '_ncontains'
 		case 'null':
 			return '_null'
 		case 'nnull':
@@ -332,24 +389,29 @@ function getClientOperator(
 		case 'nbetween':
 			return '_nbetween'
 		case 'startswith':
-			return '_starts_with'
+			return '_istarts_with'
 		case 'startswiths':
-			return undefined
+			return '_starts_with'
 		case 'nstartswith':
-			return '_nstarts_with'
+			return '_nistarts_with'
 		case 'nstartswiths':
-			return undefined
+			return '_nstarts_with'
 		case 'endswith':
-			return '_ends_with'
+			return '_iends_with'
 		case 'endswiths':
-			return undefined
+			return '_ends_with'
 		case 'nendswith':
-			return '_nends_with'
+			return '_niends_with'
 		case 'nendswiths':
-			return undefined
+			return '_nends_with'
 		case 'or':
 			return '_or'
 		case 'and':
 			return '_and'
+		default: {
+			// Unreachable for a typed caller; an operator added to core breaks this line first.
+			const unsupported: never = operator
+			throw new Error(`[@ginjou/with-directus] Filter operator '${unsupported}' is not supported.`)
+		}
 	}
 }

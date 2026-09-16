@@ -1,4 +1,5 @@
 import { authentication, createDirectus, rest } from '@directus/sdk'
+import { SortOrder } from '@ginjou/core'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createAuth } from './auth'
 import { createFetcher } from './fetcher'
@@ -218,6 +219,175 @@ describe('fetcher over the wire', () => {
 		expect(sent[0]).toMatchObject({ method: 'DELETE', path: '/items/posts/7' })
 	})
 
+	it('should GET many items as one id filter, not one request per id', async () => {
+		const { client, sent } = setup({ data: [] })
+		const fetcher = createFetcher({ client })
+
+		await fetcher.getMany({ resource: 'posts', ids: [7, 8] })
+
+		expect(sent).toHaveLength(1)
+		expect(sent[0]).toMatchObject({ method: 'GET', path: '/items/posts' })
+		expect(decodeURIComponent(sent[0]!.search)).toContain('"_in":[7,8]')
+	})
+
+	it('should POST an array body for many created items', async () => {
+		const { client, sent } = setup({ data: [] })
+		const fetcher = createFetcher({ client })
+
+		await fetcher.createMany({ resource: 'posts', params: [{ title: 'a' }, { title: 'b' }] })
+
+		expect(sent).toHaveLength(1)
+		expect(sent[0]).toMatchObject({
+			method: 'POST',
+			path: '/items/posts',
+			body: [{ title: 'a' }, { title: 'b' }],
+		})
+	})
+
+	it('should PATCH keys and data together for many updated items', async () => {
+		const { client, sent } = setup({ data: [] })
+		const fetcher = createFetcher({ client })
+
+		await fetcher.updateMany({ resource: 'posts', ids: [7, 8], params: { title: 'bye' } })
+
+		expect(sent).toHaveLength(1)
+		expect(sent[0]).toMatchObject({
+			method: 'PATCH',
+			path: '/items/posts',
+			body: { keys: [7, 8], data: { title: 'bye' } },
+		})
+	})
+
+	it('should DELETE many items in one request and echo the keys back', async () => {
+		// Directus answers a delete with no content; core still maps over `data`.
+		const { client, sent } = setup({ data: null })
+		const fetcher = createFetcher({ client })
+
+		const result = await fetcher.deleteMany({ resource: 'posts', ids: [7, 8] })
+
+		expect(sent).toHaveLength(1)
+		expect(sent[0]).toMatchObject({ method: 'DELETE', path: '/items/posts', body: { keys: [7, 8] } })
+		expect(result).toEqual({ data: [{ id: 7 }, { id: 8 }] })
+	})
+
+	it('should route many-methods on a directus_ resource to the plural system endpoint', async () => {
+		const { client, sent } = setup({ data: [] })
+		const fetcher = createFetcher({ client })
+
+		await fetcher.createMany({ resource: 'directus_users', params: [{ email: 'a@b.c' }] })
+
+		expect(sent[0]).toMatchObject({ method: 'POST', path: '/users' })
+	})
+
+	it('should send caller conditions that an empty-value scrub would destroy', async () => {
+		const { client, sent } = setup({ data: [] })
+		const fetcher = createFetcher({ client })
+
+		await fetcher.getList({
+			resource: 'posts',
+			filters: [{ field: 'status', operator: 'eq', value: 'published' }],
+			meta: {
+				query: {
+					filter: {
+						deleted_at: { _eq: null },
+						title: { _eq: '' },
+						tags: { _in: [] },
+					},
+				},
+			},
+		})
+
+		const search = sent.map(one => decodeURIComponent(one.search)).join(' ')
+		// `_eq: null` is how Directus asks for "not soft-deleted"; dropping it widens the query.
+		expect(search).toContain('"deleted_at":{"_eq":null}')
+		expect(search).toContain('"title":{"_eq":""}')
+		expect(search).toContain('"tags":{"_in":[]}')
+		expect(search).toContain('"status":{"_eq":"published"}')
+	})
+
+	it('should keep an empty-string condition on a single read', async () => {
+		const { client, sent } = setup({ data: {} })
+		const fetcher = createFetcher({ client })
+
+		await fetcher.getOne({
+			resource: 'posts',
+			id: 7,
+			meta: { query: { filter: { title: { _eq: '' } } } },
+		})
+
+		expect(decodeURIComponent(sent[0]!.search)).toContain('"title":{"_eq":""}')
+	})
+
+	it('should send no filter at all when there are no filters', async () => {
+		const { client, sent } = setup({ data: [] })
+		const fetcher = createFetcher({ client })
+
+		await fetcher.getList({ resource: 'posts', filters: [] })
+
+		expect(sent.map(one => decodeURIComponent(one.search)).join(' ')).not.toContain('filter=')
+	})
+
+	it('should echo what was written when Directus answers with no body', async () => {
+		// Every delete answers with no body, and so does a create or update whose policy grants
+		// the write but not the read-back Directus uses to build the response. Rather than hand
+		// the caller an empty shell, rebuild the record from what we just sent.
+		const { client } = setup({ data: null })
+		const fetcher = createFetcher({ client })
+
+		expect(await fetcher.createOne({ resource: 'posts', params: { title: 'a' } }))
+			.toEqual({ data: { title: 'a' } })
+		expect(await fetcher.createMany({ resource: 'posts', params: [{ title: 'a' }, { title: 'b' }] }))
+			.toEqual({ data: [{ title: 'a' }, { title: 'b' }] })
+
+		// Update and delete know the keys, so the rebuilt records are complete.
+		expect(await fetcher.updateOne({ resource: 'posts', id: 7, params: { title: 'a' } }))
+			.toEqual({ data: { id: 7, title: 'a' } })
+		expect(await fetcher.updateMany({ resource: 'posts', ids: [7, 8], params: { title: 'a' } }))
+			.toEqual({ data: [{ id: 7, title: 'a' }, { id: 8, title: 'a' }] })
+		expect(await fetcher.deleteOne({ resource: 'posts', id: 7 }))
+			.toEqual({ data: { id: 7 } })
+		expect(await fetcher.deleteMany({ resource: 'posts', ids: [7, 8] }))
+			.toEqual({ data: [{ id: 7 }, { id: 8 }] })
+	})
+
+	it('should let the id from props win over one written into params', async () => {
+		const { client } = setup({ data: null })
+		const fetcher = createFetcher({ client })
+
+		const result = await fetcher.updateOne({
+			resource: 'posts',
+			id: 7,
+			params: { id: 999, title: 'a' } as any,
+		})
+
+		expect(result).toEqual({ data: { id: 7, title: 'a' } })
+	})
+
+	it('should prefer the real body whenever Directus sends one', async () => {
+		const { client } = setup({ data: { id: 7, title: 'from server' } })
+		const fetcher = createFetcher({ client })
+
+		expect(await fetcher.updateOne({ resource: 'posts', id: 7, params: { title: 'sent' } }))
+			.toEqual({ data: { id: 7, title: 'from server' } })
+	})
+
+	it('should not let a caller limit or page truncate getMany', async () => {
+		const { client, sent } = setup({ data: [] })
+		const fetcher = createFetcher({ client })
+
+		await fetcher.getMany({
+			resource: 'posts',
+			ids: [1, 2, 3, 4, 5],
+			meta: { query: { limit: 2, page: 2, offset: 10 } },
+		})
+
+		const search = decodeURIComponent(sent[0]!.search)
+		expect(search).toContain('limit=5')
+		// A list-shaped meta pages past the ids entirely and comes back empty.
+		expect(search).not.toContain('page=')
+		expect(search).not.toContain('offset=')
+	})
+
 	it('should route a directus_ resource to its system endpoint', async () => {
 		const { client, sent } = setup({ data: [] })
 		const fetcher = createFetcher({ client })
@@ -225,5 +395,43 @@ describe('fetcher over the wire', () => {
 		await fetcher.getList({ resource: 'directus_users' })
 
 		expect(sent.map(s => s.path)).toContain('/users')
+	})
+
+	it('should send filters and sorters from a custom request', async () => {
+		const { client, sent } = setup({ data: [] })
+		const fetcher = createFetcher({ client })
+
+		await fetcher.custom!({
+			url: '/items/posts',
+			method: 'get',
+			filters: [{ field: 'status', operator: 'eq', value: 'published' }],
+			sorters: [{ field: 'date', order: SortOrder.Desc }],
+		})
+
+		expect(decodeURIComponent(sent[0]!.search))
+			.toBe('?filter={"_and":[{"status":{"_eq":"published"}}]}&sort=-date')
+	})
+
+	it('should let a custom query win over a generated filter', async () => {
+		const { client, sent } = setup({ data: [] })
+		const fetcher = createFetcher({ client })
+
+		await fetcher.custom!({
+			url: '/items/posts',
+			method: 'get',
+			filters: [{ field: 'status', operator: 'eq', value: 'published' }],
+			query: { filter: { status: { _eq: 'draft' } } },
+		})
+
+		expect(decodeURIComponent(sent[0]!.search)).toBe('?filter={"status":{"_eq":"draft"}}')
+	})
+
+	it('should send nothing extra on a custom request without filters or sorters', async () => {
+		const { client, sent } = setup({ data: [] })
+		const fetcher = createFetcher({ client })
+
+		await fetcher.custom!({ url: '/server/info', method: 'get' })
+
+		expect(sent[0]!.search).toBe('')
 	})
 })
