@@ -1,6 +1,6 @@
-import type { RealtimeActionValues, RecordKey, SubscribeListParams, SubscribeManyParams, SubscribeOneParams, SubscribeProps } from '@ginjou/core'
+import type { Filter, LogicalFilter, RealtimeActionValues, RecordKey, SubscribeListParams, SubscribeManyParams, SubscribeOneParams, SubscribeProps } from '@ginjou/core'
 import type { RealtimeChannel, RealtimePostgresChangesPayload, SupabaseClient } from '@supabase/supabase-js'
-import { defineRealtime, isLogicalFilter, RealtimeAction, SubscribeType } from '@ginjou/core'
+import { defineRealtime, FilterOperator, isLogicalFilter, RealtimeAction, SubscribeType } from '@ginjou/core'
 
 export interface CreateRealtimeProps {
 	client: SupabaseClient
@@ -66,9 +66,13 @@ export function createRealtime(
 			const idColumn = _meta?.idColumnName ?? 'id'
 			const ids = getIds(_params)
 			const key = `${channel}:${++seq}`
+			const events = getEvents(actions)
+			// Nothing to listen to: skip the channel instead of joining one that can never emit.
+			if (!events.length)
+				return key
 
 			let realtimeChannel = client.channel(key)
-			for (const event of getEvents(actions)) {
+			for (const event of events) {
 				realtimeChannel = realtimeChannel.on(
 					'postgres_changes',
 					{
@@ -146,17 +150,37 @@ function getFilter(
 		case SubscribeType.Many:
 			return params.ids.length ? `${idColumn}=in.(${params.ids.join(',')})` : undefined
 		case SubscribeType.List: {
-			// ponytail: first supported filter only, and it also narrows UPDATE, so rows leaving a filtered
-			// list are missed. Subscribe UPDATE without a filter if that matters.
-			const filter = params.filters?.find(item => isLogicalFilter(item) && item.operator in OPERATORS)
-			if (!filter || !isLogicalFilter(filter))
+			const filter = params.filters?.find(isSupportedFilter)
+			if (!filter)
 				return
 
-			const value = filter.operator === 'in'
-				? `(${([] as unknown[]).concat(filter.value).join(',')})`
+			const value = filter.operator === FilterOperator.in
+				? `(${(filter.value as unknown[]).join(',')})`
 				: filter.value
 
 			return `${filter.field}=${OPERATORS[filter.operator]}.${value}`
 		}
 	}
+}
+
+function isSupportedFilter(
+	item: Filter,
+): item is LogicalFilter {
+	if (!isLogicalFilter(item) || !(item.operator in OPERATORS))
+		return false
+
+	// A realtime filter is a plain `column=op.value` string, so only primitives survive it: a Date or an
+	// object stringifies into something the server can never match, and a comma inside an `in` list splits
+	// into extra values. Skip those - an unfiltered stream is always a safe superset of the query.
+	return item.operator === FilterOperator.in
+		? Array.isArray(item.value) && item.value.length > 0 && item.value.every(value => isFilterValue(value) && !String(value).includes(','))
+		: isFilterValue(item.value)
+}
+
+function isFilterValue(
+	value: unknown,
+): boolean {
+	return typeof value === 'string'
+		|| typeof value === 'number'
+		|| typeof value === 'boolean'
 }

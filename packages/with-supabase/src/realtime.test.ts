@@ -78,6 +78,10 @@ describe('createRealtime', () => {
 		})
 		subscribe({ type: 'list', resource: 'posts', filters: [{ field: 'status', operator: 'in', value: ['a', 'b'] }] })
 		subscribe({ type: 'list', resource: 'posts', filters: [{ field: 'title', operator: 'contains', value: 'x' }] })
+		// Values that cannot round-trip through a `column=op.value` string fall back to no filter.
+		subscribe({ type: 'list', resource: 'posts', filters: [{ field: 'created_at', operator: 'gte', value: new Date('2026-01-01') }] })
+		subscribe({ type: 'list', resource: 'posts', filters: [{ field: 'status', operator: 'in', value: ['a,b', 'c'] }] })
+		subscribe({ type: 'list', resource: 'posts', filters: [{ field: 'status', operator: 'in', value: [] }] })
 
 		expect(optionsOf(channel).map(options => options.filter)).toEqual([
 			'id=eq.1',
@@ -86,7 +90,21 @@ describe('createRealtime', () => {
 			'status=neq.draft',
 			'status=in.(a,b)',
 			undefined,
+			undefined,
+			undefined,
+			undefined,
 		])
+	})
+
+	it('should not open a channel when no action maps to a postgres event', () => {
+		const { client, channel } = createClient()
+		const realtime = createRealtime({ client: client as any })
+
+		realtime.unsubscribe(realtime.subscribe({ channel: 'resources/posts', actions: ['archived'], callback: vi.fn() }))
+
+		expect(client.channel).not.toHaveBeenCalled()
+		expect(channel.subscribe).not.toHaveBeenCalled()
+		expect(client.removeChannel).not.toHaveBeenCalled()
 	})
 
 	it('should emit ginjou events and skip records outside the subscribed ids', () => {
