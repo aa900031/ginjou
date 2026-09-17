@@ -1,5 +1,5 @@
-import type { Filters, RealtimeActionValues, RecordKey, SubscribeListParams, SubscribeManyParams, SubscribeOneParams, SubscribeProps } from '@ginjou/core'
-import type { RealtimeChannel, SupabaseClient } from '@supabase/supabase-js'
+import type { RealtimeActionValues, RecordKey, SubscribeListParams, SubscribeManyParams, SubscribeOneParams, SubscribeProps } from '@ginjou/core'
+import type { RealtimeChannel, RealtimePostgresChangesPayload, SupabaseClient } from '@supabase/supabase-js'
 import { defineRealtime, isLogicalFilter, RealtimeAction, SubscribeType } from '@ginjou/core'
 
 export interface CreateRealtimeProps {
@@ -22,25 +22,33 @@ type PostgresEvent = 'INSERT' | 'UPDATE' | 'DELETE'
 
 type Params = SubscribeOneParams | SubscribeManyParams | SubscribeListParams<any>
 
-interface PostgresChangesPayload {
-	eventType: PostgresEvent
-	new: Record<string, any>
-	old: Record<string, any>
-	commit_timestamp: string
-}
-
-const ACTION_TO_EVENT: Record<string, PostgresEvent | '*'> = {
+const EVENTS: Record<string, PostgresEvent | '*'> = {
 	[RealtimeAction.Created]: 'INSERT',
 	[RealtimeAction.Updated]: 'UPDATE',
 	[RealtimeAction.Deleted]: 'DELETE',
 	[RealtimeAction.Any]: '*',
 }
 
-const EVENT_TO_ACTION: Record<PostgresEvent, RealtimeActionValues> = {
+const ACTIONS: Record<PostgresEvent, RealtimeActionValues> = {
 	INSERT: RealtimeAction.Created,
 	UPDATE: RealtimeAction.Updated,
 	DELETE: RealtimeAction.Deleted,
 }
+
+// Postgres Changes accepts a single `column=op.value` filter with these operators only.
+const OPERATORS: Record<string, string> = {
+	eq: 'eq',
+	ne: 'neq',
+	lt: 'lt',
+	lte: 'lte',
+	gt: 'gt',
+	gte: 'gte',
+	in: 'in',
+}
+
+// `client.channel(topic)` returns the existing channel for a known topic, so every subscribe() (across
+// provider instances on one client) needs its own topic or unsubscribe() would tear down its siblings.
+let seq = 0
 
 // eslint-disable-next-line ts/explicit-function-return-type
 export function createRealtime(
@@ -49,37 +57,38 @@ export function createRealtime(
 	}: CreateRealtimeProps,
 ) {
 	const channels = new Map<string, RealtimeChannel>()
-	let seq = 0
 
 	return defineRealtime({
 		subscribe: ({ channel, actions, callback, params, meta }: SubscribeProps<RealtimePayload, any>) => {
-			const table = channel.replace(/^resources\//, '')
-			const idColumn = (meta as RealtimeMeta)?.idColumnName ?? 'id'
-			const ids = getIds(params)
-			const filter = getFilter(params, idColumn)
-			const events = getEvents(actions)
+			const _params = params as Params | undefined
+			const _meta = meta as RealtimeMeta | undefined
+			const table = _params?.resource ?? channel.replace(/^resources\//, '')
+			const idColumn = _meta?.idColumnName ?? 'id'
+			const ids = getIds(_params)
 			const key = `${channel}:${++seq}`
 
 			let realtimeChannel = client.channel(key)
-			for (const event of events) {
+			for (const event of getEvents(actions)) {
 				realtimeChannel = realtimeChannel.on(
 					'postgres_changes',
 					{
-						event: event as any,
-						schema: (meta as RealtimeMeta)?.schema ?? 'public',
+						event,
+						// @ts-expect-error `rest` is protected; realtime does not inherit the client's `db.schema`.
+						schema: _meta?.schema ?? client.rest?.schemaName ?? 'public',
 						table,
-						filter,
+						filter: getFilter(_params, idColumn),
 					},
-					(payload: PostgresChangesPayload) => {
-						// DELETE events are never filtered server-side, so `one` / `many` check the id here.
+					(payload: RealtimePostgresChangesPayload<Record<string, any>>) => {
 						const record = payload.eventType === 'DELETE' ? payload.old : payload.new
-						const id = record?.[idColumn]
-						if (ids && !ids.includes(String(id)))
+						const id = record[idColumn]
+						// DELETE is never filtered server-side, so `one` / `many` check the id here.
+						// Fail open when the payload carries no id column.
+						if (ids && id != null && !ids.includes(String(id)))
 							return
 
 						callback({
 							channel,
-							action: EVENT_TO_ACTION[payload.eventType],
+							action: ACTIONS[payload.eventType],
 							payload: {
 								ids: id == null ? undefined : [id],
 								data: record,
@@ -91,7 +100,10 @@ export function createRealtime(
 				)
 			}
 
-			channels.set(key, realtimeChannel.subscribe())
+			channels.set(key, realtimeChannel.subscribe((status, error) => {
+				if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT')
+					console.warn(`[@ginjou/with-supabase] Realtime subscription "${key}" failed: ${status}`, error)
+			}))
 
 			return key
 		},
@@ -109,56 +121,42 @@ export function createRealtime(
 function getEvents(
 	actions: RealtimeActionValues[],
 ): (PostgresEvent | '*')[] {
-	const events = actions.map(action => ACTION_TO_EVENT[action] ?? '*')
-	return events.includes('*') ? ['*'] : [...new Set(events)]
+	const events = new Set(actions.map(action => EVENTS[action]).filter(Boolean))
+	return events.has('*') ? ['*'] : [...events]
 }
 
 function getIds(
-	params: SubscribeProps<any, any>['params'],
+	params: Params | undefined,
 ): string[] | undefined {
-	switch ((params as Params | undefined)?.type) {
+	switch (params?.type) {
 		case SubscribeType.One:
-			return [String((params as SubscribeOneParams).id)]
+			return [String(params.id)]
 		case SubscribeType.Many:
-			return (params as SubscribeManyParams).ids.map(String)
+			return params.ids.map(String)
 	}
 }
 
-// Supabase realtime accepts a single `column=op.value` filter with eq, neq, lt, lte, gt, gte, in.
 function getFilter(
-	params: SubscribeProps<any, any>['params'],
+	params: Params | undefined,
 	idColumn: string,
 ): string | undefined {
-	switch ((params as Params | undefined)?.type) {
+	switch (params?.type) {
 		case SubscribeType.One:
-			return `${idColumn}=eq.${(params as SubscribeOneParams).id}`
+			return `${idColumn}=eq.${params.id}`
 		case SubscribeType.Many:
-			return `${idColumn}=in.(${(params as SubscribeManyParams).ids.join(',')})`
-		case SubscribeType.List:
-			return getListFilter((params as SubscribeListParams<any>).filters)
+			return params.ids.length ? `${idColumn}=in.(${params.ids.join(',')})` : undefined
+		case SubscribeType.List: {
+			// ponytail: first supported filter only, and it also narrows UPDATE, so rows leaving a filtered
+			// list are missed. Subscribe UPDATE without a filter if that matters.
+			const filter = params.filters?.find(item => isLogicalFilter(item) && item.operator in OPERATORS)
+			if (!filter || !isLogicalFilter(filter))
+				return
+
+			const value = filter.operator === 'in'
+				? `(${([] as unknown[]).concat(filter.value).join(',')})`
+				: filter.value
+
+			return `${filter.field}=${OPERATORS[filter.operator]}.${value}`
+		}
 	}
-}
-
-const LIST_OPERATORS: Record<string, string> = {
-	eq: 'eq',
-	ne: 'neq',
-	lt: 'lt',
-	lte: 'lte',
-	gt: 'gt',
-	gte: 'gte',
-	in: 'in',
-}
-
-function getListFilter(
-	filters: Filters | undefined,
-): string | undefined {
-	const filter = filters?.find(item => isLogicalFilter(item) && item.operator in LIST_OPERATORS)
-	if (!filter || !isLogicalFilter(filter))
-		return
-
-	const value = filter.operator === 'in'
-		? `(${(filter.value as any[]).join(',')})`
-		: filter.value
-
-	return `${filter.field}=${LIST_OPERATORS[filter.operator]}.${value}`
 }
