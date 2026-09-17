@@ -48,7 +48,7 @@ export function useSubscribe<
 
 		onCleanup(() => unsubscribe())
 	}, {
-		immediate: true,
+		immediate: typeof window !== 'undefined',
 	})
 
 	return {
