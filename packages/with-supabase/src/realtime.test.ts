@@ -31,7 +31,7 @@ describe('createRealtime', () => {
 		const { client, channel } = createClient()
 		const realtime = createRealtime({ client: client as any })
 
-		realtime.subscribe({ channel: 'resources/posts', actions: ['created', 'deleted', 'archived'], callback: vi.fn() })
+		realtime.subscribe({ channel: 'resources/posts', actions: ['created', 'deleted', 'archived', 'toString'], callback: vi.fn() })
 		realtime.subscribe({ channel: 'resources/posts', actions: ['*', 'created'], callback: vi.fn(), meta: { schema: 'app' } })
 
 		expect(optionsOf(channel)).toEqual([
@@ -66,7 +66,8 @@ describe('createRealtime', () => {
 
 		subscribe({ type: 'one', resource: 'posts', id: 1 })
 		subscribe({ type: 'many', resource: 'posts', ids: [1, 2] }, { idColumnName: 'post_id' })
-		subscribe({ type: 'many', resource: 'posts', ids: [] })
+		// An id carrying a comma would split the `in` list into wrong values, so fall back to no filter.
+		subscribe({ type: 'many', resource: 'posts', ids: ['a,b', 'c'] })
 		subscribe({
 			type: 'list',
 			resource: 'posts',
@@ -82,6 +83,8 @@ describe('createRealtime', () => {
 		subscribe({ type: 'list', resource: 'posts', filters: [{ field: 'created_at', operator: 'gte', value: new Date('2026-01-01') }] })
 		subscribe({ type: 'list', resource: 'posts', filters: [{ field: 'status', operator: 'in', value: ['a,b', 'c'] }] })
 		subscribe({ type: 'list', resource: 'posts', filters: [{ field: 'status', operator: 'in', value: [] }] })
+		// A dotted path is not a column of the table, and the server rejects the whole join over it.
+		subscribe({ type: 'list', resource: 'posts', filters: [{ field: 'author.name', operator: 'eq', value: 'x' }] })
 
 		expect(optionsOf(channel).map(options => options.filter)).toEqual([
 			'id=eq.1',
@@ -93,14 +96,17 @@ describe('createRealtime', () => {
 			undefined,
 			undefined,
 			undefined,
+			undefined,
 		])
 	})
 
-	it('should not open a channel when no action maps to a postgres event', () => {
+	it('should not open a channel when there is nothing to listen to', () => {
 		const { client, channel } = createClient()
 		const realtime = createRealtime({ client: client as any })
 
 		realtime.unsubscribe(realtime.subscribe({ channel: 'resources/posts', actions: ['archived'], callback: vi.fn() }))
+		// No ids means no server-side filter, so the whole table would stream in just to be dropped here.
+		realtime.subscribe({ channel: 'resources/posts', actions: ['*'], callback: vi.fn(), params: { type: 'many', resource: 'posts', ids: [] } })
 
 		expect(client.channel).not.toHaveBeenCalled()
 		expect(channel.subscribe).not.toHaveBeenCalled()

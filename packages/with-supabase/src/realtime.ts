@@ -46,10 +46,6 @@ const OPERATORS: Record<string, string> = {
 	in: 'in',
 }
 
-// `client.channel(topic)` returns the existing channel for a known topic, so every subscribe() (across
-// provider instances on one client) needs its own topic or unsubscribe() would tear down its siblings.
-let seq = 0
-
 // eslint-disable-next-line ts/explicit-function-return-type
 export function createRealtime(
 	{
@@ -57,30 +53,41 @@ export function createRealtime(
 	}: CreateRealtimeProps,
 ) {
 	const channels = new Map<string, RealtimeChannel>()
+	// `client.channel(topic)` returns the existing channel for a known topic, so every subscribe() needs its
+	// own topic or unsubscribe() would tear down its siblings - and `.on()` throws on an already joined one.
+	// The random prefix keeps topics unique across provider instances and across duplicated copies of this
+	// module (an ESM and a CJS build in the same bundle would otherwise both start counting from zero).
+	const prefix = Math.random().toString(36).slice(2, 8)
+	let seq = 0
 
 	return defineRealtime({
 		subscribe: ({ channel, actions, callback, params, meta }: SubscribeProps<RealtimePayload, any>) => {
 			const _params = params as Params | undefined
 			const _meta = meta as RealtimeMeta | undefined
-			const table = _params?.resource ?? channel.replace(/^resources\//, '')
 			const idColumn = _meta?.idColumnName ?? 'id'
 			const ids = getIds(_params)
-			const key = `${channel}:${++seq}`
+			const key = `${channel}:${prefix}-${++seq}`
 			const events = getEvents(actions)
-			// Nothing to listen to: skip the channel instead of joining one that can never emit.
-			if (!events.length)
+			// Nothing to listen to: skip the channel instead of joining one that can never emit. An empty
+			// `ids` list has no server-side filter to narrow it, so it would stream the whole table only to
+			// drop every row here.
+			if (!events.length || ids?.length === 0)
 				return key
 
-			let realtimeChannel = client.channel(key)
+			const table = _params?.resource ?? channel.replace(/^resources\//, '')
+			// @ts-expect-error `rest` is protected; realtime does not inherit the client's `db.schema`.
+			const schema: string = _meta?.schema ?? client.rest?.schemaName ?? 'public'
+			const filter = getFilter(_params, idColumn)
+
+			const realtimeChannel = client.channel(key)
 			for (const event of events) {
-				realtimeChannel = realtimeChannel.on(
+				realtimeChannel.on(
 					'postgres_changes',
 					{
 						event,
-						// @ts-expect-error `rest` is protected; realtime does not inherit the client's `db.schema`.
-						schema: _meta?.schema ?? client.rest?.schemaName ?? 'public',
+						schema,
 						table,
-						filter: getFilter(_params, idColumn),
+						filter,
 					},
 					(payload: RealtimePostgresChangesPayload<Record<string, any>>) => {
 						const record = payload.eventType === 'DELETE' ? payload.old : payload.new
@@ -104,10 +111,11 @@ export function createRealtime(
 				)
 			}
 
-			channels.set(key, realtimeChannel.subscribe((status, error) => {
+			channels.set(key, realtimeChannel)
+			realtimeChannel.subscribe((status, error) => {
 				if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT')
 					console.warn(`[@ginjou/with-supabase] Realtime subscription "${key}" failed: ${status}`, error)
-			}))
+			})
 
 			return key
 		},
@@ -125,7 +133,8 @@ export function createRealtime(
 function getEvents(
 	actions: RealtimeActionValues[],
 ): (PostgresEvent | '*')[] {
-	const events = new Set(actions.map(action => EVENTS[action]).filter(Boolean))
+	// `hasOwn` keeps inherited members (`toString`, `constructor`, ...) out: an action is any string.
+	const events = new Set(actions.filter(action => Object.hasOwn(EVENTS, action)).map(action => EVENTS[action]))
 	return events.has('*') ? ['*'] : [...events]
 }
 
@@ -148,7 +157,9 @@ function getFilter(
 		case SubscribeType.One:
 			return `${idColumn}=eq.${params.id}`
 		case SubscribeType.Many:
-			return params.ids.length ? `${idColumn}=in.(${params.ids.join(',')})` : undefined
+			return params.ids.length > 0 && params.ids.every(isInValue)
+				? `${idColumn}=in.(${params.ids.join(',')})`
+				: undefined
 		case SubscribeType.List: {
 			const filter = params.filters?.find(isSupportedFilter)
 			if (!filter)
@@ -163,17 +174,22 @@ function getFilter(
 	}
 }
 
+// A realtime filter names a plain column of the subscribed table. A dotted path into an embedded resource
+// (`author.name`), which the fetcher does accept, is not a column here: the server rejects the whole join
+// with CHANNEL_ERROR and the subscription then delivers nothing at all.
+const COLUMN_RE = /^[a-z_]\w*$/i
+
 function isSupportedFilter(
 	item: Filter,
 ): item is LogicalFilter {
-	if (!isLogicalFilter(item) || !(item.operator in OPERATORS))
+	if (!isLogicalFilter(item) || !Object.hasOwn(OPERATORS, item.operator) || !COLUMN_RE.test(item.field))
 		return false
 
 	// A realtime filter is a plain `column=op.value` string, so only primitives survive it: a Date or an
-	// object stringifies into something the server can never match, and a comma inside an `in` list splits
-	// into extra values. Skip those - an unfiltered stream is always a safe superset of the query.
+	// object stringifies into something the server can never match. Skip those - an unfiltered stream is
+	// always a safe superset of the query.
 	return item.operator === FilterOperator.in
-		? Array.isArray(item.value) && item.value.length > 0 && item.value.every(value => isFilterValue(value) && !String(value).includes(','))
+		? Array.isArray(item.value) && item.value.length > 0 && item.value.every(isInValue)
 		: isFilterValue(item.value)
 }
 
@@ -183,4 +199,12 @@ function isFilterValue(
 	return typeof value === 'string'
 		|| typeof value === 'number'
 		|| typeof value === 'boolean'
+}
+
+// `in.(a,b)` splits on commas, so a value carrying one would be sent as several wrong values and the real
+// record would never match. Fall back to no filter instead of a filter that silently drops events.
+function isInValue(
+	value: unknown,
+): boolean {
+	return isFilterValue(value) && !String(value).includes(',')
 }
