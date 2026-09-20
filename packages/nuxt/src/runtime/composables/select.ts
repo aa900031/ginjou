@@ -1,4 +1,4 @@
-import type { BaseRecord } from '@ginjou/core'
+import type { BaseRecord, RecordKey } from '@ginjou/core'
 import type { UseSelectContext, UseSelectProps, UseSelectResult } from '@ginjou/vue'
 import type { AsyncResult } from '../utils/async'
 import { useSelect } from '@ginjou/vue'
@@ -9,7 +9,7 @@ export function useAsyncSelect<
 	TError = unknown,
 	TResultData extends BaseRecord = TData,
 	TPageParam = number,
-	TValue = any,
+	TValue extends RecordKey = RecordKey,
 	TSearchValue = string,
 >(
 	props?: UseSelectProps<TData, TError, TResultData, TPageParam, TValue, TSearchValue>,

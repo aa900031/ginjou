@@ -1,5 +1,5 @@
 import type { Simplify, ValueOf } from 'type-fest'
-import type { BaseRecord, Filters, GetList, GetListResult, GetManyByOne, GetManyResult, Pagination } from '../query'
+import type { BaseRecord, Filters, GetList, GetListResult, GetManyByOne, GetManyResult, Pagination, RecordKey } from '../query'
 import { unionBy } from 'es-toolkit'
 import { get } from 'es-toolkit/compat'
 import { FilterOperator } from '../query'
@@ -24,7 +24,7 @@ export type Props<
 	TError,
 	TResultData extends BaseRecord,
 	TPageParam,
-	TValue = any,
+	TValue extends RecordKey = RecordKey,
 	TSearchValue = string,
 > = Simplify<
 	& Omit<
@@ -38,6 +38,7 @@ export type Props<
 		searchKey?: string
 		/** Where selected options land when merged with the list page. */
 		selectedOptionsOrder?: SelectedOptionsOrderValues
+		/** Selected record key(s): the same values `valueKey` puts on each option. */
 		value?: TValue | TValue[]
 		searchToFilters?: SearchToFiltersFn<TSearchValue>
 		queryOptionsForOptions?: NonNullable<GetList.Props<TData, TError, TResultData, TPageParam>['queryOptions']>
@@ -49,18 +50,18 @@ export type Props<
 export interface GetOptionsProps<
 	TResultData extends BaseRecord,
 	TPageParam,
-	TValue = any,
+	TValue extends RecordKey = RecordKey,
 > {
 	listData: GetListResult<TResultData, TPageParam> | undefined
 	manyData: GetManyResult<TResultData> | undefined
 	labelKey: KeyOrGetter<TResultData> | undefined
 	valueKey: KeyOrGetter<TResultData, TValue> | undefined
-	selectedOptionsOrder?: SelectedOptionsOrderValues
+	selectedOptionsOrder: SelectedOptionsOrderValues | undefined
 }
 
 export interface OptionItem<
 	TResultData extends BaseRecord,
-	TValue = any,
+	TValue extends RecordKey = RecordKey,
 > {
 	label: any
 	value: TValue
@@ -70,7 +71,7 @@ export interface OptionItem<
 export function getOptions<
 	TResultData extends BaseRecord,
 	TPageParam,
-	TValue = any,
+	TValue extends RecordKey = RecordKey,
 >(
 	{
 		listData,
@@ -111,8 +112,8 @@ export function getSearchKey(
 		labelKey,
 	}: GetSearchKeyProps,
 ): string {
-	return searchKey
-		?? (typeof labelKey === 'string' ? labelKey : 'title')
+	return (searchKey || (typeof labelKey === 'string' ? labelKey : ''))
+		|| 'title'
 }
 
 export interface GetListFiltersProps<
@@ -121,7 +122,7 @@ export interface GetListFiltersProps<
 	filterFormProp: Filters | undefined
 	searchValue: TSearchValue | undefined
 	labelKey: KeyOrGetter<any> | undefined
-	searchKey?: string | undefined
+	searchKey: string | undefined
 	searchToFilters: SearchToFiltersFn<TSearchValue> | undefined
 }
 
@@ -154,15 +155,19 @@ export function getListFilters<
 	)
 }
 
-export interface GetValueIdsProps {
-	valueFormProp: any | any[] | undefined
+export interface GetValueIdsProps<
+	TValue extends RecordKey = RecordKey,
+> {
+	valueFormProp: TValue | TValue[] | null | undefined
 }
 
-export function getValueIds(
+export function getValueIds<
+	TValue extends RecordKey,
+>(
 	{
 		valueFormProp,
-	}: GetValueIdsProps,
-): any[] | undefined {
+	}: GetValueIdsProps<TValue>,
+): TValue[] | undefined {
 	if (valueFormProp == null)
 		return
 
@@ -240,20 +245,20 @@ export function getPagination<
 
 function toOptionItem<
 	TResultData extends BaseRecord,
-	TValue,
+	TValue extends RecordKey,
 >(
 	data: TResultData,
 	labelKey: KeyOrGetter<TResultData>,
 	valueKey: KeyOrGetter<TResultData, TValue>,
 ): OptionItem<TResultData, TValue> {
 	return {
-		label: pick(data, labelKey),
-		value: pick(data, valueKey),
+		label: resolveKey(data, labelKey),
+		value: resolveKey(data, valueKey),
 		data,
 	}
 }
 
-function pick<
+function resolveKey<
 	TData,
 	TReturn,
 >(

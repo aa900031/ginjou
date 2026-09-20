@@ -27,6 +27,7 @@ describe('getOptions', () => {
 			} as any,
 			labelKey: 'title',
 			valueKey: 'id',
+			selectedOptionsOrder: undefined,
 		})).toEqual([
 			{
 				label: 'Post 1',
@@ -56,6 +57,7 @@ describe('getOptions', () => {
 			manyData: undefined,
 			labelKey: undefined,
 			valueKey: undefined,
+			selectedOptionsOrder: undefined,
 		})).toEqual([
 			{
 				label: 'Post 1',
@@ -75,6 +77,7 @@ describe('getOptions', () => {
 			manyData: undefined,
 			labelKey: 'author.name',
 			valueKey: 'meta.slug',
+			selectedOptionsOrder: undefined,
 		})).toEqual([
 			{
 				label: 'Jane',
@@ -109,6 +112,7 @@ describe('getOptions ordering and getters', () => {
 			manyData: undefined,
 			labelKey: item => `#${item.id} ${item.title}`,
 			valueKey: item => Number(item.id),
+			selectedOptionsOrder: undefined,
 		})).toEqual([
 			{ label: '#1 Post 1', value: 1, data: { id: '1', title: 'Post 1' } },
 			{ label: '#2 Post 2', value: 2, data: { id: '2', title: 'Post 2' } },
@@ -122,6 +126,11 @@ describe('getSearchKey', () => {
 		expect(getSearchKey({ searchKey: undefined, labelKey: 'author.name' })).toBe('author.name')
 		expect(getSearchKey({ searchKey: undefined, labelKey: () => 'x' })).toBe('title')
 		expect(getSearchKey({ searchKey: undefined, labelKey: undefined })).toBe('title')
+	})
+
+	it('should ignore empty keys instead of filtering on an empty field', () => {
+		expect(getSearchKey({ searchKey: '', labelKey: 'author.name' })).toBe('author.name')
+		expect(getSearchKey({ searchKey: '', labelKey: '' })).toBe('title')
 	})
 })
 
@@ -147,6 +156,7 @@ describe('getListFilters', () => {
 			filterFormProp: undefined,
 			searchValue: 'post',
 			labelKey: 'title',
+			searchKey: undefined,
 			searchToFilters: undefined,
 		})).toEqual([
 			{
@@ -162,6 +172,7 @@ describe('getListFilters', () => {
 			filterFormProp: undefined,
 			searchValue: 'post',
 			labelKey: undefined,
+			searchKey: undefined,
 			searchToFilters: undefined,
 		})).toEqual([
 			{
@@ -177,6 +188,7 @@ describe('getListFilters', () => {
 			filterFormProp: undefined,
 			searchValue: 'post',
 			labelKey: 'title',
+			searchKey: undefined,
 			searchToFilters: value => [
 				{
 					field: 'slug',
@@ -204,6 +216,7 @@ describe('getListFilters', () => {
 			],
 			searchValue: 'post',
 			labelKey: 'title',
+			searchKey: undefined,
 			searchToFilters: undefined,
 		})).toEqual([
 			{
@@ -230,6 +243,7 @@ describe('getListFilters', () => {
 			],
 			searchValue: null,
 			labelKey: 'title',
+			searchKey: undefined,
 			searchToFilters: undefined,
 		})).toEqual([
 			{
