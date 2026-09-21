@@ -32,7 +32,7 @@ export type Props<
 			| 'queryOptions'
 	>
 	& {
-		labelKey?: KeyOrGetter<TResultData>
+		labelKey?: KeyOrGetter<TResultData, string>
 		valueKey?: KeyOrGetter<TResultData, TValue>
 		/** Field for the default `contains` search filter. Falls back to a string `labelKey`, then `'title'`. */
 		searchKey?: string
@@ -54,7 +54,7 @@ export interface GetOptionsProps<
 > {
 	listData: GetListResult<TResultData, TPageParam> | undefined
 	manyData: GetManyResult<TResultData> | undefined
-	labelKey: KeyOrGetter<TResultData> | undefined
+	labelKey: KeyOrGetter<TResultData, string> | undefined
 	valueKey: KeyOrGetter<TResultData, TValue> | undefined
 	selectedOptionsOrder: SelectedOptionsOrderValues | undefined
 }
@@ -68,6 +68,10 @@ export interface OptionItem<
 	data: TResultData
 }
 
+const DEFAULT_OPTION_LABEL_KEY = 'title'
+
+const DEFAULT_OPTION_VALUE_KEY = 'id'
+
 export function getOptions<
 	TResultData extends BaseRecord,
 	TPageParam,
@@ -76,8 +80,8 @@ export function getOptions<
 	{
 		listData,
 		manyData,
-		labelKey = 'title',
-		valueKey = 'id',
+		labelKey = DEFAULT_OPTION_LABEL_KEY,
+		valueKey = DEFAULT_OPTION_VALUE_KEY,
 		selectedOptionsOrder = SelectedOptionsOrder.InPlace,
 	}: GetOptionsProps<TResultData, TPageParam, TValue>,
 ): OptionItem<TResultData, TValue>[] {
@@ -100,7 +104,7 @@ export interface GetListFiltersProps<
 > {
 	filterFormProp: Filters | undefined
 	searchValue: TSearchValue | undefined
-	labelKey: KeyOrGetter<any> | undefined
+	labelKey: KeyOrGetter<any, string> | undefined
 	searchKey: string | undefined
 	searchToFilters: SearchToFiltersFn<TSearchValue> | undefined
 }
@@ -222,7 +226,7 @@ function toOptionItem<
 	TValue extends RecordKey,
 >(
 	data: TResultData,
-	labelKey: KeyOrGetter<TResultData>,
+	labelKey: KeyOrGetter<TResultData, string>,
 	valueKey: KeyOrGetter<TResultData, TValue>,
 ): OptionItem<TResultData, TValue> {
 	return {
@@ -250,7 +254,7 @@ function resolveSearchFilters<
 	TSearchValue,
 >(
 	searchValue: TSearchValue | undefined,
-	labelKey: KeyOrGetter<any> | undefined,
+	labelKey: KeyOrGetter<any, string> | undefined,
 	searchKey: string | undefined,
 	searchToFilters: SearchToFiltersFn<TSearchValue> | undefined,
 ): Filters | undefined {
