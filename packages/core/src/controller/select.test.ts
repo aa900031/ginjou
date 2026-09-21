@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { FilterOperator } from '../query'
 import {
 	getListFilters,
@@ -6,7 +6,6 @@ import {
 	getPagination,
 	getPropCurrentPage,
 	getPropPerPage,
-	getSearchKey,
 	getValueIds,
 } from './select'
 
@@ -120,20 +119,6 @@ describe('getOptions ordering and getters', () => {
 	})
 })
 
-describe('getSearchKey', () => {
-	it('should prefer searchKey, then a string labelKey, then title', () => {
-		expect(getSearchKey({ searchKey: 'name', labelKey: 'title' })).toBe('name')
-		expect(getSearchKey({ searchKey: undefined, labelKey: 'author.name' })).toBe('author.name')
-		expect(getSearchKey({ searchKey: undefined, labelKey: () => 'x' })).toBe('title')
-		expect(getSearchKey({ searchKey: undefined, labelKey: undefined })).toBe('title')
-	})
-
-	it('should ignore empty keys instead of filtering on an empty field', () => {
-		expect(getSearchKey({ searchKey: '', labelKey: 'author.name' })).toBe('author.name')
-		expect(getSearchKey({ searchKey: '', labelKey: '' })).toBe('title')
-	})
-})
-
 describe('getListFilters', () => {
 	it('should search on searchKey instead of labelKey when given', () => {
 		expect(getListFilters({
@@ -147,6 +132,81 @@ describe('getListFilters', () => {
 				field: 'slug',
 				operator: FilterOperator.contains,
 				value: 'post',
+			},
+		])
+	})
+
+	it('should fall back to labelKey when searchKey is empty', () => {
+		expect(getListFilters({
+			filterFormProp: undefined,
+			searchValue: 'post',
+			labelKey: 'author.name',
+			searchKey: '',
+			searchToFilters: undefined,
+		})).toEqual([
+			{
+				field: 'author.name',
+				operator: FilterOperator.contains,
+				value: 'post',
+			},
+		])
+	})
+
+	it('should fall back to the default key when labelKey is a getter', () => {
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+		expect(getListFilters({
+			filterFormProp: undefined,
+			searchValue: 'post',
+			labelKey: (item: any) => item.title,
+			searchKey: undefined,
+			searchToFilters: undefined,
+		})).toEqual([
+			{
+				field: 'title',
+				operator: FilterOperator.contains,
+				value: 'post',
+			},
+		])
+		expect(warn).toHaveBeenCalledOnce()
+
+		warn.mockRestore()
+	})
+
+	it('should fall back to the default key when labelKey is empty', () => {
+		expect(getListFilters({
+			filterFormProp: undefined,
+			searchValue: 'post',
+			labelKey: '',
+			searchKey: undefined,
+			searchToFilters: undefined,
+		})).toEqual([
+			{
+				field: 'title',
+				operator: FilterOperator.contains,
+				value: 'post',
+			},
+		])
+	})
+
+	it('should not search when search value is an empty string', () => {
+		expect(getListFilters({
+			filterFormProp: [
+				{
+					field: 'published',
+					operator: FilterOperator.eq,
+					value: true,
+				},
+			],
+			searchValue: '',
+			labelKey: 'title',
+			searchKey: undefined,
+			searchToFilters: undefined,
+		})).toEqual([
+			{
+				field: 'published',
+				operator: FilterOperator.eq,
+				value: true,
 			},
 		])
 	})

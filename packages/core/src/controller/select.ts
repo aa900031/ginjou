@@ -1,6 +1,6 @@
 import type { Simplify, ValueOf } from 'type-fest'
 import type { BaseRecord, Filters, GetList, GetListResult, GetManyByOne, GetManyResult, Pagination, RecordKey } from '../query'
-import { unionBy } from 'es-toolkit'
+import { isPrimitive, unionBy } from 'es-toolkit'
 import { get } from 'es-toolkit/compat'
 import { FilterOperator } from '../query'
 import { getSubValue } from '../utils/sub-value'
@@ -95,27 +95,6 @@ export type SearchToFiltersFn<
 	value: TSearchValue | undefined,
 ) => Filters | undefined
 
-export type SetSearchFn<
-	TSearchValue,
-> = (
-	value: TSearchValue | undefined,
-) => void
-
-export interface GetSearchKeyProps {
-	searchKey: string | undefined
-	labelKey: KeyOrGetter<any> | undefined
-}
-
-export function getSearchKey(
-	{
-		searchKey,
-		labelKey,
-	}: GetSearchKeyProps,
-): string {
-	return (searchKey || (typeof labelKey === 'string' ? labelKey : ''))
-		|| 'title'
-}
-
 export interface GetListFiltersProps<
 	TSearchValue,
 > {
@@ -137,17 +116,12 @@ export function getListFilters<
 		searchToFilters,
 	}: GetListFiltersProps<TSearchValue>,
 ): Filters | undefined {
-	const searchFilters = typeof searchToFilters === 'function'
-		? searchToFilters(searchValue)
-		: searchValue !== null
-			? [
-					{
-						field: getSearchKey({ searchKey, labelKey }),
-						operator: FilterOperator.contains,
-						value: searchValue,
-					},
-				]
-			: undefined
+	const searchFilters = resolveSearchFilters(
+		searchValue,
+		labelKey,
+		searchKey,
+		searchToFilters,
+	)
 
 	return resolveFilters(
 		searchFilters,
@@ -268,4 +242,36 @@ function resolveKey<
 	return typeof key === 'function'
 		? key(data)
 		: get(data, key)
+}
+
+const DEFAULT_SEARCH_FIELD = 'title'
+
+function resolveSearchFilters<
+	TSearchValue,
+>(
+	searchValue: TSearchValue | undefined,
+	labelKey: KeyOrGetter<any> | undefined,
+	searchKey: string | undefined,
+	searchToFilters: SearchToFiltersFn<TSearchValue> | undefined,
+): Filters | undefined {
+	if (typeof searchToFilters === 'function')
+		return searchToFilters(searchValue)
+
+	if (!isPrimitive(searchValue)) {
+		console.warn('[@ginjou/core] Cannot build a search filter from a non-primitive searchValue. Pass a primitive searchValue or provide a \'searchToFilters\' function.')
+		return
+	}
+
+	if (searchValue != null && searchValue !== '') {
+		const field = searchKey || (typeof labelKey === 'string' ? labelKey : undefined) || DEFAULT_SEARCH_FIELD
+		if (!searchKey && typeof labelKey === 'function')
+			console.warn(`[@ginjou/core] Cannot derive a search field from a 'labelKey' function, falling back to '${DEFAULT_SEARCH_FIELD}'. Set 'searchKey' to search on another field.`)
+		return [
+			{
+				field,
+				operator: FilterOperator.contains,
+				value: searchValue,
+			},
+		]
+	}
 }
