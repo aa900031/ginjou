@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { FilterOperator } from '../query'
 import {
 	getListFilters,
@@ -26,6 +26,7 @@ describe('getOptions', () => {
 			} as any,
 			labelKey: 'title',
 			valueKey: 'id',
+			selectedOptionsOrder: undefined,
 		})).toEqual([
 			{
 				label: 'Post 1',
@@ -55,6 +56,7 @@ describe('getOptions', () => {
 			manyData: undefined,
 			labelKey: undefined,
 			valueKey: undefined,
+			selectedOptionsOrder: undefined,
 		})).toEqual([
 			{
 				label: 'Post 1',
@@ -74,6 +76,7 @@ describe('getOptions', () => {
 			manyData: undefined,
 			labelKey: 'author.name',
 			valueKey: 'meta.slug',
+			selectedOptionsOrder: undefined,
 		})).toEqual([
 			{
 				label: 'Jane',
@@ -84,12 +87,136 @@ describe('getOptions', () => {
 	})
 })
 
+describe('getOptions ordering and getters', () => {
+	const listData = { data: [{ id: '1', title: 'Post 1' }, { id: '2', title: 'Post 2' }] } as any
+	const manyData = { data: [{ id: '2', title: 'Post 2 selected' }, { id: '3', title: 'Post 3' }] } as any
+
+	it('should put selected options first when selectedOptionsOrder is selected-first', () => {
+		expect(getOptions({
+			listData,
+			manyData,
+			labelKey: undefined,
+			valueKey: undefined,
+			selectedOptionsOrder: 'selected-first',
+		}).map(item => [item.value, item.label])).toEqual([
+			['2', 'Post 2 selected'],
+			['3', 'Post 3'],
+			['1', 'Post 1'],
+		])
+	})
+
+	it('should accept getter functions for label and value', () => {
+		expect(getOptions({
+			listData,
+			manyData: undefined,
+			labelKey: item => `#${item.id} ${item.title}`,
+			valueKey: item => Number(item.id),
+			selectedOptionsOrder: undefined,
+		})).toEqual([
+			{ label: '#1 Post 1', value: 1, data: { id: '1', title: 'Post 1' } },
+			{ label: '#2 Post 2', value: 2, data: { id: '2', title: 'Post 2' } },
+		])
+	})
+})
+
 describe('getListFilters', () => {
+	it('should search on searchKey instead of labelKey when given', () => {
+		expect(getListFilters({
+			filterFormProp: undefined,
+			searchValue: 'post',
+			labelKey: 'title',
+			searchKey: 'slug',
+			searchToFilters: undefined,
+		})).toEqual([
+			{
+				field: 'slug',
+				operator: FilterOperator.contains,
+				value: 'post',
+			},
+		])
+	})
+
+	it('should fall back to labelKey when searchKey is empty', () => {
+		expect(getListFilters({
+			filterFormProp: undefined,
+			searchValue: 'post',
+			labelKey: 'author.name',
+			searchKey: '',
+			searchToFilters: undefined,
+		})).toEqual([
+			{
+				field: 'author.name',
+				operator: FilterOperator.contains,
+				value: 'post',
+			},
+		])
+	})
+
+	it('should fall back to the default key when labelKey is a getter', () => {
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+		expect(getListFilters({
+			filterFormProp: undefined,
+			searchValue: 'post',
+			labelKey: (item: any) => item.title,
+			searchKey: undefined,
+			searchToFilters: undefined,
+		})).toEqual([
+			{
+				field: 'title',
+				operator: FilterOperator.contains,
+				value: 'post',
+			},
+		])
+		expect(warn).toHaveBeenCalledOnce()
+
+		warn.mockRestore()
+	})
+
+	it('should fall back to the default key when labelKey is empty', () => {
+		expect(getListFilters({
+			filterFormProp: undefined,
+			searchValue: 'post',
+			labelKey: '',
+			searchKey: undefined,
+			searchToFilters: undefined,
+		})).toEqual([
+			{
+				field: 'title',
+				operator: FilterOperator.contains,
+				value: 'post',
+			},
+		])
+	})
+
+	it('should not search when search value is an empty string', () => {
+		expect(getListFilters({
+			filterFormProp: [
+				{
+					field: 'published',
+					operator: FilterOperator.eq,
+					value: true,
+				},
+			],
+			searchValue: '',
+			labelKey: 'title',
+			searchKey: undefined,
+			searchToFilters: undefined,
+		})).toEqual([
+			{
+				field: 'published',
+				operator: FilterOperator.eq,
+				value: true,
+			},
+		])
+	})
+
 	it('should build a default contains filter from search value', () => {
 		expect(getListFilters({
 			filterFormProp: undefined,
 			searchValue: 'post',
 			labelKey: 'title',
+			searchKey: undefined,
 			searchToFilters: undefined,
 		})).toEqual([
 			{
@@ -105,6 +232,7 @@ describe('getListFilters', () => {
 			filterFormProp: undefined,
 			searchValue: 'post',
 			labelKey: undefined,
+			searchKey: undefined,
 			searchToFilters: undefined,
 		})).toEqual([
 			{
@@ -120,6 +248,7 @@ describe('getListFilters', () => {
 			filterFormProp: undefined,
 			searchValue: 'post',
 			labelKey: 'title',
+			searchKey: undefined,
 			searchToFilters: value => [
 				{
 					field: 'slug',
@@ -147,6 +276,7 @@ describe('getListFilters', () => {
 			],
 			searchValue: 'post',
 			labelKey: 'title',
+			searchKey: undefined,
 			searchToFilters: undefined,
 		})).toEqual([
 			{
@@ -173,6 +303,7 @@ describe('getListFilters', () => {
 			],
 			searchValue: null,
 			labelKey: 'title',
+			searchKey: undefined,
 			searchToFilters: undefined,
 		})).toEqual([
 			{

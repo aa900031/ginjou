@@ -1,4 +1,4 @@
-import type { BaseRecord } from '@ginjou/core'
+import type { BaseRecord, RecordKey } from '@ginjou/core'
 import type { Simplify } from 'type-fest'
 import type { UseGetListContext, UseGetListResult, UseGetManyByOneContext } from '../query'
 import type { MaybeAccessor } from '../utils'
@@ -13,8 +13,10 @@ export type UseSelectProps<
 	TError,
 	TResultData extends BaseRecord,
 	TPageParam,
+	TValue extends RecordKey = RecordKey,
+	TSearchValue = string,
 > = MaybeAccessor<
-	| Select.Props<TData, TError, TResultData, TPageParam>
+	| Select.Props<TData, TError, TResultData, TPageParam, TValue, TSearchValue>
 	| undefined
 >
 
@@ -28,11 +30,13 @@ export type UseSelectResult<
 	TError,
 	TResultData extends BaseRecord,
 	TPageParam,
+	TValue extends RecordKey = RecordKey,
+	TSearchValue = string,
 > = Simplify<
 	& UseGetListResult<TError, TResultData, TPageParam>
 	& {
-		readonly options: Select.OptionItem<TResultData>[] | undefined
-		search: string | undefined
+		readonly options: Select.OptionItem<TResultData, TValue>[] | undefined
+		search: TSearchValue | undefined
 		currentPage: TPageParam | undefined
 		perPage: number | undefined
 	}
@@ -43,19 +47,21 @@ export function useSelect<
 	TError = unknown,
 	TResultData extends BaseRecord = TData,
 	TPageParam = number,
+	TValue extends RecordKey = RecordKey,
+	TSearchValue = string,
 >(
-	props?: UseSelectProps<TData, TError, TResultData, TPageParam>,
+	props?: UseSelectProps<TData, TError, TResultData, TPageParam, TValue, TSearchValue>,
 	context?: UseSelectContext,
-): UseSelectResult<TError, TResultData, TPageParam> {
+): UseSelectResult<TError, TResultData, TPageParam, TValue, TSearchValue> {
 	const resolvedProps = $derived(extract(props))
 	const resource = useResource(() => ({ name: resolvedProps?.resource }), context)
 
-	let search = $state<string | undefined>()
-	const currentPage = pickState<TPageParam | undefined, Select.Props<TData, TError, TResultData, TPageParam>['pagination']>(
+	let search = $state.raw<TSearchValue | undefined>()
+	const currentPage = pickState<TPageParam | undefined, Select.Props<TData, TError, TResultData, TPageParam, TValue, TSearchValue>['pagination']>(
 		() => resolvedProps?.pagination,
 		Select.getPropCurrentPage,
 	)
-	const perPage = pickState<number | undefined, Select.Props<TData, TError, TResultData, TPageParam>['pagination']>(
+	const perPage = pickState<number | undefined, Select.Props<TData, TError, TResultData, TPageParam, TValue, TSearchValue>['pagination']>(
 		() => resolvedProps?.pagination,
 		Select.getPropPerPage,
 	)
@@ -72,6 +78,7 @@ export function useSelect<
 		filterFormProp: resolvedProps?.filters,
 		searchValue: search,
 		labelKey: resolvedProps?.labelKey,
+		searchKey: resolvedProps?.searchKey,
 		searchToFilters: resolvedProps?.searchToFilters,
 	}))
 	const pagination = $derived.by(() => Select.getPagination({
@@ -104,6 +111,7 @@ export function useSelect<
 		manyData: manyResult.data,
 		labelKey: resolvedProps?.labelKey,
 		valueKey: resolvedProps?.valueKey,
+		selectedOptionsOrder: resolvedProps?.selectedOptionsOrder,
 	}))
 
 	return withAccessors(listResult, {

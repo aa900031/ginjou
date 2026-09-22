@@ -26,7 +26,7 @@ export type QueryOptions<
 export type QueryProps = Simplify<
 	& FetcherProps
 	& {
-		ids?: string[]
+		ids?: RecordKey[]
 		resource?: string
 	}
 >
@@ -34,7 +34,7 @@ export type QueryProps = Simplify<
 export type ResolvedQueryProps = Simplify<
 	& ResolvedFetcherProps
 	& {
-		ids: string[]
+		ids: RecordKey[]
 		resource: string
 	}
 >
