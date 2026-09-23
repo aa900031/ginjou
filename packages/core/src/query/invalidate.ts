@@ -2,10 +2,11 @@ import type { InvalidateOptions, InvalidateQueryFilters, QueryClient } from '@ta
 import type { Simplify, ValueOf } from 'type-fest'
 import type { Meta, RecordKey } from './fetcher'
 import type { FetcherProps } from './fetchers'
+import { resolveFetcherProps } from './fetchers'
 import { createBaseQueryKey as genBaseGetInfiniteListQueryKey } from './get-infinite-list'
 import { createBaseQueryKey as genBaseGetListQueryKey } from './get-list'
 import { createBaseQueryKey as genBaseGetManyQueryKey, createQueryKey as genGetManyQueryKey } from './get-many'
-import { createQueryKey as genGetOneQueryKey } from './get-one'
+import { createBaseQueryKey as genBaseGetOneQueryKey, createQueryKey as genGetOneQueryKey } from './get-one'
 import { createQueryKey as genResourceQueryKey } from './resource'
 
 export const Target = {
@@ -146,9 +147,11 @@ export function createInvalidator(
 
 		await Promise.all(invalidates.map(async (rule) => {
 			const target = typeof rule === 'string' ? rule : rule.target
-			const fetcherName = typeof rule === 'string'
-				? propsFromFn.fetcherName ?? getFetcherName() ?? 'default'
-				: rule.fetcherName ?? propsFromFn.fetcherName ?? getFetcherName() ?? 'default'
+			const fetcherName = resolveFetcherProps({
+				fetcherName: typeof rule === 'string'
+					? propsFromFn.fetcherName ?? getFetcherName()
+					: rule.fetcherName ?? propsFromFn.fetcherName ?? getFetcherName(),
+			}).fetcherName
 			const resource = typeof rule === 'string' || !('resource' in rule)
 				? propsFromFn.resource ?? getResource()
 				: rule.resource
@@ -219,10 +222,12 @@ export function createInvalidator(
 					if (typeof rule === 'string') {
 						await queryClient.invalidateQueries(
 							{
-								queryKey: [
-									...genResourceQueryKey({ props: { fetcherName, resource: resource! } }),
-									'getOne',
-								],
+								queryKey: genBaseGetOneQueryKey({
+									props: {
+										fetcherName,
+										resource: resource!,
+									},
+								}),
 								...invalidateQueryFilters,
 							},
 							invalidateOptions,
