@@ -119,6 +119,29 @@ Common call fields:
 
 REST API and Directus support custom endpoints; the official Supabase adapter does not. `useCustomMutation()` does not add `mutationMode` or CRUD invalidation presets.
 
+## `useQueryInvalidate`
+
+Invalidate cached queries outside a mutation (after a custom mutation, a webhook
+ping, a manual refresh button). See [behavior.md](./behavior.md) for the rule
+shapes.
+
+```ts
+import { useQueryInvalidate } from '@ginjou/vue'
+
+const invalidate = useQueryInvalidate()
+
+await invalidate({
+	invalidates: [
+		{ target: 'resource', resource: 'comments' },
+		{ target: 'one', resource: 'posts', id: 1 },
+	],
+})
+```
+
+`invalidates` is required — set it on the hook
+(`useQueryInvalidate({ resource: 'posts', invalidates: ['list'] })`) or per call;
+supplying neither rejects. Same for `resource` on every target but `all`.
+
 ## Rules
 
 - Use `useGetList`, `useGetOne`, `useGetMany`, and `useGetInfiniteList` for non-page reads.
@@ -127,3 +150,4 @@ REST API and Directus support custom endpoints; the official Supabase adapter do
 - Prefer batch composables over manual loops for bulk operations.
 - Forward `queryOptions`, `mutationOptions`, and `invalidates` only when the UI needs that extra control.
 - Do not describe `useCustomMutation` as if it supported `mutationMode` or CRUD invalidation presets.
+- Refresh caches after `useCustomMutation` (or any non-ginjou write) with `useQueryInvalidate`.

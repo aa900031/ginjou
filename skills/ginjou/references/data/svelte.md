@@ -51,10 +51,20 @@ async function del(id: string | number) {
 
 `useCreateOne` / `useUpdateOne` / batch variants and `useCustom` /
 `useCustomMutation` behave exactly as in Vue, including the backend-capability
-caveats (Supabase has no `custom`/`deleteMany`).
+caveats (Supabase has no `custom`/`deleteMany`). `useQueryInvalidate` also
+matches Vue, taking an accessor instead of refs:
+
+```ts
+import { useQueryInvalidate } from '@ginjou/svelte'
+
+const invalidate = useQueryInvalidate(() => ({ resource: 'posts' }))
+
+await invalidate({ invalidates: [{ target: 'resource', resource: 'comments' }] })
+```
 
 ## Rules
 
 - Single delete → `useDeleteOne`; non-page read → `useGetList`. Same choices as Vue.
 - Pass an accessor (`() => ({ … })`) whenever query args depend on reactive state.
+- Refresh caches after `useCustomMutation` (or any non-ginjou write) with `useQueryInvalidate`.
 - Read reactive fields (`isFetching`, `records`, `isPending`) off the returned object; destructure only the mutate methods.
