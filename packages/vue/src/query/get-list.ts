@@ -8,6 +8,7 @@ import type { UseNotifyContext } from '../notification'
 import type { UseSubscribeContext } from '../realtime'
 import type { ToMaybeRefs } from '../utils/refs'
 import type { UseFetcherContextFromProps } from './fetchers'
+import type { UseQueryInvalidateContext } from './invalidate'
 import type { UseQueryClientContextProps } from './query-client'
 import { createSubscribeCallback, GetList, getSubscribeChannel, RealtimeAction } from '@ginjou/core'
 import { useQuery } from '@tanstack/vue-query'
@@ -19,6 +20,7 @@ import { useTranslate } from '../i18n'
 import { useNotify } from '../notification'
 import { useRealtimeOptions, useSubscribe } from '../realtime'
 import { useFetchersContext } from './fetchers'
+import { useQueryInvalidate } from './invalidate'
 import { useQueryClientContext } from './query-client'
 
 export type UseGetListProps<
@@ -37,6 +39,7 @@ export type UseGetListContext = Simplify<
 	& UseTranslateContext
 	& UseCheckErrorContext
 	& UseSubscribeContext
+	& UseQueryInvalidateContext
 >
 
 export type UseGetListResult<
@@ -64,6 +67,7 @@ export function useGetList<
 	const realtimeOptions = useRealtimeOptions(toRef(() => unref(props.realtime)), context)
 	const notify = useNotify(context)
 	const translate = useTranslate(context)
+	const invalidate = useQueryInvalidate(props, context)
 	const { mutateAsync: checkError } = useCheckError<TError>(undefined, context)
 
 	const queryProps = computed(() => GetList.resolveQueryProps<TPageParam>({
@@ -140,7 +144,7 @@ export function useGetList<
 		})),
 		meta: toRef(() => unref(queryProps).meta),
 		callback: createSubscribeCallback({
-			queryClient,
+			invalidate,
 			getRealtimeOptions: () => unref(realtimeOptions),
 			getResource: () => unref(queryProps).resource,
 			getFetcherName: () => unref(queryProps).fetcherName,

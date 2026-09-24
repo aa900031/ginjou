@@ -1,6 +1,6 @@
 {
 	"skill_name": "ginjou",
-	"notes": "Iteration 1 — application-layer evals usable as a regression suite. Each prompt mimics how a real developer would ask: 'I want to build X' or 'integrate Y with ginjou'. Cases 1–5 cover setup/controllers/auth/nuxt-ssr/realtime; cases 6–10 cover authorization, i18n, notifications, infinite list, and edit form / optimistic update. Run the full pipeline whenever skill or references change: dispatch with_skill + without_skill subagents per case → grader subagents → aggregate-benchmark.mjs → generate-review.mjs. Baseline strategy: no skill at all (measures the ginjou skill's overall value vs. raw model knowledge).",
+	"notes": "Iteration 1 — application-layer evals usable as a regression suite. Each prompt mimics how a real developer would ask: 'I want to build X' or 'integrate Y with ginjou'. Cases 1–5 cover setup/controllers/auth/nuxt-ssr/realtime; cases 6–10 cover authorization, i18n, notifications, infinite list, and edit form / optimistic update; case 11 covers cache invalidation (`invalidates` rules + `useQueryInvalidate`). Run the full pipeline whenever skill or references change: dispatch with_skill + without_skill subagents per case → grader subagents → aggregate-benchmark.mjs → generate-review.mjs. Baseline strategy: no skill at all (measures the ginjou skill's overall value vs. raw model knowledge).",
 	"baseline_strategy": "no-skill",
 	"evals": [
 		{
@@ -100,11 +100,11 @@
 			"id": 7,
 			"dir_name": "vue-i18n-with-vue-i18n",
 			"prompt": "Vue 3 + vue-i18n（已經有 `vue-i18n` 安裝）。我要把 ginjou 的訊息（resource label、auth 錯誤、notification、validation 等等）都接到 vue-i18n，支援 zh-TW / en，並提供切換語系的下拉選單。請告訴我怎麼用 `@ginjou/with-vue-i18n` 串起來，並在 component 裡怎麼讀翻譯與切換語系。",
-			"expected_output": "Use `createI18n(vueI18n)` from `@ginjou/with-vue-i18n` and pass to `defineI18nContext`. Use `useTranslate()` (returns function directly, not `{ t }`) for translation, `useLocale()` (returns writable `Ref<string>`) for switching locale. The `vueI18n` instance is the standard `vue-i18n` `createI18n({ locale, messages })`.",
+			"expected_output": "`app.use(createVueI18n({ legacy: false, locale, messages }))` from `vue-i18n`, then `defineI18nContext(createI18n())` from `@ginjou/with-vue-i18n` inside `setup` (its optional arg is `useI18n` options, never an instance). Reads via `const t = useTranslate()`; locale switch via writable `useLocale()` ref bound with `v-model`.",
 			"files": [],
 			"expectations": [
-				"Adapter wired as `createI18n(vueI18n)` from `@ginjou/with-vue-i18n` then `defineI18nContext(adapter)` — NOT a fabricated `createGinjouI18n` / `i18nProvider` / direct `defineI18nContext(vueI18n)`.",
-				"The vue-i18n instance is the standard `createI18n({ locale, messages })` from the `vue-i18n` package (NOT confused with ginjou's `createI18n`).",
+				"Adapter wired as `defineI18nContext(createI18n())` inside `setup`, with `createI18n` from `@ginjou/with-vue-i18n` — does NOT pass the vue-i18n instance to it (`createI18n(vueI18n)`), NOT a fabricated `createGinjouI18n` / `i18nProvider`, NOT `defineI18nContext(vueI18n)`.",
+				"The vue-i18n instance is the standard `createI18n({ legacy: false, locale, messages })` from the `vue-i18n` package, installed with `app.use(...)` (NOT confused with ginjou's `createI18n`).",
 				"`useTranslate()` is treated as a function return value (e.g. `const t = useTranslate(); t('key')`) — NOT destructured as `const { t } = useTranslate()`.",
 				"For locale switching, uses `useLocale()` and treats it as a writable `Ref<string>` (e.g. `locale.value = 'zh-TW'`) — NOT a fabricated `useSetLocale()` / `useChangeLocale()` returning a setter function.",
 				"Does NOT recommend reading vue-i18n's `useI18n()` directly inside ginjou-wired components when ginjou translation is the goal — ginjou composables are the boundary.",
@@ -156,6 +156,21 @@
 				"Either explicitly states `useCreate` does not support `mutationMode` OR avoids ever pairing `useCreate` with `mutationMode` in this answer.",
 				"For the cancel/back navigation that preserves query string, uses `useGo` or `useNavigateTo` with `keepQuery: true` — does NOT add `keepQuery` to `useEdit`'s built-in `redirect` (which doesn't support it).",
 				"Cites at least one of `references/forms/vue.md`, `references/forms/behavior.md` (or their remote URLs)."
+			]
+		},
+		{
+			"id": 11,
+			"dir_name": "vue-query-invalidate",
+			"prompt": "Vue 3 + REST API。我的 `/posts` 編輯頁用 `useUpdateOne` 存檔，存檔後除了 posts 本身，關聯的 `comments` 列表跟 `authors` 裡那位作者（id 7）的資料也要一起刷新，原本預設會刷新的東西不能少。\n\n另外同一頁有一顆「發佈」按鈕，是打自訂 endpoint `/posts/:id/publish`（不是 CRUD），打完之後也要讓這篇 post 跟 posts 列表重新抓資料。\n\n請給我這兩段的完整寫法。",
+			"expected_output": "`useUpdateOne` with `invalidates` in callback form (`defaults => [...(defaults || []), ...]`) so the defaults (`list`, `many`, `one`) are kept, plus object rules `{ target: 'resource', resource: 'comments' }` and `{ target: 'one', resource: 'authors', id: 7 }`. Publish button uses `useCustomMutation` + `useQueryInvalidate` (custom mutation has no built-in invalidation), invalidating `{ target: 'one', resource: 'posts', id }` and `{ target: 'list', resource: 'posts' }`.",
+			"files": [],
+			"expectations": [
+				"Keeps the defaults by passing `invalidates` as a callback (`defaults => [...(defaults || []), …]`) and states that passing a bare array REPLACES the defaults — does NOT hand-rewrite `['list', 'many', 'one']` while claiming the defaults are merged.",
+				"Cross-resource rules are objects with `target` + `resource` (e.g. `{ target: 'resource', resource: 'comments' }`, `{ target: 'one', resource: 'authors', id: 7 }`) — NOT bare strings, NOT `{ type: … }` / `{ scope: … }` / `{ queryKey: … }`, and NOT `queryClient.invalidateQueries` by hand.",
+				"Uses `useQueryInvalidate` from `@ginjou/vue` for the custom-endpoint flow — NOT a fabricated `useInvalidate` / `useInvalidateQueries` / `useRefresh`, and explains that `useCustomMutation` has no built-in CRUD invalidation.",
+				"The `invalidate` call passes `invalidates` (required) and a `resource` for every non-`all` target — does NOT call `invalidate()` bare or rely on an invented `invalidate('posts')` string signature.",
+				"Target names come from `all` / `resource` / `list` / `many` / `one` only — NOT invented targets such as `detail` / `item` / `infinite` / `getOne`; and if `all` is mentioned, it is described as every query of ONE fetcher, not the whole cache.",
+				"Cites at least one of `references/data/vue.md`, `references/data/behavior.md` (or their remote URLs)."
 			]
 		}
 	]

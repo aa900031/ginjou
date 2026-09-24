@@ -126,7 +126,9 @@ If still failing, stop and surface the failing files. Do **not** finalize.
 node .agents/skills/eval-ginjou/scripts/run-eval.mjs finalize <N>
 ```
 
-Writes `iteration-<N>/benchmark.json` and `review.html`. (`finalize` already
+Writes `iteration-<N>/benchmark.json` + `benchmark.md`, and `review.html` when
+the optional `maintain-skill` scripts are installed (otherwise it says so and
+skips the HTML). (`finalize` already
 runs `validate` + `fix` internally; you can skip step 4 and call `finalize`
 directly if confident.)
 
@@ -139,13 +141,13 @@ Reply with:
   `benchmark.json`.
 - One-line per-case PASS / PARTIAL / FAIL summary for the with_skill arm.
 - Any contamination flags (`grading.json:contamination.clean === false`).
-- Absolute path to `review.html`.
+- Absolute path to `review.html` (or `benchmark.md` when review generation was skipped).
 
 Do **not** propose a git commit; the iteration folder is scratch.
 
 ## Coverage (references/evals.json)
 
-10 application-layer cases. Each expectation pins down one
+11 application-layer cases. Each expectation pins down one
 "fabricated-but-plausible API" trap to make the eval discriminative.
 
 | # | dir_name | Topic |
@@ -160,6 +162,10 @@ Do **not** propose a git commit; the iteration folder is scratch.
 | 8 | vue-notifications-toast | `defineNotificationContext` + undoable |
 | 9 | vue-infinite-list-rest | `useGetInfiniteList` widget (non page controller) |
 | 10 | vue-edit-form-optimistic | `useEdit` + `mutationMode: 'optimistic'` |
+| 11 | vue-query-invalidate | `invalidates` callback form + `useQueryInvalidate` |
+
+Case 11 was added after the baseline below was taken — a first run of it has no
+prior number to compare against.
 
 Snapshot baseline (do not commit reports; this is the bar to beat):
 

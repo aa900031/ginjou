@@ -1,30 +1,15 @@
 import type { InvalidateOptions, InvalidateQueryFilters, QueryClient } from '@tanstack/query-core'
-import type { SetRequired, Simplify, ValueOf } from 'type-fest'
-import type { BaseRecord, CreateManyResult, CreateOneResult, DeleteManyResult, DeleteOneResult, GetManyResult, GetOneResult, RecordKey, UpdateManyResult, UpdateOneResult } from './fetcher'
+import type { Simplify, ValueOf } from 'type-fest'
+import type { Meta, RecordKey } from './fetcher'
+import type { FetcherProps } from './fetchers'
+import { resolveFetcherProps } from './fetchers'
 import { createBaseQueryKey as genBaseGetInfiniteListQueryKey } from './get-infinite-list'
 import { createBaseQueryKey as genBaseGetListQueryKey } from './get-list'
-import { createQueryKey as genGetManyQueryKey } from './get-many'
-import { createQueryKey as genGetOneQueryKey } from './get-one'
+import { createBaseQueryKey as genBaseGetManyQueryKey, createQueryKey as genGetManyQueryKey } from './get-many'
+import { createBaseQueryKey as genBaseGetOneQueryKey, createQueryKey as genGetOneQueryKey } from './get-one'
+import { createQueryKey as genResourceQueryKey } from './resource'
 
-export interface InvalidatesProps {
-	invalidates?: InvalidateTargetValues[]
-}
-
-export type ResolvedInvalidatesProps = SetRequired<
-	InvalidatesProps,
-	| 'invalidates'
->
-
-export function resolveInvalidateProps(
-	props: InvalidatesProps,
-	defaultValue: InvalidateTargetValues[],
-): ResolvedInvalidatesProps {
-	return {
-		invalidates: props.invalidates ?? defaultValue,
-	}
-}
-
-export const InvalidateTarget = {
+export const Target = {
 	All: 'all',
 	Resource: 'resource',
 	List: 'list',
@@ -32,45 +17,98 @@ export const InvalidateTarget = {
 	One: 'one',
 } as const
 
-export type InvalidateTargetValues = ValueOf<typeof InvalidateTarget>
+export type TargetValues = ValueOf<typeof Target>
 
-export type TriggerInvalidatesProps = Simplify<
-	& TriggerInvalidateProps
+export type RuleForOne = {
+	target: typeof Target.One
+	resource: string
+	fetcherName?: string
+	meta?: Meta
+} & (
+	| {
+		id: RecordKey
+		ids?: never
+	}
+	| {
+		id?: never
+		ids: RecordKey[]
+	}
+)
+
+// eslint-disable-next-line ts/consistent-type-definitions
+export type RuleForAll = {
+	target: typeof Target.All
+	fetcherName?: string
+}
+
+// eslint-disable-next-line ts/consistent-type-definitions
+export type RuleForResource = {
+	target: typeof Target.Resource
+	resource: string
+	fetcherName?: string
+}
+
+// eslint-disable-next-line ts/consistent-type-definitions
+export type RuleForList = {
+	target: typeof Target.List
+	resource: string
+	fetcherName?: string
+}
+
+// eslint-disable-next-line ts/consistent-type-definitions
+export type RuleForMany = {
+	target: typeof Target.Many
+	resource: string
+	ids: RecordKey[]
+	fetcherName?: string
+	meta?: Meta
+}
+
+export type Rule
+	= | TargetValues
+		| RuleForAll
+		| RuleForResource
+		| RuleForList
+		| RuleForMany
+		| RuleForOne
+
+export type RuleOptions = Rule[] | false
+
+export type Props = Simplify<
+	& FetcherProps
 	& {
-		invalidates: InvalidateTargetValues[] | false
+		resource?: string
+		invalidates?:
+			| RuleOptions
+			| ((defaults?: RuleOptions) => RuleOptions)
 	}
 >
 
-export async function triggerInvalidates<
-	TResult extends BaseRecord,
->(
-	props: TriggerInvalidatesProps,
-	result:
-		| GetOneResult<TResult>
-		| GetManyResult<TResult>
-		| CreateOneResult<TResult>
-		| CreateManyResult<TResult>
-		| UpdateOneResult<TResult>
-		| UpdateManyResult<TResult>
-		| DeleteOneResult<TResult>
-		| DeleteManyResult<TResult>
-		| undefined,
-	queryClient: QueryClient,
-): Promise<void> {
-	const { invalidates } = props
-
-	if (invalidates === false || !invalidates.length)
-		return
-
-	await Promise.all(invalidates.map(invalidate => triggerInvalidate(
-		props as any,
-		invalidate as any,
-		result,
-		queryClient,
-	)))
+export interface Fallbacks {
+	invalidates?: RuleOptions
 }
 
-const DEFAULT_INVALIDATE_FILTERS: InvalidateQueryFilters = {
+export type InvalidatorProps = Simplify<
+	& Props
+	& {
+		invalidateOptions?: InvalidateOptions
+		invalidateQueryFilters?: Omit<InvalidateQueryFilters, 'queryKey'>
+	}
+>
+
+export type Invalidator = (
+	props: InvalidatorProps,
+	fallbacks?: Fallbacks,
+) => Promise<void>
+
+export interface CreateInvalidatorProps {
+	getInvalidates: () => Props['invalidates']
+	getFetcherName: () => Props['fetcherName']
+	getResource: () => Props['resource']
+	queryClient: QueryClient
+}
+
+const DEFAULT_INVALIDATE_QUERY_FILTERS: InvalidateQueryFilters = {
 	type: 'all',
 	refetchType: 'active',
 }
@@ -79,290 +117,148 @@ const DEFAULT_INVALIDATE_OPTIONS: InvalidateOptions = {
 	cancelRefetch: false,
 }
 
-export interface TriggerInvalidateBaseProps {
-	invalidateFilters?: InvalidateQueryFilters
-	invalidateOptions?: InvalidateOptions
-}
+export function createInvalidator(
+	{
+		getInvalidates,
+		getFetcherName,
+		getResource,
+		queryClient,
+	}: CreateInvalidatorProps,
+): Invalidator {
+	return async function invalidate(
+		propsFromFn,
+		fallbacks,
+	) {
+		const invalidatesOption = propsFromFn.invalidates ?? getInvalidates()
 
-export type TriggerInvalidateAllProps = Simplify<
-	& TriggerInvalidateBaseProps
-	& {
-		fetcherName: string
-	}
->
+		const invalidates = typeof invalidatesOption === 'function'
+			? invalidatesOption(fallbacks?.invalidates)
+			: invalidatesOption ?? fallbacks?.invalidates
 
-export type TriggerInvalidateResourceProps = Simplify<
-	& TriggerInvalidateBaseProps
-	& {
-		resource?: string
-		fetcherName: string
-	}
->
+		if (invalidates == null)
+			throw new Error('[@ginjou/core] `invalidates` is required to invalidate queries.')
+		if (invalidates === false || invalidates.length === 0)
+			return
 
-export type TriggerInvalidateListProps = Simplify<
-	& TriggerInvalidateBaseProps
-	& {
-		resource: string
-		fetcherName: string
-	}
->
+		const invalidateQueryFilters = propsFromFn.invalidateQueryFilters
+			?? DEFAULT_INVALIDATE_QUERY_FILTERS
+		const invalidateOptions = propsFromFn.invalidateOptions
+			?? DEFAULT_INVALIDATE_OPTIONS
 
-export type TriggerInvalidateManyProps = Simplify<
-	& TriggerInvalidateBaseProps
-	& {
-		resource: string
-		ids: RecordKey[]
-		fetcherName: string
-	}
->
+		await Promise.all(invalidates.map(async (rule) => {
+			const target = typeof rule === 'string' ? rule : rule.target
+			const fetcherName = resolveFetcherProps({
+				fetcherName: typeof rule === 'string'
+					? propsFromFn.fetcherName ?? getFetcherName()
+					: rule.fetcherName ?? propsFromFn.fetcherName ?? getFetcherName(),
+			}).fetcherName
+			const resource = typeof rule === 'string' || !('resource' in rule)
+				? propsFromFn.resource ?? getResource()
+				: rule.resource
 
-export type TriggerInvalidateOneProps
-	= | Simplify<
-		& TriggerInvalidateBaseProps
-		& {
-			resource: string
-			id: RecordKey
-			fetcherName: string
-		}
-	>
-	| Simplify<
-		& TriggerInvalidateBaseProps
-		& {
-			resource: string
-			ids: RecordKey[]
-			fetcherName: string
-		}
-	>
+			if (target !== Target.All && resource == null)
+				throw new Error(`[@ginjou/core] \`resource\` is required to invalidate ${target} queries.`)
 
-export type TriggerInvalidateProps
-	= | TriggerInvalidateAllProps
-		| TriggerInvalidateResourceProps
-		| TriggerInvalidateListProps
-		| TriggerInvalidateManyProps
-		| TriggerInvalidateOneProps
-
-export async function triggerInvalidate(
-	props: TriggerInvalidateAllProps,
-	target: typeof InvalidateTarget.All,
-	result: undefined,
-	queryClient: QueryClient,
-): Promise<void>
-
-export async function triggerInvalidate(
-	props: TriggerInvalidateResourceProps,
-	target: typeof InvalidateTarget.Resource,
-	result: undefined,
-	queryClient: QueryClient,
-): Promise<void>
-
-export async function triggerInvalidate(
-	props: TriggerInvalidateListProps,
-	target: typeof InvalidateTarget.List,
-	result: undefined,
-	queryClient: QueryClient,
-): Promise<void>
-
-export async function triggerInvalidate<
-	TResult extends BaseRecord,
->(
-	props: TriggerInvalidateManyProps,
-	target: typeof InvalidateTarget.Many,
-	result:
-		| GetManyResult<TResult>
-		| CreateManyResult<TResult>
-		| UpdateManyResult<TResult>
-		| DeleteManyResult<TResult>
-		| undefined,
-	queryClient: QueryClient,
-): Promise<void>
-
-export async function triggerInvalidate<
-	TResult extends BaseRecord,
->(
-	props: TriggerInvalidateOneProps,
-	target: typeof InvalidateTarget.One,
-	result:
-		| GetOneResult<TResult>
-		| GetManyResult<TResult>
-		| CreateOneResult<TResult>
-		| CreateManyResult<TResult>
-		| UpdateOneResult<TResult>
-		| UpdateManyResult<TResult>
-		| DeleteOneResult<TResult>
-		| DeleteManyResult<TResult>
-		| undefined,
-	queryClient: QueryClient,
-): Promise<void>
-
-export async function triggerInvalidate<
-	TResult extends BaseRecord,
->(
-	props: any,
-	target: InvalidateTargetValues,
-	result:
-		| GetOneResult<TResult>
-		| GetManyResult<TResult>
-		| CreateOneResult<TResult>
-		| CreateManyResult<TResult>
-		| UpdateOneResult<TResult>
-		| UpdateManyResult<TResult>
-		| DeleteOneResult<TResult>
-		| DeleteManyResult<TResult>
-		| undefined,
-	queryClient: QueryClient,
-): Promise<void> {
-	const invalidateFilters = props.invalidateFilters ?? DEFAULT_INVALIDATE_FILTERS
-	const invalidateOptions = props.invalidateOptions ?? DEFAULT_INVALIDATE_OPTIONS
-
-	switch (target) {
-		case InvalidateTarget.All:
-			await queryClient.invalidateQueries(
-				{
-					queryKey: props.fetcherName,
-					...invalidateFilters,
-				},
-				invalidateOptions,
-			)
-			break
-		case InvalidateTarget.List:
-			await Promise.all([
-				queryClient.invalidateQueries(
-					{
-						queryKey: genBaseGetListQueryKey({ props }),
-						...invalidateFilters,
-					},
-					invalidateOptions,
-				),
-				queryClient.invalidateQueries(
-					{
-						queryKey: genBaseGetInfiniteListQueryKey({ props }),
-						...invalidateFilters,
-					},
-					invalidateOptions,
-				),
-			])
-			break
-		case InvalidateTarget.Many: {
-			const { resource, ids } = props
-			if (resource == null)
-				throw new Error('[@ginjou/core] `resource` is required to invalidate many queries.')
-
-			await Promise.all([
-				queryClient.invalidateQueries(
-					{
-						queryKey: genGetManyQueryKey({
-							props: {
-								...props,
-								resource,
-								ids,
+			switch (target) {
+				case Target.All:
+					await queryClient.invalidateQueries(
+						{
+							queryKey: [fetcherName],
+							...invalidateQueryFilters,
+						},
+						invalidateOptions,
+					)
+					break
+				case Target.Resource:
+					await queryClient.invalidateQueries(
+						{
+							queryKey: genResourceQueryKey({ props: { fetcherName, resource: resource! } }),
+							...invalidateQueryFilters,
+						},
+						invalidateOptions,
+					)
+					break
+				case Target.List:
+					await Promise.all([
+						queryClient.invalidateQueries(
+							{
+								queryKey: genBaseGetListQueryKey({ props: { fetcherName, resource: resource! } }),
+								...invalidateQueryFilters,
 							},
-						}),
-						...invalidateFilters,
-					},
-					invalidateOptions,
-				),
-				(Array.isArray(result?.data))
-				&& queryClient.invalidateQueries(
-					{
-						queryKey: genGetManyQueryKey({
-							props: {
-								...props,
-								resource,
-								ids: result!.data.map(item => item.id),
+							invalidateOptions,
+						),
+						queryClient.invalidateQueries(
+							{
+								queryKey: genBaseGetInfiniteListQueryKey({ props: { fetcherName, resource: resource! } }),
+								...invalidateQueryFilters,
 							},
-						}),
-					},
-					invalidateOptions,
-				),
-			])
+							invalidateOptions,
+						),
+					])
+					break
+				case Target.Many:
+					if (typeof rule !== 'string' && !Array.isArray((rule as RuleForMany).ids))
+						throw new Error('[@ginjou/core] `ids` is required to invalidate exact many queries.')
 
-			break
-		}
-		case InvalidateTarget.Resource: {
-			const { resource, fetcherName } = props
-			if (resource == null)
-				throw new Error('[@ginjou/core] `resource` is required to invalidate resource queries.')
-
-			await queryClient.invalidateQueries(
-				{
-					queryKey: [
-						fetcherName,
-						resource,
-					],
-					...invalidateFilters,
-				},
-				invalidateOptions,
-			)
-			break
-		}
-		case InvalidateTarget.One: {
-			const { resource, ...rest } = props
-			if (resource == null)
-				throw new Error('[@ginjou/core] `resource` is required to invalidate one query.')
-
-			if ('id' in rest && rest.id != null) {
-				const ids = new Set([
-					rest.id,
-					!Array.isArray(result?.data)
-						? result?.data.id
-						: undefined,
-				].filter(id => id != null))
-
-				await Promise.all([...ids].map(id => queryClient.invalidateQueries(
-					{
-						queryKey: genGetOneQueryKey({
-							props: {
-								...rest,
-								resource,
-								id,
+					await queryClient.invalidateQueries(
+						{
+							queryKey: typeof rule === 'string'
+								? genBaseGetManyQueryKey({ props: { fetcherName, resource: resource! } })
+								: genGetManyQueryKey({
+										props: {
+											fetcherName,
+											resource: resource!,
+											ids: (rule as RuleForMany).ids,
+											meta: (rule as RuleForMany).meta,
+											aggregate: true,
+										},
+									}),
+							...invalidateQueryFilters,
+						},
+						invalidateOptions,
+					)
+					break
+				case Target.One: {
+					if (typeof rule === 'string') {
+						await queryClient.invalidateQueries(
+							{
+								queryKey: genBaseGetOneQueryKey({
+									props: {
+										fetcherName,
+										resource: resource!,
+									},
+								}),
+								...invalidateQueryFilters,
 							},
-						}),
-						...invalidateFilters,
-					},
-					invalidateOptions,
-				)))
+							invalidateOptions,
+						)
+						break
+					}
+
+					const id = 'id' in rule ? rule.id : undefined
+					const ids = 'ids' in rule ? rule.ids : undefined
+					if ((id != null) === Array.isArray(ids))
+						throw new Error('[@ginjou/core] Exactly one of `id` or `ids` is required to invalidate one queries.')
+
+					await Promise.all((id != null ? [id] : ids!).map(id => queryClient.invalidateQueries(
+						{
+							queryKey: genGetOneQueryKey({
+								props: {
+									fetcherName,
+									resource: resource!,
+									id,
+									meta: (rule as RuleForOne).meta,
+								},
+							}),
+							...invalidateQueryFilters,
+						},
+						invalidateOptions,
+					)))
+					break
+				}
+				default:
+					throw new Error(`[@ginjou/core] Unsupported invalidate target: ${String(target)}`)
 			}
-			else if ('ids' in rest && rest.ids != null) {
-				const ids = new Set([
-					...rest.ids,
-					...(Array.isArray(result?.data)
-						? result.data.map(item => item.id)
-						: []
-					),
-				].filter(id => id != null))
-
-				await Promise.all([...ids].map(id => queryClient.invalidateQueries(
-					{
-						queryKey: genGetOneQueryKey({
-							props: {
-								...rest,
-								resource,
-								id,
-							},
-						}),
-						...invalidateFilters,
-					},
-					invalidateOptions,
-				)))
-			}
-			else {
-				await queryClient.invalidateQueries(
-					{
-						queryKey: genGetOneQueryKey({
-							props: {
-								...props,
-								resource,
-							},
-						}),
-						...invalidateFilters,
-					},
-					invalidateOptions,
-				)
-			}
-
-			break
-		}
-		default:
-			break
+		}))
 	}
 }

@@ -1,4 +1,4 @@
-import type { MutationObserverOptions, QueryClient } from '@tanstack/query-core'
+import type { MutationObserverOptions } from '@tanstack/query-core'
 import type { OverrideProperties, Simplify } from 'type-fest'
 import type { CheckError } from '../auth'
 import type { Translate } from '../i18n'
@@ -6,7 +6,7 @@ import type { Notify } from '../notification'
 import type { Publish } from '../realtime'
 import type { BaseRecord, CreateOneFn, CreateOneProps, CreateOneResult, Params } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
-import type { InvalidatesProps, InvalidateTargetValues, ResolvedInvalidatesProps } from './invalidate'
+import type { Props as InvalidatesProps, Invalidator } from './invalidate'
 import type { NotifyProps } from './notify'
 import type { PublishPayload } from './publish'
 import type { OptionalMutateAsyncFunction, OptionalMutateSyncFunction, OriginMutateAsyncFunction, OriginMutateSyncFunction } from './types'
@@ -14,7 +14,6 @@ import { NotificationType } from '../notification'
 import { RealtimeAction } from '../realtime'
 import { getErrorMessage } from '../utils/error'
 import { getFetcherFn, resolveFetcherProps } from './fetchers'
-import { InvalidateTarget, resolveInvalidateProps, triggerInvalidates } from './invalidate'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
 import { createPublishMeta, createPublishPayloadByOne } from './publish'
 
@@ -39,7 +38,6 @@ export type ResolvedMutationProps<
 		CreateOneProps<TParams>
 	>
 	& ResolvedFetcherProps
-	& ResolvedInvalidatesProps
 >
 
 export type MutationOptions<
@@ -127,7 +125,7 @@ export interface CreateSuccessHandlerProps<
 	notify: Notify.Fn
 	translate: Translate.Fn<any>
 	publish: Publish.EmitFn<PublishPayload>
-	queryClient: QueryClient
+	invalidate: Invalidator
 	getProps: () => Props<TData, TError, TParams> | undefined
 	onSuccess: MutationOptions<TData, TError, TParams>['onSuccess']
 }
@@ -141,7 +139,7 @@ export function createSuccessHandler<
 		notify,
 		translate,
 		publish,
-		queryClient,
+		invalidate,
 		getProps,
 		onSuccess: onSuccessFromProp,
 	}: CreateSuccessHandlerProps<TData, TError, TParams>,
@@ -159,7 +157,9 @@ export function createSuccessHandler<
 			},
 		)
 
-		await triggerInvalidates(resolvedProps, data, queryClient)
+		await invalidate(resolvedProps, {
+			invalidates: ['list', 'many'],
+		})
 
 		publish(
 			createPublishEvent(resolvedProps, data),
@@ -282,11 +282,6 @@ function createPublishEvent(
 	}
 }
 
-const DEFAULT_INVALIDATES: InvalidateTargetValues[] = [
-	InvalidateTarget.List,
-	InvalidateTarget.Many,
-]
-
 function resolveMutationProps<
 	TData extends BaseRecord,
 	TError,
@@ -299,7 +294,6 @@ function resolveMutationProps<
 	const result: ResolvedMutationProps<TData, TError, TParams> = {
 		...props,
 		...resolveFetcherProps(props),
-		...resolveInvalidateProps(props, DEFAULT_INVALIDATES),
 	}
 
 	return result
