@@ -13,11 +13,12 @@ export function useQueryInvalidate(
 	context?: UseQueryInvalidateContext,
 ): QueryInvalidate.Invalidator {
 	const queryClient = useQueryClientContext(context)
+	const resolvedProps = $derived(extract(props))
 
 	return QueryInvalidate.createInvalidator({
-		getFetcherName: () => extract(props)?.fetcherName,
-		getInvalidates: () => extract(props)?.invalidates,
-		getResource: () => extract(props)?.resource,
+		getFetcherName: () => resolvedProps?.fetcherName,
+		getInvalidates: () => resolvedProps?.invalidates,
+		getResource: () => resolvedProps?.resource,
 		queryClient,
 	})
 }
