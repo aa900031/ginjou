@@ -593,11 +593,12 @@ describe('createSettledHandler (update-many)', () => {
 			{} as any,
 		)
 
-		expect(invalidateQueries).toHaveBeenCalled()
-		expect(invalidateQueries).toHaveBeenCalledWith(
-			{ queryKey: ['default', 'posts', 'getOne'], type: 'all', refetchType: 'active' },
-			{ cancelRefetch: false },
-		)
+		const filters = { type: 'all', refetchType: 'active' }
+		const options = { cancelRefetch: false }
+		expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ['default', 'posts', 'getMany', ['2', '3'], { meta: undefined }], ...filters }, options)
+		expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ['default', 'posts', 'getMany', ['1'], { meta: undefined }], ...filters }, options)
+		for (const id of [1, 2, 3])
+			expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ['default', 'posts', 'getOne', id, { meta: undefined }], ...filters }, options)
 		expect(onSettled).toHaveBeenCalledOnce()
 		expect(onSettled.mock.calls[0]![2]).toMatchObject({
 			resource: 'posts',

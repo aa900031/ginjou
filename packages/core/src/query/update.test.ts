@@ -222,6 +222,49 @@ describe('createSettledHandler (update)', () => {
 			fetcherName: 'default',
 		})
 	})
+	it('should resolve invalidates with result data and mutation props', async () => {
+		const queryClient = new QueryClient()
+		const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
+		const invalidates = vi.fn((_defaults, { data }) => [
+			{ target: 'one' as const, resource: 'posts', id: data!.data.id },
+		])
+		const handler = createSettledHandler({
+			invalidate: createInvalidator({
+				getFetcherName: () => undefined,
+				getInvalidates: () => undefined,
+				getResource: () => undefined,
+				queryClient,
+			}),
+			getProps: () => ({
+				resource: 'posts',
+				id: 1,
+				params: { title: 'from-props' },
+				invalidates,
+			}),
+			onSettled: undefined,
+		})
+
+		await handler(
+			{ data: { id: 3, title: 'Updated' } } as any,
+			null,
+			{} as any,
+			undefined as any,
+			{} as any,
+		)
+
+		expect(invalidates).toHaveBeenCalledWith(
+			['list', 'many', 'one'],
+			{
+				data: { data: { id: 3, title: 'Updated' } },
+				props: expect.objectContaining({ resource: 'posts', id: 1 }),
+			},
+		)
+		expect(invalidateQueries).toHaveBeenCalledOnce()
+		expect(invalidateQueries).toHaveBeenCalledWith(
+			{ queryKey: createGetOneQueryKey({ props: { fetcherName: 'default', resource: 'posts', id: 3 } as any }), type: 'all', refetchType: 'active' },
+			{ cancelRefetch: false },
+		)
+	})
 })
 
 describe('createSuccessHandler (update)', () => {

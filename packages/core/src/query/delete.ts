@@ -33,7 +33,7 @@ export type MutationProps<
 > = Simplify<
 	& Partial<DeleteOneProps<TParams>>
 	& FetcherProps
-	& InvalidatesProps
+	& InvalidatesProps<DeleteOneResult<TData>, DeleteOneProps<TParams>>
 	& NotifyProps<DeleteOneResult<TData>, DeleteOneProps<TParams>, TError>
 	& MutationModeProps
 	& OptimisticUpdateProps<TData, TParams | undefined, DeleteOneProps<TParams>['id']>
@@ -281,7 +281,7 @@ export function createSettledHandler<
 
 		await invalidate(resolvedProps, {
 			invalidates: ['list', 'many'],
-		})
+		}, { data })
 
 		await onSettledFromProp?.(data, error, resolvedProps, onMutateResult, context)
 	}

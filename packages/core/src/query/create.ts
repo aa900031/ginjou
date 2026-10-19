@@ -24,7 +24,7 @@ export type MutationProps<
 > = Simplify<
 	& Partial<CreateOneProps<TParams>>
 	& FetcherProps
-	& InvalidatesProps
+	& InvalidatesProps<CreateOneResult<TData>, CreateOneProps<TParams>>
 	& NotifyProps<CreateOneResult<TData>, CreateOneProps<TParams>, TError>
 >
 
@@ -159,7 +159,7 @@ export function createSuccessHandler<
 
 		await invalidate(resolvedProps, {
 			invalidates: ['list', 'many'],
-		})
+		}, { data })
 
 		publish(
 			createPublishEvent(resolvedProps, data),

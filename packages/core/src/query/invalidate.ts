@@ -5,8 +5,8 @@ import type { FetcherProps } from './fetchers'
 import { resolveFetcherProps } from './fetchers'
 import { createBaseQueryKey as genBaseGetInfiniteListQueryKey } from './get-infinite-list'
 import { createBaseQueryKey as genBaseGetListQueryKey } from './get-list'
-import { createBaseQueryKey as genBaseGetManyQueryKey, createQueryKey as genGetManyQueryKey } from './get-many'
-import { createBaseQueryKey as genBaseGetOneQueryKey, createQueryKey as genGetOneQueryKey } from './get-one'
+import { createQueryKey as genGetManyQueryKey } from './get-many'
+import { createQueryKey as genGetOneQueryKey } from './get-one'
 import { createQueryKey as genResourceQueryKey } from './resource'
 
 export const Target = {
@@ -72,33 +72,56 @@ export type Rule
 		| RuleForMany
 		| RuleForOne
 
-export type RuleOptions = Rule[] | false
+export type RuleOptions
+	= | Rule[]
+		| false
+		| {
+			rules: Rule[] | false
+			options?: InvalidateOptions
+			queryFilters?: Omit<InvalidateQueryFilters, 'queryKey'>
+		}
 
-export type Props = Simplify<
+export interface ResolveContext<
+	TData = any,
+	TProps = any,
+> {
+	data?: TData
+	props?: TProps
+}
+
+export type ResolveFn<
+	TData = any,
+	TProps = any,
+> = (
+	defaults: Rule[] | undefined,
+	context: ResolveContext<TData, TProps>,
+) => RuleOptions
+
+export type Props<
+	TData = any,
+	TProps = any,
+> = Simplify<
 	& FetcherProps
 	& {
 		resource?: string
 		invalidates?:
 			| RuleOptions
-			| ((defaults?: RuleOptions) => RuleOptions)
+			| ResolveFn<TData, TProps>
 	}
 >
 
 export interface Fallbacks {
-	invalidates?: RuleOptions
+	invalidates?: Rule[]
 }
 
-export type InvalidatorProps = Simplify<
-	& Props
-	& {
-		invalidateOptions?: InvalidateOptions
-		invalidateQueryFilters?: Omit<InvalidateQueryFilters, 'queryKey'>
-	}
->
+export interface MutationContext {
+	data?: unknown
+}
 
 export type Invalidator = (
-	props: InvalidatorProps,
+	props: Props,
 	fallbacks?: Fallbacks,
+	mutation?: MutationContext,
 ) => Promise<void>
 
 export interface CreateInvalidatorProps {
@@ -108,7 +131,7 @@ export interface CreateInvalidatorProps {
 	queryClient: QueryClient
 }
 
-const DEFAULT_INVALIDATE_QUERY_FILTERS: InvalidateQueryFilters = {
+const DEFAULT_INVALIDATE_QUERY_FILTERS: Omit<InvalidateQueryFilters, 'queryKey'> = {
 	type: 'all',
 	refetchType: 'active',
 }
@@ -128,24 +151,32 @@ export function createInvalidator(
 	return async function invalidate(
 		propsFromFn,
 		fallbacks,
+		mutation,
 	) {
 		const invalidatesOption = propsFromFn.invalidates ?? getInvalidates()
 
 		const invalidates = typeof invalidatesOption === 'function'
-			? invalidatesOption(fallbacks?.invalidates)
+			? invalidatesOption(fallbacks?.invalidates, { data: mutation?.data, props: propsFromFn })
 			: invalidatesOption ?? fallbacks?.invalidates
 
 		if (invalidates == null)
 			throw new Error('[@ginjou/core] `invalidates` is required to invalidate queries.')
-		if (invalidates === false || invalidates.length === 0)
+
+		const {
+			rules,
+			options,
+			queryFilters,
+		} = Array.isArray(invalidates) || invalidates === false
+			? { rules: invalidates }
+			: invalidates
+
+		if (rules === false || rules.length === 0)
 			return
 
-		const invalidateQueryFilters = propsFromFn.invalidateQueryFilters
-			?? DEFAULT_INVALIDATE_QUERY_FILTERS
-		const invalidateOptions = propsFromFn.invalidateOptions
-			?? DEFAULT_INVALIDATE_OPTIONS
+		const invalidateQueryFilters = queryFilters ?? DEFAULT_INVALIDATE_QUERY_FILTERS
+		const invalidateOptions = options ?? DEFAULT_INVALIDATE_OPTIONS
 
-		await Promise.all(invalidates.map(async (rule) => {
+		await Promise.all(rules.map(async (rule) => {
 			const target = typeof rule === 'string' ? rule : rule.target
 			const fetcherName = resolveFetcherProps({
 				fetcherName: typeof rule === 'string'
@@ -196,58 +227,69 @@ export function createInvalidator(
 						),
 					])
 					break
-				case Target.Many:
-					if (typeof rule !== 'string' && !Array.isArray((rule as RuleForMany).ids))
-						throw new Error('[@ginjou/core] `ids` is required to invalidate exact many queries.')
+				case Target.Many: {
+					let idsList: RecordKey[][]
+					let meta: Meta | undefined
+					if (typeof rule === 'string') {
+						if (mutation == null)
+							throw new Error('[@ginjou/core] Mutation context is required to invalidate `many` queries by string rule. Use `{ target: \'many\', ids }` instead.')
 
-					await queryClient.invalidateQueries(
+						idsList = resolveManyIdsList(propsFromFn, mutation.data)
+						meta = (propsFromFn as MutationProps).meta
+					}
+					else {
+						if (!Array.isArray((rule as RuleForMany).ids))
+							throw new Error('[@ginjou/core] `ids` is required to invalidate exact many queries.')
+
+						idsList = [(rule as RuleForMany).ids]
+						meta = (rule as RuleForMany).meta
+					}
+
+					await Promise.all(idsList.map(ids => queryClient.invalidateQueries(
 						{
-							queryKey: typeof rule === 'string'
-								? genBaseGetManyQueryKey({ props: { fetcherName, resource: resource! } })
-								: genGetManyQueryKey({
-										props: {
-											fetcherName,
-											resource: resource!,
-											ids: (rule as RuleForMany).ids,
-											meta: (rule as RuleForMany).meta,
-											aggregate: true,
-										},
-									}),
+							queryKey: genGetManyQueryKey({
+								props: {
+									fetcherName,
+									resource: resource!,
+									ids,
+									meta,
+									aggregate: true,
+								},
+							}),
 							...invalidateQueryFilters,
 						},
 						invalidateOptions,
-					)
+					)))
 					break
+				}
 				case Target.One: {
+					let ids: RecordKey[]
+					let meta: Meta | undefined
 					if (typeof rule === 'string') {
-						await queryClient.invalidateQueries(
-							{
-								queryKey: genBaseGetOneQueryKey({
-									props: {
-										fetcherName,
-										resource: resource!,
-									},
-								}),
-								...invalidateQueryFilters,
-							},
-							invalidateOptions,
-						)
-						break
+						if (mutation == null)
+							throw new Error('[@ginjou/core] Mutation context is required to invalidate `one` queries by string rule. Use `{ target: \'one\', id }` instead.')
+
+						ids = resolveOneIds(propsFromFn, mutation.data)
+						meta = (propsFromFn as MutationProps).meta
+					}
+					else {
+						const id = 'id' in rule ? rule.id : undefined
+						const ruleIds = 'ids' in rule ? rule.ids : undefined
+						if ((id != null) === Array.isArray(ruleIds))
+							throw new Error('[@ginjou/core] Exactly one of `id` or `ids` is required to invalidate one queries.')
+
+						ids = id != null ? [id] : ruleIds!
+						meta = (rule as RuleForOne).meta
 					}
 
-					const id = 'id' in rule ? rule.id : undefined
-					const ids = 'ids' in rule ? rule.ids : undefined
-					if ((id != null) === Array.isArray(ids))
-						throw new Error('[@ginjou/core] Exactly one of `id` or `ids` is required to invalidate one queries.')
-
-					await Promise.all((id != null ? [id] : ids!).map(id => queryClient.invalidateQueries(
+					await Promise.all(ids.map(id => queryClient.invalidateQueries(
 						{
 							queryKey: genGetOneQueryKey({
 								props: {
 									fetcherName,
 									resource: resource!,
 									id,
-									meta: (rule as RuleForOne).meta,
+									meta,
 								},
 							}),
 							...invalidateQueryFilters,
@@ -261,4 +303,51 @@ export function createInvalidator(
 			}
 		}))
 	}
+}
+
+interface MutationProps {
+	id?: RecordKey
+	ids?: RecordKey[]
+	meta?: Meta
+}
+
+function getResultData(
+	data: unknown,
+): unknown {
+	return (data as { data?: unknown } | undefined)?.data
+}
+
+function getRecordId(
+	record: unknown,
+): RecordKey | undefined {
+	return (record as { id?: RecordKey } | undefined)?.id
+}
+
+function resolveManyIdsList(
+	props: Props,
+	data: unknown,
+): RecordKey[][] {
+	const { ids } = props as MutationProps
+	const records = getResultData(data)
+
+	return [
+		ids,
+		Array.isArray(records)
+			? records.map(getRecordId).filter(id => id != null)
+			: undefined,
+	].filter(ids => ids != null)
+}
+
+function resolveOneIds(
+	props: Props,
+	data: unknown,
+): RecordKey[] {
+	const { id, ids } = props as MutationProps
+	const records = getResultData(data)
+
+	return [...new Set([
+		id,
+		...(ids ?? []),
+		...(Array.isArray(records) ? records.map(getRecordId) : [getRecordId(records)]),
+	].filter(id => id != null))]
 }
