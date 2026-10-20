@@ -12,7 +12,7 @@ import type { PublishPayload } from './publish'
 import type { OptionalMutateAsyncFunction, OptionalMutateSyncFunction, OriginMutateAsyncFunction, OriginMutateSyncFunction } from './types'
 import { NotificationType } from '../notification'
 import { RealtimeAction } from '../realtime'
-import { getErrorMessage } from '../utils/error'
+import { getErrorMessage, reportUnhandledError } from '../utils/error'
 import { getFetcherFn, getSafeFetcherFn, resolveFetcherProps } from './fetchers'
 import { fakeMany } from './helper'
 import { Target as InvalidateTarget } from './invalidate'
@@ -171,7 +171,7 @@ export function createSuccessHandler<
 				],
 			},
 			data,
-		})
+		}).catch(reportUnhandledError)
 
 		publish(
 			createPublishEvent(resolvedProps, data),

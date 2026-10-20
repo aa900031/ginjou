@@ -1,12 +1,18 @@
 import { QueryClient } from '@tanstack/query-core'
 import { describe, expect, it, vi } from 'vitest'
 import { AbortDefer } from '../utils/defer'
+import { reportUnhandledError } from '../utils/error'
 import { createQueryKey as createGetListQueryKey } from './get-list'
 import { createQueryKey as createGetManyQueryKey } from './get-many'
 import { createQueryKey as createGetOneQueryKey } from './get-one'
 import { createInvalidator } from './invalidate'
 import { MutationMode } from './mutation-mode'
 import { createErrorHandler, createMutateAsyncFn, createMutateFn, createMutateHandler, createMutationFn, createSettledHandler, createSuccessHandler } from './update'
+
+vi.mock('../utils/error', async importOriginal => ({
+	...await importOriginal<typeof import('../utils/error')>(),
+	reportUnhandledError: vi.fn(),
+}))
 
 function seedPostQueries(queryClient: QueryClient) {
 	const queryProps = {
@@ -266,7 +272,7 @@ describe('createSettledHandler (update)', () => {
 })
 
 describe('createSettledHandler (update) invalidate errors', () => {
-	it('propagates invalidate errors and skips onSettled', async () => {
+	it('reports invalidate errors without failing the mutation', async () => {
 		const onSettled = vi.fn()
 		const handler = createSettledHandler({
 			invalidate: () => Promise.reject(new Error('boom')),
@@ -274,8 +280,9 @@ describe('createSettledHandler (update) invalidate errors', () => {
 			onSettled,
 		})
 
-		await expect(handler({ data: { id: 1 } } as any, null, {} as any, undefined as any, {} as any)).rejects.toThrow('boom')
-		expect(onSettled).not.toHaveBeenCalled()
+		await expect(handler({ data: { id: 1 } } as any, null, {} as any, undefined as any, {} as any)).resolves.toBeUndefined()
+		expect(reportUnhandledError).toHaveBeenCalledWith(new Error('boom'))
+		expect(onSettled).toHaveBeenCalledOnce()
 	})
 })
 

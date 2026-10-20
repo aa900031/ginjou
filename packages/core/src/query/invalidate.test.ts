@@ -80,6 +80,56 @@ describe('createInvalidator', () => {
 		expect(isInvalidated(queryClient, keys.otherResource)).toBe(false)
 	})
 
+	it('uses single props id and single result id for string one rule', async () => {
+		const queryClient = new QueryClient()
+		const invalidate = createInvalidator({
+			getFetcherName: () => undefined,
+			getInvalidates: () => undefined,
+			getResource: () => 'posts',
+			queryClient,
+		})
+		const keys = {
+			one1: ['default', 'posts', 'getOne', 1, { meta: undefined }],
+			one4: ['default', 'posts', 'getOne', 4, { meta: { lang: 'en' } }],
+			one9: ['default', 'posts', 'getOne', 9, { meta: undefined }],
+		}
+		seedQueries(queryClient, Object.values(keys))
+
+		const mutationProps = { invalidates: ['one'] as RuleOptions, id: 1 }
+		await invalidate(mutationProps, {
+			data: { data: { id: 4 } },
+		})
+
+		expect(isInvalidated(queryClient, keys.one1)).toBe(true)
+		expect(isInvalidated(queryClient, keys.one4)).toBe(true)
+		expect(isInvalidated(queryClient, keys.one9)).toBe(false)
+	})
+
+	it('runs user predicate for string many rule without affected ids', async () => {
+		const queryClient = new QueryClient()
+		const invalidate = createInvalidator({
+			getFetcherName: () => undefined,
+			getInvalidates: () => undefined,
+			getResource: () => 'posts',
+			queryClient,
+		})
+		const keys = {
+			many1: ['default', 'posts', 'getMany', ['1'], { meta: undefined }],
+			many9: ['default', 'posts', 'getMany', ['9'], { meta: undefined }],
+		}
+		seedQueries(queryClient, Object.values(keys))
+
+		await invalidate({
+			invalidates: {
+				rules: ['many'],
+				queryFilters: { predicate: query => (query.queryKey[3] as string[] | undefined)?.[0] === '9' },
+			},
+		}, { data: { data: {} } })
+
+		expect(isInvalidated(queryClient, keys.many1)).toBe(false)
+		expect(isInvalidated(queryClient, keys.many9)).toBe(true)
+	})
+
 	it('uses single props id and result id for string many rule', async () => {
 		const queryClient = new QueryClient()
 		const invalidate = createInvalidator({
@@ -144,7 +194,7 @@ describe('createInvalidator', () => {
 		await expect(invalidate({ invalidates: ['many'] })).rejects.toThrow('Mutation context is required')
 	})
 
-	it('uses id prefix for object one rules without meta and exact keys with meta', async () => {
+	it('matches object rules by exact ids and exact meta', async () => {
 		const queryClient = new QueryClient()
 		const invalidate = createInvalidator({
 			getFetcherName: () => undefined,
@@ -158,8 +208,12 @@ describe('createInvalidator', () => {
 			legacy3: ['legacy', 'authors', 'getOne', 3, { meta: undefined }],
 			one5Exact: ['default', 'authors', 'getOne', 5, { meta: { lang: 'en' } }],
 			one5Other: ['default', 'authors', 'getOne', 5, { meta: { lang: 'fr' } }],
+			one5Superset: ['default', 'authors', 'getOne', 5, { meta: { lang: 'en', fields: ['name'] } }],
 			manyExact: ['default', 'authors', 'getMany', ['1', '2'], { meta: { lang: 'en' } }],
 			manyReordered: ['default', 'authors', 'getMany', ['2', '1'], { meta: undefined }],
+			manyLonger: ['default', 'authors', 'getMany', ['1', '2', '3'], { meta: undefined }],
+			manyMetaExact: ['default', 'authors', 'getMany', ['7'], { meta: { lang: 'en' } }],
+			manyMetaSuperset: ['default', 'authors', 'getMany', ['7'], { meta: { lang: 'en', fields: ['name'] } }],
 		}
 		seedQueries(queryClient, Object.values(keys))
 
@@ -169,6 +223,8 @@ describe('createInvalidator', () => {
 				{ target: 'one', resource: 'authors', ids: [2, 3], fetcherName: 'legacy' },
 				{ target: 'one', resource: 'authors', id: 5, meta: { lang: 'en' } },
 				{ target: 'many', resource: 'authors', ids: [1, 2] },
+				{ target: 'many', resource: 'authors', ids: [7], meta: { lang: 'en' } },
+				{ target: 'many', resource: 'authors', ids: [] },
 			],
 		})
 
@@ -177,8 +233,12 @@ describe('createInvalidator', () => {
 		expect(isInvalidated(queryClient, keys.legacy3)).toBe(true)
 		expect(isInvalidated(queryClient, keys.one5Exact)).toBe(true)
 		expect(isInvalidated(queryClient, keys.one5Other)).toBe(false)
+		expect(isInvalidated(queryClient, keys.one5Superset)).toBe(false)
 		expect(isInvalidated(queryClient, keys.manyExact)).toBe(true)
 		expect(isInvalidated(queryClient, keys.manyReordered)).toBe(false)
+		expect(isInvalidated(queryClient, keys.manyLonger)).toBe(false)
+		expect(isInvalidated(queryClient, keys.manyMetaExact)).toBe(true)
+		expect(isInvalidated(queryClient, keys.manyMetaSuperset)).toBe(false)
 	})
 
 	it('supports object rule options and replaces default filters and options', async () => {

@@ -568,7 +568,19 @@ describe('createMutateHandler (update-many)', () => {
 describe('createSettledHandler (update-many)', () => {
 	it('should apply invalidates and call onSettled with resolved props', async () => {
 		const queryClient = new QueryClient()
-		const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
+		const keys = {
+			listPosts: ['default', 'posts', 'getList', { pagination: undefined }],
+			manyWithResultId: ['default', 'posts', 'getMany', ['1', '8'], { meta: undefined }],
+			manyWithPropsId: ['default', 'posts', 'getMany', ['3'], { meta: { lang: 'en' } }],
+			manyUnrelated: ['default', 'posts', 'getMany', ['8', '9'], { meta: undefined }],
+			one1: ['default', 'posts', 'getOne', 1, { meta: undefined }],
+			one2: ['default', 'posts', 'getOne', 2, { meta: { lang: 'en' } }],
+			one3: ['default', 'posts', 'getOne', 3, { meta: undefined }],
+			one8: ['default', 'posts', 'getOne', 8, { meta: undefined }],
+		}
+		for (const key of Object.values(keys))
+			queryClient.setQueryData(key, { data: null })
+		const isInvalidated = (key: unknown[]) => queryClient.getQueryState(key)?.isInvalidated ?? false
 		const onSettled = vi.fn()
 		const handler = createSettledHandler({
 			invalidate: createInvalidator({
@@ -593,11 +605,14 @@ describe('createSettledHandler (update-many)', () => {
 			{} as any,
 		)
 
-		const filters = { type: 'all', refetchType: 'active' }
-		const options = { cancelRefetch: false }
-		expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ['default', 'posts', 'getMany'], predicate: expect.any(Function), ...filters }, options)
-		for (const id of [1, 2, 3])
-			expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ['default', 'posts', 'getOne', id], ...filters }, options)
+		expect(isInvalidated(keys.listPosts)).toBe(true)
+		expect(isInvalidated(keys.manyWithResultId)).toBe(true)
+		expect(isInvalidated(keys.manyWithPropsId)).toBe(true)
+		expect(isInvalidated(keys.manyUnrelated)).toBe(false)
+		expect(isInvalidated(keys.one1)).toBe(true)
+		expect(isInvalidated(keys.one2)).toBe(true)
+		expect(isInvalidated(keys.one3)).toBe(true)
+		expect(isInvalidated(keys.one8)).toBe(false)
 		expect(onSettled).toHaveBeenCalledOnce()
 		expect(onSettled.mock.calls[0]![2]).toMatchObject({
 			resource: 'posts',

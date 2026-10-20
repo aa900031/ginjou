@@ -7,7 +7,7 @@ import type { Notify } from '../notification'
 import type { RealtimeOption, SubscribeManyParams } from '../realtime'
 import type { QueryEnabledFn } from '../utils/query'
 import type { PromiseResolvePair, ResolveArgsResult } from './aggregate'
-import type { BaseRecord, GetManyFn, GetManyProps, GetManyResult, GetOneResult } from './fetcher'
+import type { BaseRecord, GetManyFn, GetManyProps, GetManyResult, GetOneFn, GetOneResult } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { NotifyProps } from './notify'
 import type { RealtimeProps } from './realtime'
@@ -16,12 +16,11 @@ import { hashKey } from '@tanstack/query-core'
 import { uniq } from 'es-toolkit'
 import { NotificationType } from '../notification'
 import { SubscribeType } from '../realtime'
-import { getErrorMessage } from '../utils/error'
+import { getErrorMessage, isNotFoundError } from '../utils/error'
 import { getQuery, resolveQueryEnableds } from '../utils/query'
 import { createAggregateFn } from './aggregate'
 import { getFetcherFn, getSafeFetcherFn, resolveFetcherProps } from './fetchers'
 import { createQueryKey as genGetOneQueryKey } from './get-one'
-import { fakeMany } from './helper'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
 import { createQueryKey as genResourceQueryKey } from './resource'
 
@@ -337,7 +336,7 @@ export function getSubscribeParams(
 	}
 }
 
-function execGetMany<
+async function execGetMany<
 	TData extends BaseRecord,
 >(
 	props: ResolvedQueryProps,
@@ -347,8 +346,18 @@ function execGetMany<
 	const getMany = getSafeFetcherFn(props, fetchers, 'getMany')
 	if (getMany != null)
 		return (getMany as GetManyFn<TData>)(props, context)
-	const getOne = getFetcherFn(props, fetchers, 'getOne')
-	return fakeMany(props.ids.map(id => (getOne as any)({ ...props, id }, context)))
+
+	const getOne = getFetcherFn(props, fetchers, 'getOne') as GetOneFn<TData>
+	const results = await Promise.allSettled(props.ids.map(id => getOne({ ...props, id }, context)))
+	const data: TData[] = []
+	for (const result of results) {
+		if (result.status === 'fulfilled')
+			data.push(result.value.data)
+		else if (!isNotFoundError(result.reason))
+			throw result.reason
+	}
+
+	return { data }
 }
 
 type ExecGetManyArgs = Parameters<typeof execGetMany>

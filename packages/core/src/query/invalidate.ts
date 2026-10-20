@@ -228,7 +228,7 @@ export function createInvalidator(
 							throw new Error('[@ginjou/core] Mutation context is required to invalidate `many` queries by string rule. Use `{ target: \'many\', ids }` instead.')
 
 						const affectedIds = new Set(resolveAffectedIds(propsFromFn, context.data).map(String))
-						if (affectedIds.size === 0)
+						if (affectedIds.size === 0 && invalidateQueryFilters.predicate == null)
 							break
 
 						await queryClient.invalidateQueries(
@@ -247,22 +247,26 @@ export function createInvalidator(
 					if (!Array.isArray(ids))
 						throw new Error('[@ginjou/core] `ids` is required to invalidate exact many queries.')
 
+					const idsKey = ids.map(String)
 					await queryClient.invalidateQueries(
 						{
-							queryKey: meta != null
-								? genGetManyQueryKey({
-										props: {
-											fetcherName,
-											resource: resource!,
-											ids,
-											meta,
-											aggregate: true,
-										},
-									})
-								: [
-										...genBaseGetManyQueryKey({ props: { fetcherName, resource: resource! } }),
-										ids.map(String),
-									],
+							...(meta != null
+								? {
+										queryKey: genGetManyQueryKey({
+											props: {
+												fetcherName,
+												resource: resource!,
+												ids,
+												meta,
+												aggregate: true,
+											},
+										}),
+										exact: true,
+									}
+								: {
+										queryKey: genBaseGetManyQueryKey({ props: { fetcherName, resource: resource! } }),
+										predicate: query => isSameIds(query.queryKey[3] as string[] | undefined, idsKey),
+									}),
 							...invalidateQueryFilters,
 						},
 						invalidateOptions,
@@ -290,19 +294,24 @@ export function createInvalidator(
 
 					await Promise.all(ids.map(id => queryClient.invalidateQueries(
 						{
-							queryKey: meta != null
-								? genGetOneQueryKey({
-										props: {
-											fetcherName,
-											resource: resource!,
+							...(meta != null
+								? {
+										queryKey: genGetOneQueryKey({
+											props: {
+												fetcherName,
+												resource: resource!,
+												id,
+												meta,
+											},
+										}),
+										exact: true,
+									}
+								: {
+										queryKey: [
+											...genBaseGetOneQueryKey({ props: { fetcherName, resource: resource! } }),
 											id,
-											meta,
-										},
-									})
-								: [
-										...genBaseGetOneQueryKey({ props: { fetcherName, resource: resource! } }),
-										id,
-									],
+										],
+									}),
 							...invalidateQueryFilters,
 						},
 						invalidateOptions,
@@ -339,4 +348,13 @@ function resolveAffectedIds(
 		...(ids ?? []),
 		...(Array.isArray(records) ? records.map(getRecordId) : [getRecordId(records)]),
 	].filter(id => id != null))]
+}
+
+function isSameIds(
+	a: string[] | undefined,
+	b: string[],
+): boolean {
+	return a != null
+		&& a.length === b.length
+		&& a.every((id, index) => id === b[index])
 }

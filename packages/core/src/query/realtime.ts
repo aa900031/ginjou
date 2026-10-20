@@ -52,15 +52,9 @@ export function createSubscribeCallback<
 
 			invalidate(
 				{
-					invalidates: {
-						rules: [
-							InvalidateTarget.Resource,
-						],
-						queryFilters: {
-							type: 'active',
-							refetchType: 'active',
-						},
-					},
+					invalidates: [
+						InvalidateTarget.Resource,
+					],
 					resource,
 					fetcherName,
 				},

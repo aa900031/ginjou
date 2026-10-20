@@ -15,7 +15,7 @@ import type { OptionalMutateAsyncFunction, OptionalMutateSyncFunction, OriginMut
 import { NotificationType } from '../notification'
 import { RealtimeAction } from '../realtime'
 import { AbortDefer, defer } from '../utils/defer'
-import { getErrorMessage } from '../utils/error'
+import { getErrorMessage, reportUnhandledError } from '../utils/error'
 import { getFetcherFn, getSafeFetcherFn, resolveFetcherProps } from './fetchers'
 import { createBaseQueryKey as genBaseGetListQueryKey } from './get-list'
 import { createBaseQueryKey as genBaseGetManyQueryKey } from './get-many'
@@ -288,12 +288,13 @@ export function createSettledHandler<
 		await invalidate(resolvedProps, {
 			defaults: {
 				invalidates: [
-				InvalidateTarget.List,
-				InvalidateTarget.Many,
-				InvalidateTarget.One,
-			] },
+					InvalidateTarget.List,
+					InvalidateTarget.Many,
+					InvalidateTarget.One,
+				],
+			},
 			data,
-		})
+		}).catch(reportUnhandledError)
 
 		await onSettledFromProp?.(data, error, resolvedProps, onMutateResult, context)
 	}

@@ -31,11 +31,11 @@ See [Data](https://ginjou.pages.dev/raw/guides/data.md) for the lower-level quer
 Targets are `all`, `resource`, `list`, `many`, and `one`. `all` covers every
 query of **one fetcher**, not every fetcher.
 
-| Mutation pattern | Default invalidates |
-| --- | --- |
-| Create one / many | `list`, `many` |
-| Update one / many | `list`, `many`, `one` |
-| Delete one / many | `list`, `many` |
+| Mutation pattern | Default invalidates | Runs |
+| --- | --- | --- |
+| Create one / many | `list`, `many` | on success only |
+| Update one / many | `list`, `many`, `one` | on settled (success **or** failure) |
+| Delete one / many | `list`, `many` | on settled (success **or** failure) |
 
 A rule is either a target string or an object for an explicit target:
 
@@ -83,7 +83,10 @@ invalidates: ({ defaults }) => [
 
 The callback gets one context object `{ defaults, data, props }`:
 `defaults.invalidates` is the mutation's default rule array, `data` the
-mutation result (`undefined` on failure), `props` the resolved mutation props.
+mutation result, `props` the resolved mutation props. Update/delete callbacks
+also run on failure with `data` `undefined` — guard it (`data ? [...] : []`);
+an error thrown while invalidating does not fail the mutation — it surfaces as an
+unhandled promise rejection and that invalidation is skipped.
 Use `data` to target related records the server returned, e.g.
 `{ target: 'one', resource: 'posts', id: data.data.postId }` after creating a
 comment.
