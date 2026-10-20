@@ -225,7 +225,7 @@ describe('createSettledHandler (update)', () => {
 	it('should resolve invalidates with result data and mutation props', async () => {
 		const queryClient = new QueryClient()
 		const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
-		const invalidates = vi.fn((_defaults, { data }) => [
+		const invalidates = vi.fn(({ data }) => [
 			{ target: 'one' as const, resource: 'posts', id: data!.data.id },
 		])
 		const handler = createSettledHandler({
@@ -252,18 +252,30 @@ describe('createSettledHandler (update)', () => {
 			{} as any,
 		)
 
-		expect(invalidates).toHaveBeenCalledWith(
-			['list', 'many', 'one'],
-			{
-				data: { data: { id: 3, title: 'Updated' } },
-				props: expect.objectContaining({ resource: 'posts', id: 1 }),
-			},
-		)
+		expect(invalidates).toHaveBeenCalledWith({
+			defaults: { invalidates: ['list', 'many', 'one'] },
+			data: { data: { id: 3, title: 'Updated' } },
+			props: expect.objectContaining({ resource: 'posts', id: 1 }),
+		})
 		expect(invalidateQueries).toHaveBeenCalledOnce()
 		expect(invalidateQueries).toHaveBeenCalledWith(
-			{ queryKey: createGetOneQueryKey({ props: { fetcherName: 'default', resource: 'posts', id: 3 } as any }), type: 'all', refetchType: 'active' },
+			{ queryKey: ['default', 'posts', 'getOne', 3], type: 'all', refetchType: 'active' },
 			{ cancelRefetch: false },
 		)
+	})
+})
+
+describe('createSettledHandler (update) invalidate errors', () => {
+	it('propagates invalidate errors and skips onSettled', async () => {
+		const onSettled = vi.fn()
+		const handler = createSettledHandler({
+			invalidate: () => Promise.reject(new Error('boom')),
+			getProps: () => ({ resource: 'posts', id: 1, params: {} }),
+			onSettled,
+		})
+
+		await expect(handler({ data: { id: 1 } } as any, null, {} as any, undefined as any, {} as any)).rejects.toThrow('boom')
+		expect(onSettled).not.toHaveBeenCalled()
 	})
 })
 

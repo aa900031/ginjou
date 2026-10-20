@@ -69,7 +69,7 @@ export function useCreateOne<
 	const notify = useNotify(context)
 	const translate = useTranslate(context)
 	const publish = usePublish(context)
-	const invalidate = useQueryInvalidate(props, context)
+	const invalidate = useQueryInvalidate(undefined, context)
 	const { mutateAsync: checkError } = useCheckError<TError>(undefined, context)
 
 	const mutationFn = CreateOne.createMutationFn<TData, TError, TParams>({

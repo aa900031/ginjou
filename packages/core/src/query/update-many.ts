@@ -21,6 +21,7 @@ import { createBaseQueryKey as genBaseGetListQueryKey } from './get-list'
 import { createBaseQueryKey as genBaseGetManyQueryKey } from './get-many'
 import { createQueryKey as genGetOneQueryKey } from './get-one'
 import { fakeMany } from './helper'
+import { Target as InvalidateTarget } from './invalidate'
 import { MutationMode, resolveMutationModeProps } from './mutation-mode'
 import { createProgressNotifyParams, resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
 import { createModifyListItemUpdaterFn, createModifyManyUpdaterFn, createModifyOneUpdaterFn, createOptimisticUpdaterFn, shouldApplyOptimisticUpdate } from './optimistic-update'
@@ -285,8 +286,14 @@ export function createSettledHandler<
 		const resolvedProps = resolveMutationProps(getProps(), props)
 
 		await invalidate(resolvedProps, {
-			invalidates: ['list', 'many', 'one'],
-		}, { data })
+			defaults: {
+				invalidates: [
+				InvalidateTarget.List,
+				InvalidateTarget.Many,
+				InvalidateTarget.One,
+			] },
+			data,
+		})
 
 		await onSettledFromProp?.(data, error, resolvedProps, onMutateResult, context)
 	}

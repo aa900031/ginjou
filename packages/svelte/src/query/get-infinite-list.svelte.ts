@@ -64,7 +64,7 @@ export function useGetInfiniteList<
 	const fetchers = useFetchersContext({ ...context, strict: true })
 	const notify = useNotify(context)
 	const translate = useTranslate(context)
-	const invalidate = useQueryInvalidate(props, context)
+	const invalidate = useQueryInvalidate(undefined, context)
 
 	const resolvedProps = $derived(extract(props))
 	const realtimeOptions = useRealtimeOptions(() => resolvedProps.realtime, context)

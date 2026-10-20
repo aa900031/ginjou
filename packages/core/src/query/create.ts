@@ -14,6 +14,7 @@ import { NotificationType } from '../notification'
 import { RealtimeAction } from '../realtime'
 import { getErrorMessage } from '../utils/error'
 import { getFetcherFn, resolveFetcherProps } from './fetchers'
+import { Target as InvalidateTarget } from './invalidate'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
 import { createPublishMeta, createPublishPayloadByOne } from './publish'
 
@@ -158,8 +159,14 @@ export function createSuccessHandler<
 		)
 
 		await invalidate(resolvedProps, {
-			invalidates: ['list', 'many'],
-		}, { data })
+			defaults: {
+				invalidates: [
+					InvalidateTarget.List,
+					InvalidateTarget.Many,
+				],
+			},
+			data,
+		})
 
 		publish(
 			createPublishEvent(resolvedProps, data),

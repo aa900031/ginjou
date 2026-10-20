@@ -42,30 +42,31 @@ A rule is either a target string or an object for an explicit target:
 | Rule | Invalidates |
 | --- | --- |
 | `'all'` / `'resource'` / `'list'` | same as the object form, using the call's `resource` / `fetcherName` |
-| `'many'` | exact many queries keyed by the mutation's `ids`, and by the IDs in the result when it is an array |
-| `'one'` | exact one queries for the mutation's `id` / `ids` plus every ID in the result |
+| `'many'` | every many query whose `ids` contain an affected ID (any order, any `meta`) |
+| `'one'` | the one queries of every affected ID, whatever their `meta` |
 | `{ target: 'all', fetcherName? }` | every query of one fetcher |
 | `{ target: 'resource', resource, fetcherName? }` | **every** list/one/many query of that resource |
 | `{ target: 'list', resource, fetcherName? }` | only the list + infinite-list queries |
-| `{ target: 'many', resource, ids, fetcherName?, meta? }` | exact many query |
-| `{ target: 'one', resource, id \| ids, fetcherName?, meta? }` | exact one query/queries |
+| `{ target: 'many', resource, ids, fetcherName?, meta? }` | many query with exactly these ordered `ids` |
+| `{ target: 'one', resource, id \| ids, fetcherName?, meta? }` | one query/queries for these IDs |
 
-String `'one'` / `'many'` rules need the mutation context (props + result),
-so they only work inside mutations; outside one they throw — use object rules.
-They use the mutation's `meta`. Object rules fall back to the mutation's
-`fetcherName`, but **not** its `meta` — pass `meta` on the rule when the target
-queries carry one. Object `one` rules take exactly one of `id` or `ids`.
+"Affected IDs" are the mutation's `id` / `ids` plus every ID in the result.
+String `'one'` / `'many'` rules need that mutation context, so they only work
+inside mutations; outside one they throw — use object rules. They ignore the
+mutation's `meta` (it describes the write, not the cached reads). Object rules
+fall back to the mutation's `fetcherName`; with `meta` they match only queries
+carrying that exact `meta`, without it they match every `meta`. Object `one`
+rules take exactly one of `id` or `ids`.
 
-`one` and `many` always match by exact query key, so they must mirror the query exactly:
+IDs match by query key, so they must mirror the query:
 
 - `one`: `id` is used raw. A query keyed on `'1'` (route param) is **not**
   matched by `id: 1`. Match the type the read composable was given.
-- `many`: `ids` is compared as an ordered list; `ids: [2, 1]` misses a query
-  fetched with `ids: [1, 2]`. A string `'many'` after a single-record mutation
-  (`useCreateOne`, `useUpdateOne`, `useDeleteOne`) has no `ids` list, so it
-  invalidates nothing.
-- Either way a mismatch is silent — no error, stale cache. Use `'resource'`
-  when unsure.
+- Object `many`: `ids` is compared as an ordered list; `ids: [2, 1]` misses a
+  query fetched with `ids: [1, 2]`. The string `'many'` has no such limit.
+- A string `'many'` predicate is skipped when `queryFilters.predicate` is set;
+  the user predicate wins.
+- A mismatch is silent — no error, stale cache. Use `'resource'` when unsure.
 
 Every target except `all` needs a `resource`, from the rule, the call, or the
 hook/mutation props; missing one throws.
@@ -74,22 +75,23 @@ Passing an array **replaces** the defaults. Pass a callback to keep them, or
 `false` to invalidate nothing:
 
 ```ts
-invalidates: defaults => [
-	...(defaults || []),
+invalidates: ({ defaults }) => [
+	...(defaults?.invalidates || []),
 	{ target: 'resource', resource: 'comments' },
 ]
 ```
 
-The callback's second argument is `{ data, props }`: the mutation result
-(`undefined` on failure) and resolved mutation props. Use it to target related
-records the server returned, e.g. `{ target: 'one', resource: 'posts', id: data.data.postId }`
-after creating a comment.
+The callback gets one context object `{ defaults, data, props }`:
+`defaults.invalidates` is the mutation's default rule array, `data` the
+mutation result (`undefined` on failure), `props` the resolved mutation props.
+Use `data` to target related records the server returned, e.g.
+`{ target: 'one', resource: 'posts', id: data.data.postId }` after creating a
+comment.
 
 Any of these can also be `{ rules, queryFilters?, options? }` (callbacks may
 return it too). `queryFilters` / `options` are TanStack `invalidateQueries`
 filters (minus `queryKey`) and options; each **replaces** its default
-(`{ type: 'all', refetchType: 'active' }` / `{ cancelRefetch: false }`) entirely. The
-callback's `defaults` is always a plain rule array.
+(`{ type: 'all', refetchType: 'active' }` / `{ cancelRefetch: false }`) entirely.
 
 Outside a mutation, use `useQueryInvalidate` (see the framework leaf).
 

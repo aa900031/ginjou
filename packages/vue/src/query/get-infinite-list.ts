@@ -70,7 +70,7 @@ export function useGetInfiniteList<
 	const realtimeOptions = useRealtimeOptions(toRef(() => unref(props.realtime)), context)
 	const notify = useNotify(context)
 	const translate = useTranslate(context)
-	const invalidate = useQueryInvalidate(props, context)
+	const invalidate = useQueryInvalidate(undefined, context)
 	const { mutateAsync: checkError } = useCheckError<TError>(undefined, context)
 
 	const queryProps = computed(() => GetInfiniteList.resolveQueryProps<TPageParam>({
