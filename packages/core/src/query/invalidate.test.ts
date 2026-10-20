@@ -32,7 +32,7 @@ describe('createInvalidator', () => {
 
 		expect(resolveInvalidates).toHaveBeenCalledWith({
 			defaults: { invalidates: ['resource'] },
-			props: { invalidates: resolveInvalidates },
+			props: { invalidates: resolveInvalidates, resource: 'posts', fetcherName: 'primary' },
 		})
 		expect(invalidateQueries).toHaveBeenCalledWith(
 			{ queryKey: ['primary', 'posts', 'getList'], type: 'all', refetchType: 'active' },
@@ -319,6 +319,115 @@ describe('createInvalidator', () => {
 		await invalidate({ invalidates: false })
 
 		expect(invalidateQueries).not.toHaveBeenCalled()
+	})
+
+	it('uses hook-level props when called without arguments', async () => {
+		const queryClient = new QueryClient()
+		const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
+		const invalidate = createInvalidator({
+			getFetcherName: () => undefined,
+			getInvalidates: () => ['resource'],
+			getResource: () => 'posts',
+			queryClient,
+		})
+
+		await invalidate()
+
+		expect(invalidateQueries).toHaveBeenCalledWith(
+			{ queryKey: ['default', 'posts'], type: 'all', refetchType: 'active' },
+			{ cancelRefetch: false },
+		)
+	})
+
+	it('does not invalidate anything when a later rule is invalid', async () => {
+		const queryClient = new QueryClient()
+		const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
+		const invalidate = createInvalidator({
+			getFetcherName: () => undefined,
+			getInvalidates: () => undefined,
+			getResource: () => 'posts',
+			queryClient,
+		})
+
+		await expect(invalidate({ invalidates: ['list', 'one'] })).rejects.toThrow('Mutation context is required')
+		await expect(invalidate({
+			invalidates: ['resource', { target: 'one', resource: 'posts', id: 1, ids: [2] } as any],
+		})).rejects.toThrow('Exactly one of `id` or `ids`')
+
+		expect(invalidateQueries).not.toHaveBeenCalled()
+	})
+
+	it('matches one queries by string id', async () => {
+		const queryClient = new QueryClient()
+		const invalidate = createInvalidator({
+			getFetcherName: () => undefined,
+			getInvalidates: () => undefined,
+			getResource: () => 'posts',
+			queryClient,
+		})
+		const keys = {
+			oneNumber: ['default', 'posts', 'getOne', 1, { meta: undefined }],
+			oneString: ['default', 'posts', 'getOne', '2', { meta: undefined }],
+			oneOther: ['default', 'posts', 'getOne', 3, { meta: undefined }],
+		}
+		seedQueries(queryClient, Object.values(keys))
+
+		const mutationProps = { invalidates: ['one'] as RuleOptions, ids: ['1', 2] }
+		await invalidate(mutationProps, { data: undefined })
+
+		expect(isInvalidated(queryClient, keys.oneNumber)).toBe(true)
+		expect(isInvalidated(queryClient, keys.oneString)).toBe(true)
+		expect(isInvalidated(queryClient, keys.oneOther)).toBe(false)
+	})
+
+	it('uses result ids when called without props', async () => {
+		const queryClient = new QueryClient()
+		const invalidate = createInvalidator({
+			getFetcherName: () => undefined,
+			getInvalidates: () => ['one'],
+			getResource: () => 'posts',
+			queryClient,
+		})
+		const key = ['default', 'posts', 'getOne', 2, { meta: undefined }]
+		seedQueries(queryClient, [key])
+
+		await invalidate(undefined, { data: { data: { id: 2 } } })
+
+		expect(isInvalidated(queryClient, key)).toBe(true)
+	})
+
+	it('passes resolved resource and fetcherName to the resolve function', async () => {
+		const queryClient = new QueryClient()
+		const resolveInvalidates = vi.fn(({ props }) => [{ target: 'list' as const, resource: props.resource }])
+		const invalidate = createInvalidator({
+			getFetcherName: () => 'primary',
+			getInvalidates: () => resolveInvalidates,
+			getResource: () => 'posts',
+			queryClient,
+		})
+
+		await invalidate({})
+
+		expect(resolveInvalidates.mock.calls[0]![0].props).toEqual({ resource: 'posts', fetcherName: 'primary' })
+	})
+
+	it('falls back to call resource when an object rule omits it', async () => {
+		const queryClient = new QueryClient()
+		const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
+		const invalidate = createInvalidator({
+			getFetcherName: () => undefined,
+			getInvalidates: () => undefined,
+			getResource: () => 'posts',
+			queryClient,
+		})
+
+		await invalidate({ invalidates: [{ target: 'resource' }, { target: 'list', resource: undefined }] })
+
+		expect(invalidateQueries.mock.calls.map(([filters]) => filters!.queryKey)).toEqual([
+			['default', 'posts'],
+			['default', 'posts', 'getList'],
+			['default', 'posts', 'getInfiniteList'],
+		])
 	})
 
 	it('validates required props when executed', async () => {

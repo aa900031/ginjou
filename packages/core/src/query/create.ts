@@ -12,9 +12,9 @@ import type { PublishPayload } from './publish'
 import type { OptionalMutateAsyncFunction, OptionalMutateSyncFunction, OriginMutateAsyncFunction, OriginMutateSyncFunction } from './types'
 import { NotificationType } from '../notification'
 import { RealtimeAction } from '../realtime'
-import { getErrorMessage, reportUnhandledError } from '../utils/error'
+import { getErrorMessage } from '../utils/error'
 import { getFetcherFn, resolveFetcherProps } from './fetchers'
-import { Target as InvalidateTarget } from './invalidate'
+import { Target as InvalidateTarget, reportInvalidateError } from './invalidate'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
 import { createPublishMeta, createPublishPayloadByOne } from './publish'
 
@@ -25,7 +25,7 @@ export type MutationProps<
 > = Simplify<
 	& Partial<CreateOneProps<TParams>>
 	& FetcherProps
-	& InvalidatesProps<CreateOneResult<TData>, CreateOneProps<TParams>>
+	& InvalidatesProps<CreateOneProps<TParams>, CreateOneResult<TData>>
 	& NotifyProps<CreateOneResult<TData>, CreateOneProps<TParams>, TError>
 >
 
@@ -126,7 +126,7 @@ export interface CreateSuccessHandlerProps<
 	notify: Notify.Fn
 	translate: Translate.Fn<any>
 	publish: Publish.EmitFn<PublishPayload>
-	invalidate: Invalidator
+	invalidate: Invalidator<CreateOneProps<TParams>, CreateOneResult<TData>>
 	getProps: () => Props<TData, TError, TParams> | undefined
 	onSuccess: MutationOptions<TData, TError, TParams>['onSuccess']
 }
@@ -166,7 +166,7 @@ export function createSuccessHandler<
 				],
 			},
 			data,
-		}).catch(reportUnhandledError)
+		}).catch(reportInvalidateError)
 
 		publish(
 			createPublishEvent(resolvedProps, data),

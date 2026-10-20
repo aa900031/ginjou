@@ -15,13 +15,13 @@ import type { OptionalMutateAsyncFunction, OptionalMutateSyncFunction, OriginMut
 import { NotificationType } from '../notification'
 import { RealtimeAction } from '../realtime'
 import { AbortDefer, defer } from '../utils/defer'
-import { getErrorMessage, reportUnhandledError } from '../utils/error'
+import { getErrorMessage } from '../utils/error'
 import { getFetcherFn, getSafeFetcherFn, resolveFetcherProps } from './fetchers'
 import { createBaseQueryKey as genBaseGetListQueryKey } from './get-list'
 import { createBaseQueryKey as genBaseGetManyQueryKey } from './get-many'
 import { createQueryKey as genGetOneQueryKey } from './get-one'
 import { fakeMany } from './helper'
-import { Target as InvalidateTarget } from './invalidate'
+import { Target as InvalidateTarget, reportInvalidateError } from './invalidate'
 import { MutationMode, resolveMutationModeProps } from './mutation-mode'
 import { createProgressNotifyParams, resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
 import { createModifyListItemUpdaterFn, createModifyManyUpdaterFn, createModifyOneUpdaterFn, createOptimisticUpdaterFn, shouldApplyOptimisticUpdate } from './optimistic-update'
@@ -35,7 +35,7 @@ export type MutationProps<
 > = Simplify<
 	& Partial<UpdateManyProps<TParams>>
 	& FetcherProps
-	& InvalidatesProps<UpdateManyResult<TData>, UpdateManyProps<TParams>>
+	& InvalidatesProps<UpdateManyProps<TParams>, UpdateManyResult<TData>>
 	& NotifyProps<UpdateManyResult<TData>, UpdateManyProps<TParams>, TError>
 	& MutationModeProps
 	& OptimisticUpdateProps<TData, TParams, UpdateManyProps<TParams>['ids']>
@@ -260,7 +260,7 @@ export interface CreateSettledHandlerProps<
 	TError,
 	TParams extends Params,
 > {
-	invalidate: Invalidator
+	invalidate: Invalidator<UpdateManyProps<TParams>, UpdateManyResult<TData>>
 	getProps: () => Props<TData, TError, TParams> | undefined
 	onSettled: MutationOptions<TData, TError, TParams>['onSettled']
 }
@@ -294,7 +294,7 @@ export function createSettledHandler<
 				],
 			},
 			data,
-		}).catch(reportUnhandledError)
+		}).catch(reportInvalidateError)
 
 		await onSettledFromProp?.(data, error, resolvedProps, onMutateResult, context)
 	}

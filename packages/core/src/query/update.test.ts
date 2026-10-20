@@ -1,18 +1,12 @@
 import { QueryClient } from '@tanstack/query-core'
 import { describe, expect, it, vi } from 'vitest'
 import { AbortDefer } from '../utils/defer'
-import { reportUnhandledError } from '../utils/error'
 import { createQueryKey as createGetListQueryKey } from './get-list'
 import { createQueryKey as createGetManyQueryKey } from './get-many'
 import { createQueryKey as createGetOneQueryKey } from './get-one'
 import { createInvalidator } from './invalidate'
 import { MutationMode } from './mutation-mode'
 import { createErrorHandler, createMutateAsyncFn, createMutateFn, createMutateHandler, createMutationFn, createSettledHandler, createSuccessHandler } from './update'
-
-vi.mock('../utils/error', async importOriginal => ({
-	...await importOriginal<typeof import('../utils/error')>(),
-	reportUnhandledError: vi.fn(),
-}))
 
 function seedPostQueries(queryClient: QueryClient) {
 	const queryProps = {
@@ -197,7 +191,7 @@ describe('createSettledHandler (update)', () => {
 		const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
 		const onSettled = vi.fn()
 		const handler = createSettledHandler({
-			invalidate: createInvalidator({
+			invalidate: createInvalidator<any, any>({
 				getFetcherName: () => undefined,
 				getInvalidates: () => undefined,
 				getResource: () => undefined,
@@ -230,12 +224,16 @@ describe('createSettledHandler (update)', () => {
 	})
 	it('should resolve invalidates with result data and mutation props', async () => {
 		const queryClient = new QueryClient()
+		const one1Key = ['default', 'posts', 'getOne', 1, { meta: undefined }]
+		const one3Key = ['default', 'posts', 'getOne', 3, { meta: undefined }]
+		queryClient.setQueryData(one1Key, { data: { id: 1 } })
+		queryClient.setQueryData(one3Key, { data: { id: 3 } })
 		const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
 		const invalidates = vi.fn(({ data }) => [
 			{ target: 'one' as const, resource: 'posts', id: data!.data.id },
 		])
 		const handler = createSettledHandler({
-			invalidate: createInvalidator({
+			invalidate: createInvalidator<any, any>({
 				getFetcherName: () => undefined,
 				getInvalidates: () => undefined,
 				getResource: () => undefined,
@@ -264,25 +262,29 @@ describe('createSettledHandler (update)', () => {
 			props: expect.objectContaining({ resource: 'posts', id: 1 }),
 		})
 		expect(invalidateQueries).toHaveBeenCalledOnce()
-		expect(invalidateQueries).toHaveBeenCalledWith(
-			{ queryKey: ['default', 'posts', 'getOne', 3], type: 'all', refetchType: 'active' },
-			{ cancelRefetch: false },
-		)
+		expect(queryClient.getQueryState(one3Key)?.isInvalidated).toBe(true)
+		expect(queryClient.getQueryState(one1Key)?.isInvalidated).toBe(false)
 	})
 })
 
 describe('createSettledHandler (update) invalidate errors', () => {
 	it('reports invalidate errors without failing the mutation', async () => {
-		const onSettled = vi.fn()
-		const handler = createSettledHandler({
-			invalidate: () => Promise.reject(new Error('boom')),
-			getProps: () => ({ resource: 'posts', id: 1, params: {} }),
-			onSettled,
-		})
+		const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+		try {
+			const onSettled = vi.fn()
+			const handler = createSettledHandler({
+				invalidate: () => Promise.reject(new Error('boom')),
+				getProps: () => ({ resource: 'posts', id: 1, params: {} }),
+				onSettled,
+			})
 
-		await expect(handler({ data: { id: 1 } } as any, null, {} as any, undefined as any, {} as any)).resolves.toBeUndefined()
-		expect(reportUnhandledError).toHaveBeenCalledWith(new Error('boom'))
-		expect(onSettled).toHaveBeenCalledOnce()
+			await expect(handler({ data: { id: 1 } } as any, null, {} as any, undefined as any, {} as any)).resolves.toBeUndefined()
+			expect(consoleError).toHaveBeenCalledWith('[@ginjou/core] Failed to invalidate queries.', new Error('boom'))
+			expect(onSettled).toHaveBeenCalledOnce()
+		}
+		finally {
+			consoleError.mockRestore()
+		}
 	})
 })
 

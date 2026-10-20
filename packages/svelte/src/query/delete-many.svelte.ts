@@ -1,4 +1,4 @@
-import type { BaseRecord, DeleteManyResult, Params } from '@ginjou/core'
+import type { BaseRecord, DeleteManyProps, DeleteManyResult, Params } from '@ginjou/core'
 import type { CreateMutationResult } from '@tanstack/svelte-query'
 import type { OverrideProperties, Simplify } from 'type-fest'
 import type { UseCheckErrorContext } from '../auth'
@@ -68,7 +68,7 @@ export function useDeleteMany<
 	const notify = useNotify(context)
 	const translate = useTranslate(context)
 	const publish = usePublish(context)
-	const invalidate = useQueryInvalidate(undefined, context)
+	const invalidate = useQueryInvalidate<DeleteManyProps<TParams>, DeleteManyResult<TData>>(undefined, context)
 	const { mutateAsync: checkError } = useCheckError<TError>(undefined, context)
 
 	const resolvedProps = $derived(extract(props))

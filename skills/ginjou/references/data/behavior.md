@@ -45,10 +45,10 @@ A rule is either a target string or an object for an explicit target:
 | `'many'` | every many query whose `ids` contain an affected ID (any order, any `meta`) |
 | `'one'` | the one queries of every affected ID, whatever their `meta` |
 | `{ target: 'all', fetcherName? }` | every query of one fetcher |
-| `{ target: 'resource', resource, fetcherName? }` | **every** list/one/many query of that resource |
-| `{ target: 'list', resource, fetcherName? }` | only the list + infinite-list queries |
-| `{ target: 'many', resource, ids, fetcherName?, meta? }` | many query with exactly these ordered `ids` |
-| `{ target: 'one', resource, id \| ids, fetcherName?, meta? }` | one query/queries for these IDs |
+| `{ target: 'resource', resource?, fetcherName? }` | **every** list/one/many query of that resource |
+| `{ target: 'list', resource?, fetcherName? }` | only the list + infinite-list queries |
+| `{ target: 'many', resource?, ids, fetcherName?, meta? }` | many query with exactly these ordered `ids` |
+| `{ target: 'one', resource?, id \| ids, fetcherName?, meta? }` | one query/queries for these IDs |
 
 "Affected IDs" are the mutation's `id` / `ids` plus every ID in the result.
 String `'one'` / `'many'` rules need that mutation context, so they only work
@@ -60,12 +60,15 @@ rules take exactly one of `id` or `ids`.
 
 IDs match by query key, so they must mirror the query:
 
-- `one`: `id` is used raw. A query keyed on `'1'` (route param) is **not**
-  matched by `id: 1`. Match the type the read composable was given.
+- `one` and `many` compare IDs as strings, so `id: 1` also matches a query
+  keyed on `'1'` (route param).
 - Object `many`: `ids` is compared as an ordered list; `ids: [2, 1]` misses a
   query fetched with `ids: [1, 2]`. The string `'many'` has no such limit.
-- A string `'many'` predicate is skipped when `queryFilters.predicate` is set;
-  the user predicate wins.
+- `queryFilters` overrides each rule's own filters for **every** rule: a
+  `predicate` replaces the ID / `meta` matching of `one` and `many` rules
+  (string and object), and `exact: true` turns every prefix match into an
+  exact one, which usually matches nothing. Don't set them unless you mean to
+  replace the rule's matching.
 - A mismatch is silent — no error, stale cache. Use `'resource'` when unsure.
 
 Every target except `all` needs a `resource`, from the rule, the call, or the
@@ -85,8 +88,8 @@ The callback gets one context object `{ defaults, data, props }`:
 `defaults.invalidates` is the mutation's default rule array, `data` the
 mutation result, `props` the resolved mutation props. Update/delete callbacks
 also run on failure with `data` `undefined` — guard it (`data ? [...] : []`);
-an error thrown while invalidating does not fail the mutation — it surfaces as an
-unhandled promise rejection and that invalidation is skipped.
+an error thrown while invalidating does not fail the mutation — it is logged with
+`console.error` and that invalidation is skipped.
 Use `data` to target related records the server returned, e.g.
 `{ target: 'one', resource: 'posts', id: data.data.postId }` after creating a
 comment.

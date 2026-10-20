@@ -583,7 +583,7 @@ describe('createSettledHandler (update-many)', () => {
 		const isInvalidated = (key: unknown[]) => queryClient.getQueryState(key)?.isInvalidated ?? false
 		const onSettled = vi.fn()
 		const handler = createSettledHandler({
-			invalidate: createInvalidator({
+			invalidate: createInvalidator<any, any>({
 				getFetcherName: () => undefined,
 				getInvalidates: () => undefined,
 				getResource: () => undefined,

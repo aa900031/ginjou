@@ -11,12 +11,6 @@ export function getErrorMessage(
 	}
 }
 
-export function reportUnhandledError(
-	error: unknown,
-): void {
-	void Promise.reject(error)
-}
-
 export function isNotFoundError(
 	error: unknown,
 ): boolean {

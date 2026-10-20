@@ -1,4 +1,4 @@
-import type { BaseRecord, CreateManyResult, Params } from '@ginjou/core'
+import type { BaseRecord, CreateManyProps, CreateManyResult, Params } from '@ginjou/core'
 import type { UseMutationReturnType } from '@tanstack/vue-query'
 import type { OverrideProperties, Simplify } from 'type-fest'
 import type { UseCheckErrorContext } from '../auth'
@@ -69,7 +69,7 @@ export function useCreateMany<
 	const notify = useNotify(context)
 	const translate = useTranslate(context)
 	const publish = usePublish(context)
-	const invalidate = useQueryInvalidate(undefined, context)
+	const invalidate = useQueryInvalidate<CreateManyProps<TParams>, CreateManyResult<TData>>(undefined, context)
 	const { mutateAsync: checkError } = useCheckError<TError>(undefined, context)
 
 	const mutationFn = CreateMany.createMutationFn({

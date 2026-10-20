@@ -1,4 +1,4 @@
-import type { BaseRecord, CreateOneResult, Params } from '@ginjou/core'
+import type { BaseRecord, CreateOneProps, CreateOneResult, Params } from '@ginjou/core'
 import type { CreateMutationResult } from '@tanstack/svelte-query'
 import type { OverrideProperties, Simplify } from 'type-fest'
 import type { UseCheckErrorContext } from '../auth'
@@ -68,7 +68,7 @@ export function useCreateOne<
 	const notify = useNotify(context)
 	const translate = useTranslate(context)
 	const publish = usePublish(context)
-	const invalidate = useQueryInvalidate(undefined, context)
+	const invalidate = useQueryInvalidate<CreateOneProps<TParams>, CreateOneResult<TData>>(undefined, context)
 	const { mutateAsync: checkError } = useCheckError<TError>(undefined, context)
 
 	const resolvedProps = $derived(extract(props))
