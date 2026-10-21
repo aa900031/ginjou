@@ -566,6 +566,37 @@ describe('createMutateHandler (update-many)', () => {
 })
 
 describe('createSettledHandler (update-many)', () => {
+	it('uses only input ids when the result data is not an array', async () => {
+		const resolveInvalidates = vi.fn(() => [])
+		const onSettled = vi.fn()
+		const handler = createSettledHandler({
+			invalidate: createInvalidator<any>({
+				getFetcherName: () => undefined,
+				getInvalidates: () => undefined,
+				getResource: () => undefined,
+				queryClient: new QueryClient(),
+			}),
+			getProps: () => ({
+				resource: 'posts',
+				ids: [1, 2],
+				params: { status: 'draft' },
+				invalidates: resolveInvalidates,
+			}),
+			onSettled,
+		})
+
+		await expect(handler(
+			{ data: { count: 2 } } as any,
+			null,
+			{} as any,
+			undefined as any,
+			{} as any,
+		)).resolves.toBeUndefined()
+
+		expect(resolveInvalidates).toHaveBeenCalledWith({ ids: [1, 2], data: { data: { count: 2 } } })
+		expect(onSettled).toHaveBeenCalledOnce()
+	})
+
 	it('should apply invalidates and call onSettled with resolved props', async () => {
 		const queryClient = new QueryClient()
 		const keys = {
@@ -583,7 +614,7 @@ describe('createSettledHandler (update-many)', () => {
 		const isInvalidated = (key: unknown[]) => queryClient.getQueryState(key)?.isInvalidated ?? false
 		const onSettled = vi.fn()
 		const handler = createSettledHandler({
-			invalidate: createInvalidator<any, any>({
+			invalidate: createInvalidator<any>({
 				getFetcherName: () => undefined,
 				getInvalidates: () => undefined,
 				getResource: () => undefined,

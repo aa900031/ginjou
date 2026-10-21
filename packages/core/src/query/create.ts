@@ -6,7 +6,7 @@ import type { Notify } from '../notification'
 import type { Publish } from '../realtime'
 import type { BaseRecord, CreateOneFn, CreateOneProps, CreateOneResult, Params } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
-import type { Props as InvalidatesProps, Invalidator } from './invalidate'
+import type { Rule as InvalidateRule, Props as InvalidatesProps, Invalidator } from './invalidate'
 import type { NotifyProps } from './notify'
 import type { PublishPayload } from './publish'
 import type { OptionalMutateAsyncFunction, OptionalMutateSyncFunction, OriginMutateAsyncFunction, OriginMutateSyncFunction } from './types'
@@ -14,7 +14,7 @@ import { NotificationType } from '../notification'
 import { RealtimeAction } from '../realtime'
 import { getErrorMessage } from '../utils/error'
 import { getFetcherFn, resolveFetcherProps } from './fetchers'
-import { Target as InvalidateTarget, reportInvalidateError } from './invalidate'
+import { Target as InvalidateTarget } from './invalidate'
 import { resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
 import { createPublishMeta, createPublishPayloadByOne } from './publish'
 
@@ -25,7 +25,7 @@ export type MutationProps<
 > = Simplify<
 	& Partial<CreateOneProps<TParams>>
 	& FetcherProps
-	& InvalidatesProps<CreateOneProps<TParams>, CreateOneResult<TData>>
+	& InvalidatesProps<CreateOneResult<TData>>
 	& NotifyProps<CreateOneResult<TData>, CreateOneProps<TParams>, TError>
 >
 
@@ -126,7 +126,7 @@ export interface CreateSuccessHandlerProps<
 	notify: Notify.Fn
 	translate: Translate.Fn<any>
 	publish: Publish.EmitFn<PublishPayload>
-	invalidate: Invalidator<CreateOneProps<TParams>, CreateOneResult<TData>>
+	invalidate: Invalidator<CreateOneResult<TData>>
 	getProps: () => Props<TData, TError, TParams> | undefined
 	onSuccess: MutationOptions<TData, TError, TParams>['onSuccess']
 }
@@ -159,14 +159,11 @@ export function createSuccessHandler<
 		)
 
 		await invalidate(resolvedProps, {
-			defaults: {
-				invalidates: [
-					InvalidateTarget.List,
-					InvalidateTarget.Many,
-				],
-			},
+			ids: [data?.data?.id],
 			data,
-		}).catch(reportInvalidateError)
+		}).catch((error) => {
+			console.error('[@ginjou/core] Failed to invalidate queries.', error)
+		})
 
 		publish(
 			createPublishEvent(resolvedProps, data),
@@ -289,6 +286,10 @@ function createPublishEvent(
 	}
 }
 
+const DEFAULT_INVALIDATES: InvalidateRule[] = [
+	InvalidateTarget.List,
+]
+
 function resolveMutationProps<
 	TData extends BaseRecord,
 	TError,
@@ -301,6 +302,7 @@ function resolveMutationProps<
 	const result: ResolvedMutationProps<TData, TError, TParams> = {
 		...props,
 		...resolveFetcherProps(props),
+		invalidates: props.invalidates ?? DEFAULT_INVALIDATES,
 	}
 
 	return result

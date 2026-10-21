@@ -33,27 +33,33 @@ query of **one fetcher**, not every fetcher.
 
 | Mutation pattern | Default invalidates | Runs |
 | --- | --- | --- |
-| Create one / many | `list`, `many` | on success only |
+| Create one / many | `list` | on success only |
 | Update one / many | `list`, `many`, `one` | on settled (success **or** failure) |
 | Delete one / many | `list`, `many` | on settled (success **or** failure) |
+
+Create skips `many`: a new ID can't be in a many query fetched before the record
+existed. Add it back (`invalidates: ['list', 'many']`) only when the app fetches
+an ID before creating it, e.g. client-generated UUIDs.
 
 A rule is either a target string or an object for an explicit target:
 
 | Rule | Invalidates |
 | --- | --- |
 | `'all'` / `'resource'` / `'list'` | same as the object form, using the call's `resource` / `fetcherName` |
-| `'many'` | every many query whose `ids` contain an affected ID (any order, any `meta`) |
-| `'one'` | the one queries of every affected ID, whatever their `meta` |
+| `'many'` | every many query whose `ids` contain a context ID (any order, any `meta`) |
+| `'one'` | the one queries of every context ID, whatever their `meta` |
 | `{ target: 'all', fetcherName? }` | every query of one fetcher |
 | `{ target: 'resource', resource?, fetcherName? }` | **every** list/one/many query of that resource |
 | `{ target: 'list', resource?, fetcherName? }` | only the list + infinite-list queries |
 | `{ target: 'many', resource?, ids, fetcherName?, meta? }` | many query with exactly these ordered `ids` |
 | `{ target: 'one', resource?, id \| ids, fetcherName?, meta? }` | one query/queries for these IDs |
 
-"Affected IDs" are the mutation's `id` / `ids` plus every ID in the result.
-String `'one'` / `'many'` rules need that mutation context, so they only work
-inside mutations; outside one they throw — use object rules. They ignore the
-mutation's `meta` (it describes the write, not the cached reads). Object rules
+String `'one'` / `'many'` use the `ids` of the invalidate context. Mutations
+pass the affected IDs for you (the mutation's `id` / `ids` plus every ID in the
+result); elsewhere pass them yourself:
+`invalidate({ resource: 'posts', invalidates: ['one'] }, { ids: [1] })`. Without `ids` the rule
+is skipped with a `console.warn`. They ignore the mutation's `meta` (it
+describes the write, not the cached reads). Object rules
 fall back to the mutation's `fetcherName`; with `meta` they match only queries
 carrying that exact `meta`, without it they match every `meta`. Object `one`
 rules take exactly one of `id` or `ids`.
@@ -64,38 +70,40 @@ IDs match by query key, so they must mirror the query:
   keyed on `'1'` (route param).
 - Object `many`: `ids` is compared as an ordered list; `ids: [2, 1]` misses a
   query fetched with `ids: [1, 2]`. The string `'many'` has no such limit.
-- `queryFilters` overrides each rule's own filters for **every** rule: a
-  `predicate` replaces the ID / `meta` matching of `one` and `many` rules
-  (string and object), and `exact: true` turns every prefix match into an
-  exact one, which usually matches nothing. Don't set them unless you mean to
+- `filters` overrides each rule's own filters for **every** rule: a
+  `predicate` replaces the ID / `meta` matching of `one` rules, string `many`
+  and object `many` without `meta` (object `many` with `meta` matches its
+  exact key, so a `predicate` only narrows it), and `exact: true` turns every
+  prefix match into an exact one, which usually matches nothing. Don't set them unless you mean to
   replace the rule's matching.
 - A mismatch is silent — no error, stale cache. Use `'resource'` when unsure.
 
 Every target except `all` needs a `resource`, from the rule, the call, or the
 hook/mutation props; missing one throws.
 
-Passing an array **replaces** the defaults. Pass a callback to keep them, or
-`false` to invalidate nothing:
+Passing `invalidates` **replaces** the defaults — list the defaults you still
+want next to the extra rules, or pass `false` to invalidate nothing:
 
 ```ts
-invalidates: ({ defaults }) => [
-	...(defaults?.invalidates || []),
-	{ target: 'resource', resource: 'comments' },
-]
+invalidates: ['list', 'many', 'one', { target: 'resource', resource: 'comments' }]
 ```
 
-The callback gets one context object `{ defaults, data, props }`:
-`defaults.invalidates` is the mutation's default rule array, `data` the
-mutation result, `props` the resolved mutation props. Update/delete callbacks
+A callback gets the invalidate context `{ ids, data }` (no defaults, no
+mutation props): `ids` the affected IDs, `data` the mutation result. To
+invalidate based on `mutate` variables, call `useQueryInvalidate` in that
+call's `onSuccess`. Update/delete callbacks
 also run on failure with `data` `undefined` — guard it (`data ? [...] : []`);
 an error thrown while invalidating does not fail the mutation — it is logged with
 `console.error` and that invalidation is skipped.
 Use `data` to target related records the server returned, e.g.
-`{ target: 'one', resource: 'posts', id: data.data.postId }` after creating a
-comment.
+`...(data?.data.postId != null ? [{ target: 'one', resource: 'posts', id: data.data.postId }] : [])`
+after creating a comment. Every rule must be valid — all rules are checked
+before any runs, so one invalid rule (e.g. `{ target: 'one', id: undefined }`)
+cancels the whole invalidation, defaults included. Only add a rule once its ID
+is known.
 
-Any of these can also be `{ rules, queryFilters?, options? }` (callbacks may
-return it too). `queryFilters` / `options` are TanStack `invalidateQueries`
+Any of these can also be `{ rules, filters?, options? }` (callbacks may
+return it too). `filters` / `options` are TanStack `invalidateQueries`
 filters (minus `queryKey`) and options; each **replaces** its default
 (`{ type: 'all', refetchType: 'active' }` / `{ cancelRefetch: false }`) entirely.
 
@@ -119,6 +127,6 @@ Do not assume mutation guarantees are interchangeable across REST API, Supabase,
 - Use the data-flow layer for dialogs, widgets, row actions, side panels, and custom endpoints.
 - Prefer page controllers only when the UI is a standard CRUD page.
 - Adjust `invalidates` deliberately instead of assuming every mutation should refresh everything.
-- Extend the defaults with the callback form; a bare array replaces them.
+- Passing `invalidates` replaces the defaults; repeat the defaults you still need.
 - Run a backend safety check before recommending mutation mode for a non-page flow.
 - Do not describe custom mutation as if it had `mutationMode` or standard CRUD invalidation.

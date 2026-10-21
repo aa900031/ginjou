@@ -75,7 +75,7 @@ describe('createSuccessHandler', () => {
 			notify,
 			translate,
 			publish,
-			invalidate: createInvalidator<any, any>({
+			invalidate: createInvalidator<any>({
 				getFetcherName: () => undefined,
 				getInvalidates: () => undefined,
 				getResource: () => undefined,
@@ -107,7 +107,10 @@ describe('createSuccessHandler', () => {
 			type: 'success',
 		})
 
-		expect(invalidateQueries).toHaveBeenCalled()
+		expect(invalidateQueries.mock.calls.map(([filters]) => filters!.queryKey)).toEqual([
+			['default', 'posts', 'getList'],
+			['default', 'posts', 'getInfiniteList'],
+		])
 		expect(publish).toHaveBeenCalledWith({
 			channel: 'resources/posts',
 			action: 'created',

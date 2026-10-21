@@ -1,5 +1,5 @@
 import type { RealtimeOption, SubscribeCallbackFn } from '../realtime'
-import type { BaseProps, Invalidator } from './invalidate'
+import type { Invalidator } from './invalidate'
 import { RealtimeMode } from '../realtime'
 import { Target as InvalidateTarget } from './invalidate'
 
@@ -27,7 +27,7 @@ export function getSubscribeChannel(
 export interface CreateSubscribeCallbackProps<
 	TPayload,
 > {
-	invalidate: Invalidator<BaseProps, unknown>
+	invalidate: Invalidator<unknown>
 	getRealtimeOptions: () => RealtimeOption.Normalized<TPayload>
 	getResource: () => string
 	getFetcherName: () => string

@@ -13,7 +13,7 @@ function isInvalidated(queryClient: QueryClient, key: unknown[]) {
 }
 
 describe('createInvalidator', () => {
-	it('resolves invalidates when applying defaults', async () => {
+	it('resolves invalidates from a function with the context', async () => {
 		const queryClient = new QueryClient()
 		const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
 		const resolveInvalidates = vi.fn((): RuleOptions => ['list'])
@@ -27,12 +27,13 @@ describe('createInvalidator', () => {
 		await invalidate({
 			invalidates: resolveInvalidates,
 		}, {
-			defaults: { invalidates: ['resource'] },
+			ids: [1],
+			data: { data: { id: 1 } },
 		})
 
 		expect(resolveInvalidates).toHaveBeenCalledWith({
-			defaults: { invalidates: ['resource'] },
-			props: { invalidates: resolveInvalidates, resource: 'posts', fetcherName: 'primary' },
+			ids: [1],
+			data: { data: { id: 1 } },
 		})
 		expect(invalidateQueries).toHaveBeenCalledWith(
 			{ queryKey: ['primary', 'posts', 'getList'], type: 'all', refetchType: 'active' },
@@ -44,7 +45,7 @@ describe('createInvalidator', () => {
 		)
 	})
 
-	it('invalidates one queries by id prefix and many queries containing affected ids for string rules', async () => {
+	it('invalidates one queries by id and many queries containing context ids for string rules', async () => {
 		const queryClient = new QueryClient()
 		const invalidate = createInvalidator({
 			getFetcherName: () => undefined,
@@ -62,14 +63,11 @@ describe('createInvalidator', () => {
 		}
 		seedQueries(queryClient, Object.values(keys))
 
-		const mutationProps = {
-			invalidates: ['one', 'many'] as RuleOptions,
+		await invalidate({
+			invalidates: ['one', 'many'],
 			resource: 'posts',
-			ids: [1, 2],
-			meta: { lang: 'en' },
-		}
-		await invalidate(mutationProps, {
-			data: { data: [{ id: 2 }, { id: 3 }] },
+		}, {
+			ids: [1, 2, 3],
 		})
 
 		expect(isInvalidated(queryClient, keys.one1)).toBe(true)
@@ -80,29 +78,26 @@ describe('createInvalidator', () => {
 		expect(isInvalidated(queryClient, keys.otherResource)).toBe(false)
 	})
 
-	it('uses single props id and single result id for string one rule', async () => {
+	it('drops undefined and duplicate context ids', async () => {
 		const queryClient = new QueryClient()
+		const resolveInvalidates = vi.fn((): RuleOptions => ['one'])
 		const invalidate = createInvalidator({
 			getFetcherName: () => undefined,
-			getInvalidates: () => undefined,
+			getInvalidates: () => resolveInvalidates,
 			getResource: () => 'posts',
 			queryClient,
 		})
 		const keys = {
 			one1: ['default', 'posts', 'getOne', 1, { meta: undefined }],
-			one4: ['default', 'posts', 'getOne', 4, { meta: { lang: 'en' } }],
-			one9: ['default', 'posts', 'getOne', 9, { meta: undefined }],
+			one2: ['default', 'posts', 'getOne', 2, { meta: undefined }],
 		}
 		seedQueries(queryClient, Object.values(keys))
 
-		const mutationProps = { invalidates: ['one'] as RuleOptions, id: 1 }
-		await invalidate(mutationProps, {
-			data: { data: { id: 4 } },
-		})
+		await invalidate(undefined, { ids: [1, undefined, 1, 2] })
 
+		expect(resolveInvalidates).toHaveBeenCalledWith({ ids: [1, 2], data: undefined })
 		expect(isInvalidated(queryClient, keys.one1)).toBe(true)
-		expect(isInvalidated(queryClient, keys.one4)).toBe(true)
-		expect(isInvalidated(queryClient, keys.one9)).toBe(false)
+		expect(isInvalidated(queryClient, keys.one2)).toBe(true)
 	})
 
 	it('runs user predicate for string many rule without affected ids', async () => {
@@ -122,7 +117,7 @@ describe('createInvalidator', () => {
 		await invalidate({
 			invalidates: {
 				rules: ['many'],
-				queryFilters: { predicate: query => (query.queryKey[3] as string[] | undefined)?.[0] === '9' },
+				filters: { predicate: query => (query.queryKey[3] as string[] | undefined)?.[0] === '9' },
 			},
 		}, { data: { data: {} } })
 
@@ -130,7 +125,7 @@ describe('createInvalidator', () => {
 		expect(isInvalidated(queryClient, keys.many9)).toBe(true)
 	})
 
-	it('uses single props id and result id for string many rule', async () => {
+	it('matches many queries containing any context id', async () => {
 		const queryClient = new QueryClient()
 		const invalidate = createInvalidator({
 			getFetcherName: () => undefined,
@@ -145,10 +140,7 @@ describe('createInvalidator', () => {
 		}
 		seedQueries(queryClient, Object.values(keys))
 
-		const mutationProps = { invalidates: ['many'] as RuleOptions, id: 1 }
-		await invalidate(mutationProps, {
-			data: { data: { id: 4 } },
-		})
+		await invalidate({ invalidates: ['many'] }, { ids: [1, 4] })
 
 		expect(isInvalidated(queryClient, keys.manyWith1)).toBe(true)
 		expect(isInvalidated(queryClient, keys.manyWith4)).toBe(true)
@@ -169,29 +161,40 @@ describe('createInvalidator', () => {
 		}
 		seedQueries(queryClient, Object.values(keys))
 
-		const mutationProps = {
+		await invalidate({
 			invalidates: {
 				rules: ['many'],
-				queryFilters: { predicate: query => (query.queryKey[3] as string[] | undefined)?.[0] === '9' },
-			} as RuleOptions,
-			id: 1,
-		}
-		await invalidate(mutationProps, { data: undefined })
+				filters: { predicate: query => (query.queryKey[3] as string[] | undefined)?.[0] === '9' },
+			},
+		}, { ids: [1] })
 
 		expect(isInvalidated(queryClient, keys.manyWith1)).toBe(false)
 		expect(isInvalidated(queryClient, keys.manyWithout)).toBe(true)
 	})
 
-	it('requires mutation context for string one and many rules', async () => {
-		const invalidate = createInvalidator({
-			getFetcherName: () => undefined,
-			getInvalidates: () => undefined,
-			getResource: () => 'posts',
-			queryClient: new QueryClient(),
-		})
+	it('warns and skips string one and many rules without context ids', async () => {
+		const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+		try {
+			const queryClient = new QueryClient()
+			const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
+			const invalidate = createInvalidator({
+				getFetcherName: () => undefined,
+				getInvalidates: () => undefined,
+				getResource: () => 'posts',
+				queryClient,
+			})
 
-		await expect(invalidate({ invalidates: ['one'] })).rejects.toThrow('Mutation context is required')
-		await expect(invalidate({ invalidates: ['many'] })).rejects.toThrow('Mutation context is required')
+			await invalidate({ invalidates: ['one', 'many', 'list'] })
+
+			expect(consoleWarn).toHaveBeenCalledTimes(2)
+			expect(invalidateQueries.mock.calls.map(([filters]) => filters!.queryKey)).toEqual([
+				['default', 'posts', 'getList'],
+				['default', 'posts', 'getInfiniteList'],
+			])
+		}
+		finally {
+			consoleWarn.mockRestore()
+		}
 	})
 
 	it('matches object rules by exact ids and exact meta', async () => {
@@ -254,7 +257,7 @@ describe('createInvalidator', () => {
 		await invalidate({
 			invalidates: {
 				rules: ['resource'],
-				queryFilters: { refetchType: 'all' },
+				filters: { refetchType: 'all' },
 				options: { throwOnError: true },
 			},
 		})
@@ -276,13 +279,13 @@ describe('createInvalidator', () => {
 			queryClient,
 		})
 
-		await invalidate({}, { defaults: { invalidates: ['list'] } })
+		await invalidate()
 		await invalidate({ invalidates: { rules: [] } })
 
 		expect(invalidateQueries).not.toHaveBeenCalled()
 	})
 
-	it('passes context defaults to the resolve function and accepts object result', async () => {
+	it('accepts an object result from the resolve function', async () => {
 		const queryClient = new QueryClient()
 		const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
 		const invalidate = createInvalidator({
@@ -293,11 +296,11 @@ describe('createInvalidator', () => {
 		})
 
 		await invalidate({
-			invalidates: ({ defaults }) => ({
-				rules: [...(defaults?.invalidates || []), { target: 'resource', resource: 'comments' }],
-				queryFilters: { type: 'active' },
+			invalidates: () => ({
+				rules: ['list', { target: 'resource', resource: 'comments' }],
+				filters: { type: 'active' },
 			}),
-		}, { defaults: { invalidates: ['list'] } })
+		})
 
 		expect(invalidateQueries.mock.calls.map(([filters]) => filters)).toEqual([
 			{ queryKey: ['default', 'posts', 'getList'], type: 'active' },
@@ -349,7 +352,7 @@ describe('createInvalidator', () => {
 			queryClient,
 		})
 
-		await expect(invalidate({ invalidates: ['list', 'one'] })).rejects.toThrow('Mutation context is required')
+		await expect(invalidate({ invalidates: ['list', { target: 'many', resource: 'posts' } as any] })).rejects.toThrow('`ids` is required')
 		await expect(invalidate({
 			invalidates: ['resource', { target: 'one', resource: 'posts', id: 1, ids: [2] } as any],
 		})).rejects.toThrow('Exactly one of `id` or `ids`')
@@ -372,15 +375,14 @@ describe('createInvalidator', () => {
 		}
 		seedQueries(queryClient, Object.values(keys))
 
-		const mutationProps = { invalidates: ['one'] as RuleOptions, ids: ['1', 2] }
-		await invalidate(mutationProps, { data: undefined })
+		await invalidate({ invalidates: ['one'] }, { ids: ['1', 2] })
 
 		expect(isInvalidated(queryClient, keys.oneNumber)).toBe(true)
 		expect(isInvalidated(queryClient, keys.oneString)).toBe(true)
 		expect(isInvalidated(queryClient, keys.oneOther)).toBe(false)
 	})
 
-	it('uses result ids when called without props', async () => {
+	it('uses context ids when called without props', async () => {
 		const queryClient = new QueryClient()
 		const invalidate = createInvalidator({
 			getFetcherName: () => undefined,
@@ -391,14 +393,14 @@ describe('createInvalidator', () => {
 		const key = ['default', 'posts', 'getOne', 2, { meta: undefined }]
 		seedQueries(queryClient, [key])
 
-		await invalidate(undefined, { data: { data: { id: 2 } } })
+		await invalidate(undefined, { ids: [2] })
 
 		expect(isInvalidated(queryClient, key)).toBe(true)
 	})
 
-	it('passes resolved resource and fetcherName to the resolve function', async () => {
+	it('passes an empty context to the resolve function when called without one', async () => {
 		const queryClient = new QueryClient()
-		const resolveInvalidates = vi.fn(({ props }) => [{ target: 'list' as const, resource: props.resource }])
+		const resolveInvalidates = vi.fn((): RuleOptions => ['list'])
 		const invalidate = createInvalidator({
 			getFetcherName: () => 'primary',
 			getInvalidates: () => resolveInvalidates,
@@ -406,9 +408,9 @@ describe('createInvalidator', () => {
 			queryClient,
 		})
 
-		await invalidate({})
+		await invalidate()
 
-		expect(resolveInvalidates.mock.calls[0]![0].props).toEqual({ resource: 'posts', fetcherName: 'primary' })
+		expect(resolveInvalidates).toHaveBeenCalledWith({ ids: [], data: undefined })
 	})
 
 	it('falls back to call resource when an object rule omits it', async () => {
@@ -428,6 +430,52 @@ describe('createInvalidator', () => {
 			['default', 'posts', 'getList'],
 			['default', 'posts', 'getInfiniteList'],
 		])
+	})
+
+	it('treats string and number context ids as the same id', async () => {
+		const queryClient = new QueryClient()
+		const resolveInvalidates = vi.fn((): RuleOptions => [])
+		const invalidate = createInvalidator({
+			getFetcherName: () => undefined,
+			getInvalidates: () => resolveInvalidates,
+			getResource: () => 'posts',
+			queryClient,
+		})
+
+		await invalidate(undefined, { ids: ['1', 1, 2] })
+
+		expect(resolveInvalidates).toHaveBeenCalledWith({ ids: ['1', 2], data: undefined })
+	})
+
+	it('skips object one and many rules with empty ids', async () => {
+		const queryClient = new QueryClient()
+		const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
+		const invalidate = createInvalidator({
+			getFetcherName: () => undefined,
+			getInvalidates: () => undefined,
+			getResource: () => 'posts',
+			queryClient,
+		})
+		const emptyManyKey = ['default', 'posts', 'getMany', [], { meta: undefined }]
+		seedQueries(queryClient, [emptyManyKey])
+
+		await invalidate({ invalidates: [{ target: 'one', ids: [] }, { target: 'many', ids: [] }] })
+
+		expect(invalidateQueries).not.toHaveBeenCalled()
+		expect(isInvalidated(queryClient, emptyManyKey)).toBe(false)
+	})
+
+	it('rejects malformed invalidates with a descriptive error', async () => {
+		const invalidate = createInvalidator({
+			getFetcherName: () => undefined,
+			getInvalidates: () => undefined,
+			getResource: () => 'posts',
+			queryClient: new QueryClient(),
+		})
+
+		await expect(invalidate({ invalidates: { filters: { type: 'all' } } as any })).rejects.toThrow('`invalidates` must be an array of rules')
+		await expect(invalidate({ invalidates: 'list' as any })).rejects.toThrow('`invalidates` must be an array of rules')
+		await expect(invalidate({ invalidates: (async () => ['list']) as any })).rejects.toThrow('`invalidates` must be an array of rules')
 	})
 
 	it('validates required props when executed', async () => {
