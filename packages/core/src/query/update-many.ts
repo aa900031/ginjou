@@ -286,7 +286,7 @@ export function createSettledHandler<
 		const resolvedProps = resolveMutationProps(getProps(), props)
 
 		await invalidate(resolvedProps, {
-			ids: [...resolvedProps.ids, ...(Array.isArray(data?.data) ? data.data.map(record => record.id) : [])],
+			ids: [...(Array.isArray(data?.data) ? data.data.map(record => record?.id) : []), ...resolvedProps.ids],
 			data,
 		}).catch((error) => {
 			console.error('[@ginjou/core] Failed to invalidate queries.', error)

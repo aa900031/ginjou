@@ -475,7 +475,8 @@ describe('createInvalidator', () => {
 
 		await expect(invalidate({ invalidates: { filters: { type: 'all' } } as any })).rejects.toThrow('`invalidates` must be an array of rules')
 		await expect(invalidate({ invalidates: 'list' as any })).rejects.toThrow('`invalidates` must be an array of rules')
-		await expect(invalidate({ invalidates: (async () => ['list']) as any })).rejects.toThrow('`invalidates` must be an array of rules')
+		await expect(invalidate({ invalidates: (async () => ['list']) as any })).rejects.toThrow('The `invalidates` callback must return')
+		await expect(invalidate({ invalidates: (() => undefined) as any })).rejects.toThrow('The `invalidates` callback must return')
 	})
 
 	it('validates required props when executed', async () => {

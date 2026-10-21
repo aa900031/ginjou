@@ -90,8 +90,9 @@ invalidates: ['list', 'many', 'one', { target: 'resource', resource: 'comments' 
 
 A callback gets the invalidate context `{ ids, data }` (no defaults, no
 mutation props): `ids` the affected IDs, `data` the mutation result. To
-invalidate based on `mutate` variables, call `useQueryInvalidate` in that
-call's `onSuccess`. Update/delete callbacks
+invalidate based on `mutate` variables, call `useQueryInvalidate()` during
+setup (it is a composable) and call the returned `invalidate` from that call's
+`onSuccess`. Update/delete callbacks
 also run on failure with `data` `undefined` — guard it (`data ? [...] : []`);
 an error thrown while invalidating does not fail the mutation — it is logged with
 `console.error` and that invalidation is skipped.

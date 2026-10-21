@@ -257,7 +257,7 @@ describe('createSettledHandler (update)', () => {
 		)
 
 		expect(invalidates).toHaveBeenCalledWith({
-			ids: [1, 3],
+			ids: [3, 1],
 			data: { data: { id: 3, title: 'Updated' } },
 		})
 		expect(invalidateQueries).toHaveBeenCalledOnce()

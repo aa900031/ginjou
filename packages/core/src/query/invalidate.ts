@@ -3,7 +3,7 @@ import type { Simplify, ValueOf } from 'type-fest'
 import type { Meta, RecordKey } from './fetcher'
 import type { FetcherProps } from './fetchers'
 import { hashKey } from '@tanstack/query-core'
-import { uniqBy } from 'es-toolkit'
+import { isEqual, uniqBy } from 'es-toolkit'
 import { resolveFetcherProps } from './fetchers'
 import { createBaseQueryKey as genBaseGetInfiniteListQueryKey } from './get-infinite-list'
 import { createBaseQueryKey as genBaseGetListQueryKey } from './get-list'
@@ -155,12 +155,12 @@ export function createInvalidator<
 		const invalidatesOption = propsFromFn?.invalidates ?? getInvalidates()
 		const ids = uniqBy((context?.ids ?? []).filter(id => id != null), String)
 
+		if (invalidatesOption == null)
+			throw new Error('[@ginjou/core] `invalidates` is required to invalidate queries.')
+
 		const invalidates = typeof invalidatesOption === 'function'
 			? invalidatesOption({ ids, data: context?.data })
 			: invalidatesOption
-
-		if (invalidates == null)
-			throw new Error('[@ginjou/core] `invalidates` is required to invalidate queries.')
 
 		const ruleOptions = Array.isArray(invalidates) || invalidates === false
 			? { rules: invalidates }
@@ -170,7 +170,9 @@ export function createInvalidator<
 			|| ruleOptions == null
 			|| (ruleOptions.rules !== false && !Array.isArray(ruleOptions.rules))
 		) {
-			throw new Error('[@ginjou/core] `invalidates` must be an array of rules, `false`, or `{ rules, filters?, options? }`.')
+			throw new Error(typeof invalidatesOption === 'function'
+				? '[@ginjou/core] The `invalidates` callback must return an array of rules, `false`, or `{ rules, filters?, options? }`.'
+				: '[@ginjou/core] `invalidates` must be an array of rules, `false`, or `{ rules, filters?, options? }`.')
 		}
 
 		const {
@@ -194,9 +196,9 @@ export function createInvalidator<
 			hasPredicate: invalidateQueryFilters.predicate != null,
 		}))
 
-		await Promise.all(filtersList.map(filters => queryClient.invalidateQueries(
+		await Promise.all(filtersList.map(ruleFilters => queryClient.invalidateQueries(
 			{
-				...filters,
+				...ruleFilters,
 				...invalidateQueryFilters,
 			},
 			invalidateOptions,
@@ -291,7 +293,7 @@ function resolveRuleFilters(
 						}
 					: {
 							queryKey: genBaseGetManyQueryKey({ props: { fetcherName, resource: resource! } }),
-							predicate: query => isSameIds(query.queryKey[3] as string[] | undefined, idsKey),
+							predicate: query => isEqual(query.queryKey[3], idsKey),
 						},
 			]
 		}
@@ -329,15 +331,6 @@ function resolveRuleFilters(
 		default:
 			throw new Error(`[@ginjou/core] Unsupported invalidate target: ${String(target)}`)
 	}
-}
-
-function isSameIds(
-	a: string[] | undefined,
-	b: string[],
-): boolean {
-	return a != null
-		&& a.length === b.length
-		&& a.every((id, index) => id === b[index])
 }
 
 function warnMissingIds(

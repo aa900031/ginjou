@@ -566,6 +566,29 @@ describe('createMutateHandler (update-many)', () => {
 })
 
 describe('createSettledHandler (update-many)', () => {
+	it('ignores missing result records when collecting ids', async () => {
+		const resolveInvalidates = vi.fn(() => [])
+		const handler = createSettledHandler({
+			invalidate: createInvalidator<any>({
+				getFetcherName: () => undefined,
+				getInvalidates: () => undefined,
+				getResource: () => undefined,
+				queryClient: new QueryClient(),
+			}),
+			getProps: () => ({
+				resource: 'posts',
+				ids: [1, 2],
+				params: { status: 'draft' },
+				invalidates: resolveInvalidates,
+			}),
+			onSettled: undefined,
+		})
+
+		await expect(handler({ data: [undefined, { id: 2 }] } as any, null, {} as any, undefined as any, {} as any)).resolves.toBeUndefined()
+
+		expect(resolveInvalidates).toHaveBeenCalledWith({ ids: [2, 1], data: { data: [undefined, { id: 2 }] } })
+	})
+
 	it('uses only input ids when the result data is not an array', async () => {
 		const resolveInvalidates = vi.fn(() => [])
 		const onSettled = vi.fn()
