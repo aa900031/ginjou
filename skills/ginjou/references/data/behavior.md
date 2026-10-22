@@ -46,36 +46,38 @@ A rule is either a target string or an object for an explicit target:
 | Rule | Invalidates |
 | --- | --- |
 | `'all'` / `'resource'` / `'list'` | same as the object form, using the call's `resource` / `fetcherName` |
-| `'many'` | every many query whose `ids` contain a context ID (any order, any `meta`) |
-| `'one'` | the one queries of every context ID, whatever their `meta` |
+| `'many'` | with IDs: every many query whose `ids` contain one of them (any order, any `meta`); without: every many query of the resource |
+| `'one'` | the one queries of every ID, whatever their `meta` (skipped with a `console.warn` without IDs) |
 | `{ target: 'all', fetcherName? }` | every query of one fetcher |
 | `{ target: 'resource', resource?, fetcherName? }` | **every** list/one/many query of that resource |
 | `{ target: 'list', resource?, fetcherName? }` | only the list + infinite-list queries |
-| `{ target: 'many', resource?, ids, fetcherName?, meta? }` | many query with exactly these ordered `ids` |
+| `{ target: 'many', resource?, ids?, fetcherName?, meta? }` | many query with exactly these ordered `ids`; every many query of the resource when `ids` is omitted; nothing when `ids: []` |
 | `{ target: 'one', resource?, id \| ids, fetcherName?, meta? }` | one query/queries for these IDs |
 
-String `'one'` / `'many'` use the `ids` of the invalidate context. Mutations
-pass the affected IDs for you (the mutation's `id` / `ids` plus every ID in the
-result); elsewhere pass them yourself:
-`invalidate({ resource: 'posts', invalidates: ['one'] }, { ids: [1] })`. Without `ids` the rule
-is skipped with a `console.warn`. They ignore the mutation's `meta` (it
+String `'one'` / `'many'` use the affected IDs, which the invalidation collects
+from the result `data` it receives (one record or a list) plus the `id` / `ids`
+props. Mutations pass both for you; elsewhere pass the IDs as props:
+`invalidate({ resource: 'posts', id: 1, invalidates: ['one'] })`.
+Without IDs, `'one'` is skipped with a `console.warn` and `'many'` invalidates
+every many query of the resource. They ignore the mutation's `meta` (it
 describes the write, not the cached reads). Object rules
-fall back to the mutation's `fetcherName`; with `meta` they match only queries
-carrying that exact `meta`, without it they match every `meta`. Object `one`
+fall back to the mutation's `fetcherName`; with `meta` they match queries whose
+`meta` contains those fields (subset: `{ lang: 'en' }` also matches
+`{ lang: 'en', fields }`, not a query without `meta`), without it they match
+every `meta`. Object `one`
 rules take exactly one of `id` or `ids`.
 
 IDs match by query key, so they must mirror the query:
 
-- `one` and `many` compare IDs as strings, so `id: 1` also matches a query
-  keyed on `'1'` (route param).
+- `one` matches the raw ID value: `id: 1` does **not** match a query keyed on
+  `'1'` (route param). Pass the same type the read composable was given. `many`
+  compares IDs as strings.
 - Object `many`: `ids` is compared as an ordered list; `ids: [2, 1]` misses a
   query fetched with `ids: [1, 2]`. The string `'many'` has no such limit.
-- `filters` overrides each rule's own filters for **every** rule: a
-  `predicate` replaces the ID / `meta` matching of `one` rules, string `many`
-  and object `many` without `meta` (object `many` with `meta` matches its
-  exact key, so a `predicate` only narrows it), and `exact: true` turns every
-  prefix match into an exact one, which usually matches nothing. Don't set them unless you mean to
-  replace the rule's matching.
+- `filters` can only narrow a rule: a `predicate` must match together with the
+  rule's own ID / `meta` matching, and the rule keeps its own `queryKey` and
+  `exact`. To match queries by your own condition, use
+  `{ rules: ['resource'], filters: { predicate } }`.
 - A mismatch is silent — no error, stale cache. Use `'resource'` when unsure.
 
 Every target except `all` needs a `resource`, from the rule, the call, or the
@@ -88,7 +90,7 @@ want next to the extra rules, or pass `false` to invalidate nothing:
 invalidates: ['list', 'many', 'one', { target: 'resource', resource: 'comments' }]
 ```
 
-A callback gets the invalidate context `{ ids, data }` (no defaults, no
+A callback gets `{ ids, data }` (no defaults, no
 mutation props): `ids` the affected IDs, `data` the mutation result. To
 invalidate based on `mutate` variables, call `useQueryInvalidate()` during
 setup (it is a composable) and call the returned `invalidate` from that call's

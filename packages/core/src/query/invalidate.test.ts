@@ -21,13 +21,15 @@ describe('createInvalidator', () => {
 			getFetcherName: () => 'primary',
 			getInvalidates: () => undefined,
 			getResource: () => 'posts',
+			getId: () => undefined,
+			getIds: () => undefined,
 			queryClient,
 		})
 
 		await invalidate({
 			invalidates: resolveInvalidates,
-		}, {
 			ids: [1],
+		}, {
 			data: { data: { id: 1 } },
 		})
 
@@ -51,6 +53,8 @@ describe('createInvalidator', () => {
 			getFetcherName: () => undefined,
 			getInvalidates: () => undefined,
 			getResource: () => undefined,
+			getId: () => undefined,
+			getIds: () => undefined,
 			queryClient,
 		})
 		const keys = {
@@ -66,7 +70,6 @@ describe('createInvalidator', () => {
 		await invalidate({
 			invalidates: ['one', 'many'],
 			resource: 'posts',
-		}, {
 			ids: [1, 2, 3],
 		})
 
@@ -78,13 +81,15 @@ describe('createInvalidator', () => {
 		expect(isInvalidated(queryClient, keys.otherResource)).toBe(false)
 	})
 
-	it('drops undefined and duplicate context ids', async () => {
+	it('collects ids from result data, ids and id, dropping missing and duplicate ones', async () => {
 		const queryClient = new QueryClient()
 		const resolveInvalidates = vi.fn((): RuleOptions => ['one'])
 		const invalidate = createInvalidator({
 			getFetcherName: () => undefined,
 			getInvalidates: () => resolveInvalidates,
 			getResource: () => 'posts',
+			getId: () => undefined,
+			getIds: () => undefined,
 			queryClient,
 		})
 		const keys = {
@@ -93,9 +98,10 @@ describe('createInvalidator', () => {
 		}
 		seedQueries(queryClient, Object.values(keys))
 
-		await invalidate(undefined, { ids: [1, undefined, 1, 2] })
+		const data = { data: [{ id: 2 }, undefined, {}] }
+		await invalidate({ ids: [1, 2], id: 1 }, { data })
 
-		expect(resolveInvalidates).toHaveBeenCalledWith({ ids: [1, 2], data: undefined })
+		expect(resolveInvalidates).toHaveBeenCalledWith({ ids: [2, 1], data })
 		expect(isInvalidated(queryClient, keys.one1)).toBe(true)
 		expect(isInvalidated(queryClient, keys.one2)).toBe(true)
 	})
@@ -106,6 +112,8 @@ describe('createInvalidator', () => {
 			getFetcherName: () => undefined,
 			getInvalidates: () => undefined,
 			getResource: () => 'posts',
+			getId: () => undefined,
+			getIds: () => undefined,
 			queryClient,
 		})
 		const keys = {
@@ -125,12 +133,14 @@ describe('createInvalidator', () => {
 		expect(isInvalidated(queryClient, keys.many9)).toBe(true)
 	})
 
-	it('matches many queries containing any context id', async () => {
+	it('matches many queries containing any id', async () => {
 		const queryClient = new QueryClient()
 		const invalidate = createInvalidator({
 			getFetcherName: () => undefined,
 			getInvalidates: () => undefined,
 			getResource: () => 'posts',
+			getId: () => undefined,
+			getIds: () => undefined,
 			queryClient,
 		})
 		const keys = {
@@ -140,39 +150,105 @@ describe('createInvalidator', () => {
 		}
 		seedQueries(queryClient, Object.values(keys))
 
-		await invalidate({ invalidates: ['many'] }, { ids: [1, 4] })
+		await invalidate({ invalidates: ['many'], ids: [1, 4] })
 
 		expect(isInvalidated(queryClient, keys.manyWith1)).toBe(true)
 		expect(isInvalidated(queryClient, keys.manyWith4)).toBe(true)
 		expect(isInvalidated(queryClient, keys.manyWithout)).toBe(false)
 	})
 
-	it('prefers user predicate over the many predicate', async () => {
+	it('narrows rule matching with the user predicate', async () => {
 		const queryClient = new QueryClient()
 		const invalidate = createInvalidator({
 			getFetcherName: () => undefined,
 			getInvalidates: () => undefined,
 			getResource: () => 'posts',
+			getId: () => undefined,
+			getIds: () => undefined,
 			queryClient,
 		})
 		const keys = {
-			manyWith1: ['default', 'posts', 'getMany', ['1'], { meta: undefined }],
+			manyOnly1: ['default', 'posts', 'getMany', ['1'], { meta: undefined }],
+			manyWith1: ['default', 'posts', 'getMany', ['1', '2'], { meta: undefined }],
 			manyWithout: ['default', 'posts', 'getMany', ['9'], { meta: undefined }],
+			one1: ['default', 'posts', 'getOne', 1, { meta: { lang: 'en' } }],
+			one1Plain: ['default', 'posts', 'getOne', 1, { meta: undefined }],
 		}
 		seedQueries(queryClient, Object.values(keys))
 
 		await invalidate({
 			invalidates: {
-				rules: ['many'],
-				filters: { predicate: query => (query.queryKey[3] as string[] | undefined)?.[0] === '9' },
+				rules: ['many', 'one'],
+				filters: {
+					predicate: query => query.queryKey[2] === 'getOne'
+						? (query.queryKey[4] as { meta?: unknown }).meta != null
+						: (query.queryKey[3] as string[]).length === 1,
+					exact: true,
+				},
 			},
-		}, { ids: [1] })
+			id: 1,
+		})
 
+		expect(isInvalidated(queryClient, keys.manyOnly1)).toBe(true)
 		expect(isInvalidated(queryClient, keys.manyWith1)).toBe(false)
-		expect(isInvalidated(queryClient, keys.manyWithout)).toBe(true)
+		expect(isInvalidated(queryClient, keys.manyWithout)).toBe(false)
+		expect(isInvalidated(queryClient, keys.one1)).toBe(true)
+		expect(isInvalidated(queryClient, keys.one1Plain)).toBe(false)
 	})
 
-	it('warns and skips string one and many rules without context ids', async () => {
+	it('invalidates every many query of the resource without ids', async () => {
+		const queryClient = new QueryClient()
+		const invalidate = createInvalidator({
+			getFetcherName: () => undefined,
+			getInvalidates: () => undefined,
+			getResource: () => 'posts',
+			getId: () => undefined,
+			getIds: () => undefined,
+			queryClient,
+		})
+		const keys = {
+			many1: ['default', 'posts', 'getMany', ['1'], { meta: undefined }],
+			many9: ['default', 'posts', 'getMany', ['9'], { meta: { lang: 'en' } }],
+			otherResource: ['default', 'authors', 'getMany', ['1'], { meta: undefined }],
+		}
+		seedQueries(queryClient, Object.values(keys))
+
+		await invalidate({ invalidates: ['many', { target: 'many', resource: 'authors', ids: [] }] })
+
+		expect(isInvalidated(queryClient, keys.many1)).toBe(true)
+		expect(isInvalidated(queryClient, keys.many9)).toBe(true)
+		expect(isInvalidated(queryClient, keys.otherResource)).toBe(false)
+
+		await invalidate({ invalidates: [{ target: 'many', resource: 'authors' }] })
+
+		expect(isInvalidated(queryClient, keys.otherResource)).toBe(true)
+	})
+
+	it('matches object many rules without ids by meta as a subset', async () => {
+		const queryClient = new QueryClient()
+		const invalidate = createInvalidator({
+			getFetcherName: () => undefined,
+			getInvalidates: () => undefined,
+			getResource: () => 'posts',
+			getId: () => undefined,
+			getIds: () => undefined,
+			queryClient,
+		})
+		const keys = {
+			manyEn: ['default', 'posts', 'getMany', ['1'], { meta: { lang: 'en', fields: ['title'] } }],
+			manyFr: ['default', 'posts', 'getMany', ['2'], { meta: { lang: 'fr' } }],
+			manyPlain: ['default', 'posts', 'getMany', ['3'], { meta: undefined }],
+		}
+		seedQueries(queryClient, Object.values(keys))
+
+		await invalidate({ invalidates: [{ target: 'many', meta: { lang: 'en' } }] })
+
+		expect(isInvalidated(queryClient, keys.manyEn)).toBe(true)
+		expect(isInvalidated(queryClient, keys.manyFr)).toBe(false)
+		expect(isInvalidated(queryClient, keys.manyPlain)).toBe(false)
+	})
+
+	it('warns and skips string one rules without ids', async () => {
 		const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {})
 		try {
 			const queryClient = new QueryClient()
@@ -181,12 +257,14 @@ describe('createInvalidator', () => {
 				getFetcherName: () => undefined,
 				getInvalidates: () => undefined,
 				getResource: () => 'posts',
+				getId: () => undefined,
+				getIds: () => undefined,
 				queryClient,
 			})
 
-			await invalidate({ invalidates: ['one', 'many', 'list'] })
+			await invalidate({ invalidates: ['one', 'list'] })
 
-			expect(consoleWarn).toHaveBeenCalledTimes(2)
+			expect(consoleWarn).toHaveBeenCalledOnce()
 			expect(invalidateQueries.mock.calls.map(([filters]) => filters!.queryKey)).toEqual([
 				['default', 'posts', 'getList'],
 				['default', 'posts', 'getInfiniteList'],
@@ -197,12 +275,14 @@ describe('createInvalidator', () => {
 		}
 	})
 
-	it('matches object rules by exact ids and exact meta', async () => {
+	it('matches object rules by ids and meta as a subset', async () => {
 		const queryClient = new QueryClient()
 		const invalidate = createInvalidator({
 			getFetcherName: () => undefined,
 			getInvalidates: () => undefined,
 			getResource: () => undefined,
+			getId: () => undefined,
+			getIds: () => undefined,
 			queryClient,
 		})
 		const keys = {
@@ -236,12 +316,12 @@ describe('createInvalidator', () => {
 		expect(isInvalidated(queryClient, keys.legacy3)).toBe(true)
 		expect(isInvalidated(queryClient, keys.one5Exact)).toBe(true)
 		expect(isInvalidated(queryClient, keys.one5Other)).toBe(false)
-		expect(isInvalidated(queryClient, keys.one5Superset)).toBe(false)
+		expect(isInvalidated(queryClient, keys.one5Superset)).toBe(true)
 		expect(isInvalidated(queryClient, keys.manyExact)).toBe(true)
 		expect(isInvalidated(queryClient, keys.manyReordered)).toBe(false)
 		expect(isInvalidated(queryClient, keys.manyLonger)).toBe(false)
 		expect(isInvalidated(queryClient, keys.manyMetaExact)).toBe(true)
-		expect(isInvalidated(queryClient, keys.manyMetaSuperset)).toBe(false)
+		expect(isInvalidated(queryClient, keys.manyMetaSuperset)).toBe(true)
 	})
 
 	it('supports object rule options and replaces default filters and options', async () => {
@@ -251,6 +331,8 @@ describe('createInvalidator', () => {
 			getFetcherName: () => undefined,
 			getInvalidates: () => undefined,
 			getResource: () => 'posts',
+			getId: () => undefined,
+			getIds: () => undefined,
 			queryClient,
 		})
 
@@ -276,6 +358,8 @@ describe('createInvalidator', () => {
 			getFetcherName: () => undefined,
 			getInvalidates: () => ({ rules: false }),
 			getResource: () => 'posts',
+			getId: () => undefined,
+			getIds: () => undefined,
 			queryClient,
 		})
 
@@ -292,6 +376,8 @@ describe('createInvalidator', () => {
 			getFetcherName: () => undefined,
 			getInvalidates: () => undefined,
 			getResource: () => 'posts',
+			getId: () => undefined,
+			getIds: () => undefined,
 			queryClient,
 		})
 
@@ -316,6 +402,8 @@ describe('createInvalidator', () => {
 			getFetcherName: () => undefined,
 			getInvalidates: () => ['all'],
 			getResource: () => undefined,
+			getId: () => undefined,
+			getIds: () => undefined,
 			queryClient,
 		})
 
@@ -331,6 +419,8 @@ describe('createInvalidator', () => {
 			getFetcherName: () => undefined,
 			getInvalidates: () => ['resource'],
 			getResource: () => 'posts',
+			getId: () => undefined,
+			getIds: () => undefined,
 			queryClient,
 		})
 
@@ -349,10 +439,12 @@ describe('createInvalidator', () => {
 			getFetcherName: () => undefined,
 			getInvalidates: () => undefined,
 			getResource: () => 'posts',
+			getId: () => undefined,
+			getIds: () => undefined,
 			queryClient,
 		})
 
-		await expect(invalidate({ invalidates: ['list', { target: 'many', resource: 'posts' } as any] })).rejects.toThrow('`ids` is required')
+		await expect(invalidate({ invalidates: ['list', { target: 'unknown' } as any] })).rejects.toThrow('Unsupported invalidate target')
 		await expect(invalidate({
 			invalidates: ['resource', { target: 'one', resource: 'posts', id: 1, ids: [2] } as any],
 		})).rejects.toThrow('Exactly one of `id` or `ids`')
@@ -360,12 +452,14 @@ describe('createInvalidator', () => {
 		expect(invalidateQueries).not.toHaveBeenCalled()
 	})
 
-	it('matches one queries by string id', async () => {
+	it('matches one queries by the raw id value', async () => {
 		const queryClient = new QueryClient()
 		const invalidate = createInvalidator({
 			getFetcherName: () => undefined,
 			getInvalidates: () => undefined,
 			getResource: () => 'posts',
+			getId: () => undefined,
+			getIds: () => undefined,
 			queryClient,
 		})
 		const keys = {
@@ -375,25 +469,27 @@ describe('createInvalidator', () => {
 		}
 		seedQueries(queryClient, Object.values(keys))
 
-		await invalidate({ invalidates: ['one'] }, { ids: ['1', 2] })
+		await invalidate({ invalidates: ['one'], ids: ['1', '2'] })
 
-		expect(isInvalidated(queryClient, keys.oneNumber)).toBe(true)
+		expect(isInvalidated(queryClient, keys.oneNumber)).toBe(false)
 		expect(isInvalidated(queryClient, keys.oneString)).toBe(true)
 		expect(isInvalidated(queryClient, keys.oneOther)).toBe(false)
 	})
 
-	it('uses context ids when called without props', async () => {
+	it('uses a single id from props', async () => {
 		const queryClient = new QueryClient()
 		const invalidate = createInvalidator({
 			getFetcherName: () => undefined,
 			getInvalidates: () => ['one'],
 			getResource: () => 'posts',
+			getId: () => undefined,
+			getIds: () => undefined,
 			queryClient,
 		})
 		const key = ['default', 'posts', 'getOne', 2, { meta: undefined }]
 		seedQueries(queryClient, [key])
 
-		await invalidate(undefined, { ids: [2] })
+		await invalidate({ id: 2 })
 
 		expect(isInvalidated(queryClient, key)).toBe(true)
 	})
@@ -405,6 +501,8 @@ describe('createInvalidator', () => {
 			getFetcherName: () => 'primary',
 			getInvalidates: () => resolveInvalidates,
 			getResource: () => 'posts',
+			getId: () => undefined,
+			getIds: () => undefined,
 			queryClient,
 		})
 
@@ -420,6 +518,8 @@ describe('createInvalidator', () => {
 			getFetcherName: () => undefined,
 			getInvalidates: () => undefined,
 			getResource: () => 'posts',
+			getId: () => undefined,
+			getIds: () => undefined,
 			queryClient,
 		})
 
@@ -432,17 +532,19 @@ describe('createInvalidator', () => {
 		])
 	})
 
-	it('treats string and number context ids as the same id', async () => {
+	it('treats string and number ids as the same id', async () => {
 		const queryClient = new QueryClient()
 		const resolveInvalidates = vi.fn((): RuleOptions => [])
 		const invalidate = createInvalidator({
 			getFetcherName: () => undefined,
 			getInvalidates: () => resolveInvalidates,
 			getResource: () => 'posts',
+			getId: () => undefined,
+			getIds: () => undefined,
 			queryClient,
 		})
 
-		await invalidate(undefined, { ids: ['1', 1, 2] })
+		await invalidate({ ids: ['1', 1, 2] })
 
 		expect(resolveInvalidates).toHaveBeenCalledWith({ ids: ['1', 2], data: undefined })
 	})
@@ -454,6 +556,8 @@ describe('createInvalidator', () => {
 			getFetcherName: () => undefined,
 			getInvalidates: () => undefined,
 			getResource: () => 'posts',
+			getId: () => undefined,
+			getIds: () => undefined,
 			queryClient,
 		})
 		const emptyManyKey = ['default', 'posts', 'getMany', [], { meta: undefined }]
@@ -470,6 +574,8 @@ describe('createInvalidator', () => {
 			getFetcherName: () => undefined,
 			getInvalidates: () => undefined,
 			getResource: () => 'posts',
+			getId: () => undefined,
+			getIds: () => undefined,
 			queryClient: new QueryClient(),
 		})
 
@@ -479,12 +585,72 @@ describe('createInvalidator', () => {
 		await expect(invalidate({ invalidates: (() => undefined) as any })).rejects.toThrow('The `invalidates` callback must return')
 	})
 
+	it('collects the id of a single result record', async () => {
+		const queryClient = new QueryClient()
+		const resolveInvalidates = vi.fn((_context: { ids: unknown[] }): RuleOptions => [])
+		const invalidate = createInvalidator({
+			getFetcherName: () => undefined,
+			getInvalidates: () => resolveInvalidates,
+			getResource: () => 'posts',
+			getId: () => undefined,
+			getIds: () => undefined,
+			queryClient,
+		})
+
+		await invalidate({ id: '1' }, { data: { data: { id: 1 } } })
+		await invalidate({}, { data: { data: { count: 2 } } })
+
+		expect(resolveInvalidates.mock.calls.map(([context]) => context.ids)).toEqual([[1], []])
+	})
+
+	it('merges id and ids from props', async () => {
+		const queryClient = new QueryClient()
+		const resolveInvalidates = vi.fn((): RuleOptions => [])
+		const invalidate = createInvalidator({
+			getFetcherName: () => undefined,
+			getInvalidates: () => resolveInvalidates,
+			getResource: () => 'posts',
+			getId: () => undefined,
+			getIds: () => undefined,
+			queryClient,
+		})
+
+		await invalidate({ ids: [2, 3], id: 1 })
+
+		expect(resolveInvalidates).toHaveBeenCalledWith({ ids: [2, 3, 1], data: undefined })
+	})
+
+	it('uses hook-level id and ids as defaults that call props override', async () => {
+		const queryClient = new QueryClient()
+		const resolveInvalidates = vi.fn((_context: { ids: unknown[] }): RuleOptions => [])
+		const invalidate = createInvalidator({
+			getFetcherName: () => undefined,
+			getInvalidates: () => resolveInvalidates,
+			getResource: () => 'posts',
+			getId: () => 1,
+			getIds: () => [2, 3],
+			queryClient,
+		})
+
+		await invalidate()
+		await invalidate({ id: 9 })
+		await invalidate({ ids: [7] })
+
+		expect(resolveInvalidates.mock.calls.map(([context]) => context.ids)).toEqual([
+			[2, 3, 1],
+			[2, 3, 9],
+			[7, 1],
+		])
+	})
+
 	it('validates required props when executed', async () => {
 		const queryClient = new QueryClient()
 		const invalidate = createInvalidator({
 			getFetcherName: () => undefined,
 			getInvalidates: () => undefined,
 			getResource: () => undefined,
+			getId: () => undefined,
+			getIds: () => undefined,
 			queryClient,
 		})
 

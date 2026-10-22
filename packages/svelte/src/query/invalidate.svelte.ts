@@ -23,6 +23,8 @@ export function useQueryInvalidate<
 		getFetcherName: () => resolvedProps?.fetcherName,
 		getInvalidates: () => resolvedProps?.invalidates,
 		getResource: () => resolvedProps?.resource,
+		getId: () => resolvedProps?.id,
+		getIds: () => resolvedProps?.ids,
 		queryClient,
 	})
 }

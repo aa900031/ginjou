@@ -79,6 +79,8 @@ describe('createSuccessHandler', () => {
 				getFetcherName: () => undefined,
 				getInvalidates: () => undefined,
 				getResource: () => undefined,
+				getId: () => undefined,
+				getIds: () => undefined,
 				queryClient,
 			}),
 			getProps: () => ({

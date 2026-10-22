@@ -158,10 +158,7 @@ export function createSuccessHandler<
 			},
 		)
 
-		await invalidate(resolvedProps, {
-			ids: [data?.data?.id],
-			data,
-		}).catch((error) => {
+		await invalidate(resolvedProps, { data }).catch((error) => {
 			console.error('[@ginjou/core] Failed to invalidate queries.', error)
 		})
 

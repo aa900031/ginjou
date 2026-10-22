@@ -141,6 +141,8 @@ await invalidate({
 `invalidates` is required — set it on the hook
 (`useQueryInvalidate({ resource: 'posts', invalidates: ['list'] })`) or per call;
 supplying neither rejects. Same for `resource` on every target but `all`.
+Hook props (`resource`, `fetcherName`, `invalidates`, `id`, `ids`) are defaults;
+the same fields passed per call override them.
 
 ## Rules
 

@@ -195,6 +195,8 @@ describe('createSettledHandler (update)', () => {
 				getFetcherName: () => undefined,
 				getInvalidates: () => undefined,
 				getResource: () => undefined,
+				getId: () => undefined,
+				getIds: () => undefined,
 				queryClient,
 			}),
 			getProps: () => ({
@@ -237,6 +239,8 @@ describe('createSettledHandler (update)', () => {
 				getFetcherName: () => undefined,
 				getInvalidates: () => undefined,
 				getResource: () => undefined,
+				getId: () => undefined,
+				getIds: () => undefined,
 				queryClient,
 			}),
 			getProps: () => ({

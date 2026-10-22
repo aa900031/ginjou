@@ -14,6 +14,8 @@ describe('createSubscribeCallback', () => {
 				getFetcherName: () => undefined,
 				getInvalidates: () => undefined,
 				getResource: () => undefined,
+				getId: () => undefined,
+				getIds: () => undefined,
 				queryClient,
 			}),
 			getRealtimeOptions: () => ({ mode: RealtimeMode.Auto, callback }),

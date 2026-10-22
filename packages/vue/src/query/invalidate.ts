@@ -25,6 +25,8 @@ export function useQueryInvalidate<
 		getFetcherName: () => unref(props?.fetcherName),
 		getInvalidates: () => unref(props?.invalidates),
 		getResource: () => unref(props?.resource),
+		getId: () => unref(props?.id),
+		getIds: () => unref(props?.ids),
 		queryClient,
 	})
 }

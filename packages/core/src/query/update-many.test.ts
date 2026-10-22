@@ -573,6 +573,8 @@ describe('createSettledHandler (update-many)', () => {
 				getFetcherName: () => undefined,
 				getInvalidates: () => undefined,
 				getResource: () => undefined,
+				getId: () => undefined,
+				getIds: () => undefined,
 				queryClient: new QueryClient(),
 			}),
 			getProps: () => ({
@@ -597,6 +599,8 @@ describe('createSettledHandler (update-many)', () => {
 				getFetcherName: () => undefined,
 				getInvalidates: () => undefined,
 				getResource: () => undefined,
+				getId: () => undefined,
+				getIds: () => undefined,
 				queryClient: new QueryClient(),
 			}),
 			getProps: () => ({
@@ -641,6 +645,8 @@ describe('createSettledHandler (update-many)', () => {
 				getFetcherName: () => undefined,
 				getInvalidates: () => undefined,
 				getResource: () => undefined,
+				getId: () => undefined,
+				getIds: () => undefined,
 				queryClient,
 			}),
 			getProps: () => ({
