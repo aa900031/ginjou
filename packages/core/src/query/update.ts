@@ -6,7 +6,7 @@ import type { Notify } from '../notification'
 import type { Publish } from '../realtime'
 import type { BaseRecord, Params, UpdateOneFn, UpdateOneProps, UpdateOneResult } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
-import type { InvalidatesProps, InvalidateTargetValues, ResolvedInvalidatesProps } from './invalidate'
+import type { Rule as InvalidateRule, Props as InvalidatesProps, Invalidator } from './invalidate'
 import type { MutationModeProps, ResolvedMutationModeProps } from './mutation-mode'
 import type { NotifyProps } from './notify'
 import type { OptimisticUpdateProps } from './optimistic-update'
@@ -20,7 +20,7 @@ import { getFetcherFn, resolveFetcherProps } from './fetchers'
 import { createBaseQueryKey as genBaseGetListQueryKey } from './get-list'
 import { createBaseQueryKey as genBaseGetManyQueryKey } from './get-many'
 import { createQueryKey as genGetOneQueryKey } from './get-one'
-import { InvalidateTarget, resolveInvalidateProps, triggerInvalidates } from './invalidate'
+import { Target as InvalidateTarget } from './invalidate'
 import { MutationMode, resolveMutationModeProps } from './mutation-mode'
 import { createProgressNotifyParams, resolveErrorNotifyParams, resolveSuccessNotifyParams } from './notify'
 import { createModifyListItemUpdaterFn, createModifyManyUpdaterFn, createModifyOneUpdaterFn, createOptimisticUpdaterFn, shouldApplyOptimisticUpdate } from './optimistic-update'
@@ -34,7 +34,7 @@ export type MutationProps<
 > = Simplify<
 	& Partial<UpdateOneProps<TParams>>
 	& FetcherProps
-	& InvalidatesProps
+	& InvalidatesProps<UpdateOneResult<TData>>
 	& NotifyProps<UpdateOneResult<TData>, UpdateOneProps<TParams>, TError>
 	& MutationModeProps
 	& OptimisticUpdateProps<TData, TParams, UpdateOneProps<TParams>['id']>
@@ -50,7 +50,6 @@ export type ResolvedMutationProps<
 		UpdateOneProps<TParams>
 	>
 	& ResolvedFetcherProps
-	& ResolvedInvalidatesProps
 	& ResolvedMutationModeProps
 >
 
@@ -250,7 +249,7 @@ export interface CreateSettledHandlerProps<
 	TError,
 	TParams extends Params,
 > {
-	queryClient: QueryClient
+	invalidate: Invalidator<UpdateOneResult<TData>>
 	getProps: () => Props<TData, TError, TParams> | undefined
 	onSettled: MutationOptions<TData, TError, TParams>['onSettled']
 }
@@ -261,7 +260,7 @@ export function createSettledHandler<
 	TParams extends Params,
 >(
 	{
-		queryClient,
+		invalidate,
 		getProps,
 		onSettled: onSettledFromProp,
 	}: CreateSettledHandlerProps<TData, TError, TParams>,
@@ -275,7 +274,9 @@ export function createSettledHandler<
 	) {
 		const resolvedProps = resolveMutationProps(getProps(), props)
 
-		await triggerInvalidates(resolvedProps, data, queryClient)
+		await invalidate(resolvedProps, { data }).catch((error) => {
+			console.error('[@ginjou/core] Failed to invalidate queries.', error)
+		})
 
 		await onSettledFromProp?.(data, error, resolvedProps, onMutateResult, context)
 	}
@@ -458,7 +459,7 @@ function createPublishEvent(
 	}
 }
 
-const DEFAULT_INVALIDATES: InvalidateTargetValues[] = [
+const DEFAULT_INVALIDATES: InvalidateRule[] = [
 	InvalidateTarget.List,
 	InvalidateTarget.Many,
 	InvalidateTarget.One,
@@ -476,7 +477,7 @@ function resolveMutationProps<
 	const result: ResolvedMutationProps<TData, TError, TParams> = {
 		...props,
 		...resolveFetcherProps(props),
-		...resolveInvalidateProps(props, DEFAULT_INVALIDATES),
+		invalidates: props.invalidates ?? DEFAULT_INVALIDATES,
 		...resolveMutationModeProps(props),
 	}
 

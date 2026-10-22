@@ -10,3 +10,19 @@ export function getErrorMessage(
 			return error.name
 	}
 }
+
+export function isNotFoundError(
+	error: unknown,
+): boolean {
+	if (typeof error !== 'object' || error == null)
+		return false
+
+	const { status, statusCode, response } = error as {
+		status?: unknown
+		statusCode?: unknown
+		response?: { status?: unknown }
+	}
+	return status === 404
+		|| statusCode === 404
+		|| response?.status === 404
+}

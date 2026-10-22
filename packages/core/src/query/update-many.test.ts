@@ -4,6 +4,7 @@ import { AbortDefer } from '../utils/defer'
 import { createQueryKey as createGetListQueryKey } from './get-list'
 import { createQueryKey as createGetManyQueryKey } from './get-many'
 import { createQueryKey as createGetOneQueryKey } from './get-one'
+import { createInvalidator } from './invalidate'
 import { MutationMode } from './mutation-mode'
 import { createErrorHandler, createMutateAsyncFn, createMutateFn, createMutateHandler, createMutationFn, createSettledHandler, createSuccessHandler } from './update-many'
 
@@ -565,12 +566,89 @@ describe('createMutateHandler (update-many)', () => {
 })
 
 describe('createSettledHandler (update-many)', () => {
-	it('should trigger invalidates and call onSettled with resolved props', async () => {
-		const queryClient = new QueryClient()
-		const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
+	it('ignores missing result records when collecting ids', async () => {
+		const resolveInvalidates = vi.fn(() => [])
+		const handler = createSettledHandler({
+			invalidate: createInvalidator<any>({
+				getFetcherName: () => undefined,
+				getInvalidates: () => undefined,
+				getResource: () => undefined,
+				getId: () => undefined,
+				getIds: () => undefined,
+				queryClient: new QueryClient(),
+			}),
+			getProps: () => ({
+				resource: 'posts',
+				ids: [1, 2],
+				params: { status: 'draft' },
+				invalidates: resolveInvalidates,
+			}),
+			onSettled: undefined,
+		})
+
+		await expect(handler({ data: [undefined, { id: 2 }] } as any, null, {} as any, undefined as any, {} as any)).resolves.toBeUndefined()
+
+		expect(resolveInvalidates).toHaveBeenCalledWith({ ids: [2, 1], data: { data: [undefined, { id: 2 }] } })
+	})
+
+	it('uses only input ids when the result data is not an array', async () => {
+		const resolveInvalidates = vi.fn(() => [])
 		const onSettled = vi.fn()
 		const handler = createSettledHandler({
-			queryClient,
+			invalidate: createInvalidator<any>({
+				getFetcherName: () => undefined,
+				getInvalidates: () => undefined,
+				getResource: () => undefined,
+				getId: () => undefined,
+				getIds: () => undefined,
+				queryClient: new QueryClient(),
+			}),
+			getProps: () => ({
+				resource: 'posts',
+				ids: [1, 2],
+				params: { status: 'draft' },
+				invalidates: resolveInvalidates,
+			}),
+			onSettled,
+		})
+
+		await expect(handler(
+			{ data: { count: 2 } } as any,
+			null,
+			{} as any,
+			undefined as any,
+			{} as any,
+		)).resolves.toBeUndefined()
+
+		expect(resolveInvalidates).toHaveBeenCalledWith({ ids: [1, 2], data: { data: { count: 2 } } })
+		expect(onSettled).toHaveBeenCalledOnce()
+	})
+
+	it('should apply invalidates and call onSettled with resolved props', async () => {
+		const queryClient = new QueryClient()
+		const keys = {
+			listPosts: ['default', 'posts', 'getList', { pagination: undefined }],
+			manyWithResultId: ['default', 'posts', 'getMany', ['1', '8'], { meta: undefined }],
+			manyWithPropsId: ['default', 'posts', 'getMany', ['3'], { meta: { lang: 'en' } }],
+			manyUnrelated: ['default', 'posts', 'getMany', ['8', '9'], { meta: undefined }],
+			one1: ['default', 'posts', 'getOne', 1, { meta: undefined }],
+			one2: ['default', 'posts', 'getOne', 2, { meta: { lang: 'en' } }],
+			one3: ['default', 'posts', 'getOne', 3, { meta: undefined }],
+			one8: ['default', 'posts', 'getOne', 8, { meta: undefined }],
+		}
+		for (const key of Object.values(keys))
+			queryClient.setQueryData(key, { data: null })
+		const isInvalidated = (key: unknown[]) => queryClient.getQueryState(key)?.isInvalidated ?? false
+		const onSettled = vi.fn()
+		const handler = createSettledHandler({
+			invalidate: createInvalidator<any>({
+				getFetcherName: () => undefined,
+				getInvalidates: () => undefined,
+				getResource: () => undefined,
+				getId: () => undefined,
+				getIds: () => undefined,
+				queryClient,
+			}),
 			getProps: () => ({
 				resource: 'posts',
 				ids: [1],
@@ -587,7 +665,14 @@ describe('createSettledHandler (update-many)', () => {
 			{} as any,
 		)
 
-		expect(invalidateQueries).toHaveBeenCalled()
+		expect(isInvalidated(keys.listPosts)).toBe(true)
+		expect(isInvalidated(keys.manyWithResultId)).toBe(true)
+		expect(isInvalidated(keys.manyWithPropsId)).toBe(true)
+		expect(isInvalidated(keys.manyUnrelated)).toBe(false)
+		expect(isInvalidated(keys.one1)).toBe(true)
+		expect(isInvalidated(keys.one2)).toBe(true)
+		expect(isInvalidated(keys.one3)).toBe(true)
+		expect(isInvalidated(keys.one8)).toBe(false)
 		expect(onSettled).toHaveBeenCalledOnce()
 		expect(onSettled.mock.calls[0]![2]).toMatchObject({
 			resource: 'posts',

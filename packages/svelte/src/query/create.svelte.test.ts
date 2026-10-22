@@ -17,6 +17,13 @@ const mocks = vi.hoisted(() => ({
 }))
 
 vi.mock('@ginjou/core', () => ({
+	QueryInvalidate: {
+		createInvalidator: vi.fn(() => vi.fn()),
+		Target: {
+			List: 'list',
+			Many: 'many',
+		},
+	},
 	CreateOne: {
 		createErrorHandler: mocks.createErrorHandler,
 		createMutateAsyncFn: mocks.createMutateAsyncFn,

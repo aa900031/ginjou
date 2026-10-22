@@ -7,6 +7,7 @@ import {
 	createMutationFn,
 	createSuccessHandler,
 } from './create'
+import { createInvalidator } from './invalidate'
 
 describe('createMutationFn', () => {
 	it('should call createOne with resolved props', async () => {
@@ -74,7 +75,14 @@ describe('createSuccessHandler', () => {
 			notify,
 			translate,
 			publish,
-			queryClient,
+			invalidate: createInvalidator<any>({
+				getFetcherName: () => undefined,
+				getInvalidates: () => undefined,
+				getResource: () => undefined,
+				getId: () => undefined,
+				getIds: () => undefined,
+				queryClient,
+			}),
 			getProps: () => ({
 				resource: 'posts',
 				params: { title: 'from-props' },
@@ -101,7 +109,10 @@ describe('createSuccessHandler', () => {
 			type: 'success',
 		})
 
-		expect(invalidateQueries).toHaveBeenCalled()
+		expect(invalidateQueries.mock.calls.map(([filters]) => filters!.queryKey)).toEqual([
+			['default', 'posts', 'getList'],
+			['default', 'posts', 'getInfiniteList'],
+		])
 		expect(publish).toHaveBeenCalledWith({
 			channel: 'resources/posts',
 			action: 'created',

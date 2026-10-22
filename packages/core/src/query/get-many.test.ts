@@ -133,6 +133,41 @@ describe('createQueryFn', () => {
 		)
 		expect(getMany).toHaveBeenCalledOnce()
 	})
+
+	it('should skip not found records when falling back to getOne', async () => {
+		const getOne = vi.fn(async ({ id }: { id: string }) => {
+			if (id === '2')
+				throw Object.assign(new Error('Not Found'), { statusCode: 404 })
+			return { data: { id } }
+		})
+		const fetchers = { default: { getOne } } as any
+		const queryClient = new QueryClient()
+		const run = (aggregate: boolean) => (createQueryFn({
+			fetchers,
+			queryClient,
+			getProps: () => ({ fetcherName: 'default', resource: 'posts', aggregate, ids: ['1', '2', '3'], meta: undefined }),
+		}) as QueryFunction<GetManyResult<BaseRecord>>)({} as any)
+
+		await expect(run(false)).resolves.toEqual({ data: [{ id: '1' }, { id: '3' }] })
+		await expect(run(true)).resolves.toEqual({ data: [{ id: '1' }, { id: '3' }] })
+	})
+
+	it('should reject other errors when falling back to getOne', async () => {
+		const getOne = vi.fn(async ({ id }: { id: string }) => {
+			if (id === '2')
+				throw Object.assign(new Error('Server Error'), { status: 500 })
+			return { data: { id } }
+		})
+		const fetchers = { default: { getOne } } as any
+		const queryClient = new QueryClient()
+		const queryFn = createQueryFn({
+			fetchers,
+			queryClient,
+			getProps: () => ({ fetcherName: 'default', resource: 'posts', aggregate: false, ids: ['1', '2'], meta: undefined }),
+		}) as QueryFunction<GetManyResult<BaseRecord>>
+
+		await expect(queryFn({} as any)).rejects.toThrow('Server Error')
+	})
 })
 
 describe('createPlaceholderDataFn', () => {
