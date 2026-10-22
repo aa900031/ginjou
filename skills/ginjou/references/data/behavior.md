@@ -57,7 +57,9 @@ A rule is either a target string or an object for an explicit target:
 String `'one'` / `'many'` use the affected IDs, which the invalidation collects
 from the result `data` it receives (one record or a list) plus the `id` / `ids`
 props. Mutations pass both for you; elsewhere pass the IDs as props:
-`invalidate({ resource: 'posts', id: 1, invalidates: ['one'] })`.
+`invalidate({ resource: 'posts', id: 1, invalidates: ['one'] })`. A `data` you
+pass yourself must have the mutation result shape (`{ data: record }` /
+`{ data: records }`); a bare record contributes no IDs.
 Without IDs, `'one'` is skipped with a `console.warn` and `'many'` invalidates
 every many query of the resource. They ignore the mutation's `meta` (it
 describes the write, not the cached reads). Object rules

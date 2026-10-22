@@ -1,4 +1,4 @@
-import type { InvalidateOptions, InvalidateQueryFilters, QueryClient } from '@tanstack/query-core'
+import type { InvalidateOptions, InvalidateQueryFilters, Query, QueryClient } from '@tanstack/query-core'
 import type { Simplify, ValueOf } from 'type-fest'
 import type { Meta, RecordKey } from './fetcher'
 import type { FetcherProps } from './fetchers'
@@ -333,21 +333,19 @@ function mergeQueryFilters(
 	ruleFilters: InvalidateQueryFilters,
 	userFilters: Omit<InvalidateQueryFilters, 'queryKey'>,
 ): InvalidateQueryFilters {
-	// User filters can only narrow a rule: the rule keeps its own queryKey and exact,
-	// and both predicates must match
-	const merged: InvalidateQueryFilters = {
-		...userFilters,
-		...ruleFilters,
-	}
-	if (userFilters.exact != null)
-		merged.exact = ruleFilters.exact ?? false
-
+	// User filters can only narrow a rule: the user `exact` is dropped so the rule's key
+	// matching stays as is, and a user predicate must match together with the rule's
+	const { exact: _exact, predicate: userPredicate, ...restUserFilters } = userFilters
 	const { predicate: rulePredicate } = ruleFilters
-	const { predicate: userPredicate } = userFilters
-	if (rulePredicate != null && userPredicate != null)
-		merged.predicate = query => rulePredicate(query) && userPredicate(query)
+	const predicate = rulePredicate != null && userPredicate != null
+		? (query: Query) => rulePredicate(query) && userPredicate(query)
+		: rulePredicate ?? userPredicate
 
-	return merged
+	return {
+		...restUserFilters,
+		...ruleFilters,
+		...(predicate != null ? { predicate } : {}),
+	}
 }
 
 function warnMissingIds(
