@@ -569,7 +569,7 @@ describe('createSettledHandler (update-many)', () => {
 	it('ignores missing result records when collecting ids', async () => {
 		const resolveInvalidates = vi.fn(() => [])
 		const handler = createSettledHandler({
-			invalidate: createInvalidator<any>({
+			invalidate: createInvalidator<any, any>({
 				getFetcherName: () => undefined,
 				getInvalidates: () => undefined,
 				getResource: () => undefined,
@@ -588,14 +588,14 @@ describe('createSettledHandler (update-many)', () => {
 
 		await expect(handler({ data: [undefined, { id: 2 }] } as any, null, {} as any, undefined as any, {} as any)).resolves.toBeUndefined()
 
-		expect(resolveInvalidates).toHaveBeenCalledWith({ ids: [2, 1], data: { data: [undefined, { id: 2 }] } })
+		expect(resolveInvalidates).toHaveBeenCalledWith(expect.objectContaining({ ids: [2, 1], data: { data: [undefined, { id: 2 }] } }))
 	})
 
 	it('uses only input ids when the result data is not an array', async () => {
 		const resolveInvalidates = vi.fn(() => [])
 		const onSettled = vi.fn()
 		const handler = createSettledHandler({
-			invalidate: createInvalidator<any>({
+			invalidate: createInvalidator<any, any>({
 				getFetcherName: () => undefined,
 				getInvalidates: () => undefined,
 				getResource: () => undefined,
@@ -620,7 +620,7 @@ describe('createSettledHandler (update-many)', () => {
 			{} as any,
 		)).resolves.toBeUndefined()
 
-		expect(resolveInvalidates).toHaveBeenCalledWith({ ids: [1, 2], data: { data: { count: 2 } } })
+		expect(resolveInvalidates).toHaveBeenCalledWith(expect.objectContaining({ ids: [1, 2], data: { data: { count: 2 } } }))
 		expect(onSettled).toHaveBeenCalledOnce()
 	})
 
@@ -641,7 +641,7 @@ describe('createSettledHandler (update-many)', () => {
 		const isInvalidated = (key: unknown[]) => queryClient.getQueryState(key)?.isInvalidated ?? false
 		const onSettled = vi.fn()
 		const handler = createSettledHandler({
-			invalidate: createInvalidator<any>({
+			invalidate: createInvalidator<any, any>({
 				getFetcherName: () => undefined,
 				getInvalidates: () => undefined,
 				getResource: () => undefined,

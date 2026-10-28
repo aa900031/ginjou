@@ -27,6 +27,12 @@ import { createModifyListItemUpdaterFn, createModifyManyUpdaterFn, createModifyO
 import { createPublishMeta, createPublishPayloadByOne } from './publish'
 import { createQueryKey as genResourceQueryKey } from './resource'
 
+export const DEFAULT_INVALIDATES: InvalidateRule[] = [
+	InvalidateTarget.List,
+	InvalidateTarget.Many,
+	InvalidateTarget.One,
+]
+
 export type MutationProps<
 	TData extends BaseRecord,
 	TError,
@@ -34,7 +40,7 @@ export type MutationProps<
 > = Simplify<
 	& Partial<UpdateOneProps<TParams>>
 	& FetcherProps
-	& InvalidatesProps<UpdateOneResult<TData>>
+	& InvalidatesProps<UpdateOneProps<TParams>, UpdateOneResult<TData>>
 	& NotifyProps<UpdateOneResult<TData>, UpdateOneProps<TParams>, TError>
 	& MutationModeProps
 	& OptimisticUpdateProps<TData, TParams, UpdateOneProps<TParams>['id']>
@@ -249,7 +255,7 @@ export interface CreateSettledHandlerProps<
 	TError,
 	TParams extends Params,
 > {
-	invalidate: Invalidator<UpdateOneResult<TData>>
+	invalidate: Invalidator<UpdateOneProps<TParams>, UpdateOneResult<TData>>
 	getProps: () => Props<TData, TError, TParams> | undefined
 	onSettled: MutationOptions<TData, TError, TParams>['onSettled']
 }
@@ -274,7 +280,13 @@ export function createSettledHandler<
 	) {
 		const resolvedProps = resolveMutationProps(getProps(), props)
 
-		await invalidate(resolvedProps, { data }).catch((error) => {
+		await invalidate(resolvedProps, {
+			mutate: 'update',
+			event: 'settled',
+			props: resolvedProps,
+			data,
+			error,
+		}).catch((error) => {
 			console.error('[@ginjou/core] Failed to invalidate queries.', error)
 		})
 
@@ -458,12 +470,6 @@ function createPublishEvent(
 		meta,
 	}
 }
-
-const DEFAULT_INVALIDATES: InvalidateRule[] = [
-	InvalidateTarget.List,
-	InvalidateTarget.Many,
-	InvalidateTarget.One,
-]
 
 function resolveMutationProps<
 	TData extends BaseRecord,

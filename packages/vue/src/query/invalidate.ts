@@ -6,22 +6,24 @@ import { unref } from 'vue-demi'
 import { useQueryClientContext } from './query-client'
 
 export type UseQueryInvalidateProps<
+	TProps = unknown,
 	TData = unknown,
 > = Simplify<
-	ToMaybeRefs<QueryInvalidate.Props<TData>>
+	ToMaybeRefs<QueryInvalidate.Props<TProps, TData>>
 >
 
 export type UseQueryInvalidateContext = UseQueryClientContextProps
 
 export function useQueryInvalidate<
+	TProps = unknown,
 	TData = unknown,
 >(
-	props?: UseQueryInvalidateProps<TData>,
+	props?: UseQueryInvalidateProps<TProps, TData>,
 	context?: UseQueryInvalidateContext,
-): QueryInvalidate.Invalidator<TData> {
+): QueryInvalidate.Invalidator<TProps, TData> {
 	const queryClient = useQueryClientContext(context)
 
-	return QueryInvalidate.createInvalidator<TData>({
+	return QueryInvalidate.createInvalidator<TProps, TData>({
 		getFetcherName: () => unref(props?.fetcherName),
 		getInvalidates: () => unref(props?.invalidates),
 		getResource: () => unref(props?.resource),

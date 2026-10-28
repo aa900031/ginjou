@@ -5,21 +5,23 @@ import { extract } from '../utils'
 import { useQueryClientContext } from './query-client'
 
 export type UseQueryInvalidateProps<
+	TProps = unknown,
 	TData = unknown,
-> = MaybeAccessor<QueryInvalidate.Props<TData> | undefined>
+> = MaybeAccessor<QueryInvalidate.Props<TProps, TData> | undefined>
 
 export type UseQueryInvalidateContext = UseQueryClientContextProps
 
 export function useQueryInvalidate<
+	TProps = unknown,
 	TData = unknown,
 >(
-	props?: UseQueryInvalidateProps<TData>,
+	props?: UseQueryInvalidateProps<TProps, TData>,
 	context?: UseQueryInvalidateContext,
-): QueryInvalidate.Invalidator<TData> {
+): QueryInvalidate.Invalidator<TProps, TData> {
 	const queryClient = useQueryClientContext(context)
 	const resolvedProps = $derived(extract(props))
 
-	return QueryInvalidate.createInvalidator<TData>({
+	return QueryInvalidate.createInvalidator<TProps, TData>({
 		getFetcherName: () => resolvedProps?.fetcherName,
 		getInvalidates: () => resolvedProps?.invalidates,
 		getResource: () => resolvedProps?.resource,

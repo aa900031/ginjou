@@ -191,7 +191,7 @@ describe('createSettledHandler (update)', () => {
 		const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
 		const onSettled = vi.fn()
 		const handler = createSettledHandler({
-			invalidate: createInvalidator<any>({
+			invalidate: createInvalidator<any, any>({
 				getFetcherName: () => undefined,
 				getInvalidates: () => undefined,
 				getResource: () => undefined,
@@ -235,7 +235,7 @@ describe('createSettledHandler (update)', () => {
 			{ target: 'one' as const, resource: 'posts', id: data!.data.id },
 		])
 		const handler = createSettledHandler({
-			invalidate: createInvalidator<any>({
+			invalidate: createInvalidator<any, any>({
 				getFetcherName: () => undefined,
 				getInvalidates: () => undefined,
 				getResource: () => undefined,
@@ -261,8 +261,12 @@ describe('createSettledHandler (update)', () => {
 		)
 
 		expect(invalidates).toHaveBeenCalledWith({
-			ids: [3, 1],
+			mutate: 'update',
+			event: 'settled',
+			props: expect.objectContaining({ resource: 'posts', id: 1, params: { title: 'from-props' } }),
 			data: { data: { id: 3, title: 'Updated' } },
+			error: null,
+			ids: [3, 1],
 		})
 		expect(invalidateQueries).toHaveBeenCalledOnce()
 		expect(queryClient.getQueryState(one3Key)?.isInvalidated).toBe(true)

@@ -142,7 +142,8 @@ await invalidate({
 (`useQueryInvalidate({ resource: 'posts', invalidates: ['list'] })`) or per call;
 supplying neither rejects. Same for `resource` on every target but `all`.
 Hook props (`resource`, `fetcherName`, `invalidates`, `id`, `ids`) are defaults;
-the same fields passed per call override them.
+the same fields passed per call override them. `id` and `ids` override as one
+group: passing either per call drops both hook-level ones.
 
 ## Rules
 

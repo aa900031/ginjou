@@ -1,4 +1,4 @@
-import type { BaseRecord, Params, UpdateOneResult } from '@ginjou/core'
+import type { BaseRecord, Params, UpdateOneProps, UpdateOneResult } from '@ginjou/core'
 import type { UseMutationReturnType } from '@tanstack/vue-query'
 import type { OverrideProperties, Simplify } from 'type-fest'
 import type { UseCheckErrorContext } from '../auth'
@@ -69,7 +69,7 @@ export function useUpdateOne<
 	const notify = useNotify(context)
 	const translate = useTranslate(context)
 	const publish = usePublish(context)
-	const invalidate = useQueryInvalidate<UpdateOneResult<TData>>(undefined, context)
+	const invalidate = useQueryInvalidate<UpdateOneProps<TParams>, UpdateOneResult<TData>>(undefined, context)
 	const { mutateAsync: checkError } = useCheckError<TError>(undefined, context)
 
 	const mutationFn = UpdateOne.createMutationFn({

@@ -1,9 +1,9 @@
-import type { InvalidateOptions, InvalidateQueryFilters, Query, QueryClient } from '@tanstack/query-core'
+import type { InvalidateOptions, InvalidateQueryFilters, Query, QueryClient, QueryKey } from '@tanstack/query-core'
 import type { Simplify, ValueOf } from 'type-fest'
 import type { Meta, RecordKey } from './fetcher'
 import type { FetcherProps } from './fetchers'
 import { partialMatchKey } from '@tanstack/query-core'
-import { isEqual, uniqBy } from 'es-toolkit'
+import { uniq } from 'es-toolkit'
 import { resolveFetcherProps } from './fetchers'
 import { createBaseQueryKey as genBaseGetInfiniteListQueryKey } from './get-infinite-list'
 import { createBaseQueryKey as genBaseGetListQueryKey } from './get-list'
@@ -21,21 +21,22 @@ export const Target = {
 
 export type TargetValues = ValueOf<typeof Target>
 
-export type RuleForOne = {
-	target: typeof Target.One
-	resource?: string
-	fetcherName?: string
-	meta?: Meta
-} & (
-	| {
+export type RuleIds
+	= | {
 		id: RecordKey
 		ids?: never
 	}
 	| {
 		id?: never
-		ids: RecordKey[]
+		ids?: RecordKey[]
 	}
-)
+
+export type RuleForOne = {
+	target: typeof Target.One
+	resource?: string
+	fetcherName?: string
+	meta?: Meta
+} & RuleIds
 
 // eslint-disable-next-line ts/consistent-type-definitions
 export type RuleForAll = {
@@ -57,14 +58,12 @@ export type RuleForList = {
 	fetcherName?: string
 }
 
-// eslint-disable-next-line ts/consistent-type-definitions
 export type RuleForMany = {
 	target: typeof Target.Many
 	resource?: string
-	ids?: RecordKey[]
 	fetcherName?: string
 	meta?: Meta
-}
+} & RuleIds
 
 export type Rule
 	= | TargetValues
@@ -83,22 +82,35 @@ export type RuleOptions
 			filters?: Omit<InvalidateQueryFilters, 'queryKey'>
 		}
 
+export type MutateType = 'create' | 'update' | 'delete'
+
+export type EventType = 'success' | 'settled'
+
 export interface Context<
+	TProps,
 	TData,
 > {
+	mutate?: MutateType
+	event?: EventType
+	props?: TProps
 	data?: TData
+	error?: unknown
 }
 
 export type ResolveFn<
+	TProps,
 	TData,
 > = (
-	context: {
-		ids: RecordKey[]
-		data?: TData
-	},
+	context: Simplify<
+		& Context<TProps, TData>
+		& {
+			ids: RecordKey[]
+		}
+	>,
 ) => RuleOptions
 
 export type Props<
+	TProps,
 	TData,
 > = Simplify<
 	& FetcherProps
@@ -108,25 +120,27 @@ export type Props<
 		ids?: RecordKey[]
 		invalidates?:
 			| RuleOptions
-			| ResolveFn<TData>
+			| ResolveFn<TProps, TData>
 	}
 >
 
 export type Invalidator<
+	TProps,
 	TData,
 > = (
-	props?: Props<TData>,
-	context?: Context<TData>,
+	props?: Props<TProps, TData>,
+	context?: Context<TProps, TData>,
 ) => Promise<void>
 
 export interface CreateInvalidatorProps<
+	TProps,
 	TData,
 > {
-	getInvalidates: () => Props<TData>['invalidates']
-	getFetcherName: () => Props<TData>['fetcherName']
-	getResource: () => Props<TData>['resource']
-	getId: () => Props<TData>['id']
-	getIds: () => Props<TData>['ids']
+	getInvalidates: () => Props<TProps, TData>['invalidates']
+	getFetcherName: () => Props<TProps, TData>['fetcherName']
+	getResource: () => Props<TProps, TData>['resource']
+	getId: () => Props<TProps, TData>['id']
+	getIds: () => Props<TProps, TData>['ids']
 	queryClient: QueryClient
 }
 
@@ -140,6 +154,7 @@ const DEFAULT_INVALIDATE_OPTIONS: InvalidateOptions = {
 }
 
 export function createInvalidator<
+	TProps,
 	TData,
 >(
 	{
@@ -149,8 +164,8 @@ export function createInvalidator<
 		getId,
 		getIds,
 		queryClient,
-	}: CreateInvalidatorProps<TData>,
-): Invalidator<TData> {
+	}: CreateInvalidatorProps<TProps, TData>,
+): Invalidator<TProps, TData> {
 	return async function invalidator(
 		propsFromFn,
 		context,
@@ -158,17 +173,19 @@ export function createInvalidator<
 		const resource = propsFromFn?.resource ?? getResource()
 		const fetcherName = propsFromFn?.fetcherName ?? getFetcherName()
 		const invalidatesOption = propsFromFn?.invalidates ?? getInvalidates()
-		const ids = uniqBy([
+		// `id` and `ids` are one group: when the call passes either, the hook-level ones are not used
+		const hasIdsFromFn = propsFromFn?.id != null || propsFromFn?.ids != null
+		const ids = uniq([
 			...getDataIds(context?.data),
-			...(propsFromFn?.ids ?? getIds() ?? []),
-			propsFromFn?.id ?? getId(),
-		].filter(id => id != null), String)
+			...((hasIdsFromFn ? propsFromFn?.ids : getIds()) ?? []),
+			hasIdsFromFn ? propsFromFn?.id : getId(),
+		].filter(id => id != null))
 
 		if (invalidatesOption == null)
 			throw new Error('[@ginjou/core] `invalidates` is required to invalidate queries.')
 
 		const invalidates = typeof invalidatesOption === 'function'
-			? invalidatesOption({ ids, data: context?.data })
+			? invalidatesOption({ ...context, ids })
 			: invalidatesOption
 
 		const ruleOptions = Array.isArray(invalidates) || invalidates === false
@@ -223,7 +240,7 @@ function resolveRuleFilters(
 		rule,
 		resource: resourceFromProps,
 		fetcherName: fetcherNameFromProps,
-		ids: idsFromContext,
+		ids: affectedIds,
 	}: ResolveRuleFiltersProps,
 ): InvalidateQueryFilters[] {
 	const target = typeof rule === 'string' ? rule : rule.target
@@ -259,58 +276,27 @@ function resolveRuleFilters(
 			]
 		case Target.Many: {
 			const baseQueryKey = genBaseGetManyQueryKey({ props: { fetcherName, resource: resource! } })
-			if (typeof rule === 'string') {
-				// Without ids, invalidate every many query of the resource
-				if (idsFromContext.length === 0)
-					return [{ queryKey: baseQueryKey }]
-
-				const affectedIds = new Set(idsFromContext.map(String))
-				return [{
-					queryKey: baseQueryKey,
-					predicate: query => (query.queryKey[3] as string[] | undefined)
-						?.some(id => affectedIds.has(id)) ?? false,
-				}]
-			}
-
-			const { ids, meta } = rule as RuleForMany
-			if (ids == null) {
-				return [meta != null
-					? { queryKey: baseQueryKey, predicate: query => partialMatchKey([query.queryKey[4]], [{ meta }]) }
-					: { queryKey: baseQueryKey }]
-			}
+			const { ids, meta } = resolveRuleScope(rule, affectedIds)
+			if (ids == null)
+				return [createResourceFilters(baseQueryKey, meta)]
 			if (ids.length === 0)
 				return []
 
-			// Arrays in a query key match by prefix, so compare ids exactly and only match meta as a subset
-			const idsKey = ids.map(String)
+			// getMany keys store ids as strings
+			const idSet = new Set(ids.map(String))
 			return [{
 				queryKey: baseQueryKey,
-				predicate: query => isEqual(query.queryKey[3], idsKey)
+				predicate: query => ((query.queryKey[3] as string[] | undefined)?.some(id => idSet.has(id)) ?? false)
 					&& (meta == null || partialMatchKey([query.queryKey[4]], [{ meta }])),
 			}]
 		}
 		case Target.One: {
-			let ids: RecordKey[]
-			let meta: Meta | undefined
-			if (typeof rule === 'string') {
-				ids = idsFromContext
-				if (ids.length === 0) {
-					warnMissingIds(target)
-					return []
-				}
-			}
-			else {
-				const id = 'id' in rule ? rule.id : undefined
-				const ruleIds = 'ids' in rule ? rule.ids : undefined
-				if ((id != null) === Array.isArray(ruleIds))
-					throw new Error('[@ginjou/core] Exactly one of `id` or `ids` is required to invalidate one queries.')
-
-				ids = id != null ? [id] : ruleIds!
-				meta = (rule as RuleForOne).meta
-			}
+			const baseQueryKey = genBaseGetOneQueryKey({ props: { fetcherName, resource: resource! } })
+			const { ids, meta } = resolveRuleScope(rule, affectedIds)
+			if (ids == null)
+				return [createResourceFilters(baseQueryKey, meta)]
 
 			// Object key parts match as a subset, so a rule meta also matches queries with more meta fields
-			const baseQueryKey = genBaseGetOneQueryKey({ props: { fetcherName, resource: resource! } })
 			return ids.map(id => ({
 				queryKey: meta != null ? [...baseQueryKey, id, { meta }] : [...baseQueryKey, id],
 			}))
@@ -348,8 +334,33 @@ function mergeQueryFilters(
 	}
 }
 
-function warnMissingIds(
-	target: TargetValues,
-): void {
-	console.warn(`[@ginjou/core] No \`id\` or \`ids\` to invalidate, skipped the \`${target}\` rule. Pass \`id\` / \`ids\` or use \`{ target: '${target}', id }\`.`)
+function resolveRuleScope(
+	rule: Rule,
+	affectedIds: RecordKey[],
+): { ids: RecordKey[] | undefined, meta: Meta | undefined } {
+	// A string rule uses the affected ids; without any, it covers the whole resource
+	if (typeof rule === 'string') {
+		return {
+			ids: affectedIds.length > 0 ? affectedIds : undefined,
+			meta: undefined,
+		}
+	}
+
+	const { id, ids, meta } = rule as { id?: RecordKey, ids?: RecordKey[], meta?: Meta }
+	if (id != null && ids != null)
+		throw new Error('[@ginjou/core] Use either `id` or `ids` in an invalidate rule, not both.')
+
+	return {
+		ids: id != null ? [id] : ids,
+		meta,
+	}
+}
+
+function createResourceFilters(
+	baseQueryKey: QueryKey,
+	meta: Meta | undefined,
+): InvalidateQueryFilters {
+	return meta != null
+		? { queryKey: baseQueryKey, predicate: query => partialMatchKey([query.queryKey[4]], [{ meta }]) }
+		: { queryKey: baseQueryKey }
 }

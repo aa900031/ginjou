@@ -1,4 +1,4 @@
-import type { BaseRecord, DeleteOneResult, Params } from '@ginjou/core'
+import type { BaseRecord, DeleteOneProps, DeleteOneResult, Params } from '@ginjou/core'
 import type { UseMutationReturnType } from '@tanstack/vue-query'
 import type { OverrideProperties, Simplify } from 'type-fest'
 import type { UseCheckErrorContext } from '../auth'
@@ -69,7 +69,7 @@ export function useDeleteOne<
 	const notify = useNotify(context)
 	const translate = useTranslate(context)
 	const publish = usePublish(context)
-	const invalidate = useQueryInvalidate<DeleteOneResult<TData>>(undefined, context)
+	const invalidate = useQueryInvalidate<DeleteOneProps<TParams>, DeleteOneResult<TData>>(undefined, context)
 	const { mutateAsync: checkError } = useCheckError<TError>(undefined, context)
 
 	const mutationFn = DeleteOne.createMutationFn({
