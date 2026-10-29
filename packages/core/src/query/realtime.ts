@@ -27,7 +27,7 @@ export function getSubscribeChannel(
 export interface CreateSubscribeCallbackProps<
 	TPayload,
 > {
-	invalidate: Invalidator<unknown, unknown>
+	invalidate: Invalidator<undefined, undefined, undefined>
 	getRealtimeOptions: () => RealtimeOption.Normalized<TPayload>
 	getResource: () => string
 	getFetcherName: () => string

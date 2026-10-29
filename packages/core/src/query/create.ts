@@ -6,7 +6,7 @@ import type { Notify } from '../notification'
 import type { Publish } from '../realtime'
 import type { BaseRecord, CreateOneFn, CreateOneProps, CreateOneResult, Params } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
-import type { Rule as InvalidateRule, Props as InvalidatesProps, Invalidator } from './invalidate'
+import type { Rule as InvalidateRule, InvalidatesProps, Invalidator } from './invalidate'
 import type { NotifyProps } from './notify'
 import type { PublishPayload } from './publish'
 import type { OptionalMutateAsyncFunction, OptionalMutateSyncFunction, OriginMutateAsyncFunction, OriginMutateSyncFunction } from './types'
@@ -29,7 +29,7 @@ export type MutationProps<
 > = Simplify<
 	& Partial<CreateOneProps<TParams>>
 	& FetcherProps
-	& InvalidatesProps<CreateOneProps<TParams>, CreateOneResult<TData>>
+	& InvalidatesProps<CreateOneProps<TParams>, CreateOneResult<TData>, TError>
 	& NotifyProps<CreateOneResult<TData>, CreateOneProps<TParams>, TError>
 >
 
@@ -130,7 +130,7 @@ export interface CreateSuccessHandlerProps<
 	notify: Notify.Fn
 	translate: Translate.Fn<any>
 	publish: Publish.EmitFn<PublishPayload>
-	invalidate: Invalidator<CreateOneProps<TParams>, CreateOneResult<TData>>
+	invalidate: Invalidator<CreateOneProps<TParams>, CreateOneResult<TData>, TError>
 	getProps: () => Props<TData, TError, TParams> | undefined
 	onSuccess: MutationOptions<TData, TError, TParams>['onSuccess']
 }
@@ -163,10 +163,12 @@ export function createSuccessHandler<
 		)
 
 		await invalidate(resolvedProps, {
-			mutate: 'create',
-			event: 'success',
-			props: resolvedProps,
-			data,
+			mutation: {
+				type: 'create',
+				event: 'success',
+				props: resolvedProps,
+				data,
+			},
 		}).catch((error) => {
 			console.error('[@ginjou/core] Failed to invalidate queries.', error)
 		})

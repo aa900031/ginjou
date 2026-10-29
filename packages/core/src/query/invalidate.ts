@@ -84,63 +84,84 @@ export type RuleOptions
 
 export type MutateType = 'create' | 'update' | 'delete'
 
-export type EventType = 'success' | 'settled'
+export type MutationEventType = 'success' | 'settled'
 
-export interface Context<
+export interface MutationContext<
 	TProps,
-	TData,
+	TResult,
+	TError,
 > {
-	mutate?: MutateType
-	event?: EventType
-	props?: TProps
-	data?: TData
-	error?: unknown
+	type: MutateType
+	event: MutationEventType
+	props: TProps
+	data?: TResult
+	error?: TError | null
 }
+
+// Without `TProps` the invalidation runs outside a mutation, so `mutation` is never set;
+// with it, `mutation` is always set
+export type Context<
+	TProps,
+	TResult,
+	TError,
+> = [TProps] extends [undefined]
+	? { mutation?: undefined }
+	: { mutation: MutationContext<TProps, TResult, TError> }
 
 export type ResolveFn<
 	TProps,
-	TData,
+	TResult,
+	TError,
 > = (
-	context: Simplify<
-		& Context<TProps, TData>
-		& {
-			ids: RecordKey[]
-		}
-	>,
+	context: Context<TProps, TResult, TError>,
 ) => RuleOptions
+
+export interface InvalidatesProps<
+	TProps,
+	TResult,
+	TError,
+> {
+	invalidates?:
+		| RuleOptions
+		| ResolveFn<TProps, TResult, TError>
+}
 
 export type Props<
 	TProps,
-	TData,
+	TResult,
+	TError,
 > = Simplify<
 	& FetcherProps
+	& InvalidatesProps<TProps, TResult, TError>
 	& {
 		resource?: string
 		id?: RecordKey
 		ids?: RecordKey[]
-		invalidates?:
-			| RuleOptions
-			| ResolveFn<TProps, TData>
 	}
 >
 
 export type Invalidator<
 	TProps,
-	TData,
+	TResult,
+	TError,
 > = (
-	props?: Props<TProps, TData>,
-	context?: Context<TProps, TData>,
+	props?: Props<TProps, TResult, TError>,
+	// The context is required when the callback expects a mutation context
+	...context: [TProps] extends [undefined]
+		? [context?: Context<TProps, TResult, TError>]
+		: [context: Context<TProps, TResult, TError>]
 ) => Promise<void>
 
 export interface CreateInvalidatorProps<
 	TProps,
-	TData,
+	TResult,
+	TError,
 > {
-	getInvalidates: () => Props<TProps, TData>['invalidates']
-	getFetcherName: () => Props<TProps, TData>['fetcherName']
-	getResource: () => Props<TProps, TData>['resource']
-	getId: () => Props<TProps, TData>['id']
-	getIds: () => Props<TProps, TData>['ids']
+	getInvalidates: () => Props<TProps, TResult, TError>['invalidates']
+	getFetcherName: () => Props<TProps, TResult, TError>['fetcherName']
+	getResource: () => Props<TProps, TResult, TError>['resource']
+	getId: () => Props<TProps, TResult, TError>['id']
+	getIds: () => Props<TProps, TResult, TError>['ids']
 	queryClient: QueryClient
 }
 
@@ -155,7 +176,8 @@ const DEFAULT_INVALIDATE_OPTIONS: InvalidateOptions = {
 
 export function createInvalidator<
 	TProps,
-	TData,
+	TResult,
+	TError,
 >(
 	{
 		getInvalidates,
@@ -164,11 +186,11 @@ export function createInvalidator<
 		getId,
 		getIds,
 		queryClient,
-	}: CreateInvalidatorProps<TProps, TData>,
-): Invalidator<TProps, TData> {
+	}: CreateInvalidatorProps<TProps, TResult, TError>,
+): Invalidator<TProps, TResult, TError> {
 	return async function invalidator(
-		propsFromFn,
-		context,
+		propsFromFn?: Props<TProps, TResult, TError>,
+		context?: Context<TProps, TResult, TError>,
 	) {
 		const resource = propsFromFn?.resource ?? getResource()
 		const fetcherName = propsFromFn?.fetcherName ?? getFetcherName()
@@ -176,7 +198,7 @@ export function createInvalidator<
 		// `id` and `ids` are one group: when the call passes either, the hook-level ones are not used
 		const hasIdsFromFn = propsFromFn?.id != null || propsFromFn?.ids != null
 		const ids = uniq([
-			...getDataIds(context?.data),
+			...getDataIds(context?.mutation?.data),
 			...((hasIdsFromFn ? propsFromFn?.ids : getIds()) ?? []),
 			hasIdsFromFn ? propsFromFn?.id : getId(),
 		].filter(id => id != null))
@@ -185,7 +207,7 @@ export function createInvalidator<
 			throw new Error('[@ginjou/core] `invalidates` is required to invalidate queries.')
 
 		const invalidates = typeof invalidatesOption === 'function'
-			? invalidatesOption({ ...context, ids })
+			? invalidatesOption((context ?? {}) as Context<TProps, TResult, TError>)
 			: invalidatesOption
 
 		const ruleOptions = Array.isArray(invalidates) || invalidates === false

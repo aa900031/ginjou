@@ -72,7 +72,7 @@ describe('createSuccessHandler', () => {
 			notify: vi.fn(),
 			translate: vi.fn((key: string) => key),
 			publish: vi.fn(),
-			invalidate: createInvalidator<any, any>({
+			invalidate: createInvalidator<any, any, any>({
 				getFetcherName: () => undefined,
 				getInvalidates: () => undefined,
 				getResource: () => undefined,
@@ -92,11 +92,12 @@ describe('createSuccessHandler', () => {
 		await handler(data as any, {} as any, undefined as any, {} as any)
 
 		expect(invalidates).toHaveBeenCalledWith({
-			mutate: 'create',
-			event: 'success',
-			props: expect.objectContaining({ resource: 'posts', params: { title: 'Created' } }),
-			data,
-			ids: [1],
+			mutation: {
+				type: 'create',
+				event: 'success',
+				props: expect.objectContaining({ resource: 'posts', params: { title: 'Created' } }),
+				data,
+			},
 		})
 	})
 
@@ -115,7 +116,7 @@ describe('createSuccessHandler', () => {
 			notify,
 			translate,
 			publish,
-			invalidate: createInvalidator<any, any>({
+			invalidate: createInvalidator<any, any, any>({
 				getFetcherName: () => undefined,
 				getInvalidates: () => undefined,
 				getResource: () => undefined,

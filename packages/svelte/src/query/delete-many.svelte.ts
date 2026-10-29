@@ -68,7 +68,7 @@ export function useDeleteMany<
 	const notify = useNotify(context)
 	const translate = useTranslate(context)
 	const publish = usePublish(context)
-	const invalidate = useQueryInvalidate<DeleteManyProps<TParams>, DeleteManyResult<TData>>(undefined, context)
+	const invalidate = useQueryInvalidate<DeleteManyProps<TParams>, DeleteManyResult<TData>, TError>(undefined, context)
 	const { mutateAsync: checkError } = useCheckError<TError>(undefined, context)
 
 	const resolvedProps = $derived(extract(props))

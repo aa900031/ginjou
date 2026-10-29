@@ -117,7 +117,7 @@ describe('createSuccessHandler', () => {
 			notify,
 			translate,
 			publish,
-			invalidate: createInvalidator<any, any>({
+			invalidate: createInvalidator<any, any, any>({
 				getFetcherName: () => undefined,
 				getInvalidates: () => undefined,
 				getResource: () => undefined,

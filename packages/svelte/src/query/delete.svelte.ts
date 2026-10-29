@@ -68,7 +68,7 @@ export function useDeleteOne<
 	const notify = useNotify(context)
 	const translate = useTranslate(context)
 	const publish = usePublish(context)
-	const invalidate = useQueryInvalidate<DeleteOneProps<TParams>, DeleteOneResult<TData>>(undefined, context)
+	const invalidate = useQueryInvalidate<DeleteOneProps<TParams>, DeleteOneResult<TData>, TError>(undefined, context)
 	const { mutateAsync: checkError } = useCheckError<TError>(undefined, context)
 
 	const resolvedProps = $derived(extract(props))

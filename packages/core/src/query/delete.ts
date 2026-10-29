@@ -6,7 +6,7 @@ import type { Notify } from '../notification'
 import type { Publish } from '../realtime'
 import type { BaseRecord, DeleteOneFn, DeleteOneProps, DeleteOneResult, Params } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
-import type { Rule as InvalidateRule, Props as InvalidatesProps, Invalidator } from './invalidate'
+import type { Rule as InvalidateRule, InvalidatesProps, Invalidator } from './invalidate'
 import type { MutationModeProps, ResolvedMutationModeProps } from './mutation-mode'
 import type { NotifyProps } from './notify'
 import type { OptimisticUpdateProps } from './optimistic-update'
@@ -39,7 +39,7 @@ export type MutationProps<
 > = Simplify<
 	& Partial<DeleteOneProps<TParams>>
 	& FetcherProps
-	& InvalidatesProps<DeleteOneProps<TParams>, DeleteOneResult<TData>>
+	& InvalidatesProps<DeleteOneProps<TParams>, DeleteOneResult<TData>, TError>
 	& NotifyProps<DeleteOneResult<TData>, DeleteOneProps<TParams>, TError>
 	& MutationModeProps
 	& OptimisticUpdateProps<TData, TParams | undefined, DeleteOneProps<TParams>['id']>
@@ -260,7 +260,7 @@ export interface CreateSettledHandlerProps<
 	TError,
 	TParams extends Params,
 > {
-	invalidate: Invalidator<DeleteOneProps<TParams>, DeleteOneResult<TData>>
+	invalidate: Invalidator<DeleteOneProps<TParams>, DeleteOneResult<TData>, TError>
 	getProps: () => Props<TData, TError, TParams> | undefined
 	onSettled: MutationOptions<TData, TError, TParams>['onSettled']
 }
@@ -286,11 +286,13 @@ export function createSettledHandler<
 		const resolvedProps = resolveMutationProps(getProps(), props)
 
 		await invalidate(resolvedProps, {
-			mutate: 'delete',
-			event: 'settled',
-			props: resolvedProps,
-			data,
-			error,
+			mutation: {
+				type: 'delete',
+				event: 'settled',
+				props: resolvedProps,
+				data,
+				error,
+			},
 		}).catch((error) => {
 			console.error('[@ginjou/core] Failed to invalidate queries.', error)
 		})

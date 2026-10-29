@@ -61,9 +61,7 @@ Object rules take `id` **or** `ids`, never both (that throws).
 String `'one'` / `'many'` use the affected IDs, which the invalidation collects
 from the result `data` it receives (one record or a list) plus the `id` / `ids`
 props. Mutations pass both for you; elsewhere pass the IDs as props:
-`invalidate({ resource: 'posts', id: 1, invalidates: ['one'] })`. A `data` you
-pass yourself must have the mutation result shape (`{ data: record }` /
-`{ data: records }`); a bare record contributes no IDs. They ignore the
+`invalidate({ resource: 'posts', id: 1, invalidates: ['one'] })`. They ignore the
 mutation's `meta` (it describes the write, not the cached reads). Object rules
 fall back to the mutation's `fetcherName`; with `meta` they match queries whose
 `meta` contains those fields (subset: `{ lang: 'en' }` also matches
@@ -95,21 +93,25 @@ import { UpdateOne } from '@ginjou/core'
 invalidates: [...UpdateOne.DEFAULT_INVALIDATES, { target: 'resource', resource: 'comments' }]
 ```
 
-A callback gets one context object:
+A callback gets one context object `{ mutation }`. `mutation` is always set in
+mutation composables and `undefined` in `useQueryInvalidate`:
 
-- `ids` — the affected IDs
-- `mutate` — `'create'`, `'update'` or `'delete'`
+- `type` — `'create'`, `'update'` or `'delete'`
 - `event` — `'success'` (create) or `'settled'` (update / delete)
-- `props` — the resolved mutation props, e.g. `props.params.authorId`
+- `props` — the resolved mutation props, e.g. `mutation.props.params.authorId`
 - `data` — the mutation result; `undefined` when an update / delete failed
 - `error` — the error of a failed update / delete
 
 Create runs it on success only; update / delete run it once the mutation
-settles, success **or** failure — guard `data` (`data ? [...] : []`) or check
-`error`. An error thrown while invalidating does not fail the mutation — it is
-logged with `console.error` and that invalidation is skipped.
-Use `data` or `props` to target related records, e.g.
-`{ target: 'one', resource: 'authors', id: props.params.authorId }`. Every rule
+settles, success **or** failure — guard `mutation.data` (`mutation.data?.…`) or
+check `mutation.error`. An error thrown while invalidating does not fail the
+mutation — it is logged with `console.error` and that invalidation is skipped.
+That includes a throw from the callback itself: the spread defaults are
+skipped with it, so a failed update / delete refreshes nothing and an
+optimistic / undoable change can stay on screen. Keep the callback safe for
+the failure case.
+Use `mutation.data` or `mutation.props` to target related records, e.g.
+`{ target: 'one', resource: 'authors', id: mutation.props.params.authorId }`. Every rule
 must be valid — all rules are checked before any runs, so one invalid rule
 (e.g. `{ target: 'one', id: 1, ids: [2] }`) cancels the whole invalidation,
 defaults included.
@@ -118,6 +120,9 @@ Any of these can also be `{ rules, filters?, options? }` (callbacks may
 return it too). `filters` / `options` are TanStack `invalidateQueries`
 filters (minus `queryKey`) and options; each **replaces** its default
 (`{ type: 'all', refetchType: 'active' }` / `{ cancelRefetch: false }`) entirely.
+`options: { throwOnError: true }` alone drops `cancelRefetch: false`, so
+TanStack's `cancelRefetch: true` cancels in-flight refetches; write
+`{ cancelRefetch: false, throwOnError: true }` to keep it.
 
 Outside a mutation, use `useQueryInvalidate` (see the framework leaf).
 

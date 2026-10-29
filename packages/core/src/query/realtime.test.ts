@@ -10,7 +10,7 @@ describe('createSubscribeCallback', () => {
 		const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
 		const callback = vi.fn()
 		const subscribeCallback = createSubscribeCallback({
-			invalidate: createInvalidator({
+			invalidate: createInvalidator<undefined, undefined, undefined>({
 				getFetcherName: () => undefined,
 				getInvalidates: () => undefined,
 				getResource: () => undefined,

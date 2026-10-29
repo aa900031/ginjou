@@ -69,7 +69,7 @@ export function useUpdateMany<
 	const notify = useNotify(context)
 	const translate = useTranslate(context)
 	const publish = usePublish(context)
-	const invalidate = useQueryInvalidate<UpdateManyProps<TParams>, UpdateManyResult<TData>>(undefined, context)
+	const invalidate = useQueryInvalidate<UpdateManyProps<TParams>, UpdateManyResult<TData>, TError>(undefined, context)
 	const { mutateAsync: checkError } = useCheckError<TError>(undefined, context)
 
 	const mutationFn = UpdateMany.createMutationFn({
