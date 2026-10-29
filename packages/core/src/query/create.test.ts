@@ -1,3 +1,4 @@
+import type { Rule } from './invalidate'
 import { QueryClient } from '@tanstack/query-core'
 import { describe, expect, it, vi } from 'vitest'
 import {
@@ -6,7 +7,9 @@ import {
 	createMutateFn,
 	createMutationFn,
 	createSuccessHandler,
+	DEFAULT_INVALIDATES,
 } from './create'
+import { createInvalidator } from './invalidate'
 
 describe('createMutationFn', () => {
 	it('should call createOne with resolved props', async () => {
@@ -63,6 +66,45 @@ describe('createMutationFn', () => {
 })
 
 describe('createSuccessHandler', () => {
+	it('should pass the mutation context to the invalidates callback', async () => {
+		const invalidates = vi.fn((): Rule[] => [...DEFAULT_INVALIDATES])
+		const handler = createSuccessHandler({
+			notify: vi.fn(),
+			translate: vi.fn((key: string) => key),
+			publish: vi.fn(),
+			invalidate: createInvalidator<any, any, any>({
+				getFetcherName: () => undefined,
+				getInvalidates: () => undefined,
+				getResource: () => undefined,
+				getId: () => undefined,
+				getIds: () => undefined,
+				queryClient: new QueryClient(),
+			}),
+			getProps: () => ({
+				resource: 'posts',
+				params: { title: 'Created' },
+				invalidates,
+			}),
+			onSuccess: undefined,
+		})
+		const data = { data: { id: 1, title: 'Created' } }
+
+		await handler(data as any, {} as any, undefined as any, {} as any)
+
+		expect(invalidates).toHaveBeenCalledWith({
+			mutation: {
+				type: 'create',
+				event: 'success',
+				props: expect.objectContaining({ resource: 'posts', params: { title: 'Created' } }),
+				data,
+			},
+		})
+	})
+
+	it('should export the default invalidation rules', () => {
+		expect(DEFAULT_INVALIDATES).toEqual(['list'])
+	})
+
 	it('should notify, publish, invalidate, and call onSuccess with resolved props', async () => {
 		const queryClient = new QueryClient()
 		const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
@@ -74,7 +116,14 @@ describe('createSuccessHandler', () => {
 			notify,
 			translate,
 			publish,
-			queryClient,
+			invalidate: createInvalidator<any, any, any>({
+				getFetcherName: () => undefined,
+				getInvalidates: () => undefined,
+				getResource: () => undefined,
+				getId: () => undefined,
+				getIds: () => undefined,
+				queryClient,
+			}),
 			getProps: () => ({
 				resource: 'posts',
 				params: { title: 'from-props' },
@@ -101,7 +150,10 @@ describe('createSuccessHandler', () => {
 			type: 'success',
 		})
 
-		expect(invalidateQueries).toHaveBeenCalled()
+		expect(invalidateQueries.mock.calls.map(([filters]) => filters!.queryKey)).toEqual([
+			['default', 'posts', 'getList'],
+			['default', 'posts', 'getInfiniteList'],
+		])
 		expect(publish).toHaveBeenCalledWith({
 			channel: 'resources/posts',
 			action: 'created',

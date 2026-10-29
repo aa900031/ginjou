@@ -7,6 +7,7 @@ import {
 	createMutationFn,
 	createSuccessHandler,
 } from './create-many'
+import { createInvalidator } from './invalidate'
 
 describe('createMutationFn', () => {
 	it('should call createMany when the fetcher implements it', async () => {
@@ -116,7 +117,14 @@ describe('createSuccessHandler', () => {
 			notify,
 			translate,
 			publish,
-			queryClient,
+			invalidate: createInvalidator<any, any, any>({
+				getFetcherName: () => undefined,
+				getInvalidates: () => undefined,
+				getResource: () => undefined,
+				getId: () => undefined,
+				getIds: () => undefined,
+				queryClient,
+			}),
 			getProps: () => ({
 				resource: 'posts',
 				params: [{ title: 'from-props' }],

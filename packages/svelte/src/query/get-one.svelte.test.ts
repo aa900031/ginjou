@@ -24,6 +24,9 @@ const mocks = vi.hoisted(() => ({
 }))
 
 vi.mock('@ginjou/core', () => ({
+	QueryInvalidate: {
+		createInvalidator: vi.fn(() => vi.fn()),
+	},
 	createSubscribeCallback: mocks.createSubscribeCallback,
 	getSubscribeChannel: mocks.getSubscribeChannel,
 	RealtimeAction: {

@@ -7,6 +7,7 @@ import type { UseNotifyContext } from '../notification'
 import type { UseSubscribeContext } from '../realtime'
 import type { MaybeAccessor } from '../utils'
 import type { UseFetcherContextFromProps } from './fetchers'
+import type { UseQueryInvalidateContext } from './invalidate.svelte'
 import type { UseQueryClientContextProps } from './query-client'
 import { createSubscribeCallback, GetMany, getSubscribeChannel, RealtimeAction } from '@ginjou/core'
 import { createQuery } from '@tanstack/svelte-query'
@@ -17,6 +18,7 @@ import { useNotify } from '../notification'
 import { useRealtimeOptions, useSubscribe } from '../realtime'
 import { extract, unbox, withAccessors } from '../utils'
 import { useFetchersContext } from './fetchers'
+import { useQueryInvalidate } from './invalidate.svelte'
 import { useQueryClientContext } from './query-client'
 
 export type UseGetManyProps<
@@ -34,6 +36,7 @@ export type UseGetManyContext = Simplify<
 	& UseTranslateContext
 	& UseCheckErrorContext
 	& UseSubscribeContext
+	& UseQueryInvalidateContext
 >
 
 export type UseGetManyResult<
@@ -59,6 +62,7 @@ export function useGetMany<
 	const fetchers = useFetchersContext({ ...context, strict: true })
 	const notify = useNotify(context)
 	const translate = useTranslate(context)
+	const invalidate = useQueryInvalidate(undefined, context)
 
 	const resolvedProps = $derived(extract(props))
 	const realtimeOptions = useRealtimeOptions(() => resolvedProps.realtime, context)
@@ -134,7 +138,7 @@ export function useGetMany<
 		realtimeOptions: unbox(realtimeOptions),
 	}))
 	const callback = createSubscribeCallback({
-		queryClient,
+		invalidate,
 		getRealtimeOptions: () => unbox(realtimeOptions),
 		getResource: () => queryProps.resource,
 		getFetcherName: () => queryProps.fetcherName,
