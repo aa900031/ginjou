@@ -33,11 +33,10 @@ describe('createInvalidator', () => {
 		const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
 		const resolveInvalidates = vi.fn((): RuleOptions => ['list'])
 		const invalidate = createInvalidator<unknown, unknown, unknown>({
-			getFetcherName: () => 'primary',
-			getInvalidates: () => undefined,
-			getResource: () => 'posts',
-			getId: () => undefined,
-			getIds: () => undefined,
+			getProps: () => ({
+				fetcherName: 'primary',
+				resource: 'posts',
+			}),
 			queryClient,
 		})
 
@@ -60,11 +59,7 @@ describe('createInvalidator', () => {
 	it('invalidates one queries by id and many queries containing context ids for string rules', async () => {
 		const queryClient = new QueryClient()
 		const invalidate = createInvalidator<undefined, undefined, undefined>({
-			getFetcherName: () => undefined,
-			getInvalidates: () => undefined,
-			getResource: () => undefined,
-			getId: () => undefined,
-			getIds: () => undefined,
+			getProps: () => undefined,
 			queryClient,
 		})
 		const keys = {
@@ -95,11 +90,10 @@ describe('createInvalidator', () => {
 		const queryClient = new QueryClient()
 		const resolveInvalidates = vi.fn((): RuleOptions => ['one'])
 		const invalidate = createInvalidator<unknown, unknown, unknown>({
-			getFetcherName: () => undefined,
-			getInvalidates: () => resolveInvalidates,
-			getResource: () => 'posts',
-			getId: () => undefined,
-			getIds: () => undefined,
+			getProps: () => ({
+				invalidates: resolveInvalidates,
+				resource: 'posts',
+			}),
 			queryClient,
 		})
 		const keys = {
@@ -119,11 +113,9 @@ describe('createInvalidator', () => {
 	it('runs user predicate for string many rule without affected ids', async () => {
 		const queryClient = new QueryClient()
 		const invalidate = createInvalidator<unknown, unknown, unknown>({
-			getFetcherName: () => undefined,
-			getInvalidates: () => undefined,
-			getResource: () => 'posts',
-			getId: () => undefined,
-			getIds: () => undefined,
+			getProps: () => ({
+				resource: 'posts',
+			}),
 			queryClient,
 		})
 		const keys = {
@@ -146,11 +138,9 @@ describe('createInvalidator', () => {
 	it('matches many queries containing any id', async () => {
 		const queryClient = new QueryClient()
 		const invalidate = createInvalidator<undefined, undefined, undefined>({
-			getFetcherName: () => undefined,
-			getInvalidates: () => undefined,
-			getResource: () => 'posts',
-			getId: () => undefined,
-			getIds: () => undefined,
+			getProps: () => ({
+				resource: 'posts',
+			}),
 			queryClient,
 		})
 		const keys = {
@@ -170,11 +160,9 @@ describe('createInvalidator', () => {
 	it('narrows rule matching with the user predicate', async () => {
 		const queryClient = new QueryClient()
 		const invalidate = createInvalidator<undefined, undefined, undefined>({
-			getFetcherName: () => undefined,
-			getInvalidates: () => undefined,
-			getResource: () => 'posts',
-			getId: () => undefined,
-			getIds: () => undefined,
+			getProps: () => ({
+				resource: 'posts',
+			}),
 			queryClient,
 		})
 		const keys = {
@@ -209,11 +197,9 @@ describe('createInvalidator', () => {
 	it('invalidates every many query of the resource without ids', async () => {
 		const queryClient = new QueryClient()
 		const invalidate = createInvalidator<undefined, undefined, undefined>({
-			getFetcherName: () => undefined,
-			getInvalidates: () => undefined,
-			getResource: () => 'posts',
-			getId: () => undefined,
-			getIds: () => undefined,
+			getProps: () => ({
+				resource: 'posts',
+			}),
 			queryClient,
 		})
 		const keys = {
@@ -237,11 +223,9 @@ describe('createInvalidator', () => {
 	it('matches object many rules without ids by meta as a subset', async () => {
 		const queryClient = new QueryClient()
 		const invalidate = createInvalidator<undefined, undefined, undefined>({
-			getFetcherName: () => undefined,
-			getInvalidates: () => undefined,
-			getResource: () => 'posts',
-			getId: () => undefined,
-			getIds: () => undefined,
+			getProps: () => ({
+				resource: 'posts',
+			}),
 			queryClient,
 		})
 		const keys = {
@@ -262,11 +246,9 @@ describe('createInvalidator', () => {
 		const queryClient = new QueryClient()
 		const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
 		const invalidate = createInvalidator<undefined, undefined, undefined>({
-			getFetcherName: () => undefined,
-			getInvalidates: () => undefined,
-			getResource: () => 'posts',
-			getId: () => undefined,
-			getIds: () => undefined,
+			getProps: () => ({
+				resource: 'posts',
+			}),
 			queryClient,
 		})
 
@@ -281,11 +263,7 @@ describe('createInvalidator', () => {
 	it('matches object rules by ids and meta as a subset', async () => {
 		const queryClient = new QueryClient()
 		const invalidate = createInvalidator<undefined, undefined, undefined>({
-			getFetcherName: () => undefined,
-			getInvalidates: () => undefined,
-			getResource: () => undefined,
-			getId: () => undefined,
-			getIds: () => undefined,
+			getProps: () => undefined,
 			queryClient,
 		})
 		const keys = {
@@ -331,11 +309,9 @@ describe('createInvalidator', () => {
 		const queryClient = new QueryClient()
 		const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
 		const invalidate = createInvalidator<undefined, undefined, undefined>({
-			getFetcherName: () => undefined,
-			getInvalidates: () => undefined,
-			getResource: () => 'posts',
-			getId: () => undefined,
-			getIds: () => undefined,
+			getProps: () => ({
+				resource: 'posts',
+			}),
 			queryClient,
 		})
 
@@ -358,11 +334,10 @@ describe('createInvalidator', () => {
 		const queryClient = new QueryClient()
 		const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
 		const invalidate = createInvalidator<undefined, undefined, undefined>({
-			getFetcherName: () => undefined,
-			getInvalidates: () => ({ rules: false }),
-			getResource: () => 'posts',
-			getId: () => undefined,
-			getIds: () => undefined,
+			getProps: () => ({
+				invalidates: ({ rules: false }),
+				resource: 'posts',
+			}),
 			queryClient,
 		})
 
@@ -376,11 +351,9 @@ describe('createInvalidator', () => {
 		const queryClient = new QueryClient()
 		const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
 		const invalidate = createInvalidator<undefined, undefined, undefined>({
-			getFetcherName: () => undefined,
-			getInvalidates: () => undefined,
-			getResource: () => 'posts',
-			getId: () => undefined,
-			getIds: () => undefined,
+			getProps: () => ({
+				resource: 'posts',
+			}),
 			queryClient,
 		})
 
@@ -402,11 +375,9 @@ describe('createInvalidator', () => {
 		const queryClient = new QueryClient()
 		const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
 		const invalidate = createInvalidator<undefined, undefined, undefined>({
-			getFetcherName: () => undefined,
-			getInvalidates: () => ['all'],
-			getResource: () => undefined,
-			getId: () => undefined,
-			getIds: () => undefined,
+			getProps: () => ({
+				invalidates: ['all'],
+			}),
 			queryClient,
 		})
 
@@ -419,11 +390,10 @@ describe('createInvalidator', () => {
 		const queryClient = new QueryClient()
 		const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
 		const invalidate = createInvalidator<undefined, undefined, undefined>({
-			getFetcherName: () => undefined,
-			getInvalidates: () => ['resource'],
-			getResource: () => 'posts',
-			getId: () => undefined,
-			getIds: () => undefined,
+			getProps: () => ({
+				invalidates: ['resource'],
+				resource: 'posts',
+			}),
 			queryClient,
 		})
 
@@ -439,11 +409,9 @@ describe('createInvalidator', () => {
 		const queryClient = new QueryClient()
 		const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
 		const invalidate = createInvalidator<undefined, undefined, undefined>({
-			getFetcherName: () => undefined,
-			getInvalidates: () => undefined,
-			getResource: () => 'posts',
-			getId: () => undefined,
-			getIds: () => undefined,
+			getProps: () => ({
+				resource: 'posts',
+			}),
 			queryClient,
 		})
 
@@ -458,11 +426,9 @@ describe('createInvalidator', () => {
 	it('matches one queries by the raw id value', async () => {
 		const queryClient = new QueryClient()
 		const invalidate = createInvalidator<undefined, undefined, undefined>({
-			getFetcherName: () => undefined,
-			getInvalidates: () => undefined,
-			getResource: () => 'posts',
-			getId: () => undefined,
-			getIds: () => undefined,
+			getProps: () => ({
+				resource: 'posts',
+			}),
 			queryClient,
 		})
 		const keys = {
@@ -482,11 +448,10 @@ describe('createInvalidator', () => {
 	it('uses a single id from props', async () => {
 		const queryClient = new QueryClient()
 		const invalidate = createInvalidator<undefined, undefined, undefined>({
-			getFetcherName: () => undefined,
-			getInvalidates: () => ['one'],
-			getResource: () => 'posts',
-			getId: () => undefined,
-			getIds: () => undefined,
+			getProps: () => ({
+				invalidates: ['one'],
+				resource: 'posts',
+			}),
 			queryClient,
 		})
 		const key = ['default', 'posts', 'getOne', 2, { meta: undefined }]
@@ -501,11 +466,11 @@ describe('createInvalidator', () => {
 		const queryClient = new QueryClient()
 		const resolveInvalidates = vi.fn((): RuleOptions => ['list'])
 		const invalidate = createInvalidator<undefined, undefined, undefined>({
-			getFetcherName: () => 'primary',
-			getInvalidates: () => resolveInvalidates,
-			getResource: () => 'posts',
-			getId: () => undefined,
-			getIds: () => undefined,
+			getProps: () => ({
+				fetcherName: 'primary',
+				invalidates: resolveInvalidates,
+				resource: 'posts',
+			}),
 			queryClient,
 		})
 
@@ -518,11 +483,9 @@ describe('createInvalidator', () => {
 		const queryClient = new QueryClient()
 		const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
 		const invalidate = createInvalidator<undefined, undefined, undefined>({
-			getFetcherName: () => undefined,
-			getInvalidates: () => undefined,
-			getResource: () => 'posts',
-			getId: () => undefined,
-			getIds: () => undefined,
+			getProps: () => ({
+				resource: 'posts',
+			}),
 			queryClient,
 		})
 
@@ -539,11 +502,10 @@ describe('createInvalidator', () => {
 		const queryClient = new QueryClient()
 		const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
 		const invalidate = createInvalidator<undefined, undefined, undefined>({
-			getFetcherName: () => undefined,
-			getInvalidates: () => ['one'],
-			getResource: () => 'posts',
-			getId: () => undefined,
-			getIds: () => undefined,
+			getProps: () => ({
+				invalidates: ['one'],
+				resource: 'posts',
+			}),
 			queryClient,
 		})
 
@@ -556,11 +518,9 @@ describe('createInvalidator', () => {
 		const queryClient = new QueryClient()
 		const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
 		const invalidate = createInvalidator<undefined, undefined, undefined>({
-			getFetcherName: () => undefined,
-			getInvalidates: () => undefined,
-			getResource: () => 'posts',
-			getId: () => undefined,
-			getIds: () => undefined,
+			getProps: () => ({
+				resource: 'posts',
+			}),
 			queryClient,
 		})
 		const emptyManyKey = ['default', 'posts', 'getMany', [], { meta: undefined }]
@@ -574,11 +534,9 @@ describe('createInvalidator', () => {
 
 	it('rejects malformed invalidates with a descriptive error', async () => {
 		const invalidate = createInvalidator<undefined, undefined, undefined>({
-			getFetcherName: () => undefined,
-			getInvalidates: () => undefined,
-			getResource: () => 'posts',
-			getId: () => undefined,
-			getIds: () => undefined,
+			getProps: () => ({
+				resource: 'posts',
+			}),
 			queryClient: new QueryClient(),
 		})
 
@@ -592,11 +550,10 @@ describe('createInvalidator', () => {
 		const queryClient = new QueryClient()
 		const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
 		const invalidate = createInvalidator<unknown, unknown, unknown>({
-			getFetcherName: () => undefined,
-			getInvalidates: () => ['one'],
-			getResource: () => 'posts',
-			getId: () => undefined,
-			getIds: () => undefined,
+			getProps: () => ({
+				invalidates: ['one'],
+				resource: 'posts',
+			}),
 			queryClient,
 		})
 
@@ -611,11 +568,10 @@ describe('createInvalidator', () => {
 		const queryClient = new QueryClient()
 		const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
 		const invalidate = createInvalidator<undefined, undefined, undefined>({
-			getFetcherName: () => undefined,
-			getInvalidates: () => ['one'],
-			getResource: () => 'posts',
-			getId: () => undefined,
-			getIds: () => undefined,
+			getProps: () => ({
+				invalidates: ['one'],
+				resource: 'posts',
+			}),
 			queryClient,
 		})
 
@@ -628,11 +584,12 @@ describe('createInvalidator', () => {
 		const queryClient = new QueryClient()
 		const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
 		const invalidate = createInvalidator<undefined, undefined, undefined>({
-			getFetcherName: () => undefined,
-			getInvalidates: () => ['one'],
-			getResource: () => 'posts',
-			getId: () => 1,
-			getIds: () => [2, 3],
+			getProps: () => ({
+				invalidates: ['one'],
+				resource: 'posts',
+				id: 1,
+				ids: [2, 3],
+			}),
 			queryClient,
 		})
 
@@ -649,11 +606,7 @@ describe('createInvalidator', () => {
 	it('validates required props when executed', async () => {
 		const queryClient = new QueryClient()
 		const invalidate = createInvalidator<undefined, undefined, undefined>({
-			getFetcherName: () => undefined,
-			getInvalidates: () => undefined,
-			getResource: () => undefined,
-			getId: () => undefined,
-			getIds: () => undefined,
+			getProps: () => undefined,
 			queryClient,
 		})
 

@@ -571,11 +571,7 @@ describe('createSettledHandler (update-many)', () => {
 		const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
 		const handler = createSettledHandler({
 			invalidate: createInvalidator<any, any, any>({
-				getFetcherName: () => undefined,
-				getInvalidates: () => undefined,
-				getResource: () => undefined,
-				getId: () => undefined,
-				getIds: () => undefined,
+				getProps: () => undefined,
 				queryClient,
 			}),
 			getProps: () => ({
@@ -598,11 +594,7 @@ describe('createSettledHandler (update-many)', () => {
 		const onSettled = vi.fn()
 		const handler = createSettledHandler({
 			invalidate: createInvalidator<any, any, any>({
-				getFetcherName: () => undefined,
-				getInvalidates: () => undefined,
-				getResource: () => undefined,
-				getId: () => undefined,
-				getIds: () => undefined,
+				getProps: () => undefined,
 				queryClient,
 			}),
 			getProps: () => ({
@@ -644,11 +636,7 @@ describe('createSettledHandler (update-many)', () => {
 		const onSettled = vi.fn()
 		const handler = createSettledHandler({
 			invalidate: createInvalidator<any, any, any>({
-				getFetcherName: () => undefined,
-				getInvalidates: () => undefined,
-				getResource: () => undefined,
-				getId: () => undefined,
-				getIds: () => undefined,
+				getProps: () => undefined,
 				queryClient,
 			}),
 			getProps: () => ({

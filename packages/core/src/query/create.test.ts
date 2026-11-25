@@ -73,11 +73,7 @@ describe('createSuccessHandler', () => {
 			translate: vi.fn((key: string) => key),
 			publish: vi.fn(),
 			invalidate: createInvalidator<any, any, any>({
-				getFetcherName: () => undefined,
-				getInvalidates: () => undefined,
-				getResource: () => undefined,
-				getId: () => undefined,
-				getIds: () => undefined,
+				getProps: () => undefined,
 				queryClient: new QueryClient(),
 			}),
 			getProps: () => ({
@@ -117,11 +113,7 @@ describe('createSuccessHandler', () => {
 			translate,
 			publish,
 			invalidate: createInvalidator<any, any, any>({
-				getFetcherName: () => undefined,
-				getInvalidates: () => undefined,
-				getResource: () => undefined,
-				getId: () => undefined,
-				getIds: () => undefined,
+				getProps: () => undefined,
 				queryClient,
 			}),
 			getProps: () => ({

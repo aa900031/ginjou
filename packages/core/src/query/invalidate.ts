@@ -157,11 +157,7 @@ export interface CreateInvalidatorProps<
 	TResult,
 	TError,
 > {
-	getInvalidates: () => Props<TProps, TResult, TError>['invalidates']
-	getFetcherName: () => Props<TProps, TResult, TError>['fetcherName']
-	getResource: () => Props<TProps, TResult, TError>['resource']
-	getId: () => Props<TProps, TResult, TError>['id']
-	getIds: () => Props<TProps, TResult, TError>['ids']
+	getProps: () => Props<TProps, TResult, TError> | undefined
 	queryClient: QueryClient
 }
 
@@ -180,11 +176,7 @@ export function createInvalidator<
 	TError,
 >(
 	{
-		getInvalidates,
-		getFetcherName,
-		getResource,
-		getId,
-		getIds,
+		getProps,
 		queryClient,
 	}: CreateInvalidatorProps<TProps, TResult, TError>,
 ): Invalidator<TProps, TResult, TError> {
@@ -192,15 +184,18 @@ export function createInvalidator<
 		propsFromFn?: Props<TProps, TResult, TError>,
 		context?: Context<TProps, TResult, TError>,
 	) {
-		const resource = propsFromFn?.resource ?? getResource()
-		const fetcherName = propsFromFn?.fetcherName ?? getFetcherName()
-		const invalidatesOption = propsFromFn?.invalidates ?? getInvalidates()
+		const propsFromProps = getProps()
+		const resource = propsFromFn?.resource ?? propsFromProps?.resource
+		const fetcherName = propsFromFn?.fetcherName ?? propsFromProps?.fetcherName
+		const invalidatesOption = propsFromFn?.invalidates ?? propsFromProps?.invalidates
 		// `id` and `ids` are one group: when the call passes either, the hook-level ones are not used
-		const hasIdsFromFn = propsFromFn?.id != null || propsFromFn?.ids != null
+		const idsSource = propsFromFn?.id != null || propsFromFn?.ids != null
+			? propsFromFn
+			: propsFromProps
 		const ids = uniq([
 			...getDataIds(context?.mutation?.data),
-			...((hasIdsFromFn ? propsFromFn?.ids : getIds()) ?? []),
-			hasIdsFromFn ? propsFromFn?.id : getId(),
+			...(idsSource?.ids ?? []),
+			idsSource?.id,
 		].filter(id => id != null))
 
 		if (invalidatesOption == null)

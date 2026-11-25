@@ -11,11 +11,7 @@ describe('createSubscribeCallback', () => {
 		const callback = vi.fn()
 		const subscribeCallback = createSubscribeCallback({
 			invalidate: createInvalidator<undefined, undefined, undefined>({
-				getFetcherName: () => undefined,
-				getInvalidates: () => undefined,
-				getResource: () => undefined,
-				getId: () => undefined,
-				getIds: () => undefined,
+				getProps: () => undefined,
 				queryClient,
 			}),
 			getRealtimeOptions: () => ({ mode: RealtimeMode.Auto, callback }),

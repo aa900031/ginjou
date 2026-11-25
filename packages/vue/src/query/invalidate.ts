@@ -26,11 +26,15 @@ export function useQueryInvalidate<
 	const queryClient = useQueryClientContext(context)
 
 	return QueryInvalidate.createInvalidator<TProps, TResult, TError>({
-		getFetcherName: () => unref(props?.fetcherName),
-		getInvalidates: () => unref(props?.invalidates),
-		getResource: () => unref(props?.resource),
-		getId: () => unref(props?.id),
-		getIds: () => unref(props?.ids),
+		getProps: () => props == null
+			? undefined
+			: {
+					fetcherName: unref(props.fetcherName),
+					invalidates: unref(props.invalidates),
+					resource: unref(props.resource),
+					id: unref(props.id),
+					ids: unref(props.ids),
+				},
 		queryClient,
 	})
 }

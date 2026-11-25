@@ -24,11 +24,7 @@ export function useQueryInvalidate<
 	const resolvedProps = $derived(extract(props))
 
 	return QueryInvalidate.createInvalidator<TProps, TResult, TError>({
-		getFetcherName: () => resolvedProps?.fetcherName,
-		getInvalidates: () => resolvedProps?.invalidates,
-		getResource: () => resolvedProps?.resource,
-		getId: () => resolvedProps?.id,
-		getIds: () => resolvedProps?.ids,
+		getProps: () => resolvedProps,
 		queryClient,
 	})
 }
