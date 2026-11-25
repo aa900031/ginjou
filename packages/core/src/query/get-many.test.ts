@@ -152,12 +152,11 @@ describe('createQueryFn', () => {
 		await expect(run(true)).resolves.toEqual({ data: [{ id: '1' }, { id: '3' }] })
 	})
 
-	it('should reject other errors when falling back to getOne', async () => {
-		const getOne = vi.fn(async ({ id }: { id: string }) => {
-			if (id === '2')
-				throw Object.assign(new Error('Server Error'), { status: 500 })
-			return { data: { id } }
-		})
+	it('should reject other errors without waiting for pending getOne requests', async () => {
+		// `id: '1'` never settles, so this only resolves if the error rejects immediately
+		const getOne = vi.fn(({ id }: { id: string }) => id === '2'
+			? Promise.reject(Object.assign(new Error('Server Error'), { status: 500 }))
+			: new Promise(() => {}))
 		const fetchers = { default: { getOne } } as any
 		const queryClient = new QueryClient()
 		const queryFn = createQueryFn({

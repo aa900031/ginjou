@@ -7,7 +7,7 @@ import type { Notify } from '../notification'
 import type { RealtimeOption, SubscribeManyParams } from '../realtime'
 import type { QueryEnabledFn } from '../utils/query'
 import type { PromiseResolvePair, ResolveArgsResult } from './aggregate'
-import type { BaseRecord, GetManyFn, GetManyProps, GetManyResult, GetOneFn, GetOneResult } from './fetcher'
+import type { BaseRecord, GetManyFn, GetManyProps, GetManyResult, GetOneFn, GetOneResult, RecordKey } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { NotifyProps } from './notify'
 import type { RealtimeProps } from './realtime'
@@ -348,16 +348,20 @@ async function execGetMany<
 		return (getMany as GetManyFn<TData>)(props, context)
 
 	const getOne = getFetcherFn(props, fetchers, 'getOne') as GetOneFn<TData>
-	const results = await Promise.allSettled(props.ids.map(id => getOne({ ...props, id }, context)))
-	const data: TData[] = []
-	for (const result of results) {
-		if (result.status === 'fulfilled')
-			data.push(result.value.data)
-		else if (!isNotFoundError(result.reason))
-			throw result.reason
+	const getRecord = async (id: RecordKey): Promise<TData | undefined> => {
+		try {
+			const result = await getOne({ ...props, id }, context)
+			return result.data
+		}
+		catch (error) {
+			if (isNotFoundError(error))
+				return undefined
+			throw error
+		}
 	}
+	const records = await Promise.all(props.ids.map(getRecord))
 
-	return { data }
+	return { data: records.filter(record => record !== undefined) }
 }
 
 type ExecGetManyArgs = Parameters<typeof execGetMany>
