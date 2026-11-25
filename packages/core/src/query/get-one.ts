@@ -10,6 +10,7 @@ import type { BaseRecord, GetOneFn, GetOneProps, GetOneResult } from './fetcher'
 import type { FetcherProps, Fetchers, ResolvedFetcherProps } from './fetchers'
 import type { NotifyProps } from './notify'
 import type { RealtimeProps } from './realtime'
+import type { ResourceQueryProps } from './resource'
 import { NotificationType } from '../notification'
 import { SubscribeType } from '../realtime'
 import { getErrorMessage } from '../utils/error'
@@ -77,6 +78,21 @@ export type Props<
 	}
 >
 
+export interface CreateBaseQueryKeyProps {
+	props: ResourceQueryProps
+}
+
+export function createBaseQueryKey(
+	{
+		props,
+	}: CreateBaseQueryKeyProps,
+): QueryKey {
+	return [
+		...genResourceQueryKey({ props }),
+		'getOne',
+	]
+}
+
 export interface CreateQueryKeyProps {
 	props: ResolvedQueryProps
 }
@@ -89,8 +105,7 @@ export function createQueryKey(
 	const { id, meta } = props
 
 	return [
-		...genResourceQueryKey({ props }),
-		'getOne',
+		...createBaseQueryKey({ props }),
 		id,
 		{ meta },
 	]

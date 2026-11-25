@@ -72,6 +72,7 @@ after it. Open `<dir>/vue.md` or `<dir>/svelte.md` for your framework; add
 | Create/update/delete outside a page | `useCreateOne` / `useUpdateOne` / `useDeleteOne` | `data/` | ✓ |
 | Bulk create/update/delete | `useCreateMany` / `useUpdateMany` / `useDeleteMany` | `data/` | ✓ |
 | Non-resource read / write | `useCustom` / `useCustomMutation` | `data/` | ✓ |
+| Invalidate caches outside a mutation | `useQueryInvalidate` | `data/` | ✓ |
 | Navigate (after save, breadcrumbs) | `defineRouterContext` · `useGo` / `useBack` / `useNavigateTo` | `router/` | ✓ |
 | Hold navigation (unsaved form, live session, recording) | `useRouteBlocker` / `useWarnUnsaved` | `router/` + `forms/` | ✓ |
 | Routes ↔ resources, route inference | `defineControllerContext` · `useResource` / `useResourcePath` | `resources/` | ✓ |

@@ -1,4 +1,4 @@
-import type { BaseRecord, DeleteOneResult, Params } from '@ginjou/core'
+import type { BaseRecord, DeleteOneProps, DeleteOneResult, Params } from '@ginjou/core'
 import type { CreateMutationResult } from '@tanstack/svelte-query'
 import type { OverrideProperties, Simplify } from 'type-fest'
 import type { UseCheckErrorContext } from '../auth'
@@ -7,6 +7,7 @@ import type { UseNotifyContext } from '../notification'
 import type { UsePublishContext } from '../realtime'
 import type { MaybeAccessor } from '../utils'
 import type { UseFetcherContextFromProps } from './fetchers'
+import type { UseQueryInvalidateContext } from './invalidate.svelte'
 import type { UseQueryClientContextProps } from './query-client'
 import { DeleteOne } from '@ginjou/core'
 import { createMutation } from '@tanstack/svelte-query'
@@ -16,6 +17,7 @@ import { useNotify } from '../notification'
 import { usePublish } from '../realtime'
 import { extract, withAccessors } from '../utils'
 import { useFetchersContext } from './fetchers'
+import { useQueryInvalidate } from './invalidate.svelte'
 import { useQueryClientContext } from './query-client'
 
 export type UseDeleteOneProps<
@@ -33,6 +35,7 @@ export type UseDeleteOneContext = Simplify<
 	& UseTranslateContext
 	& UseCheckErrorContext
 	& UsePublishContext
+	& UseQueryInvalidateContext
 >
 
 export type UseDeleteOneResult<
@@ -65,6 +68,7 @@ export function useDeleteOne<
 	const notify = useNotify(context)
 	const translate = useTranslate(context)
 	const publish = usePublish(context)
+	const invalidate = useQueryInvalidate<DeleteOneProps<TParams>, DeleteOneResult<TData>, TError>(undefined, context)
 	const { mutateAsync: checkError } = useCheckError<TError>(undefined, context)
 
 	const resolvedProps = $derived(extract(props))
@@ -83,7 +87,7 @@ export function useDeleteOne<
 		onMutate: (...args) => resolvedProps?.mutationOptions?.onMutate?.(...args),
 	})
 	const handleSettled = DeleteOne.createSettledHandler<TData, TError, TParams>({
-		queryClient,
+		invalidate,
 		getProps,
 		onSettled: (...args) => resolvedProps?.mutationOptions?.onSettled?.(...args),
 	})

@@ -318,6 +318,53 @@ function prepare(n) {
 	console.log(`      node ${join(here, 'run-eval.mjs')} finalize ${n}`)
 }
 
+function aggregate(iterDir) {
+	const runs = findGradingFiles(iterDir).map((f) => {
+		const g = JSON.parse(readFileSync(f, 'utf8'))
+		const [dirName, arm] = f.replace(`${iterDir}/`, '').split('/')
+		return {
+			case: dirName,
+			arm,
+			passed: g.summary.passed,
+			total: g.summary.total,
+			pass_rate: g.summary.pass_rate,
+			verdict: g.summary.verdict,
+			contamination_clean: g.contamination.clean,
+		}
+	})
+
+	const groups = {}
+	for (const r of runs) (groups[r.arm] ??= []).push(r)
+
+	const summary = Object.entries(groups).map(([arm, rs]) => {
+		const rates = rs.map(r => r.pass_rate)
+		const mean = rates.reduce((a, b) => a + b, 0) / rates.length
+		const variance = rates.length > 1
+			? rates.reduce((a, b) => a + (b - mean) ** 2, 0) / (rates.length - 1)
+			: 0
+		return { arm, runs: rs.length, pass_rate: mean, stdev: Math.sqrt(variance) }
+	})
+
+	writeFileSync(join(iterDir, 'benchmark.json'), `${JSON.stringify({ skill: 'ginjou', summary, runs }, null, '\t')}\n`)
+
+	const pct = n => `${(n * 100).toFixed(1)}%`
+	writeFileSync(join(iterDir, 'benchmark.md'), [
+		'# ginjou skill benchmark',
+		'',
+		'| Group | pass_rate | runs |',
+		'| --- | --- | --- |',
+		...summary.map(g => `| ${g.arm} | ${pct(g.pass_rate)} ± ${pct(g.stdev)} | ${g.runs} |`),
+		'',
+		'| Case | Arm | Score | Verdict | Clean |',
+		'| --- | --- | --- | --- | --- |',
+		...runs.map(r => `| ${r.case} | ${r.arm} | ${r.passed}/${r.total} | ${r.verdict} | ${r.contamination_clean ? '✓' : '✗'} |`),
+		'',
+	].join('\n'))
+
+	for (const g of summary)
+		console.log(`  ${g.arm}: ${pct(g.pass_rate)} ± ${pct(g.stdev)} (${g.runs} runs)`)
+}
+
 function finalize(n) {
 	const iterDir = join(skillSelfDir, `iteration-${n}`)
 	if (!existsSync(iterDir)) {
@@ -337,6 +384,13 @@ function finalize(n) {
 	}
 
 	console.log('\n→ aggregating benchmark…')
+	if (!existsSync(maintainScripts)) {
+		aggregate(iterDir)
+		console.log(`\n⚠ maintain-skill not installed at ${maintainScripts} — review.html skipped.`)
+		console.log(`✓ done. Read ${iterDir}/benchmark.md`)
+		return
+	}
+
 	execSync(`node ${maintainScripts}/aggregate-benchmark.mjs ${iterDir} --skill-name ginjou`, { stdio: 'inherit' })
 
 	console.log('→ generating review…')

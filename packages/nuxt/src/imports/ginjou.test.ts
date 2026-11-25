@@ -25,6 +25,7 @@ const ginjouComposableNames = [
 	'useGetManyByOne',
 	'useGetOne',
 	'useInfiniteList',
+	'useQueryInvalidate',
 	'useList',
 	'useLogin',
 	'useLogout',

@@ -62,7 +62,7 @@ jobs:
         uses: aa900031/github-actions/setup-node@main
 
       - name: Run benchmark test
-        uses: CodSpeedHQ/action@v4
+        uses: CodSpeedHQ/action@v5
         with:
-          mode: instrumentation
+          mode: simulation
           run: pnpm vitest bench
